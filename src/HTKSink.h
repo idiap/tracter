@@ -4,6 +4,7 @@
  *
  * See the file COPYING for the licence associated with this software.
  */
+
 #ifndef HTKSINK_H
 #define HTKSINK_H
 

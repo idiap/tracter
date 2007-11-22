@@ -1,3 +1,10 @@
+/*
+ * Copyright 2007 by IDIAP Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
+
 #ifndef SUBTRACT_H
 #define SUBTRACT_H
 

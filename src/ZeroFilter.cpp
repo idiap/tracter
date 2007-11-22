@@ -1,3 +1,10 @@
+/*
+ * Copyright 2007 by IDIAP Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
+
 #include "ZeroFilter.h"
 
 ZeroFilter::ZeroFilter(Plugin<float>* iInput, const char* iObjectName)

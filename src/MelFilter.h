@@ -1,3 +1,10 @@
+/*
+ * Copyright 2007 by IDIAP Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
+
 #ifndef MELFILTER_H
 #define MELFILTER_H
 
