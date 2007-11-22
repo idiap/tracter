@@ -2,7 +2,7 @@
 #include "CachedPlugin.h"
 #include "FileSource.h"
 #include "Normalise.h"
-#include "HTKFile.h"
+#include "HTKSource.h"
 #include "Delta.h"
 #include "Feature.h"
 #include "ALSASource.h"
@@ -11,98 +11,32 @@
 #include "MelFilter.h"
 #include "Cepstrum.h"
 #include "Mean.h"
+#include "UnarySink.h"
+#include "ArraySink.h"
+#include "LNASource.h"
+#include "ByteOrder.h"
 
-class Sucker : public PluginObject
+class SinkSucker : public UnarySink<float>
 {
 public:
-    Sucker(Plugin<float>* iInput)
+
+    SinkSucker(Plugin<float>* iInput, const char* iObjectName = "SinkSucker")
+        : UnarySink<float>(iInput)
     {
-        assert(iInput);
-        mInput = iInput;
-        mNInputs++;
-        MinSize(mInput, 5);
-    }
-    ~Sucker()
-    {
-        // Recursive delete
-        Delete();
-    }
-    PluginObject* GetInput(int iInput)
-    {
-        assert(iInput == 0);
-        return mInput;
-    }
-    int Process(IndexType iIndex, CacheArea& iOutputArea)
-    {
-        assert(0);
-    }
-    void Suck(int iIndex, int len)
-    {
-        printf("Sucking %d\n", len);
-        CacheArea br;
-        int got = mInput->Read(br, iIndex, len);
-        if (got != len)
-            printf("Asked for %u, got %u\n", len, got);
-        printf("Suck: len %u br %u %u %u\n", len, br.len[0], br.len[1], br.offset);
-        float* f = mInput->GetPointer();
-        int offset = br.offset;
-        for (int i=0; i<br.Length(); i++)
-        {
-            if (i == br.len[0])
-            {
-                offset = 0;
-                printf(" |");
-            }
-            printf(" %u:(%1.2f)", i+iIndex, f[offset++]);
-        }
-        printf("\n");
+        mObjectName = iObjectName;
+        mArraySize = iInput->GetArraySize();
+        MinSize(iInput, 10);
+        ReadAhead(0);
     }
 
-private:
-    Plugin<float>* mInput;
-};
-
-class ArraySucker : public PluginObject
-{
-public:
-    ArraySucker(Plugin<float>* iInput, int iArraySize = 1)
-    {
-        assert(iInput);
-        assert(iArraySize);
-        mInput = iInput;
-        mNInputs++;
-        MinSize(mInput, 5);
-        mArraySize = iArraySize;
-    }
-
-    ~ArraySucker()
-    {
-        // Recursive delete
-        Delete();
-    }
-
-    PluginObject* GetInput(int iInput)
-    {
-        assert(iInput == 0);
-        return mInput;
-    }
-    int Process(IndexType iIndex, CacheArea& iOutputArea)
-    {
-        assert(iIndex >= 0);
-        assert(0);
-    }
-    void Resize(int iSize)
-    {
-        assert(iSize >= 0);
-        assert(0);
-    }
-    void Suck(int iIndex, int len)
+    void Pull(int iIndex, int len)
     {
         CacheArea br;
         int got = mInput->Read(br, iIndex, len);
         if (got != len)
             printf("Asked for %u, got %u\n", len, got);
-        printf("Suck: len %u br %u %u %u\n", len, br.len[0], br.len[1], br.offset);
+        printf("Suck: len %u br %u %u %u\n",
+               len, br.len[0], br.len[1], br.offset);
         int offset = br.offset;
         for (int i=0; i<br.Length(); i++)
         {
@@ -117,15 +51,15 @@ public:
                 printf(" %.3f", f[j]); // * 1.1327);
             printf("...\n");
             printf("  ");
-            for (int j=13; j<18; j++)
+
+            // 39 is actually a bit stupid, but...
+            for (int j=39; j<44; j++)
                 printf(" %.3f", f[j]);
             printf("...\n");
             offset++;
         }
     }
 
-private:
-    Plugin<float>* mInput;
 };
 
 
@@ -133,9 +67,18 @@ int main(int argc, char** argv)
 {
     printf("Feature creature\n");
 
+    setenv("FileSource_SampleFreq", "2000", 1);
+    setenv("Periodogram_FrameSize", "64", 1);
+    setenv("Periodogram_FramePeriod", "32", 1);
+    setenv("Cepstrum_NCepstra", "8", 1);
+    setenv("Cepstrum_C0", "0", 1);
+    setenv("MelFilter_NBins", "10", 1);
+    setenv("MelFilter_LoHertz", "0", 1);
+    setenv("MelFilter_HiHertz", "1000", 1);
+
 #if 1
     FileSource<short>* a = new FileSource<short>;
-    a->Map("testfile.dat");
+    a->Open("testfile.dat");
 #endif
 
 #if 0
@@ -143,33 +86,59 @@ int main(int argc, char** argv)
 #endif
 
     Normalise* n = new Normalise(a);
-    ZeroFilter* zf = new ZeroFilter(n, 0.97);
-    Periodogram* p = new Periodogram(zf, 64, 32);
-    MelFilter* mf = new MelFilter(p, 10, 2000, 0, 1000);
-    Cepstrum* c = new Cepstrum(mf, 8, true);
-    ArraySucker s(c, 9);
-    //Sucker s(z);
+    ZeroFilter* zf = new ZeroFilter(n);
+    Periodogram* p = new Periodogram(zf);
+    MelFilter* mf = new MelFilter(p);
+    Cepstrum* c = new Cepstrum(mf);
+    SinkSucker s(c);
     s.Reset(true);
 
     //a.Start();
-    s.Suck(0, 4);
-    s.Suck(1020, 5);
+    s.Pull(0, 4);
+    s.Pull(1020, 5);
 
-    printf("HTKFile...\n");
-    HTKFile* h = new HTKFile(39);
-    //Delta* d1 = new Delta(h, 39, 2);
-    //Delta* d2 = new Delta(d1, 39, 2);
-    //Feature* f = new Feature(h, 13, d1, 13, d2, 13);
-    Mean* m = new Mean(h, 39);
-    ArraySucker as(m);
+    setenv("DeltaDelta_Theta", "3", 1);
 
-    as.Reset();
-    h->Map("htk/4k0a0101.plp");
-    as.Suck(0, 5);
+    printf("HTKSource...\n");
+    HTKSource* h = new HTKSource();
+    Delta* d1 = new Delta(h);
+    Delta* d2 = new Delta(d1, "DeltaDelta");
+    Feature* f = new Feature(h, d1, d2);
+    //Mean* m = new Mean(h);
+    SinkSucker as(f);
 
     as.Reset();
-    h->Map("htk/4k0a0102.plp");
-    as.Suck(0, 5);
+    h->Open("data/4k0a0101.plp");
+    as.Pull(0, 10);
 
+    as.Reset();
+    h->Open("data/4k0a0102.plp");
+    as.Pull(0, 10);
+
+    printf("ArraySink...\n");
+    FileSource<short>* hh = new FileSource<short>();
+    Normalise* nn = new Normalise(hh);
+    ArraySink fs(nn);
+    hh->Open("testfile.dat");
+    fs.Reset();
+    float* frame;
+    int index = 0;
+    while(fs.GetArray(frame, index++) && index < 10)
+    {
+        printf("%.3f\n", frame[0] * 32768);
+    }
+
+    printf("LNA...\n");
+    LNASource* lna = new LNASource();
+    ArraySink ls(lna);
+    lna->Open("data/NU-1004.zipcode.lna");
+    ls.Reset();
+    index=0;
+    while(ls.GetArray(frame, index++) && index < 10)
+    {
+        printf("%f\n", frame[4]);
+    }
+
+    printf("Done\n");
     return 0;
 }

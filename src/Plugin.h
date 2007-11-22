@@ -13,7 +13,8 @@ class Plugin : public PluginObject
 public:
     virtual ~Plugin<T>()
     {
-        // Nothing to do
+        // A kind of post-hoc check that the next plugin called Connect()
+        assert(mNOutputs > 0);
     }
 
     /**

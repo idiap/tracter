@@ -5,9 +5,7 @@
 #include "CachedPlugin.h"
 
 /**
- * ALSASource
- *
- * Source plugin that reads data from an ALSA device.
+ * @brief Source plugin that reads data from an ALSA device.
  */
 class ALSASource : public CachedPlugin<short>
 {
@@ -17,7 +15,7 @@ public:
     void Start();
 
 protected:
-    virtual int Process(IndexType iIndex, CacheArea& iOutputArea);
+    virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
 private:
     snd_output_t* mOutput;

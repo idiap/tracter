@@ -3,23 +3,20 @@
 
 #include <vector>
 
-#include "CachedPlugin.h"
+#include "UnaryPlugin.h"
 
 /**
  * Plugin to calculate delta features
  */
-class Delta : public CachedPlugin<float>
+class Delta : public UnaryPlugin<float, float>
 {
 public:
-    Delta(Plugin<float>* iInput, int iArraySize, int iTheta);
+    Delta(Plugin<float>* iInput, const char* iObjectName = "Delta");
 
 protected:
-    bool ProcessFrame(IndexType iIndex, int iOffset);
-    virtual void MinSize(int iSize);
-    PluginObject* GetInput(int iInput);
+    bool UnaryFetch(IndexType iIndex, int iOffset);
 
 private:
-    Plugin<float>* mInput;
     int mTheta;
     int mWindow;
     std::vector<float*> mFeature;

@@ -10,14 +10,15 @@ class Feature : public CachedPlugin<float>
 {
 public:
     Feature(
-        Plugin<float>* iStatic, int iNStatic,
-        Plugin<float>* iDelta1, int iNDelta1,
-        Plugin<float>* iDelta2, int iNDelta2
+        Plugin<float>* iStatic,
+        Plugin<float>* iDelta1,
+        Plugin<float>* iDelta2,
+        const char* iObjectName = "Feature"
     );
 
 protected:
     PluginObject* GetInput(int iInput);
-    bool ProcessFrame(IndexType iIndex, int iOffset);
+    bool UnaryFetch(IndexType iIndex, int iOffset);
 
 private:
     Plugin<float>* mStatic;

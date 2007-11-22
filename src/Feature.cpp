@@ -20,33 +20,33 @@ PluginObject* Feature::GetInput(int iInput)
 }
 
 Feature::Feature(
-    Plugin<float>* iStatic, int iNStatic,
-    Plugin<float>* iDelta1, int iNDelta1,
-    Plugin<float>* iDelta2, int iNDelta2
+    Plugin<float>* iStatic,
+    Plugin<float>* iDelta1,
+    Plugin<float>* iDelta2,
+    const char* iObjectName
 )
-    : CachedPlugin<float>(iNStatic + iNDelta1 + iNDelta2)
+    : CachedPlugin<float>()
 {
-    assert(iStatic);
-    assert(iDelta1);
-    assert(iDelta2);
-    assert(iNStatic);
-    assert(iNDelta1);
-    assert(iNDelta2);
+    mObjectName = iObjectName;
+
+    Connect(iStatic);
+    Connect(iDelta1);
+    Connect(iDelta2);
 
     mStatic = iStatic;
     mDelta1 = iDelta1;
     mDelta2 = iDelta2;
-    mNInputs = 3;
 
-    mNStatic = iNStatic;
-    mNDelta1 = iNDelta1;
-    mNDelta2 = iNDelta2;
+    mNStatic = iStatic->GetArraySize();
+    mNDelta1 = iDelta1->GetArraySize();
+    mNDelta2 = iDelta2->GetArraySize();
+    mArraySize = mNStatic + mNDelta1 + mNDelta2;
 
     for (int i=0; i<mNInputs; i++)
         MinSize(GetInput(i), 1);
 }
 
-bool Feature::ProcessFrame(IndexType iIndex, int iOffset)
+bool Feature::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(iOffset >= 0);

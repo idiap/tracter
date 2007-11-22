@@ -7,16 +7,18 @@
 #include "UnaryPlugin.h"
 
 /**
- * Uses the FFTW library to calculate a periodogram (aka power spectral density)
+ * Uses the FFTW library to calculate a periodogram (aka power
+ * spectral density)
  */
 class Periodogram : public UnaryPlugin<float, float>
 {
 public:
-    Periodogram(Plugin<float>* iInput, int iFrameSize, int iFramePeriod);
+    Periodogram(Plugin<float>* iInput,
+                const char* iObjectName = "Periodogram");
     ~Periodogram();
 
 protected:
-    bool ProcessFrame(IndexType iIndex, int iOffset);
+    bool UnaryFetch(IndexType iIndex, int iOffset);
 
 private:
     int mFrameSize;

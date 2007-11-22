@@ -1,15 +1,21 @@
 #include <math.h>
 #include "Cepstrum.h"
 
-Cepstrum::Cepstrum(Plugin<float>* iInput, int iNCepstra, bool iC0)
-    : UnaryPlugin<float, float>(iInput, iNCepstra + (iC0 ? 1 : 0))
+Cepstrum::Cepstrum(
+    Plugin<float>* iInput,
+    const char* iObjectName
+)
+    : UnaryPlugin<float, float>(iInput)
 {
+    mObjectName = iObjectName;
     mNLogData = mInput->GetArraySize();
-    mC0 = iC0;
 
-    assert(iNCepstra > 0);
-    assert(iNCepstra < mNLogData);
-    mNCepstra = iNCepstra;
+    mC0 = GetEnv("C0", 1);
+    mNCepstra = GetEnv("NCepstra", 12);
+    mArraySize = mC0 ? mNCepstra+1 : mNCepstra;
+
+    assert(mNCepstra > 0);
+    assert(mNCepstra < mNLogData);
     MinSize(mInput, 1);
 
     mLogData = (float*)fftwf_malloc(mNLogData * sizeof(float));
@@ -26,7 +32,7 @@ Cepstrum::~Cepstrum()
     fftwf_free(mCepstra);
 }
 
-bool Cepstrum::ProcessFrame(IndexType iIndex, int iOffset)
+bool Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

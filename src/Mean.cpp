@@ -1,16 +1,40 @@
 #include "Mean.h"
 
-Mean::Mean(Plugin<float>* iInput, int iArraySize)
-    : UnaryPlugin<float, float>(iInput, iArraySize)
+Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
+    : UnaryPlugin<float, float>(iInput)
 {
-    assert(iArraySize > 0);
+    mObjectName = iObjectName;
+    mArraySize = iInput->GetArraySize();
+    assert(mArraySize >= 0);
 
-    // Set the input buffer to store everything
-    PluginObject::MinSize(mInput, -1);
+    mMeanType = MEAN_ADAPTIVE;
+
+    if (const char* env = GetEnv("Type", "ADAPTIVE"))
+    {
+        if (strcmp(env, "STATIC") == 0)
+            mMeanType = MEAN_STATIC;
+    }
+
+    switch (mMeanType)
+    {
+    case MEAN_STATIC:
+        // Set the input buffer to store everything
+        PluginObject::MinSize(mInput, -1);
+        break;
+
+    case MEAN_ADAPTIVE:
+        PluginObject::MinSize(mInput, 1);
+        break;
+
+    default:
+        assert(0);
+    }
+
     mMean.resize(mArraySize);
     for (int i=0; i<mArraySize; i++)
         mMean[i] = 0.0;
     mValid = false;
+    SetTimeConstant(0.98);
 }
 
 void Mean::Reset(bool iPropagate)
@@ -24,30 +48,23 @@ void Mean::Reset(bool iPropagate)
     UnaryPlugin<float, float>::Reset(iPropagate);
 }
 
-bool Mean::ProcessFrame(IndexType iIndex, int iOffset)
+bool Mean::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
-    CacheArea inputArea;
-
-    if (!mValid)
+    switch (mMeanType)
     {
-        // Calculate mean over whole input range
-        int frame = 0;
-        while(mInput->Read(inputArea, frame++))
-        {
-            assert(inputArea.Length() == 1);
-            float* p = mInput->GetPointer(inputArea.offset);
-            for (int i=0; i<mArraySize; i++)
-                mMean[i] += p[i];
-        }
-        if (frame - 1 > 0)
-            for (int i=0; i<mArraySize; i++)
-                mMean[i] /= frame - 1;
-        mValid = true;
+    case MEAN_STATIC:
+        if (!mValid)
+            processAll();
+        break;
 
-        printf("Mean got %d frames\n", frame-1);
-        for (int i=0; i<4; i++)
-            printf(" %f", mMean[i]);
+    case MEAN_ADAPTIVE:
+        if (!adaptFrame(iIndex))
+            return false;
+        break;
+
+    default:
+        assert(0);
     }
 
     // Copy to output, which is a bit of a waste if the output is only
@@ -56,6 +73,61 @@ bool Mean::ProcessFrame(IndexType iIndex, int iOffset)
     float* output = GetPointer(iOffset);
     for (int i=0; i<mArraySize; i++)
         output[i] = mMean[i];
+
+    return true;
+}
+
+void Mean::processAll()
+{
+    // Calculate mean over whole input range
+    int frame = 0;
+    CacheArea inputArea;
+    while(mInput->Read(inputArea, frame))
+    {
+        assert(inputArea.Length() == 1);
+        float* p = mInput->GetPointer(inputArea.offset);
+        for (int i=0; i<mArraySize; i++)
+            mMean[i] += p[i];
+        frame++;
+    }
+    if (frame > 0)
+        for (int i=0; i<mArraySize; i++)
+            mMean[i] /= frame;
+    mValid = true;
+
+#if 0
+    printf("Mean got %d frames\n", frame);
+    for (int i=0; i<4; i++)
+        printf(" %f", mMean[i]);
+#endif
+}
+
+bool Mean::adaptFrame(IndexType iIndex)
+{
+    assert(iIndex >= 0);
+
+    CacheArea inputArea;
+    if (mInput->Read(inputArea, iIndex) == 0)
+        return false;
+    assert(inputArea.Length() == 1);
+    float* p = mInput->GetPointer(inputArea.offset);
+    if (mValid)
+    {
+        // Combine the new observation into the mean
+        for (int i=0; i<mArraySize; i++)
+            mMean[i] = mPole * mMean[i] + mElop * p[i];        
+    }
+    else
+    {
+        // Reset the mean to be the observation itself, but divide by
+        // 2 so that the final CMS result is not zero.  That zero
+        // vector at the beginning causes problems in aurora2,
+        // probably becuase the first state of the silence model gets
+        // a much smaller variance.
+        for (int i=0; i<mArraySize; i++)
+            mMean[i] = p[i] / 2.0f;
+        mValid = true;
+    }
 
     return true;
 }

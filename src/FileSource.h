@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "Plugin.h"
+#include "Source.h"
 #include "MMap.h"
 
 /**
@@ -11,14 +12,18 @@
  * Reads raw files as file maps.
  */
 template <class T>
-class FileSource : public Plugin<T>
+class FileSource : public Plugin<T>, public Source
 {
 public:
-    ~FileSource<T>()
+
+    FileSource(const char* iObjectName = "FileSource")
     {
+        Plugin<T>::mObjectName = iObjectName;
+        Plugin<T>::mSampleFreq = Plugin<T>::GetEnv("SampleFreq", 8000.0f);
+        Plugin<T>::mSamplePeriod = 1;
     }
 
-    virtual void Map(const char* iFileName)
+    virtual void Open(const char* iFileName)
     {
         // The file map *is* the cache
         assert(iFileName);
@@ -28,7 +33,6 @@ public:
         Plugin<T>::mTail.offset = 0;
         Plugin<T>::mHead.index = Plugin<T>::mSize;
         Plugin<T>::mHead.offset = 0;
-        printf("FileSource: Mapped size %u\n", mMap.GetSize());
     }
 
     T* GetPointer(int iIndex = 0)
@@ -51,11 +55,10 @@ private:
         return;
     }
 
-    virtual int Process(IndexType iIndex, CacheArea& iOutputArea)
+    virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea)
     {
         // If this gets called by the base, it probably means we're out of data
         assert(iIndex >= 0);
-        printf("File out of data\n");
         return 0;
     }
 };

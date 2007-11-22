@@ -11,13 +11,11 @@
 class MelFilter : public UnaryPlugin<float, float>
 {
 public:
-    MelFilter(
-        Plugin<float>* iInput, int iNBins, float iSampleRate,
-        float iLoHertz, float iHiHertz
-    );
+    MelFilter(Plugin<float>* iInput, const char* iObjectName = "MelFilter");
+    void DumpBins();
 
 protected:
-    bool ProcessFrame(IndexType iIndex, int iOffset);
+    bool UnaryFetch(IndexType iIndex, int iOffset);
 
 private:
     std::vector<int> mBin;   // Mel 'centers' in terms of DFT bins
@@ -25,7 +23,19 @@ private:
 
     float hertzToMel(float iHertz);
     float melToHertz(float iHertz);
-    int hertzToBin(float iHertz, int iNBins, float iHiHertz);
+    int hertzToBin(float iHertz, int iNBins);
+    float binToHertz(int iBin, int iNBins);
+
+    void initAlignedBins();
+    void initSmoothBins();
+    void normaliseBins();
+    float warpHertz(float iHertz, float iAlpha);
+
+    float mLoHertz;
+    float mHiHertz;
+    float mLoWarp;
+    float mHiWarp;
+    float mAlpha;
 };
 
 #endif /* MELFILTER_H */

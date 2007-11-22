@@ -1,23 +1,43 @@
 #include "Normalise.h"
 
-Normalise::Normalise(Plugin<short>* iInput)
+Normalise::Normalise(
+    Plugin<short>* iInput,
+    const char* iObjectName
+)
     : UnaryPlugin<float, short>(iInput)
 {
+    mObjectName = iObjectName;
+    Endian endian = ENDIAN_NATIVE;
+    const char* env = GetEnv("Endian", "NATIVE");
+    if (env)
+    {
+        if (strcmp(env, "BIG") == 0)
+            endian = ENDIAN_BIG;
+        else if (strcmp(env, "LITTLE") == 0)
+            endian = ENDIAN_LITTLE;
+        else if (strcmp(env, "NATIVE") == 0)
+            endian = ENDIAN_NATIVE;
+        else
+        {
+            printf("Normalise: Unknown byte order: %s\n", env);
+            exit(EXIT_FAILURE);
+        }
+    }
+    mByteOrder.SetSource(endian);
 }
 
-void Normalise::MinSize(int iSize)
+void Normalise::MinSize(int iSize, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize);
+    PluginObject::MinSize(iSize, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
-    printf("Normalise: Resizing input to %u\n", iSize);
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize);
+    PluginObject::MinSize(mInput, iSize, 0);
 }
 
-int Normalise::Process(IndexType iIndex, CacheArea& iOutputArea)
+int Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -34,8 +54,14 @@ int Normalise::Process(IndexType iIndex, CacheArea& iOutputArea)
         if (i == iOutputArea.len[0])
             wOffset = 0;
 
-        //printf("Process: %u->%u:(%.1f)\n", rOffset, wOffset, (float)input[rOffset]);
-        output[wOffset++] = (float)input[rOffset++];
+        if (mByteOrder.WrongEndian())
+        {        
+            short s = input[rOffset++];
+            mByteOrder.Swap(&s, 2, 1);
+            output[wOffset++] = (float)s / 32768.0f;
+        }
+        else
+            output[wOffset++] = (float)input[rOffset++] / 32768.0f;
     }
 
     return lenGot;

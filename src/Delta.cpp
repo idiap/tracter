@@ -1,43 +1,18 @@
 #include "Delta.h"
 
-/**
- * MinSize is important as deltas can be chained together.  An
- * acceleration window of 5 requires a delta window of 9 (2 either
- * side of 5).  Um, maybe it's only 7 or 8 if you do the reading
- * cleverly.  Anyway...
- */
-void Delta::MinSize(int iSize)
+Delta::Delta(Plugin<float>* iInput, const char* iObjectName)
+    : UnaryPlugin<float, float>(iInput)
 {
-    // First resize this plugin's cache
-    assert(iSize > 0);
-    PluginObject::MinSize(iSize);
+    mObjectName = iObjectName;
+    mArraySize = iInput->GetArraySize();
+    assert(mArraySize > 0);
 
-    // Then pass on the resize to the the input plugin
-    assert(mInput);
-    PluginObject::MinSize(mInput, iSize + 2*mTheta);
-}
+    mTheta = GetEnv("Theta", 2);
+    assert(mTheta > 0);
 
-PluginObject* Delta::GetInput(int iInput)
-{
-    assert(iInput == 0);
-    return mInput;
-}
-
-Delta::Delta(Plugin<float>* iInput, int iArraySize, int iTheta)
-    : CachedPlugin<float>(iArraySize)
-{
-    assert(iInput);
-    mInput = iInput;
-    mNInputs++;
-
-    assert(iArraySize > 0);
-    mArraySize = iArraySize;
-
-    assert(iTheta > 0);
-    mTheta = iTheta;
-    mWindow = iTheta*2 + 1;
-    PluginObject::MinSize(mInput, mWindow);
+    mWindow = mTheta*2 + 1;
     mFeature.resize(mWindow);
+    PluginObject::MinSize(mInput, mWindow, mTheta);
 
     // Set the weights in advance
     mWeight.resize(mWindow);
@@ -45,14 +20,14 @@ Delta::Delta(Plugin<float>* iInput, int iArraySize, int iTheta)
     for (int i=1; i<=mTheta; i++)
         denom += 2.0*i*i;
     for (int i=0; i<mWindow; i++)
-        mWeight[i] = (float)(i - iTheta) / denom;
+        mWeight[i] = (float)(i - mTheta) / denom;
 }
 
 //
 // This is the calculation for one frame.  Pretty trivial, but the
 // edge effects make the code quite long.
 //
-bool Delta::ProcessFrame(IndexType iIndex, int iOffset)
+bool Delta::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

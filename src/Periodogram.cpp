@@ -2,14 +2,19 @@
 #include "Periodogram.h"
 
 Periodogram::Periodogram(
-    Plugin<float>* iInput, int iFrameSize, int iFramePeriod
+    Plugin<float>* iInput,
+    const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput, iFrameSize/2+1)
+    : UnaryPlugin<float, float>(iInput)
 {
-    assert(iFrameSize > 0);
-    assert(iFramePeriod > 0);
-    mFrameSize = iFrameSize;
-    mFramePeriod = iFramePeriod;
+    mObjectName = iObjectName;
+    mFrameSize = GetEnv("FrameSize", 256);
+    mFramePeriod = GetEnv("FramePeriod", 80);
+    mArraySize = mFrameSize/2+1;
+    mSamplePeriod *= mFramePeriod;
+    assert(mFrameSize > 0);
+    assert(mFramePeriod > 0);
+
     PluginObject::MinSize(mInput, mFrameSize);
 
     mRealData = (float*)fftwf_malloc(mFrameSize * sizeof(float));
@@ -34,7 +39,7 @@ Periodogram::~Periodogram()
     fftwf_free(mComplexData);
 }
 
-bool Periodogram::ProcessFrame(IndexType iIndex, int iOffset)
+bool Periodogram::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

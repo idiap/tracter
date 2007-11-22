@@ -96,9 +96,9 @@ void ALSASource::Start()
 #ifndef Min
 # define Min(a, b) ((a<b) ? (a) : (b))
 #endif
-int ALSASource::Process(IndexType iIndex, CacheArea& iOutputArea)
+int ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
-    printf("ALSASource::Process\n");
+    printf("ALSASource::Fetch\n");
     snd_pcm_sframes_t avail;
 
     // However unlikely, it's possible that the read is ahead of the

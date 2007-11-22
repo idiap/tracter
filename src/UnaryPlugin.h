@@ -10,18 +10,23 @@ template <class T, class Ti>
 class UnaryPlugin : public CachedPlugin<T>
 {
 public:
-    UnaryPlugin(Plugin<Ti>* iInput, int iArraySize=0)
-        : CachedPlugin<T>(iArraySize)
+    /**
+     * The array size of a unary plugin defaults to either 0 (like 1,
+     * but faster) if not supplied, or the array size of the input
+     * plugin if negative.
+     */
+    UnaryPlugin(Plugin<Ti>* iInput)
+        : CachedPlugin<T>()
     {
-        assert(iInput);
+        Connect(iInput);
         mInput = iInput;
-        this->mNInputs++;
     }
 
 protected:
     PluginObject* GetInput(int iInput)
     {
         assert(iInput == 0);
+        assert(this->mNInputs == 1);
         return mInput;
     }
 

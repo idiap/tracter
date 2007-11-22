@@ -33,9 +33,9 @@ public:
     }
 
 protected:
-    CachedPlugin<T>(int iArraySize = 0)
+    CachedPlugin<T>()
     {
-        Plugin<T>::mArraySize = iArraySize;
+        // Nothing to do
     }
 
     virtual void Resize(int iSize)
@@ -45,6 +45,8 @@ protected:
         mCache.resize(Plugin<T>::mArraySize
                       ? iSize * Plugin<T>::mArraySize
                       : iSize);
+        //printf("Resize from %d to %d with capacity %u\n",
+        //       Plugin<T>::mSize, iSize, mCache.capacity());
     }
 
 private:

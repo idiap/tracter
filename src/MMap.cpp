@@ -33,9 +33,17 @@ void* MMap::Map(const char* iFileName)
 
     // Close the previous map if there was one
     if (mMap)
-        munmap(mMap, mSize);
+       if (munmap(mMap, mSize) != 0)
+        {
+            printf("Failed to unmap file\n");
+            exit(EXIT_FAILURE);
+        }
     if (mFD)
-        close(mFD);
+        if (close(mFD) != 0)
+        {
+            printf("Failed to close file\n");
+            exit(EXIT_FAILURE);
+        }
 
     mFD = open(iFileName, O_RDONLY);
     if (mFD == -1)
@@ -49,8 +57,8 @@ void* MMap::Map(const char* iFileName)
     fstat(mFD, &buf);
     mSize = buf.st_size;
 
-    // Do the actual map
-    void* mMap = mmap(0, buf.st_size, PROT_READ, MAP_SHARED, mFD, 0);
+    // Do the actual map.  Hint that the OS can use the same place as before.
+    mMap = mmap(mMap, buf.st_size, PROT_READ, MAP_SHARED, mFD, 0);
     if (mMap == MAP_FAILED)
     {
         printf("MMap: Failed to map file %s\n", iFileName);

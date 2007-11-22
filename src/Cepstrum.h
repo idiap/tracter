@@ -10,11 +10,11 @@
 class Cepstrum : public UnaryPlugin<float, float>
 {
 public:
-    Cepstrum(Plugin<float>* iInput, int iNCepstra, bool iC0=false);
+    Cepstrum(Plugin<float>* iInput, const char* iObjectName = "Cepstrum");
     ~Cepstrum();
 
 protected:
-    bool ProcessFrame(IndexType iIndex, int iOffset);
+    bool UnaryFetch(IndexType iIndex, int iOffset);
 
 private:
     int mNLogData;

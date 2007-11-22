@@ -9,11 +9,11 @@
 class ZeroFilter : public UnaryPlugin<float, float>
 {
 public:
-    ZeroFilter(Plugin<float>* iInput, float iZero);
-    void MinSize(int iSize);
+    ZeroFilter(Plugin<float>* iInput, const char* iObjectName = "ZeroFilter");
+    void MinSize(int iSize, int iReadAhead);
 
 protected:
-    int Process(IndexType iIndex, CacheArea& iOutputArea);
+    int Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
 private:
     float mZero;

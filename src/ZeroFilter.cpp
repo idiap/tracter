@@ -1,25 +1,24 @@
 #include "ZeroFilter.h"
 
-ZeroFilter::ZeroFilter(Plugin<float>* iInput, float iZero)
+ZeroFilter::ZeroFilter(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
-    mZero = iZero;
+    mObjectName = iObjectName;
+    mZero = GetEnv("Zero", 0.97f);
 }
 
-void ZeroFilter::MinSize(int iSize)
+void ZeroFilter::MinSize(int iSize, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize);
+    PluginObject::MinSize(iSize, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
-    // +1 for the lookback
-    printf("ZeroFilter: Resizing input to %u\n", iSize);
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize);
+    PluginObject::MinSize(mInput, iSize, 0);
 }
 
-int ZeroFilter::Process(IndexType iIndex, CacheArea& iOutputArea)
+int ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
