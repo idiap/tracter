@@ -10,7 +10,7 @@
 
 AC_PREREQ(2.60)
 AC_INIT([Tracter], [0.1.0])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/creature.cpp])
 AC_CONFIG_HEADER([config.h])
 
