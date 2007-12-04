@@ -26,14 +26,7 @@ class Mean : public UnaryPlugin<float, float>
 public:
     Mean(Plugin<float>* iInput, const char* iObjectName = "Mean");
     virtual void Reset(bool iPropagate);
-
-    void SetTimeConstant(float iPole)
-    {
-        assert(iPole > 0.0f);
-        assert(iPole < 1.0f);
-        mPole = iPole;
-        mElop = 1.0f - iPole;
-    }
+    void SetTimeConstant(float iSeconds);
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);

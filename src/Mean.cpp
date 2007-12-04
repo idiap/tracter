@@ -41,7 +41,20 @@ Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
     for (int i=0; i<mArraySize; i++)
         mMean[i] = 0.0;
     mValid = false;
-    SetTimeConstant(0.98);
+    SetTimeConstant(GetEnv("TimeConstant", 0.5f));
+}
+
+void Mean::SetTimeConstant(float iSeconds)
+{
+    assert(iSeconds > 0);
+    float n = iSeconds * mSampleFreq / mSamplePeriod;
+    mPole = (n-1.0f) / n;
+    mElop = 1.0f - mPole;
+
+    assert(mPole > 0.0f);
+    assert(mPole < 1.0f);
+    if (Tracter::sVerbose)
+        printf("Mean: pole is %f\n", mPole);
 }
 
 void Mean::Reset(bool iPropagate)
