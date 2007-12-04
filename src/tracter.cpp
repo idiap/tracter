@@ -19,11 +19,61 @@
 #include "Subtract.h"
 #include "SpectralSubtract.h"
 #include "Noise.h"
+#include "Concatenate.h"
+#include "Delta.h"
+//#include "PLP.h"
+//#include "PPM.h"
+
+/**
+ * A basic ASR front-end with pre-emphasis, spectral subtraction and
+ * cepstral mean subtraction
+ */
+Plugin<float>* BasicFrontend(Plugin<float>* iSource)
+{
+    /* Signal processing chain */
+    ZeroFilter* zf = new ZeroFilter(iSource);
+    Periodogram* p = new Periodogram(zf);
+    Noise* nn = new Noise(p);
+    SpectralSubtract *ss = new SpectralSubtract(p, nn);
+    MelFilter* mf = new MelFilter(ss);
+    Cepstrum* c = new Cepstrum(mf);
+    Mean* m = new Mean(c);
+    Subtract* s = new Subtract(c, m);
+    return s;
+}
+
+#if 0
+Plugin<float>* PLPFrontend(Plugin<float>* iSource)
+{
+    /* Signal processing chain */
+    ZeroFilter* zf = new ZeroFilter(iSource);
+    Periodogram* p = new Periodogram(zf);
+    MelFilter* mf = new MelFilter(p);
+    PLP* l = new PLP(mf);
+    //PPM* ppm = new PPM(l);
+    Mean* m = new Mean(l);
+    Subtract* s = new Subtract(l, m);
+    return s;
+}
+#endif
+
+void Usage()
+{
+    puts(
+        "Usage: tracter [options] [infile outfile | -f file-list]\n"
+        "Options:\n"
+        "-v      Increment verbosity level (e.g., -v -v -v sets it to 3)\n"
+        "-c      Dump the configuration parameters to stdout\n"
+        "-d n    Add deltas up to order n\n"
+        "-f list Read input and output files from list\n"
+        "Anything else prints this information\n"
+    );
+}
 
 int main(int argc, char** argv)
 {
     bool verbose = false;
-    bool dumpMel = false;
+    int deltaOrder = 0;
 
     const char* fileList = 0;
     const char* file[2] = {0, 0};
@@ -43,19 +93,20 @@ int main(int argc, char** argv)
             continue;
         }
 
-        // Arguments beginning with a '-'
+        /* Arguments beginning with a '-' */
         switch (argv[i][1])
         {
         case 'v':
             verbose = true;
+            Tracter::sVerbose++;
             break;
 
         case 'f':
             fileList = argv[++i];
             break;
 
-        case 'm':
-            dumpMel = true;
+        case 'd':
+            deltaOrder = atoi(argv[++i]);
             break;
 
         case 'c':
@@ -64,49 +115,50 @@ int main(int argc, char** argv)
 
         default:
             printf("Unrecognised argument %s\n", argv[i]);
+            Usage();
             exit(EXIT_FAILURE);
         }
     }
 
-    /* Raw file source and normaliser for 16 bit big endian files */
+    /* Raw file source and normaliser for 16 bit files */
     FileSource<short>* source = new FileSource<short>();
     Normalise* n = new Normalise(source);
 
-    /* Signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(n);
-    Periodogram* p = new Periodogram(zf);
-    Noise* nn = new Noise(p);
-    SpectralSubtract *ss = new SpectralSubtract(p, nn);
-    MelFilter* mf = new MelFilter(ss);
-    Cepstrum* c = new Cepstrum(mf);
-    Mean* m = new Mean(c);
-    Subtract* s = new Subtract(c, m);
+    /* Choose a front-end architecture */
+    Plugin<float>* f = BasicFrontend(n);
+    //Plugin<float>* f = PLPFrontend(n);
+
+    /* Add deltas up to deltaOrder */
+    if (deltaOrder > 0)
+    {
+        Concatenate* c = new Concatenate();
+        c->Add(f);
+        for (int i=0; i<deltaOrder; i++)
+        {
+            Delta* d = new Delta(f);
+            c->Add(d);
+            f = d;
+        }
+        f = c;
+    }
 
     /* An HTK file sink */
-    HTKSink sink(s);
-
-    if (dumpMel)
-    {
-        mf->DumpBins();
-        exit(EXIT_SUCCESS);
-    }
-
-    /* For now we need 2 files */
-    if (!fileList && (fileCount < 2))
-    {
-        printf("Not enough files defined\n");
-        exit(EXIT_FAILURE);
-    }
+    HTKSink sink(f);
 
     if (!fileList)
     {
-        // Just run it over one input and output
+        /* If there's no file list we need 2 files */
+        if (fileCount < 2)
+        {
+            printf("Not enough files defined\n");
+            exit(EXIT_FAILURE);
+        }
         source->Open(file[0]);
         sink.Open(file[1]);
     }
     else
     {
-        // Extract a whole file list
+        /* Extract a whole file list */
         assert(fileList);
         printf("filelist %s\n", fileList);
         FILE* list = fopen(fileList, "r");
