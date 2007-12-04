@@ -22,7 +22,6 @@
 #include "ArraySink.h"
 #include "LNASource.h"
 #include "ByteOrder.h"
-#include "TracterObject.h"
 
 class SinkSucker : public UnarySink<float>
 {
