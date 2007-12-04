@@ -18,7 +18,7 @@ libtracter_a_SOURCES = \
 	HTKSink.cpp \
 	Delta.cpp \
 	ALSASource.cpp \
-	Feature.cpp \
+	Concatenate.cpp \
 	Periodogram.cpp \
 	ZeroFilter.cpp \
 	MelFilter.cpp \
@@ -27,6 +27,16 @@ libtracter_a_SOURCES = \
 	Noise.cpp \
 	Subtract.cpp \
 	SpectralSubtract.cpp
+
+include_HEADERS = $(libtracter_a_SOURCES:.cpp=.h) \
+	ArraySink.h \
+	CachedPlugin.h \
+	FileSource.h \
+	Plugin.h \
+	Sink.h \
+	Source.h \
+	UnaryPlugin.h \
+	UnarySink.h
 
 testfile_SOURCES = testfile.c
 tracter_SOURCES = tracter.cpp
