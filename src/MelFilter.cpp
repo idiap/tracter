@@ -43,7 +43,7 @@ MelFilter::MelFilter(
 {
     mObjectName = iObjectName;
     mArraySize = GetEnv("NBins", 23);
-    mLoHertz = GetEnv("LoHertz", 0.0f);
+    mLoHertz = GetEnv("LoHertz", 64.0f);
     mHiHertz = GetEnv("HiHertz", 4000.0f);
     mLoWarp = GetEnv("LoWarp", 0.0f);
     mHiWarp = GetEnv("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
@@ -59,7 +59,8 @@ MelFilter::MelFilter(
     initSmoothBins();
 #endif
 
-    normaliseBins();
+    if (GetEnv("Normalise", 0))
+        normaliseBins();
 }
 
 bool MelFilter::UnaryFetch(IndexType iIndex, int iOffset)
