@@ -11,6 +11,7 @@
 #include "PluginObject.h"
 
 bool Tracter::sShowConfig = false;
+int Tracter::sVerbose = 0;
 
 /**
  * Set a CacheArea to represent a particular range at a particular
@@ -109,7 +110,9 @@ void PluginObject::MinSize(int iSize, int iReadAhead)
     {
         // It's an indefinitely resizing cache
         mIndefinite = true;
-        printf("Cache set to indefinite size\n");
+        assert(mObjectName);
+        if (Tracter::sVerbose > 0)
+            printf("%s cache set to indefinite size\n", mObjectName);
     }
     else
     {

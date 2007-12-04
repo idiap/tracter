@@ -10,6 +10,7 @@
 
 namespace Tracter {
     extern bool sShowConfig;
+    extern int sVerbose;
 }
 
 /**
