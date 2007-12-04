@@ -11,7 +11,7 @@
 #include "Normalise.h"
 #include "HTKSource.h"
 #include "Delta.h"
-#include "Feature.h"
+#include "Concatenate.h"
 #include "ALSASource.h"
 #include "Periodogram.h"
 #include "ZeroFilter.h"
@@ -22,6 +22,7 @@
 #include "ArraySink.h"
 #include "LNASource.h"
 #include "ByteOrder.h"
+#include "TracterObject.h"
 
 class SinkSucker : public UnarySink<float>
 {
@@ -110,7 +111,10 @@ int main(int argc, char** argv)
     HTKSource* h = new HTKSource();
     Delta* d1 = new Delta(h);
     Delta* d2 = new Delta(d1, "DeltaDelta");
-    Feature* f = new Feature(h, d1, d2);
+    Concatenate* f = new Concatenate();
+    f->Add(h);
+    f->Add(d1);
+    f->Add(d2);
     //Mean* m = new Mean(h);
     SinkSucker as(f);
 
