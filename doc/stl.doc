@@ -1,0 +1,55 @@
+/**
+
+\page stl Tracter and the Standard Template Library
+
+\section Rationalle
+
+I come from an embedded programming background where the STL is
+regarded as fundamentally evil.  This is because new chips always have
+a C compiler, tend to have a C++ compiler, but tend not to support all
+of C++.  That, and the STL took a long time to stabilise on gcc.
+
+That said, the STL now seems to be pretty stable, and tracter is aimed
+at linux boxes rather than embedded chips.  So tracter uses the STL to
+some extent.
+
+For people who have just tuned in, the STL has 3 levels:
+
+- A bunch of containers like vectors and associative arrays.
+
+- Iterators, that serve to obfuscate these containers by making the
+  interfaces all the same.
+
+- Techniques, like sorting and searching, that use the iterator
+  interface and hence don't care about the container type.
+
+My feeling about the STL currently is that programmers (read: me) tend
+to like to know exactly what the underlying data structure is.  In
+turn, they have a feeling for what the natural iterator is.  For
+instance, an array is fundamentally just a contiguous area of memory
+and the natural iterator is an integer.  A list is bunch of things
+joined by pointers and the natural iterator is a pointer.  Containers
+are good, iterators are bad.  Use the natural iterator.  If you want
+to use a sort or search, get an STL iterator from the container and
+pass it to the sort.
+
+Another, little acknowledged, advantage of the containers is that they
+specify an allocator that is much more flexible than new and delete.
+The STL allocator distinguishes the allocated size from the size of
+the container.  This means that the container can grow (and shrink)
+efficiently.
+
+Anyway, the above is just an explanation of why the parts I wrote are
+the way they are.  All that aside, please use tracter in that way that
+you want to use it.  I don't mean to impose any particular programming
+style.
+
+*/
+
+/*
+
+\section examples Examples
+
+The plugin caches are currently std::vector<float>.
+
+*/

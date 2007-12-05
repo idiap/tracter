@@ -1,0 +1,129 @@
+/**
+
+\page design Design of tracter
+
+\section audio Audio cache notes
+
+Assuming the application runs faster than real time, the source will
+typically have to wait for new data and can do so in a way that does
+not use system resources, e.g., using unix wait().
+
+So long as the application runs faster than real time, there is no
+problem with the audio cache.  However, if the application runs slower
+than real time, there is an issue about how to buffer audio data.
+
+- ALSA buffers tend to be quite small - about 4 or 8 kilobytes.  The
+  large sizes tend to be associated with USB audio cards with a cache
+  of 64 kB.  11 kHz monophonic data with 2 bytes per sample will fill
+  such a buffer in under 3 seconds.
+
+- ALSA plugins do not keep their own buffers if they can help it.
+  Ones that do include dsnoop.  It may be possible to use dsnoop to do
+  audio buffering for tracter.
+
+- Otherwise ALSASource has to take care of the buffering.  In this
+  case, it should receive new dta asynchronously via a callback.
+  Semaphores are likely needed to make this work properly.
+
+\section parameters Parameter setting
+
+The two generally accepted ways to get parameters into a program are
+via command line arguments and via a config file.  Both these would be
+cumbersome in tracter because there are a lot of individual modules
+that need to know about parameters.  Rather, tracter uses environment
+variables to set parameters.  The advantage is that the wrapper
+program does not need to care about passing large numbers of
+parameters to the right module.  The disadvantages are, well, none
+that I've found.  It does require a slightly different programming
+mentality.  For instance, to set a single parameter, rather than
+writing
+
+\code
+tracter variable1=value1
+\endcode
+
+you can write
+
+\code
+variable1=value1 tracter
+\endcode
+
+which isn't so different.
+In the case of a whole configuration file, rather than writing
+
+\code
+tracter -C config.txt
+\endcode
+
+you write
+
+\code
+source config.sh
+tracter
+\endcode
+
+What this tends to amount to is that it's convenient to call tracter
+executables from scripts.  Typically, one might write
+
+\code
+# Configuration
+export Normalise_Endian=BIG
+export Cepstrum_NCepstra=12
+
+# Call the executable
+tracter
+\endcode
+
+To aid this process, the tracter framework will dump every environment
+variable requested in the form of a script.  This is currently done
+with a command line argument
+\code
+tracter -c
+\endcode
+producing something like
+\code
+export FileSource_SampleFreq=8000.000000          # Default
+export Normalise_Endian=BIG                       # Environment
+export ZeroFilter_Zero=0.970000                   # Default
+export Periodogram_FrameSize=256                  # Default
+export Periodogram_FramePeriod=80                 # Default
+export Noise_NInit=10                             # Default
+export SpectralSubtract_Alpha=1.000000            # Default
+export SpectralSubtract_Beta=0.000000             # Default
+export MelFilter_NBins=23                         # Default
+export MelFilter_LoHertz=0.000000                 # Default
+export MelFilter_HiHertz=4000.000000              # Default
+export MelFilter_LoWarp=0.000000                  # Default
+export MelFilter_HiWarp=3400.000000               # Default
+export MelFilter_Alpha=1.000000                   # Default
+export Cepstrum_C0=1                              # Default
+export Cepstrum_NCepstra=12                       # Environment
+export Mean_Type=ADAPTIVE                         # Default
+\endcode
+
+Notice the comment.  It indicates whether the value came from a
+compiled in default or from an environment variable.
+
+Internally, environment variables are requested via the GetEnv()
+method.  GetEnv() appends the requested string using an underscore to
+the name of the object stored in mObjectName.  This is set via the
+constructor and defaults to the name of the class.  If a different
+name is supplied to the constructor it will be used.  This is useful
+when the same module is used for two different purposes.  For
+instance, to use a different window size for delta and acceleration
+features, the code could read
+
+\code
+Delta* d  = new Delta(x, "Delta1");
+Delta* dd = new Delta(d, "Delta2");
+\endcode
+
+with window size set using
+
+\code
+export Delta1_Theta=2  # Delta window 5
+export Delta2_Theta=3  # Acceleration window 7
+\endcode
+
+
+ */

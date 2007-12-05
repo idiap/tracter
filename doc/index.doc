@@ -1,0 +1,40 @@
+/**
+\mainpage Tracter
+
+\section intro Introduction
+
+Tracter is a modular real time signal processing system.  It defines a
+framework for a directed graph of plugins that each do (typically)
+small amounts of computation.  The source of the directed graph can be
+a sound device such as an ALSA capture device.  The sink can be an
+ALSA playback device.  The source and sink can also be files.
+
+This type of architecture is by no means new.  Tracter is influenced
+by the likes of khoros, simulink and labview, which deal with chains
+of processing units.  In particular,
+
+- The plugin terminology is from ALSA, where plugins can be chained
+together without changing the API.  Tracter differs in that ALSA
+plugins are designed to be indistinguishable from sound-cards and have
+a fairly rich API.
+
+- The directed graph terminology with sources and sinks is from
+  gstreamer.  GStreamer is designed to support higher level formats
+  than tracter, and to stream between applications.
+
+- After beginning tracter, I found that it is very similar to the
+  'pull' model of the sphinx4 front-end.  That is, data is requested
+  at the sink by the application, and successive plugins request data
+  from their respective input plugins until the data is found.
+  Results of computations are cached by each plugin so that no data is
+  ever computed more than once.
+
+\section manual User manual
+
+\subpage design Notes on tracter's design
+
+\subpage programming Programming tracter
+
+\subpage stl Notes on use of the STL in tracter
+
+*/
