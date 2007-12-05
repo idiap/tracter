@@ -26,16 +26,18 @@
 
 /**
  * A basic ASR front-end with pre-emphasis, spectral subtraction and
- * cepstral mean subtraction
+ * cepstral mean subtraction.
+ *
+ * ...except that spectral subtraction doesn't work well yet
  */
 Plugin<float>* BasicFrontend(Plugin<float>* iSource)
 {
     /* Signal processing chain */
     ZeroFilter* zf = new ZeroFilter(iSource);
     Periodogram* p = new Periodogram(zf);
-    Noise* nn = new Noise(p);
-    SpectralSubtract *ss = new SpectralSubtract(p, nn);
-    MelFilter* mf = new MelFilter(ss);
+    //Noise* nn = new Noise(p);
+    //SpectralSubtract *ss = new SpectralSubtract(p, nn);
+    MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
     Mean* m = new Mean(c);
     Subtract* s = new Subtract(c, m);

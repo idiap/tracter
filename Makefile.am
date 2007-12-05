@@ -7,3 +7,4 @@
 
 SUBDIRS = src
 DIST_SUBDIRS = src doc
+EXTRA_DIST = Doxyfile
