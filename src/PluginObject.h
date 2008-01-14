@@ -8,13 +8,19 @@
 #ifndef PLUGINOBJECT_H
 #define PLUGINOBJECT_H
 
+/**
+ * Namespace for tracter objects.
+ *
+ * Right now this isn't used consistently.
+ */
 namespace Tracter {
-    extern bool sShowConfig;
-    extern int sVerbose;
+    extern bool sShowConfig; ///< If set, plugins echo their configuration
+    extern int sVerbose;     ///< Some plugins echo information depending on
+                             ///  the numerical value of this.
 }
 
 /**
- * @brief A contiguous area of interest of a circular cache.
+ * A contiguous area of interest of a circular cache.
  *
  * Represents an area of a cache buffer.  Typically this is a
  * sub-array, but also deals with the case where the sub-array wraps
@@ -37,6 +43,7 @@ public:
 
 typedef long IndexType;
 
+/** Index / Offset pair for internal cache management */
 struct CachePointer
 {
     IndexType index;
@@ -44,7 +51,7 @@ struct CachePointer
 };
 
 /**
- * @brief The type independent root of all plugins.
+ * The type independent root of all plugins.
  *
  * PluginObject is designed to be inherited by a type specific
  * implementation.
@@ -54,7 +61,7 @@ class PluginObject
 public:
     PluginObject(void);
     virtual ~PluginObject(void) {};
-    
+
     /* Dumps the contents of the class */
     void Dump();
     int Read(CacheArea& oArea, IndexType iIndex, int iLength = 1);
@@ -68,10 +75,10 @@ public:
         return mArraySize;
     }
 
-    void SetArraySize(int iSize)
+    /** Get the sample frequency of this plugin */
+    float GetSampleFreq()
     {
-        assert(iSize >= 0);
-        mArraySize = iSize;
+        return mSampleFreq;
     }
 
 protected:

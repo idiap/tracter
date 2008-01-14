@@ -63,6 +63,8 @@ PluginObject::PluginObject()
  *
  * It also duplicates the sample frequency and period of the first
  * input plugin connected.
+ *
+ * @returns iInput
  */
 PluginObject* PluginObject::Connect(PluginObject* iInput)
 {
@@ -127,13 +129,23 @@ void PluginObject::MinSize(int iSize, int iReadAhead)
 }
 
 /**
- * The read-ahead handler passes back accumulated read-ahead values.
- * If a plugin has more than one output, it sizes the cache to deal
- * with the read-ahead.  This means that if one branch reads ahead,
- * the data is still around for the other branch to fetch.
+ * Initialises read-ahead by passing back accumulated read-ahead
+ * values.  If a plugin has more than one output, it sizes the cache
+ * to deal with the read-ahead.  This means that if one branch reads
+ * ahead, the data is still around for the other branch to fetch.
+ * Individual Plugins may be called several times as the graph is
+ * expanded to a tree.
+ *
+ * N.B. I'm not sure the algorithm is right.  Certainly some caches
+ * can end up too large.  So far the only real test case is deltas.
+ * The VAD witll be the acid test.
  */
 void PluginObject::ReadAhead(int iReadAhead)
 {
+    //printf("%s 1: iReadAhead %d mReadAhead %d mSize %d\n",
+    //       mObjectName ? mObjectName : "Sink",
+    //       iReadAhead, mReadAhead, mSize);
+
     // Resize if necessary
     if (!mIndefinite && (mNOutputs > 1))
     {
@@ -142,6 +154,8 @@ void PluginObject::ReadAhead(int iReadAhead)
             mIndefinite = true;
             printf("Cache set to indefinite size\n");
         }
+
+        // I'm almost sure this is not right...
         int newSize = iReadAhead + mReadAhead + 1;
         if (newSize > mSize)
         {
@@ -150,23 +164,31 @@ void PluginObject::ReadAhead(int iReadAhead)
         }
     }
 
-    // Recurse over all inputs
+    //printf("%s 2: iReadAhead %d mReadAhead %d mSize %d\n",
+    //       mObjectName ? mObjectName : "Sink",
+    //       iReadAhead, mReadAhead, mSize);
+
+    // Recurse over *all* inputs - the graph is expanded into a tree
     for (int i=0; i<mNInputs; i++)
     {
         PluginObject* input = GetInput(i);
         assert(input);
-        int readAhead = mIndefinite ? -1 : mReadAhead + iReadAhead;
+        int scale = mSamplePeriod / input->mSamplePeriod;
+        int readAhead = mIndefinite ? -1 : (mReadAhead + iReadAhead) * scale;
         input->ReadAhead(readAhead);
     }
 }
 
 
 /**
- * Reset that is only allowed to propagate back from a single
- * downstream plugin This means that when several plugins use this one
- * as an input, it only gets reset once.
+ * Private reset that is only allowed to propagate back from a single
+ * downstream plugin.  This means that when several plugins use this
+ * one as an input, it only gets reset once.  Calls the public method,
+ * which can be hooked.
  */
-void PluginObject::Reset(PluginObject* iDownStream)
+void PluginObject::Reset(
+    PluginObject* iDownStream ///< this pointer of calling class
+)
 {
     if (!mDownStream)
         // First time: Set the favoured downstream plugin to the caller
@@ -180,9 +202,14 @@ void PluginObject::Reset(PluginObject* iDownStream)
 }
 
 /**
- * This method actually resets the class
+ * Public reset method that actually resets the class.  This should be
+ * called whenever necessary to reset the caches to index zero.  Each
+ * plugin is only reset once in a recursive reset - the graph is not
+ * expanded to a tree.
  */
-void PluginObject::Reset(bool iPropagate)
+void PluginObject::Reset(
+    bool iPropagate ///< If true, recursively resets all input plugins
+)
 {
     //printf("Reset with ArraySize = %d\n", mArraySize);
     mHead.index = 0;
@@ -199,7 +226,10 @@ void PluginObject::Reset(bool iPropagate)
 }
 
 /**
- * Recursive delete
+ * Recursive delete.  Deletes all input plugins recursively, except
+ * the first one, which is most likely a Sink.
+ *
+ * @returns true if the caller can delete the object
  */
 bool PluginObject::Delete(PluginObject* iDownStream)
 {
@@ -227,8 +257,11 @@ bool PluginObject::Delete(PluginObject* iDownStream)
 }
 
 /**
- * Public interface to recursive delete
- * The sink plugin is not actually deleted (it would have to delete itself)
+ * Public interface to recursive delete.  This can only be called by a
+ * Sink plugin (one that has no outputs).  The sink plugin itself is
+ * not actually deleted (it would have to delete itself).  Do not use
+ * this call either directly or via a Sink that does so if
+ * intermediate plugins are allocated on the stack.
  */
 void PluginObject::Delete()
 {
@@ -239,7 +272,7 @@ void PluginObject::Delete()
 }
 
 /**
- * Dump basic data
+ * Dump basic data.  Only useful for debugging.
  */
 void PluginObject::Dump()
 {
@@ -248,9 +281,13 @@ void PluginObject::Dump()
 }
 
 /**
- * This is the core of the cached plugin.  If data already exists it
- * just returns the cache location.  Otherwise it calls the Fetch()
- * method to actually calculate new data.
+ * Read data from an input Plugin.  This is the core of the cached
+ * plugin concept.  If data already exists it just returns the cache
+ * location.  Otherwise it calls the Fetch() method to actually
+ * calculate new data.
+ *
+ * @returns the number of data actually available.  It may be less
+ * than the number requested.
  */
 int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
 {
@@ -273,6 +310,7 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
         {
             // Number of new samples required
             int fetch = iIndex + iLength - mHead.index;
+            assert(fetch > 0);
             if (mSize < iIndex + iLength)
             {
                 Resize(iIndex + iLength);
@@ -315,11 +353,12 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
     // iIndex is either contiguous, or inside the cache range
     else if ((iIndex >= mTail.index) && (iIndex <= mHead.index))
     {
-        // Case 2: It's an extension of the current range
-        if (iIndex + iLength >= mHead.index)
+        IndexType finalIndex = iIndex + iLength - 1;
+        if (finalIndex >= mHead.index)
         {
-            // Number of new samples required
-            int fetch = iLength - (mHead.index - iIndex);
+            // Case 2: It's an extension of the current range
+            int fetch = iIndex + iLength - mHead.index;
+            assert(fetch > 0);
             CacheArea area;
             area.Set(fetch, mHead.offset, mSize);
             len = Fetch(mHead.index, area);
@@ -340,7 +379,7 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
         else
         {
             // Case 3: The requested range is within the current cache
-            // range Don't need to calculate anything
+            // range.  Don't need to calculate anything
             len = iLength;
         }
 
@@ -371,6 +410,9 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
  * about whether to override Fetch() or implement UnaryFetch().  It is
  * generally easier to implement UnaryFetch(), but it may be quite
  * inefficient for high frequency samples.
+ *
+ * @returns the number of data actually available.  It may be less
+ * than the number requested.
  */
 int PluginObject::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
@@ -407,8 +449,10 @@ bool PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
 
 /**
  * Uses the name of the object as a prefix and iSuffix as a suffix to
- * construct an environment variable.  The value of the environment
- * variable is returned, 0 if it was not set.
+ * construct an environment variable.
+ *
+ * @returns The value of the environment variable, or 0 if it was not
+ * set.
  */
 const char* PluginObject::getEnv(const char* iSuffix, const char* iDefault)
 {
@@ -429,6 +473,10 @@ const char* PluginObject::getEnv(const char* iSuffix, const char* iDefault)
     return ret;
 }
 
+/**
+ * Get value from environment variable.
+ * @returns the value, or the value in iDefault if not set.
+ */
 float PluginObject::GetEnv(const char* iSuffix, float iDefault)
 {
     char def[256];
@@ -439,6 +487,10 @@ float PluginObject::GetEnv(const char* iSuffix, float iDefault)
     return iDefault;
 }
 
+/**
+ * Get value from environment variable.
+ * @returns the value, or the value in iDefault if not set.
+ */
 int PluginObject::GetEnv(const char* iSuffix, int iDefault)
 {
     char def[256];
@@ -449,6 +501,10 @@ int PluginObject::GetEnv(const char* iSuffix, int iDefault)
     return iDefault;
 }
 
+/**
+ * Get value from environment variable.
+ * @returns the value, or the value in iDefault if not set.
+ */
 const char* PluginObject::GetEnv(const char* iSuffix, const char* iDefault)
 {
     char def[256];
