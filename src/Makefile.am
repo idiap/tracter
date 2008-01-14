@@ -10,7 +10,7 @@ lib_LIBRARIES = libtracter.a
 
 libtracter_a_SOURCES = \
 	ConvertSampleRate.cpp \
-	FileName.cpp \
+	FilePath.cpp \
 	SocketSink.cpp \
 	SocketSource.cpp \
 	ComplexPeriodogram.cpp \

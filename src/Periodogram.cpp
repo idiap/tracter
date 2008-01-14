@@ -8,6 +8,11 @@
 #include <math.h>
 #include "Periodogram.h"
 
+/**
+ * Periodogram variables:
+ * - FrameSize (256)
+ * - FramePeriod (80)
+ */
 Periodogram::Periodogram(
     Plugin<float>* iInput,
     const char* iObjectName

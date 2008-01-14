@@ -48,12 +48,19 @@ A few points should be self-explanatory:
 - Plugins can be arbitrarily chained together between the source and
   the sink.
 
-This, however, is more subtle:
+These, however, are more subtle:
 
-- All plugins except the source are allocated with new.  The sink is
-  on the stack in this case.  This means that the sink will be
-  destroyed with the containing class.  The plugin will be recursively
-  destroyed by the sink destructor.
+- All the FileSource really does is memory map a file (specified
+later).  In general, the file will be 2 byte integer format and may
+require byte swapping.  The Normalise plugin is required to byte swap
+if necessary, and to convert to floating point format.  Unless
+otherwise specified, audio samples are scaled to lie between -1.0 and
++1.0.
+
+- All plugins except the sink are allocated with new.  The sink is on
+the stack in this case.  This means that the sink will be destroyed
+with the containing class.  The other plugins will be recursively
+destroyed by the sink destructor.
 
 Inside the plugin, when data is requested by a downstream plugin, the
 tracter framework will first check the cache for a previous result.

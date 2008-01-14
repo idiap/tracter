@@ -22,7 +22,10 @@
 #include "Concatenate.h"
 #include "Delta.h"
 //#include "PLP.h"
-//#include "PPM.h"
+#include "Pixmap.h"
+#include "ComplexSample.h"
+#include "ComplexPeriodogram.h"
+#include "FilePath.h"
 
 /**
  * A basic ASR front-end with pre-emphasis, spectral subtraction and
@@ -52,12 +55,21 @@ Plugin<float>* PLPFrontend(Plugin<float>* iSource)
     Periodogram* p = new Periodogram(zf);
     MelFilter* mf = new MelFilter(p);
     PLP* l = new PLP(mf);
-    //PPM* ppm = new PPM(l);
+    //Pixmap* pm = new Pixmap(l);
     Mean* m = new Mean(l);
     Subtract* s = new Subtract(l, m);
     return s;
 }
 #endif
+
+Plugin<float>* ComplexFrontend(Plugin<float>* iSource)
+{
+    /* Signal processing chain */
+    ComplexSample* cs = new ComplexSample(iSource);
+    ComplexPeriodogram* cp = new ComplexPeriodogram(cs);
+    Pixmap* pm = new Pixmap(cp);
+    return pm;
+}
 
 void Usage()
 {
@@ -72,6 +84,9 @@ void Usage()
     );
 }
 
+/**
+ * Tracter executable.
+ */
 int main(int argc, char** argv)
 {
     bool verbose = false;
@@ -128,6 +143,7 @@ int main(int argc, char** argv)
 
     /* Choose a front-end architecture */
     Plugin<float>* f = BasicFrontend(n);
+    //Plugin<float>* f = ComplexFrontend(n);
     //Plugin<float>* f = PLPFrontend(n);
 
     /* Add deltas up to deltaOrder */
@@ -146,6 +162,7 @@ int main(int argc, char** argv)
 
     /* An HTK file sink */
     HTKSink sink(f);
+    FilePath path;
 
     if (!fileList)
     {
@@ -156,6 +173,8 @@ int main(int argc, char** argv)
             exit(EXIT_FAILURE);
         }
         source->Open(file[0]);
+        path.SetName(file[1]);
+        path.MakePath();
         sink.Open(file[1]);
     }
     else
@@ -178,6 +197,8 @@ int main(int argc, char** argv)
                 printf("%s\n %s\n", file1, file2);
             sink.Reset();
             source->Open(file1);
+            path.SetName(file2);
+            path.MakePath();
             sink.Open(file2);
         }
         fclose(list);

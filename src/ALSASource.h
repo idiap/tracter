@@ -12,7 +12,7 @@
 #include "CachedPlugin.h"
 
 /**
- * @brief Source plugin that reads data from an ALSA device.
+ * Source plugin that reads data from an ALSA device.
  */
 class ALSASource : public CachedPlugin<short>
 {

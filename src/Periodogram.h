@@ -14,8 +14,11 @@
 #include "UnaryPlugin.h"
 
 /**
- * Uses the FFTW library to calculate a periodogram (aka power
- * spectral density)
+ * Calculate a periodogram (aka power spectral density).  Uses the
+ * FFTW library, which is not tied to DFT sizes of powers of 2, but
+ * does have a significant startup time.  A window is included; the
+ * windowing is beneficial in that it is done during a copy from cache
+ * memory to aligned memory.
  */
 class Periodogram : public UnaryPlugin<float, float>
 {

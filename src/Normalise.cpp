@@ -62,7 +62,7 @@ int Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             wOffset = 0;
 
         if (mByteOrder.WrongEndian())
-        {        
+        {
             short s = input[rOffset++];
             mByteOrder.Swap(&s, 2, 1);
             output[wOffset++] = (float)s / 32768.0f;

@@ -19,21 +19,17 @@ class UnarySink : public Sink
 {
 public:
 
-    /** A sink destructor calls a recursive delete of the whole graph */
+    /** A UnarySink destructor calls a recursive delete of the whole graph */
     virtual ~UnarySink()
     {
-        // Recursive delete
         Delete();
     }
 
     /** Initialises a single input */
-    UnarySink<T>(Plugin<float>* iInput, int iArraySize = 0)
+    UnarySink<T>(Plugin<T>* iInput)
     {
         Connect(iInput);
         mInput = iInput;
-        assert(iArraySize >= 0);
-        mArraySize = iArraySize;
-        //int tmp = iArraySize ? iArraySize : iInput->mArraySize;
 
         /* This is to ensure the downstream pointers are set */
         Reset();
@@ -50,7 +46,7 @@ protected:
         return mInput;
     }
 
-    Plugin<float>* mInput;
+    Plugin<T>* mInput;
 
 };
 

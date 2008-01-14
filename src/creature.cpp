@@ -6,6 +6,9 @@
  */
 
 #include <stdio.h>
+
+#include "config.h"
+
 #include "CachedPlugin.h"
 #include "FileSource.h"
 #include "Normalise.h"
@@ -22,6 +25,10 @@
 #include "ArraySink.h"
 #include "LNASource.h"
 #include "ByteOrder.h"
+#include "ComplexSample.h"
+#include "ComplexPeriodogram.h"
+#include "FilePath.h"
+#include "ConvertSampleRate.h"
 
 class SinkSucker : public UnarySink<float>
 {
@@ -93,7 +100,8 @@ int main(int argc, char** argv)
 #endif
 
     Normalise* n = new Normalise(a);
-    ZeroFilter* zf = new ZeroFilter(n);
+    ConvertSampleRate* sr = new ConvertSampleRate(n);
+    ZeroFilter* zf = new ZeroFilter(sr);
     Periodogram* p = new Periodogram(zf);
     MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
@@ -102,7 +110,7 @@ int main(int argc, char** argv)
 
     //a.Start();
     s.Pull(0, 4);
-    s.Pull(1020, 5);
+    s.Pull(28, 5);
 
     setenv("DeltaDelta_Theta", "3", 1);
 
@@ -128,7 +136,7 @@ int main(int argc, char** argv)
     printf("ArraySink...\n");
     FileSource<short>* hh = new FileSource<short>();
     Normalise* nn = new Normalise(hh);
-    ArraySink fs(nn);
+    ArraySink<float> fs(nn);
     hh->Open("testfile.dat");
     fs.Reset();
     float* frame;
@@ -140,7 +148,7 @@ int main(int argc, char** argv)
 
     printf("LNA...\n");
     LNASource* lna = new LNASource();
-    ArraySink ls(lna);
+    ArraySink<float> ls(lna);
     lna->Open("data/NU-1004.zipcode.lna");
     ls.Reset();
     index=0;
@@ -148,6 +156,33 @@ int main(int argc, char** argv)
     {
         printf("%f\n", frame[4]);
     }
+
+    printf("ComplexSample...\n");
+    FileSource<short>* cs = new FileSource<short>();
+    Normalise* cn = new Normalise(cs);
+    ComplexSample* ccs = new ComplexSample(cn);
+    ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
+    ArraySink<complex> csink(ccs);
+    cs->Open("testfile.dat");
+    csink.Reset();
+    complex* cframe;
+    index = 0;
+    while(csink.GetArray(cframe, index++) && index < 10)
+    {
+        printf("%f %f\n", cframe[0].real() * 32768, cframe[0].imag() * 32768);
+    }
+
+    FilePath path;
+#define FILETEST(p) printf("Test:" p "\n"); path.SetName(p); path.Dump()
+    FILETEST("hello");
+    FILETEST("hello.ext");
+    FILETEST("path/hello");
+    FILETEST("/path/hello.ext");
+    FILETEST("./hello");
+    FILETEST("./hello.ext1.ext2");
+    FILETEST("./hello.ext1.ext2/file/");
+    FILETEST("./very/long/path/name/file-name.ext");
+    //path.MakePath();
 
     printf("Done\n");
     return 0;
