@@ -19,9 +19,38 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_RANLIB
 
-# Checks for libraries.
-AC_CHECK_LIB([asound], [snd_pcm_start])
-AC_CHECK_LIB([fftw3f], [fftwf_execute])
+# libsamplerate, from the FAQ at http://www.mega-nerd.com/SRC/faq.html
+PKG_CHECK_MODULES(
+    SAMPLERATE, samplerate >= 0.1.2, ac_cv_samplerate=1, ac_cv_samplerate=0
+)
+AC_DEFINE_UNQUOTED(
+    [HAVE_SAMPLERATE],${ac_cv_samplerate},
+    [Set to 1 if you have libsamplerate.]
+)
+AC_SUBST(SAMPLERATE_CFLAGS)
+AC_SUBST(SAMPLERATE_LIBS)
+
+# ALSA
+PKG_CHECK_MODULES(
+    ALSA, alsa >= 1.0.13, ac_cv_alsa=1, ac_cv_alsa=0
+)
+AC_DEFINE_UNQUOTED(
+    [HAVE_ALSA],${ac_cv_alsa},
+    [Set to 1 if you have ALSA.]
+)
+AC_SUBST(ALSA_CFLAGS)
+AC_SUBST(ALSA_LIBS)
+
+# fftw3f
+PKG_CHECK_MODULES(
+    FFTW3F, fftw3f >= 3.1.2, ac_cv_fftw3f=1, ac_cv_fftw3f=0
+)
+AC_DEFINE_UNQUOTED(
+    [HAVE_FFTW3F],${ac_cv_fftw3f},
+    [Set to 1 if you have libfftw3f.]
+)
+AC_SUBST(FFTW3F_CFLAGS)
+AC_SUBST(FFTW3F_LIBS)
 
 # Checks for header files.
 AC_HEADER_STDC
