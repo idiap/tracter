@@ -24,6 +24,8 @@ protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);
 
 private:
+    float mFloor;
+    float mLogFloor;
     int mNLogData;
     int mNCepstra;
     float* mLogData;

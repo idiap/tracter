@@ -6,6 +6,7 @@
  */
 
 #include <math.h>
+#include <float.h>
 #include "Cepstrum.h"
 
 Cepstrum::Cepstrum(
@@ -17,6 +18,8 @@ Cepstrum::Cepstrum(
     mObjectName = iObjectName;
     mNLogData = mInput->GetArraySize();
 
+    mLogFloor = GetEnv("LogFloor", -1e9f);
+    mFloor = expf(mLogFloor);
     mC0 = GetEnv("C0", 1);
     mNCepstra = GetEnv("NCepstra", 12);
     mArraySize = mC0 ? mNCepstra+1 : mNCepstra;
@@ -52,7 +55,7 @@ bool Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
     // Copy the frame though a log function
     float* p = mInput->GetPointer(inputArea.offset);
     for (int i=0; i<mNLogData; i++)
-        mLogData[i] = logf(p[i]);
+        mLogData[i] = p[i] > mFloor ? logf(p[i]) : mLogFloor;
 
     // Do the DCT
     fftwf_execute(mPlan);
