@@ -5,8 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#ifndef CONVERTSAMPLERATE_H
-#define CONVERTSAMPLERATE_H
+#ifndef RESAMPLE_H
+#define RESAMPLE_H
 
 #include <samplerate.h>
 #include <vector>
@@ -14,7 +14,7 @@
 #include "UnaryPlugin.h"
 
 /**
- * Convert sample rate.
+ * Resample or convert sample rate.
  *
  * Implemented using Secret Rabbit Code.
  *
@@ -22,12 +22,12 @@
  * ALSA or similar if possible.  This one is for when the data is
  * coming from a file or other source where the rate can't be chosen.
  */
-class ConvertSampleRate : public UnaryPlugin<float, float>
+class Resample : public UnaryPlugin<float, float>
 {
 public:
-    ConvertSampleRate(Plugin<float>* iInput,
-                      const char* iObjectName = "ConvertSampleRate");
-    ~ConvertSampleRate();
+    Resample(Plugin<float>* iInput,
+                      const char* iObjectName = "Resample");
+    ~Resample();
     void Reset(bool iPropagate = true);
     void MinSize(int iSize, int iReadAhead);
 
@@ -42,4 +42,4 @@ private:
     std::vector<float> mResample;
 };
 
-#endif /* CONVERTSAMPLERATE_H */
+#endif /* RESAMPLE_H */

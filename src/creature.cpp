@@ -28,7 +28,7 @@
 #include "ComplexSample.h"
 #include "ComplexPeriodogram.h"
 #include "FilePath.h"
-#include "ConvertSampleRate.h"
+#include "Resample.h"
 
 class SinkSucker : public UnarySink<float>
 {
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 #endif
 
     Normalise* n = new Normalise(a);
-    ConvertSampleRate* sr = new ConvertSampleRate(n);
+    Resample* sr = new Resample(n);
     ZeroFilter* zf = new ZeroFilter(sr);
     Periodogram* p = new Periodogram(zf);
     MelFilter* mf = new MelFilter(p);

@@ -9,7 +9,7 @@ bin_PROGRAMS = socketserver socketclient creature testfile tracter
 lib_LIBRARIES = libtracter.a
 
 libtracter_a_SOURCES = \
-	ConvertSampleRate.cpp \
+	Resample.cpp \
 	FilePath.cpp \
 	SocketSink.cpp \
 	SocketSource.cpp \

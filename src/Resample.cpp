@@ -5,13 +5,13 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include "ConvertSampleRate.h"
+#include "Resample.h"
 
 /**
  * Initialise a sample rate converter.  Environment variables:
  *  - TargetFreq (16000)  Target sample frequency.
  */
-ConvertSampleRate::ConvertSampleRate(
+Resample::Resample(
     Plugin<float>* iInput, const char* iObjectName
 )
     : UnaryPlugin<float, float>(iInput)
@@ -33,7 +33,7 @@ ConvertSampleRate::ConvertSampleRate(
 /**
  * Deletes the sample rate converter
  */
-ConvertSampleRate::~ConvertSampleRate()
+Resample::~Resample()
 {
     src_delete(mState);
     mState = 0;
@@ -42,7 +42,7 @@ ConvertSampleRate::~ConvertSampleRate()
 /**
  * Ensures that the input plugin has the right size given the rate conversion
  */
-void ConvertSampleRate::MinSize(int iSize, int iReadAhead)
+void Resample::MinSize(int iSize, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -55,13 +55,13 @@ void ConvertSampleRate::MinSize(int iSize, int iReadAhead)
     );
 }
 
-void ConvertSampleRate::Reset(bool iPropagate)
+void Resample::Reset(bool iPropagate)
 {
     src_reset(mState);
     UnaryPlugin<float, float>::Reset(iPropagate);
 }
 
-int ConvertSampleRate::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iOutputArea.Length() > 0);
     assert(iIndex >= 0);
@@ -108,7 +108,7 @@ int ConvertSampleRate::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 /**
  * Runs src_process() and checks the error code.
  */
-void ConvertSampleRate::process()
+void Resample::process()
 {
     int error = src_process(mState, &mData);
     if (error)
