@@ -64,11 +64,15 @@ void FilePath::SetName(const char* iFilePath)
  */
 void FilePath::MakePath()
 {
+    // Return if the path isn't defined
+    if (mPath.size() == 0)
+        return;
+
     // Copy to temp storage so we can mess with it
     mTmp.resize(mPath.size()+1);
     mPath.copy(&mTmp[0], mTmp.size());
 
-    // Replace separators with nulls 
+    // Replace separators with nulls
     for (int i=0; i<mTmp.size(); i++)
     {
         if ((mTmp[i] == '/') || (mTmp[i] == '\0'))
