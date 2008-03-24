@@ -23,14 +23,9 @@ ComplexPeriodogram::ComplexPeriodogram(
 
     PluginObject::MinSize(mInput, mArraySize);
 
-    mInputData =
-        (fftwf_complex*)fftwf_malloc(mArraySize * sizeof(fftwf_complex));
-    mOutputData =
-        (fftwf_complex*)fftwf_malloc(mArraySize * sizeof(fftwf_complex));
-    assert(mInputData);
-    assert(mOutputData);
-    mPlan = fftwf_plan_dft_1d(mArraySize, mInputData, mOutputData,
-                              FFTW_FORWARD, 0);
+    mInputData = 0;
+    mOutputData = 0;
+    mFourier.Init(mArraySize, &mInputData, &mOutputData);
 
     // Hardwire a Hamming window.  Could be generalised much better.
     // This one is asymmetric.  Should it be symmetric?
@@ -38,13 +33,6 @@ ComplexPeriodogram::ComplexPeriodogram(
     mWindow.resize(mArraySize);
     for (int i=0; i<mArraySize; i++)
         mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (mArraySize - 1));
-}
-
-ComplexPeriodogram::~ComplexPeriodogram()
-{
-    fftwf_destroy_plan(mPlan);
-    fftwf_free(mInputData);
-    fftwf_free(mOutputData);
 }
 
 bool ComplexPeriodogram::UnaryFetch(IndexType iIndex, int iOffset)
@@ -67,14 +55,14 @@ bool ComplexPeriodogram::UnaryFetch(IndexType iIndex, int iOffset)
         pp[i+inputArea.len[0]] = p[i] * mWindow[i+inputArea.len[0]];
 
     // Do the DFT
-    fftwf_execute(mPlan);
+    mFourier.Transform();
 
     // Compute periodogram
     float* cache = GetPointer(iOffset);
     for (int i=0; i<mArraySize; i++)
         cache[i] =
-                mOutputData[i][0] * mOutputData[i][0] +
-                mOutputData[i][1] * mOutputData[i][1];
+            mOutputData[i].real() * mOutputData[i].real() +
+            mOutputData[i].imag() * mOutputData[i].imag();
 
     return true;
 }

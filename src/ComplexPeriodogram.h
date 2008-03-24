@@ -10,14 +10,13 @@
 
 #include <vector>
 
-#include <fftw3.h>
+#include "Fourier.h"
 #include "UnaryPlugin.h"
 #include "ComplexSample.h" // for the complex definitions
 
 /**
- * Uses the FFTW library to calculate a periodogram (aka power
- * spectral density).  The inputs are complex numbers from, e.g.,
- * quadrature sampling.
+ * Calculate a periodogram (aka power spectral density).  The inputs
+ * are complex numbers from, e.g., quadrature sampling.
  */
 class ComplexPeriodogram : public UnaryPlugin<float, complex>
 {
@@ -32,9 +31,9 @@ protected:
 private:
     int mFrameSize;
     int mFramePeriod;
-    fftwf_complex* mInputData;
-    fftwf_complex* mOutputData;
-    fftwf_plan mPlan;
+    complex* mInputData;
+    complex* mOutputData;
+    Fourier mFourier;
     std::vector<float> mWindow;
 };
 

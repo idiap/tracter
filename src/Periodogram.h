@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include <fftw3.h>
+#include "Fourier.h"
 #include "UnaryPlugin.h"
 
 /**
@@ -25,7 +25,6 @@ class Periodogram : public UnaryPlugin<float, float>
 public:
     Periodogram(Plugin<float>* iInput,
                 const char* iObjectName = "Periodogram");
-    ~Periodogram();
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);
@@ -34,9 +33,9 @@ private:
     int mFrameSize;
     int mFramePeriod;
     float* mRealData;
-    fftwf_complex* mComplexData;
-    fftwf_plan mPlan;
+    complex* mComplexData;
     std::vector<float> mWindow;
+    Fourier mFourier;
 };
 
 #endif /* PERIODOGRAM_H */

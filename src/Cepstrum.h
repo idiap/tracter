@@ -8,17 +8,16 @@
 #ifndef CEPSTRUM_H
 #define CEPSTRUM_H
 
-#include <fftw3.h>
+#include "Fourier.h"
 #include "UnaryPlugin.h"
 
 /**
- * Uses FFTW to generate the cepstrum of an input
+ * Generate the cepstrum of an input
  */
 class Cepstrum : public UnaryPlugin<float, float>
 {
 public:
     Cepstrum(Plugin<float>* iInput, const char* iObjectName = "Cepstrum");
-    ~Cepstrum();
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);
@@ -31,7 +30,7 @@ private:
     float* mLogData;
     float* mCepstra;
     bool mC0;
-    fftwf_plan mPlan;
+    Fourier mFourier;
 };
 
 #endif /* CEPSTRUM_H */

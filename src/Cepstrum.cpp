@@ -28,18 +28,9 @@ Cepstrum::Cepstrum(
     assert(mNCepstra < mNLogData);
     MinSize(mInput, 1);
 
-    mLogData = (float*)fftwf_malloc(mNLogData * sizeof(float));
-    mCepstra = (float*)fftwf_malloc(mNLogData * sizeof(float));
-    assert(mLogData);
-    assert(mCepstra);
-    mPlan = fftwf_plan_r2r_1d(mNLogData, mLogData, mCepstra, FFTW_REDFT10, 0);
-}
-
-Cepstrum::~Cepstrum()
-{
-    fftwf_destroy_plan(mPlan);
-    fftwf_free(mLogData);
-    fftwf_free(mCepstra);
+    mLogData = 0;
+    mCepstra = 0;
+    mFourier.Init(mNLogData, &mLogData, &mCepstra);
 }
 
 bool Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
@@ -58,7 +49,7 @@ bool Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
         mLogData[i] = p[i] > mFloor ? logf(p[i]) : mLogFloor;
 
     // Do the DCT
-    fftwf_execute(mPlan);
+    mFourier.Transform();
 
     // Copy to output in HTK order (C0 last, if at all)
     float* cache = GetPointer(iOffset);
