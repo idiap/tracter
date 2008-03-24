@@ -38,6 +38,35 @@ struct FourierData
 };
 
 
+/*
+ * Either allocate space or store the caller supplied space.
+ * Tl = Local type, the local storage type
+ * Tc = Caller type, the caller's storage type
+ */
+template<class Tl, class Tc>
+Tl* Allocate(int iSize, Tc** ioCData, void** ioLData, bool* iMyData)
+{
+    Tl* data;
+    if (*ioCData)
+    {
+        // Non null - no need to allocate
+        data = (Tl*)*ioCData;
+        *ioLData = 0;
+        *iMyData = false;
+    }
+    else
+    {
+        // Null caller data - need to allocate
+        data = (Tl*)KISS_FFT_MALLOC(iSize*sizeof(Tl));
+        *ioLData = data;
+        *ioCData = (Tc*)data;
+        *iMyData = true;
+    }
+    assert(data);
+    return data;
+}
+
+
 /* C to C */
 void Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
 {
@@ -54,39 +83,11 @@ void Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
 
     m.Type = COMPLEX_TO_COMPLEX;
 
-    kiss_fft_cpx* idata = 0;
-    if (*ioIData)
-    {
-        idata = (kiss_fft_cpx*)*ioIData;
-        m.IData = 0;
-        m.MyIData = false;
-    }
-    else
-    {
-        idata = (kiss_fft_cpx*)KISS_FFT_MALLOC(iOrder*sizeof(kiss_fft_cpx));
-        m.IData = idata;
-        *ioIData = (complex*)idata;
-        m.MyIData = true;
-    }
-
-    kiss_fft_cpx* odata = 0;
-    if (*ioOData)
-    {
-        odata = (kiss_fft_cpx*)*ioOData;
-        m.OData = 0;
-        m.MyOData = false;
-    }
-    else
-    {
-        odata = (kiss_fft_cpx*)KISS_FFT_MALLOC(iOrder*sizeof(kiss_fft_cpx));
-        m.OData = odata;
-        *ioOData = (complex*)odata;
-        m.MyOData = true;
-    }
-
+    kiss_fft_cpx* idata =
+        Allocate<kiss_fft_cpx, complex>(iOrder, ioIData, &m.IData, &m.MyIData);
+    kiss_fft_cpx* odata =
+        Allocate<kiss_fft_cpx, complex>(iOrder, ioOData, &m.OData, &m.MyOData);
     m.TmpData = 0;
-    assert(idata);
-    assert(odata);
     m.Config = kiss_fft_alloc(iOrder, 0, 0, 0);
 }
 
@@ -109,40 +110,12 @@ void Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
 
     m.Type = REAL_TO_COMPLEX;
 
-    float* idata = 0;
-    if (*ioIData)
-    {
-        idata = *ioIData;
-        m.IData = 0;
-        m.MyIData = false;
-    }
-    else
-    {
-        idata = (float*)KISS_FFT_MALLOC(iOrder * sizeof(float));
-        m.IData = idata;
-        *ioIData = idata;
-        m.MyIData = true;
-    }
-
-    kiss_fft_cpx* odata = 0;
-    if (*ioOData)
-    {
-        odata = (kiss_fft_cpx*)*ioOData;
-        m.OData = 0;
-        m.MyOData = false;
-    }
-    else
-    {
-        odata =
-            (kiss_fft_cpx*)KISS_FFT_MALLOC((iOrder/2+1)*sizeof(kiss_fft_cpx));
-        m.OData = odata;
-        *ioOData = (complex*)odata;
-        m.MyOData = true;
-    }
-
+    float* idata =
+        Allocate<float, float>(iOrder, ioIData, &m.IData, &m.MyIData);
+    kiss_fft_cpx* odata =
+        Allocate<kiss_fft_cpx, complex>(iOrder/2+1, ioOData, &m.OData,
+                                        &m.MyOData);
     m.TmpData = 0;
-    assert(idata);
-    assert(odata);
     m.Config = kiss_fftr_alloc(iOrder, 0, 0, 0);
 }
 
@@ -165,44 +138,13 @@ void Fourier::Init(int iOrder, float** ioIData, float** ioOData)
     m.Type = DCT2;
     m.Order = iOrder;
 
-    float* idata = 0;
-    if (*ioIData)
-    {
-        /* Disallow this; the caller doesn't know we need double size */
-        assert(0);
-        idata = *ioIData;
-        m.IData = 0;
-        m.MyIData = false;
-    }
-    else
-    {
-        /* Double size for the duplication */
-        idata = (float*)KISS_FFT_MALLOC(iOrder * 2 * sizeof(float));
-        m.IData = idata;
-        *ioIData = idata;
-        m.MyIData = true;
-    }
-
-    float* odata = 0;
-    if (*ioOData)
-    {
-        odata = *ioOData;
-        m.OData = 0;
-        m.MyOData = false;
-    }
-    else
-    {
-        odata = (float*)KISS_FFT_MALLOC(iOrder * sizeof(float));
-        m.OData = odata;
-        *ioOData = odata;
-        m.MyOData = true;
-    }
-    m.TmpData = 
+    float* idata =
+        Allocate<float, float>(iOrder*2, ioIData, &m.IData, &m.MyIData);
+    float* odata =
+        Allocate<float, float>(iOrder, ioOData, &m.OData, &m.MyOData);
+    m.TmpData =
         (kiss_fft_cpx*)KISS_FFT_MALLOC((iOrder+1)*sizeof(kiss_fft_cpx));
-
     assert(m.TmpData);
-    assert(idata);
-    assert(odata);
     m.Config = kiss_fftr_alloc(iOrder*2, 0, 0, 0);
 }
 
@@ -215,31 +157,13 @@ Fourier::~Fourier()
     FourierData& m = *mFourierData;
 
     if (m.Config)
-    {
-        kiss_fftr_free(m.Config);
-        m.Config = 0;
-    }
-
+        free(m.Config);
     if (m.MyIData && m.IData)
-    {
         free(m.IData);
-        m.IData = 0;
-        m.MyIData = false;
-    }
-
     if (m.MyOData && m.OData)
-    {
         free(m.OData);
-        m.OData = 0;
-        m.MyOData = 0;
-    }
-
     if (m.TmpData)
-    {
         free(m.TmpData);
-        m.TmpData = 0;
-    }
-
     delete mFourierData;
 
     if (--FourierKiss::sInstanceCount == 0)

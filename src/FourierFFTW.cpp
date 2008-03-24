@@ -21,6 +21,32 @@ struct FourierData
     fftwf_plan Plan;
 };
 
+/*
+ * Either allocate space or store the caller supplied space.
+ * Tl = Local type, the local storage type
+ * Tc = Caller type, the caller's storage type
+ */
+template<class Tl, class Tc>
+Tl* Allocate(int iSize, Tc** ioCData, void** ioLData)
+{
+    Tl* data;
+    if (*ioCData)
+    {
+        // Non null - no need to allocate
+        data = (Tl*)*ioCData;
+        *ioLData = 0;
+    }
+    else
+    {
+        // Null caller data - need to allocate
+        data = (Tl*)fftwf_malloc(iSize * sizeof(Tl));
+        *ioLData = data;
+        *ioCData = (Tc*)data;
+    }
+    assert(data);
+    return data;
+}
+
 
 /*
  * Complex to Complex transform
@@ -37,34 +63,10 @@ void Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
     mFourierData = new FourierData;
     FourierData& m = *mFourierData;
 
-    fftwf_complex* idata = 0;
-    if (*ioIData)
-    {
-        idata = (fftwf_complex*)*ioIData;
-        m.IData = 0;
-    }
-    else
-    {
-        idata = (fftwf_complex*)fftwf_malloc(iOrder * sizeof(fftwf_complex));
-        m.IData = idata;
-        *ioIData = (complex*)idata;
-    }
-
-    fftwf_complex* odata = 0;
-    if (*ioOData)
-    {
-        odata = (fftwf_complex*)*ioOData;
-        m.OData = 0;
-    }
-    else
-    {
-        odata = (fftwf_complex*)fftwf_malloc(iOrder * sizeof(fftwf_complex));
-        m.OData = odata;
-        *ioOData = (complex*)odata;
-    }
-
-    assert(idata);
-    assert(odata);
+    fftwf_complex* idata =
+        Allocate<fftwf_complex, complex>(iOrder, ioIData, &m.IData);
+    fftwf_complex* odata =
+        Allocate<fftwf_complex, complex>(iOrder, ioOData, &m.OData);
     m.Plan = fftwf_plan_dft_1d(iOrder, idata, odata, FFTW_FORWARD, 0);
 }
 
@@ -84,35 +86,10 @@ void Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
     mFourierData = new FourierData;
     FourierData& m = *mFourierData;
 
-    float* idata = 0;
-    if (*ioIData)
-    {
-        idata = *ioIData;
-        m.IData = 0;
-    }
-    else
-    {
-        idata = (float*)fftwf_malloc(iOrder * sizeof(float));
-        m.IData = idata;
-        *ioIData = idata;
-    }
-
-    fftwf_complex* odata = 0;
-    if (*ioOData)
-    {
-        odata = (fftwf_complex*)*ioOData;
-        m.OData = 0;
-    }
-    else
-    {
-        odata =
-            (fftwf_complex*)fftwf_malloc((iOrder/2+1) * sizeof(fftwf_complex));
-        m.OData = odata;
-        *ioOData = (complex*)odata;
-    }
-
-    assert(idata);
-    assert(odata);
+    float* idata =
+        Allocate<float, float>(iOrder, ioIData, &m.IData);
+    fftwf_complex* odata =
+        Allocate<fftwf_complex, complex>(iOrder/2+1, ioOData, &m.OData);
     m.Plan = fftwf_plan_dft_r2c_1d(iOrder, idata, odata, 0);
 }
 
@@ -132,34 +109,10 @@ void Fourier::Init(int iOrder, float** ioIData, float** ioOData)
     mFourierData = new FourierData;
     FourierData& m = *mFourierData;
 
-    float* idata = 0;
-    if (*ioIData)
-    {
-        idata = *ioIData;
-        m.IData = 0;
-    }
-    else
-    {
-        idata = (float*)fftwf_malloc(iOrder * sizeof(float));
-        m.IData = idata;
-        *ioIData = idata;
-    }
-
-    float* odata = 0;
-    if (*ioOData)
-    {
-        odata = *ioOData;
-        m.OData = 0;
-    }
-    else
-    {
-        odata = (float*)fftwf_malloc(iOrder * sizeof(float));
-        m.OData = odata;
-        *ioOData = odata;
-    }
-
-    assert(idata);
-    assert(odata);
+    float* idata =
+        Allocate<float, float>(iOrder, ioIData, &m.IData);
+    float* odata =
+        Allocate<float, float>(iOrder, ioOData, &m.OData);
     m.Plan = fftwf_plan_r2r_1d(iOrder, idata, odata, FFTW_REDFT10, 0);
 }
 
@@ -172,19 +125,10 @@ Fourier::~Fourier()
     FourierData& m = *mFourierData;
 
     fftwf_destroy_plan(m.Plan);
-
     if (m.IData)
-    {
         fftwf_free(m.IData);
-        m.IData = 0;
-    }
-
     if (m.OData)
-    {
         fftwf_free(m.OData);
-        m.OData = 0;
-    }
-
     delete mFourierData;
 
     if (--FourierFFTW::sInstanceCount == 0)
