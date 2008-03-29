@@ -23,7 +23,6 @@ class ComplexPeriodogram : public UnaryPlugin<float, complex>
 public:
     ComplexPeriodogram(Plugin<complex>* iInput,
                        const char* iObjectName = "ComplexPeriodogram");
-    ~ComplexPeriodogram();
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);
