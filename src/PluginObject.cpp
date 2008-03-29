@@ -152,7 +152,8 @@ void PluginObject::ReadAhead(int iReadAhead)
         if (iReadAhead < 0)
         {
             mIndefinite = true;
-            printf("Cache set to indefinite size\n");
+            if (Tracter::sVerbose > 0)
+                printf("%s cache set to indefinite size\n", mObjectName);
         }
 
         // I'm almost sure this is not right...
