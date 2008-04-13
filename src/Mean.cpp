@@ -135,7 +135,7 @@ bool Mean::adaptFrame(IndexType iIndex)
     {
         // Combine the new observation into the mean
         for (int i=0; i<mArraySize; i++)
-            mMean[i] = mPole * mMean[i] + mElop * p[i];        
+            mMean[i] = mPole * mMean[i] + mElop * p[i];
     }
     else
     {
