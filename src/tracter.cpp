@@ -26,21 +26,26 @@
 #include "ComplexSample.h"
 #include "ComplexPeriodogram.h"
 #include "FilePath.h"
+#include "MAPSpectrum.h"
+#include "Variance.h"
+#include "Divide.h"
+#include "Histogram.h"
 
 /**
- * A basic ASR front-end with pre-emphasis, spectral subtraction and
- * cepstral mean subtraction.
- *
- * ...except that spectral subtraction doesn't work well yet
+ * A basic ASR front-end with pre-emphasis, and cepstral mean
+ * subtraction.
  */
 Plugin<float>* BasicFrontend(Plugin<float>* iSource)
 {
     /* Signal processing chain */
     ZeroFilter* zf = new ZeroFilter(iSource);
     Periodogram* p = new Periodogram(zf);
-    //Noise* nn = new Noise(p);
-    //SpectralSubtract *ss = new SpectralSubtract(p, nn);
+#if 1
+    Histogram* h = new Histogram(p);
+    MelFilter* mf = new MelFilter(h);
+#else
     MelFilter* mf = new MelFilter(p);
+#endif
     Cepstrum* c = new Cepstrum(mf);
     Mean* m = new Mean(c);
     Subtract* s = new Subtract(c, m);
@@ -62,13 +67,23 @@ Plugin<float>* PLPFrontend(Plugin<float>* iSource)
 }
 #endif
 
-Plugin<float>* ComplexFrontend(Plugin<float>* iSource)
+Plugin<float>* NoiseFrontend(Plugin<float>* iSource)
 {
     /* Signal processing chain */
-    ComplexSample* cs = new ComplexSample(iSource);
-    ComplexPeriodogram* cp = new ComplexPeriodogram(cs);
-    Pixmap* pm = new Pixmap(cp);
-    return pm;
+    ZeroFilter* zf = new ZeroFilter(iSource);
+    Periodogram* p = new Periodogram(zf);
+    Noise* nn = new Noise(p);
+    MAPSpectrum *mp = new MAPSpectrum(p, nn);
+#if 0
+    Pixmap* pm = new Pixmap(mp);
+    MelFilter* mf = new MelFilter(pm);
+#else
+    MelFilter* mf = new MelFilter(mp);
+#endif
+    Cepstrum* c = new Cepstrum(mf);
+    Mean* m = new Mean(c);
+    Subtract* s = new Subtract(c, m);
+    return s;
 }
 
 void Usage()
@@ -91,6 +106,7 @@ int main(int argc, char** argv)
 {
     bool verbose = false;
     int deltaOrder = 0;
+    bool cvn = false;
 
     const char* fileList = 0;
     const char* file[2] = {0, 0};
@@ -130,6 +146,10 @@ int main(int argc, char** argv)
             Tracter::sShowConfig = true;
             break;
 
+        case 'n':
+            cvn = true;
+            break;
+
         default:
             printf("Unrecognised argument %s\n", argv[i]);
             Usage();
@@ -142,8 +162,8 @@ int main(int argc, char** argv)
     Normalise* n = new Normalise(source);
 
     /* Choose a front-end architecture */
-    Plugin<float>* f = BasicFrontend(n);
-    //Plugin<float>* f = ComplexFrontend(n);
+    //Plugin<float>* f = BasicFrontend(n);
+    Plugin<float>* f = NoiseFrontend(n);
     //Plugin<float>* f = PLPFrontend(n);
 
     /* Add deltas up to deltaOrder */
@@ -158,6 +178,14 @@ int main(int argc, char** argv)
             f = d;
         }
         f = c;
+    }
+
+    /* Cepstral Variance Normalisation */
+    if (cvn)
+    {
+        Variance* v = new Variance(f);
+        Divide* d = new Divide(f, v);
+        f = d;
     }
 
     /* An HTK file sink */
@@ -181,7 +209,8 @@ int main(int argc, char** argv)
     {
         /* Extract a whole file list */
         assert(fileList);
-        printf("filelist %s\n", fileList);
+        if (Tracter::sVerbose > 0)
+            printf("filelist %s\n", fileList);
         FILE* list = fopen(fileList, "r");
         if (!list)
         {

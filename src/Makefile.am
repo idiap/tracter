@@ -12,6 +12,11 @@ bin_PROGRAMS = \
 lib_LIBRARIES = libtracter.a
 
 libtracter_a_SOURCES = \
+	Histogram.cpp \
+	Laguerre.cpp \
+	Variance.cpp \
+	Divide.cpp \
+	MAPSpectrum.cpp \
 	MAPNoise.cpp \
 	Resample.cpp \
 	FilePath.cpp \
