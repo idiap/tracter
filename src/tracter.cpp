@@ -21,12 +21,10 @@
 #include "Noise.h"
 #include "Concatenate.h"
 #include "Delta.h"
-//#include "PLP.h"
 #include "Pixmap.h"
 #include "ComplexSample.h"
 #include "ComplexPeriodogram.h"
 #include "FilePath.h"
-#include "MAPSpectrum.h"
 #include "Variance.h"
 #include "Divide.h"
 #include "Histogram.h"
@@ -40,46 +38,7 @@ Plugin<float>* BasicFrontend(Plugin<float>* iSource)
     /* Signal processing chain */
     ZeroFilter* zf = new ZeroFilter(iSource);
     Periodogram* p = new Periodogram(zf);
-#if 1
-    Histogram* h = new Histogram(p);
-    MelFilter* mf = new MelFilter(h);
-#else
     MelFilter* mf = new MelFilter(p);
-#endif
-    Cepstrum* c = new Cepstrum(mf);
-    Mean* m = new Mean(c);
-    Subtract* s = new Subtract(c, m);
-    return s;
-}
-
-#if 0
-Plugin<float>* PLPFrontend(Plugin<float>* iSource)
-{
-    /* Signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(iSource);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    PLP* l = new PLP(mf);
-    //Pixmap* pm = new Pixmap(l);
-    Mean* m = new Mean(l);
-    Subtract* s = new Subtract(l, m);
-    return s;
-}
-#endif
-
-Plugin<float>* NoiseFrontend(Plugin<float>* iSource)
-{
-    /* Signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(iSource);
-    Periodogram* p = new Periodogram(zf);
-    Noise* nn = new Noise(p);
-    MAPSpectrum *mp = new MAPSpectrum(p, nn);
-#if 0
-    Pixmap* pm = new Pixmap(mp);
-    MelFilter* mf = new MelFilter(pm);
-#else
-    MelFilter* mf = new MelFilter(mp);
-#endif
     Cepstrum* c = new Cepstrum(mf);
     Mean* m = new Mean(c);
     Subtract* s = new Subtract(c, m);
@@ -162,9 +121,7 @@ int main(int argc, char** argv)
     Normalise* n = new Normalise(source);
 
     /* Choose a front-end architecture */
-    //Plugin<float>* f = BasicFrontend(n);
-    Plugin<float>* f = NoiseFrontend(n);
-    //Plugin<float>* f = PLPFrontend(n);
+    Plugin<float>* f = BasicFrontend(n);
 
     /* Add deltas up to deltaOrder */
     if (deltaOrder > 0)

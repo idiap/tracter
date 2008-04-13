@@ -30,8 +30,6 @@
 #include "FilePath.h"
 #include "Resample.h"
 
-#include "TracterObject.h"
-
 class SinkSucker : public UnarySink<float>
 {
 public:
@@ -158,7 +156,7 @@ int main(int argc, char** argv)
     {
         printf("%f\n", frame[4]);
     }
-#if 1
+
     printf("ComplexSample...\n");
     FileSource<short>* cs = new FileSource<short>();
     Normalise* cn = new Normalise(cs);
@@ -173,7 +171,7 @@ int main(int argc, char** argv)
     {
         printf("%f %f\n", cframe[0].real() * 32768, cframe[0].imag() * 32768);
     }
-#endif
+
     FilePath path;
 #define FILETEST(p) printf("Test:" p "\n"); path.SetName(p); path.Dump()
     FILETEST("hello");

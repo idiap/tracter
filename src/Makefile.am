@@ -7,7 +7,7 @@
 
 bin_PROGRAMS = \
 	socketserver socketclient \
-	creature testfile tracter noise fft
+	creature testfile tracter fft
 
 lib_LIBRARIES = libtracter.a
 
@@ -16,8 +16,6 @@ libtracter_a_SOURCES = \
 	Laguerre.cpp \
 	Variance.cpp \
 	Divide.cpp \
-	MAPSpectrum.cpp \
-	MAPNoise.cpp \
 	Resample.cpp \
 	FilePath.cpp \
 	SocketSink.cpp \
@@ -42,7 +40,6 @@ libtracter_a_SOURCES = \
 	Noise.cpp \
 	Subtract.cpp \
 	SpectralSubtract.cpp \
-	PLP.cpp \
 	Pixmap.cpp
 
 include_HEADERS = $(libtracter_a_SOURCES:.cpp=.h) \
@@ -80,9 +77,6 @@ dist_libtracter_a_SOURCES += FourierFFTW.cpp
 libtracter_a_CFLAGS += @FFTW3F_CFLAGS@
 FFT_LIBS = @FFTW3F_LIBS@
 endif
-
-noise_SOURCES = noise.cpp
-noise_LDADD = libtracter.a
 
 fft_SOURCES = fft.cpp
 fft_LDADD = libtracter.a $(FFT_LIBS)
