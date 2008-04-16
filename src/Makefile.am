@@ -7,11 +7,12 @@
 
 bin_PROGRAMS = \
 	socketserver socketclient \
-	creature testfile tracter noise fft
+	creature testfile tracter noise fft parser
 
 lib_LIBRARIES = libtracter.a
 
 libtracter_a_SOURCES = \
+	Tokenise.cpp \
 	Histogram.cpp \
 	Laguerre.cpp \
 	Variance.cpp \
@@ -80,6 +81,9 @@ dist_libtracter_a_SOURCES += FourierFFTW.cpp
 libtracter_a_CFLAGS += @FFTW3F_CFLAGS@
 FFT_LIBS = @FFTW3F_LIBS@
 endif
+
+parser_SOURCES = parser.cpp
+parser_LDADD = libtracter.a
 
 noise_SOURCES = noise.cpp
 noise_LDADD = libtracter.a
