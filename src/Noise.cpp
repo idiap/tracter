@@ -12,6 +12,7 @@ Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
     mArraySize = iInput->GetArraySize();
+
     mValid = false;
     mNInit = GetEnv("NInit", 10);
     mEnd = GetEnv("End", 0);
@@ -79,19 +80,19 @@ bool Noise::UnaryFetch(IndexType iIndex, int iOffset)
 
                 float* input = mInput->GetPointer(ca.offset);
                 for (int i=0; i<mArraySize; i++)
-                    output[i] += input[i];
+                    output[i] = Accumulate(input[i], output[i]);
             }
         }
 
         // Divide through to finalise the estimate
         for (int i=0; i<mArraySize; i++)
-            output[i] /= mEnd ? mNInit*2 : mNInit;
+            output[i] = Calculate(output[i], mEnd ? mNInit*2 : mNInit);
         mValid = true;
 
         // Print out the noise estimate
-        if (Tracter::sVerbose > 0)
-            for (int i=10; i<mArraySize; i+= 20)
-                printf("noise %d = %e\n", i, output[i]);
+        if (Tracter::sVerbose > 2)
+            for (int i=0; i<mArraySize; i++)
+                printf("%e\n", output[i]);
     }
 
     // After the initialisation, there is nothing to do.
