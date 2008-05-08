@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include "TracterObject.h"
 #include "MMap.h"
 
 MMap::MMap()
@@ -71,6 +72,9 @@ void* MMap::Map(const char* iFileName)
         printf("MMap: Failed to map file %s\n", iFileName);
         exit(1);
     }
+
+    if (Tracter::sVerbose > 1)
+        printf("MMap: %s size %d\n", iFileName, mSize);
 
     return mMap;
 }
