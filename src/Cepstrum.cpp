@@ -18,8 +18,9 @@ Cepstrum::Cepstrum(
     mObjectName = iObjectName;
     mNLogData = mInput->GetArraySize();
 
-    mLogFloor = GetEnv("LogFloor", -1e9f);
-    mFloor = expf(mLogFloor);
+    mFloor = GetEnv("Floor", 1e-8f);
+    mLogFloor = logf(mFloor);
+    mFloored = 0;
     mC0 = GetEnv("C0", 1);
     mNCepstra = GetEnv("NCepstra", 12);
     mArraySize = mC0 ? mNCepstra+1 : mNCepstra;
@@ -31,6 +32,12 @@ Cepstrum::Cepstrum(
     mLogData = 0;
     mCepstra = 0;
     mFourier.Init(mNLogData, &mLogData, &mCepstra);
+}
+
+Cepstrum::~Cepstrum()
+{
+    if ((Tracter::sVerbose > 0) && (mFloored > 0))
+        printf("Cepstrum: floored %d values < %e\n", mFloored, mFloor);
 }
 
 bool Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
@@ -46,7 +53,13 @@ bool Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
     // Copy the frame though a log function
     float* p = mInput->GetPointer(inputArea.offset);
     for (int i=0; i<mNLogData; i++)
-        mLogData[i] = p[i] > mFloor ? logf(p[i]) : mLogFloor;
+        if (p[i] > mFloor)
+            mLogData[i] = logf(p[i]);
+        else
+        {
+            mLogData[i] = mLogFloor;
+            mFloored++;
+        }
 
     // Do the DCT
     mFourier.Transform();
