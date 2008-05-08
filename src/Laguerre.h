@@ -23,7 +23,8 @@ class Laguerre
 {
 public:
     void SetOrder(int iOrder);
-    float Evaluate(float iEstimate, std::vector<float>& iPoly);
+    float Evaluate(float iEstimate, const std::vector<float>& iPoly);
+    float Evaluate(float iEstimate, const float* iPoly);
 private:
     int mOrder;
     std::vector<float> mD;
