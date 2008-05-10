@@ -35,11 +35,11 @@ bool Tokenise::UnaryFetch(IndexType iIndex, int iOffset)
     token.clear();
 
     // Read the input
-    CacheArea mInputArea;
-    while (mInput->Read(mInputArea, mIndex, BLOCK_SIZE))
+    CacheArea inputArea;
+    while (mInput->Read(inputArea, mIndex, BLOCK_SIZE))
     {
-        CacheIterator<char> mIterator(mInput, mInputArea);
-        for (int i=0; i<mInputArea.Length(); ++i, ++mIterator, ++mIndex)
+        CacheIterator<char> mIterator(mInput, inputArea);
+        for (int i=0; i<inputArea.Length(); ++i, ++mIterator, ++mIndex)
         {
             char c = *mIterator;
 
