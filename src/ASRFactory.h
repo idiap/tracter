@@ -10,10 +10,11 @@
 
 #include <map>
 #include <string>
+
 #include "TracterObject.h"
 #include "Plugin.h"
 
-namespace TTracter
+namespace Tracter
 {
     // Pre-declaration for the typedef
     class ASRFactory;
@@ -25,15 +26,20 @@ namespace TTracter
      * Tracter::Object, so it can use environment variables to
      * customise its behaviour.
      */
-    class ASRFactory : public TTracter::Object
+    class ASRFactory : public Tracter::Object
     {
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
         Plugin<float>* Frontend(Plugin<float>* iPlugin);
 
-    private:
+    protected:
         std::map<std::string, frontend_t> mFrontend;
+
+    private:
         Plugin<float>* BasicFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* NoiseFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* PLPFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* ComplexFrontend(Plugin<float>* iPlugin);
     };
 }
 

@@ -10,81 +10,11 @@
 
 #include "FileSource.h"
 #include "Normalise.h"
-#include "ZeroFilter.h"
-#include "Periodogram.h"
-#include "MelFilter.h"
-#include "Cepstrum.h"
 #include "HTKSink.h"
-#include "Mean.h"
-#include "Subtract.h"
-#include "SpectralSubtract.h"
-#include "Noise.h"
-#include "Concatenate.h"
-#include "Delta.h"
-//#include "PLP.h"
-#include "Pixmap.h"
-#include "ComplexSample.h"
-#include "ComplexPeriodogram.h"
 #include "FilePath.h"
-#include "MAPSpectrum.h"
-#include "Variance.h"
-#include "Divide.h"
-#include "Histogram.h"
+#include "ASRFactory.h"
 
-/**
- * A basic ASR front-end with pre-emphasis, and cepstral mean
- * subtraction.
- */
-Plugin<float>* BasicFrontend(Plugin<float>* iSource)
-{
-    /* Signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(iSource);
-    Periodogram* p = new Periodogram(zf);
-#if 1
-    Histogram* h = new Histogram(p);
-    MelFilter* mf = new MelFilter(h);
-#else
-    MelFilter* mf = new MelFilter(p);
-#endif
-    Cepstrum* c = new Cepstrum(mf);
-    Mean* m = new Mean(c);
-    Subtract* s = new Subtract(c, m);
-    return s;
-}
-
-#if 0
-Plugin<float>* PLPFrontend(Plugin<float>* iSource)
-{
-    /* Signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(iSource);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    PLP* l = new PLP(mf);
-    //Pixmap* pm = new Pixmap(l);
-    Mean* m = new Mean(l);
-    Subtract* s = new Subtract(l, m);
-    return s;
-}
-#endif
-
-Plugin<float>* NoiseFrontend(Plugin<float>* iSource)
-{
-    /* Signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(iSource);
-    Periodogram* p = new Periodogram(zf);
-    Noise* nn = new Noise(p);
-    MAPSpectrum *mp = new MAPSpectrum(p, nn);
-#if 0
-    Pixmap* pm = new Pixmap(mp);
-    MelFilter* mf = new MelFilter(pm);
-#else
-    MelFilter* mf = new MelFilter(mp);
-#endif
-    Cepstrum* c = new Cepstrum(mf);
-    Mean* m = new Mean(c);
-    Subtract* s = new Subtract(c, m);
-    return s;
-}
+using namespace Tracter;
 
 void Usage()
 {
@@ -94,6 +24,7 @@ void Usage()
         "-v      Increment verbosity level (e.g., -v -v -v sets it to 3)\n"
         "-c      Dump the configuration parameters to stdout\n"
         "-d n    Add deltas up to order n\n"
+        "-n      Add a Cepstral Variance Normalisation stage after deltas\n"
         "-f list Read input and output files from list\n"
         "Anything else prints this information\n"
     );
@@ -104,10 +35,6 @@ void Usage()
  */
 int main(int argc, char** argv)
 {
-    bool verbose = false;
-    int deltaOrder = 0;
-    bool cvn = false;
-
     const char* fileList = 0;
     const char* file[2] = {0, 0};
     int fileCount = 0;
@@ -130,7 +57,6 @@ int main(int argc, char** argv)
         switch (argv[i][1])
         {
         case 'v':
-            verbose = true;
             Tracter::sVerbose++;
             break;
 
@@ -138,16 +64,8 @@ int main(int argc, char** argv)
             fileList = argv[++i];
             break;
 
-        case 'd':
-            deltaOrder = atoi(argv[++i]);
-            break;
-
         case 'c':
             Tracter::sShowConfig = true;
-            break;
-
-        case 'n':
-            cvn = true;
             break;
 
         default:
@@ -161,32 +79,9 @@ int main(int argc, char** argv)
     FileSource<short>* source = new FileSource<short>();
     Normalise* n = new Normalise(source);
 
-    /* Choose a front-end architecture */
-    //Plugin<float>* f = BasicFrontend(n);
-    Plugin<float>* f = NoiseFrontend(n);
-    //Plugin<float>* f = PLPFrontend(n);
-
-    /* Add deltas up to deltaOrder */
-    if (deltaOrder > 0)
-    {
-        Concatenate* c = new Concatenate();
-        c->Add(f);
-        for (int i=0; i<deltaOrder; i++)
-        {
-            Delta* d = new Delta(f);
-            c->Add(d);
-            f = d;
-        }
-        f = c;
-    }
-
-    /* Cepstral Variance Normalisation */
-    if (cvn)
-    {
-        Variance* v = new Variance(f);
-        Divide* d = new Divide(f, v);
-        f = d;
-    }
+    /* Frontend */
+    ASRFactory factory;
+    Plugin<float>* f = factory.Frontend(n);
 
     /* An HTK file sink */
     HTKSink sink(f);
@@ -222,7 +117,7 @@ int main(int argc, char** argv)
         char file2[1024];
         while (fscanf(list, "%s %s", file1, file2) == 2)
         {
-            if (verbose)
+            if (Tracter::sVerbose > 1)
                 printf("%s\n %s\n", file1, file2);
             sink.Reset();
             source->Open(file1);

@@ -17,21 +17,30 @@
 #include "MelFilter.h"
 #include "Cepstrum.h"
 
-TTracter::ASRFactory::ASRFactory(const char* iObjectName)
+#include "PLP.h"
+#include "WarpedPeriodogram.h"
+#include "Noise.h"
+#include "GeometricNoise.h"
+#include "MAPSpectrum.h"
+
+Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
     mObjectName = iObjectName;
 
     // List all available front-ends
-    mFrontend["Basic"] = &TTracter::ASRFactory::BasicFrontend;
+    mFrontend["Basic"] = &Tracter::ASRFactory::BasicFrontend;
+    mFrontend["Noise"] = &Tracter::ASRFactory::NoiseFrontend;
+    mFrontend["PLP"] = &Tracter::ASRFactory::PLPFrontend;
+    mFrontend["Complex"] = &Tracter::ASRFactory::ComplexFrontend;
 }
 
-Plugin<float>* TTracter::ASRFactory::Frontend(Plugin<float>* iPlugin)
+Plugin<float>* Tracter::ASRFactory::Frontend(Plugin<float>* iPlugin)
 {
     Plugin<float> *plugin = 0;
 
     const char* frontend = GetEnv("Frontend", "Basic");
     if (mFrontend[frontend])
-        return (this->*mFrontend[frontend])(iPlugin);
+        plugin = (this->*mFrontend[frontend])(iPlugin);
     else
     {
         printf("ASRFactory: Unknown frontend %s\n", frontend);
@@ -67,14 +76,45 @@ Plugin<float>* TTracter::ASRFactory::Frontend(Plugin<float>* iPlugin)
         Divide* d = new Divide(plugin, v);
         plugin = d;
     }
+
+    return plugin;
 }
 
-Plugin<float>* TTracter::ASRFactory::BasicFrontend(Plugin<float>* iPlugin)
+Plugin<float>* Tracter::ASRFactory::BasicFrontend(Plugin<float>* iPlugin)
 {
     /* Basic signal processing chain */
     ZeroFilter* zf = new ZeroFilter(iPlugin);
     Periodogram* p = new Periodogram(zf);
     MelFilter* mf = new MelFilter(p);
+    Cepstrum* c = new Cepstrum(mf);
+    return c;
+}
+
+Plugin<float>* Tracter::ASRFactory::PLPFrontend(Plugin<float>* iPlugin)
+{
+    ZeroFilter* zf = new ZeroFilter(iPlugin);
+    Periodogram* p = new Periodogram(zf);
+    MelFilter* mf = new MelFilter(p);
+    PLP* l = new PLP(mf);
+    return l;
+}
+
+Plugin<float>* Tracter::ASRFactory::ComplexFrontend(Plugin<float>* iPlugin)
+{
+    ZeroFilter* zf = new ZeroFilter(iPlugin);
+    WarpedPeriodogram* p = new WarpedPeriodogram(zf);
+    Cepstrum* c = new Cepstrum(p);
+    return c;
+}
+
+Plugin<float>* Tracter::ASRFactory::NoiseFrontend(Plugin<float>* iPlugin)
+{
+    ZeroFilter* zf = new ZeroFilter(iPlugin);
+    Periodogram* p = new Periodogram(zf);
+    GeometricNoise* gn = new GeometricNoise(p);
+    Noise* nn = new Noise(p);
+    MAPSpectrum *mp = new MAPSpectrum(p, nn, gn);
+    MelFilter* mf = new MelFilter(mp);
     Cepstrum* c = new Cepstrum(mf);
     return c;
 }
