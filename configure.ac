@@ -101,7 +101,11 @@ AC_TYPE_SIZE_T
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([munmap])
 
-AC_CONFIG_FILES([Makefile
-                 src/Makefile
-		 doc/Makefile])
+AC_CONFIG_FILES(
+	[Makefile
+	 tracter.pc
+	 Doxyfile
+	 src/Makefile
+	 doc/Makefile]
+)
 AC_OUTPUT
