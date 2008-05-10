@@ -11,7 +11,7 @@
 /**
  * Tracter namespace
  */
-namespace TTracter {
+namespace Tracter {
     extern bool sShowConfig;
     extern int sVerbose;
 }
@@ -24,20 +24,20 @@ namespace TTracter {
  * Right now, this is just the environment variable parameter
  * mechanism.
  */
-namespace TTracter
+namespace Tracter
 {
     class Object
     {
     protected:
-        const char* mObjectName;
+        const char* mObjectName; ///< Name of this object
 
-        void test();
+        float GetEnv(const char* iSuffix, float iDefault);
+        int GetEnv(const char* iSuffix, int iDefault);
+        const char* GetEnv(const char* iSuffix, const char* iDefault);
+
+    private:
+        const char* getEnv(const char* iSuffix, const char* iDefault);
     };
 }
-
-void TTracter::Object::test()
-{
-    assert(0);
-};
 
 #endif /* TRACTEROBJECT_H */

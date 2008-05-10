@@ -10,9 +10,6 @@
 #include <stdlib.h>
 #include "PluginObject.h"
 
-bool Tracter::sShowConfig = false;
-int Tracter::sVerbose = 0;
-
 /**
  * Set a CacheArea to represent a particular range at a particular
  * offset.
@@ -138,7 +135,7 @@ void PluginObject::MinSize(int iSize, int iReadAhead)
  *
  * N.B. I'm not sure the algorithm is right.  Certainly some caches
  * can end up too large.  So far the only real test case is deltas.
- * The VAD witll be the acid test.
+ * The VAD will be the acid test.
  */
 void PluginObject::ReadAhead(int iReadAhead)
 {
@@ -445,73 +442,4 @@ bool PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
     printf("PluginObject: UnaryFetch called.  This should not happen.\n");
     exit(EXIT_FAILURE);
     return false;
-}
-
-
-/**
- * Uses the name of the object as a prefix and iSuffix as a suffix to
- * construct an environment variable.
- *
- * @returns The value of the environment variable, or 0 if it was not
- * set.
- */
-const char* PluginObject::getEnv(const char* iSuffix, const char* iDefault)
-{
-    assert(mObjectName);
-    char env[256];
-    snprintf(env, 256, "%s_%s", mObjectName, iSuffix);
-    const char* ret = getenv(env);
-    if (Tracter::sShowConfig)
-    {
-        snprintf(env, 256, "export %s_%s=%s", mObjectName, iSuffix,
-                 ret ? ret : iDefault);
-        printf("%-50s", env);
-        if (ret)
-            printf("# Environment\n");
-        else
-            printf("# Default\n");
-    }
-    return ret;
-}
-
-/**
- * Get value from environment variable.
- * @returns the value, or the value in iDefault if not set.
- */
-float PluginObject::GetEnv(const char* iSuffix, float iDefault)
-{
-    char def[256];
-    if (Tracter::sShowConfig)
-        snprintf(def, 256, "%f", iDefault);
-    if (const char* env = getEnv(iSuffix, def))
-        return atof(env);
-    return iDefault;
-}
-
-/**
- * Get value from environment variable.
- * @returns the value, or the value in iDefault if not set.
- */
-int PluginObject::GetEnv(const char* iSuffix, int iDefault)
-{
-    char def[256];
-    if (Tracter::sShowConfig)
-        snprintf(def, 256, "%d", iDefault);
-    if (const char* env = getEnv(iSuffix, def))
-        return atoi(env);
-    return iDefault;
-}
-
-/**
- * Get value from environment variable.
- * @returns the value, or the value in iDefault if not set.
- */
-const char* PluginObject::GetEnv(const char* iSuffix, const char* iDefault)
-{
-    char def[256];
-    if (Tracter::sShowConfig)
-        snprintf(def, 256, "%s", iDefault);
-    if (const char* env = getEnv(iSuffix, def))
-        return env;
-    return iDefault;
 }

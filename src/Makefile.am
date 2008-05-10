@@ -12,6 +12,11 @@ bin_PROGRAMS = \
 lib_LIBRARIES = libtracter.a
 
 libtracter_a_SOURCES = \
+	TracterObject.cpp \
+	ASRFactory.cpp \
+	FrequencyWarp.cpp \
+	WarpedPeriodogram.cpp \
+	LowEnergyEnvelope.cpp \
 	Tokenise.cpp \
 	Histogram.cpp \
 	Laguerre.cpp \
