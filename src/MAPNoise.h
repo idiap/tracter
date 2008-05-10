@@ -10,6 +10,8 @@
 
 #include "Laguerre.h"
 
+float CubicRealRoot(float i1, float i2, float i3, float i4);
+
 class MAPNoise
 {
 public:
@@ -31,8 +33,6 @@ public:
     }
 
 private:
-
-    float CubicRealRoot(float i1, float i2, float i3, float i4);
 
     // Use short variable names for simplicity
     float w;

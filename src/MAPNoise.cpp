@@ -12,17 +12,7 @@
 
 const float ONE_THIRD = 1.0f/3;
 
-MAPNoise::MAPNoise(float iSNR, float iAlpha)
-{
-    w = iSNR;
-    a = iAlpha;
-
-    // For the quintic
-    mLaguerre.SetOrder(5);
-    mPoly.resize(6);
-}
-
-float MAPNoise::CubicRealRoot(float iA, float iB, float iC, float iD)
+float CubicRealRoot(float iA, float iB, float iC, float iD)
 {
     /* Variables are for brevity; we're relying somewhat on the optimiser */
     float a2 = iA*iA;
@@ -61,6 +51,17 @@ float MAPNoise::CubicRealRoot(float iA, float iB, float iC, float iD)
 
     float ret = st - iB/(3.0f*iA);
     return ret;
+}
+
+
+MAPNoise::MAPNoise(float iSNR, float iAlpha)
+{
+    w = iSNR;
+    a = iAlpha;
+
+    // For the quintic
+    mLaguerre.SetOrder(5);
+    mPoly.resize(6);
 }
 
 
