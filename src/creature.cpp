@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     FileSource<short>* cs = new FileSource<short>();
     Normalise* cn = new Normalise(cs);
     ComplexSample* ccs = new ComplexSample(cn);
-    ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
+    //ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
     ArraySink<complex> csink(ccs);
     cs->Open("testfile.dat");
     csink.Reset();
