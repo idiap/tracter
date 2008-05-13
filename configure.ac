@@ -66,17 +66,6 @@ AS_IF(
 AM_CONDITIONAL([WITH_FFTW3F], [test $ac_cv_fftw3f == 1])
 
 
-# libsamplerate, from the FAQ at http://www.mega-nerd.com/SRC/faq.html
-PKG_CHECK_MODULES(
-    SAMPLERATE, samplerate >= 0.1.2, ac_cv_samplerate=1, ac_cv_samplerate=0
-)
-AC_DEFINE_UNQUOTED(
-    [HAVE_SAMPLERATE], ${ac_cv_samplerate},
-    [Define to 1 if you have libsamplerate.]
-)
-AC_SUBST(SAMPLERATE_CFLAGS)
-AC_SUBST(SAMPLERATE_LIBS)
-
 # ALSA
 PKG_CHECK_MODULES(
     ALSA, alsa >= 1.0.13, ac_cv_alsa=1, ac_cv_alsa=0
@@ -87,6 +76,7 @@ AC_DEFINE_UNQUOTED(
 )
 AC_SUBST(ALSA_CFLAGS)
 AC_SUBST(ALSA_LIBS)
+
 
 # Checks for header files.
 AC_HEADER_STDC

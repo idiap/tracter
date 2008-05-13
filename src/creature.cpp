@@ -28,7 +28,6 @@
 #include "ComplexSample.h"
 #include "ComplexPeriodogram.h"
 #include "FilePath.h"
-#include "Resample.h"
 
 #include "TracterObject.h"
 
@@ -102,8 +101,7 @@ int main(int argc, char** argv)
 #endif
 
     Normalise* n = new Normalise(a);
-    Resample* sr = new Resample(n);
-    ZeroFilter* zf = new ZeroFilter(sr);
+    ZeroFilter* zf = new ZeroFilter(n);
     Periodogram* p = new Periodogram(zf);
     MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
