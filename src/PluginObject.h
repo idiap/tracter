@@ -73,12 +73,12 @@ public:
     }
 
 protected:
-    void MinSize(PluginObject* iObject, int iSize, int iReadAhead = 0);
-    void ReadAhead(int iReadAhead = 0);
+    void MinSize(PluginObject* iObject, int iMinSize, int iReadAhead = 0);
+    void Initialise(int iReadAhead = 0);
 
     PluginObject* Connect(PluginObject* iInput);
 
-    virtual void MinSize(int iSize, int iReadAhead);
+    virtual void MinSize(int iMinSize, int iReadAhead);
     virtual void Resize(int iSize) = 0;
     virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
     virtual bool UnaryFetch(IndexType iIndex, int iOffset);
@@ -91,10 +91,17 @@ protected:
     bool mIndefinite;   ///< If true, cache grows indefinitely
     CachePointer mHead; ///< Next position to write to
     CachePointer mTail; ///< Oldest position written to
+    int mMinSize;       ///< Maximum requested minimum size
     int mReadAhead;     ///< Maximum read-ahead of output buffers
 
     float mSampleFreq;  ///< The source sample frequency in Hertz
     int mSamplePeriod;  ///< Integer sample period of this plugin
+
+    int SecondsToSamples(float iSeconds)
+    {
+        float samples =  iSeconds * mSampleFreq / mSamplePeriod;
+        return (int)(samples + 0.5);
+    }
 
 private:
     void Reset(PluginObject* iDownStream);

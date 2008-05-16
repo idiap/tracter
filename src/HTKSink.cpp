@@ -16,6 +16,8 @@ HTKSink::HTKSink(
     mObjectName = iObjectName;
     mArraySize = mInput->GetArraySize();
     MinSize(iInput, 1);
+    Initialise();
+    Reset();
 
     mFile = 0;
     mByteOrder.SetTarget(ENDIAN_BIG);

@@ -41,7 +41,8 @@ public:
         mObjectName = iObjectName;
         mArraySize = iInput->GetArraySize();
         MinSize(iInput, 10);
-        ReadAhead(0);
+        Initialise();
+        Reset();
     }
 
     void Pull(int iIndex, int len)

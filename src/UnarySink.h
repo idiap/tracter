@@ -28,12 +28,9 @@ public:
     /** Initialises a single input */
     UnarySink<T>(Plugin<T>* iInput)
     {
+        mObjectName = "UnarySink";
         Connect(iInput);
         mInput = iInput;
-
-        /* This is to ensure the downstream pointers are set */
-        Reset();
-        ReadAhead(0);
     }
 
 protected:

@@ -13,12 +13,14 @@
 
 #include "TracterObject.h"
 #include "Plugin.h"
+#include "Source.h"
 
 namespace Tracter
 {
     // Pre-declaration for the typedef
     class ASRFactory;
     typedef Plugin<float>* (ASRFactory::* frontend_t)(Plugin<float>*);
+    typedef Plugin<float>* (ASRFactory::* source_t)(Source*&);
 
     /**
      * ASR Factory.  Allocates graphs of plugins to do things related
@@ -30,16 +32,22 @@ namespace Tracter
     {
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
-        Plugin<float>* Frontend(Plugin<float>* iPlugin);
+        Plugin<float>* CreateFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* CreateSource(Source*& iSource);
 
     protected:
+        std::map<std::string, source_t> mSource;
         std::map<std::string, frontend_t> mFrontend;
 
     private:
-        Plugin<float>* BasicFrontend(Plugin<float>* iPlugin);
-        Plugin<float>* NoiseFrontend(Plugin<float>* iPlugin);
-        Plugin<float>* PLPFrontend(Plugin<float>* iPlugin);
-        Plugin<float>* ComplexFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* fileSource(Source*& iSource);
+        Plugin<float>* alsaSource(Source*& iSource);
+
+        Plugin<float>* basicFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* noiseFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* plpFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* complexFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* basicVADFrontend(Plugin<float>* iPlugin);
     };
 }
 

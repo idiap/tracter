@@ -7,11 +7,18 @@
 
 bin_PROGRAMS = \
 	socketserver socketclient \
-	creature testfile tracter noise fft parser
+	creature testfile tracter noise fft parser \
+	alsafile
 
 lib_LIBRARIES = libtracter.a
 
 libtracter_a_SOURCES = \
+	FileSink.cpp \
+	VADGate.cpp \
+	VADStateMachine.cpp \
+	ModulationVAD.cpp \
+	Energy.cpp \
+	SlidingDFT.cpp \
 	TracterObject.cpp \
 	ASRFactory.cpp \
 	FrequencyWarp.cpp \
@@ -24,7 +31,6 @@ libtracter_a_SOURCES = \
 	Divide.cpp \
 	MAPSpectrum.cpp \
 	MAPNoise.cpp \
-	Resample.cpp \
 	FilePath.cpp \
 	SocketSink.cpp \
 	SocketSource.cpp \
@@ -99,13 +105,16 @@ fft_LDADD = libtracter.a $(FFT_LIBS)
 testfile_SOURCES = testfile.c
 
 tracter_SOURCES = tracter.cpp
-tracter_LDADD = libtracter.a $(FFT_LIBS)
+tracter_LDADD = libtracter.a $(FFT_LIBS) @ALSA_LIBS@
 
 creature_SOURCES = creature.cpp
-creature_LDADD = libtracter.a @SAMPLERATE_LIBS@ $(FFT_LIBS)
+creature_LDADD = libtracter.a $(FFT_LIBS)
 
 socketclient_SOURCES = socketclient.cpp
 socketclient_LDADD = libtracter.a
 
 socketserver_SOURCES = socketserver.cpp
 socketserver_LDADD = libtracter.a
+
+alsafile_SOURCES = alsafile.cpp
+alsafile_LDADD = libtracter.a @ALSA_LIBS@

@@ -44,6 +44,7 @@ PluginObject::PluginObject()
     mTail.offset = 0;
     mDownStream = 0;
     mIndefinite = false;
+    mMinSize = 0;
     mReadAhead = 0;
 
     mSampleFreq = 0.0f;
@@ -83,10 +84,10 @@ PluginObject* PluginObject::Connect(PluginObject* iInput)
  * should be called by the derived class, which doesn't have
  * permission to call the input plugin directly.
  */
-void PluginObject::MinSize(PluginObject* iInput, int iSize, int iReadAhead)
+void PluginObject::MinSize(PluginObject* iInput, int iMinSize, int iReadAhead)
 {
     assert(iInput);
-    iInput->MinSize(iSize, iReadAhead);
+    iInput->MinSize(iMinSize, iReadAhead);
 }
 
 
@@ -95,7 +96,7 @@ void PluginObject::MinSize(PluginObject* iInput, int iSize, int iReadAhead)
  * plugin.  A negative size means that the cache should grow
  * indefinitely
  */
-void PluginObject::MinSize(int iSize, int iReadAhead)
+void PluginObject::MinSize(int iMinSize, int iReadAhead)
 {
     // Keep track of the maximum read-ahead
     if (mReadAhead < iReadAhead)
@@ -105,7 +106,7 @@ void PluginObject::MinSize(int iSize, int iReadAhead)
     if (mIndefinite)
         return;
 
-    if (iSize < 0)
+    if (iMinSize < 0)
     {
         // It's an indefinitely resizing cache
         mIndefinite = true;
@@ -116,11 +117,11 @@ void PluginObject::MinSize(int iSize, int iReadAhead)
     else
     {
         // A fixed size cache
-        assert(iSize > 0);
-        if (iSize > mSize)
+        assert(iMinSize > 0);
+        if (iMinSize > mMinSize)
         {
-            Resize(iSize);
-            mSize = iSize;
+            //Resize(iMinSize);
+            mMinSize = iMinSize;
         }
     }
 }
@@ -137,24 +138,24 @@ void PluginObject::MinSize(int iSize, int iReadAhead)
  * can end up too large.  So far the only real test case is deltas.
  * The VAD will be the acid test.
  */
-void PluginObject::ReadAhead(int iReadAhead)
+void PluginObject::Initialise(int iReadAhead)
 {
     //printf("%s 1: iReadAhead %d mReadAhead %d mSize %d\n",
     //       mObjectName ? mObjectName : "Sink",
     //       iReadAhead, mReadAhead, mSize);
 
-    // Resize if necessary
-    if (!mIndefinite && (mNOutputs > 1))
+    if (iReadAhead < 0)
     {
-        if (iReadAhead < 0)
-        {
-            mIndefinite = true;
-            if (Tracter::sVerbose > 0)
-                printf("%s cache set to indefinite size\n", mObjectName);
-        }
+        mIndefinite = true;
+        if (Tracter::sVerbose > 0)
+            printf("PluginObject::ReadAhead(%s):"
+                   " cache set to indefinite size\n", mObjectName);
+    }
 
-        // I'm almost sure this is not right...
-        int newSize = iReadAhead + mReadAhead + 1;
+    // Resize if necessary
+    if (!mIndefinite)
+    {
+        int newSize = (mNOutputs > 1) ? iReadAhead + mMinSize : mMinSize;
         if (newSize > mSize)
         {
             Resize(newSize);
@@ -162,9 +163,10 @@ void PluginObject::ReadAhead(int iReadAhead)
         }
     }
 
-    //printf("%s 2: iReadAhead %d mReadAhead %d mSize %d\n",
-    //       mObjectName ? mObjectName : "Sink",
-    //       iReadAhead, mReadAhead, mSize);
+    if (Tracter::sVerbose > 1)
+        printf("PluginObject::ReadAhead(%s):"
+               " iReadAhead %d mReadAhead %d mSize %d\n",
+               mObjectName, iReadAhead, mReadAhead, mSize);
 
     // Recurse over *all* inputs - the graph is expanded into a tree
     for (int i=0; i<mNInputs; i++)
@@ -173,7 +175,7 @@ void PluginObject::ReadAhead(int iReadAhead)
         assert(input);
         int scale = mSamplePeriod / input->mSamplePeriod;
         int readAhead = mIndefinite ? -1 : (mReadAhead + iReadAhead) * scale;
-        input->ReadAhead(readAhead);
+        input->Initialise(readAhead);
     }
 }
 
@@ -337,6 +339,9 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
     {
         oRange.Set(iLength, 0, mSize);
         len = Fetch(iIndex, oRange);
+        if (len == 0)
+            // Don't mess up the cache if we were off the end
+            return 0;
         if (len < iLength)
             oRange.Set(len, 0, mSize);
         mHead.index = iIndex + len;
@@ -391,7 +396,10 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
     }
 
     // Otherwise (case 4) the request was for lost data
-    printf("PluginObject: Backwards cache access, data lost\n");
+    printf("PluginObject(%s): Backwards cache access, data lost\n",
+           mObjectName);
+    printf("Head = %ld  Tail = %ld  Request index = %ld\n",
+           mHead.index, mTail.index, iIndex);
     assert(0);
     oRange.Set(0, 0, mSize);
 

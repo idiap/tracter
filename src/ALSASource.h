@@ -9,17 +9,19 @@
 #define ALSASOURCE_H
 
 #include <alsa/asoundlib.h>
+#include "Source.h"
 #include "CachedPlugin.h"
 
 /**
  * Source plugin that reads data from an ALSA device.
  */
-class ALSASource : public CachedPlugin<short>
+class ALSASource : public CachedPlugin<short>, public Source
 {
 public:
-    ALSASource(const char* iDevice = "default");
+    ALSASource(const char* iObjectName = "FileSource");
     ~ALSASource();
     void Start();
+    void Open(const char* iDeviceName);
 
 protected:
     virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);

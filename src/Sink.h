@@ -43,7 +43,6 @@ public:
         assert(iSize >= 0);
         assert(0);
     }
-
 };
 
 #endif /* SINK_H */

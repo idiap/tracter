@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "FileSource.h"
-#include "Normalise.h"
 #include "HTKSink.h"
 #include "FilePath.h"
 #include "ASRFactory.h"
@@ -23,8 +21,6 @@ void Usage()
         "Options:\n"
         "-v      Increment verbosity level (e.g., -v -v -v sets it to 3)\n"
         "-c      Dump the configuration parameters to stdout\n"
-        "-d n    Add deltas up to order n\n"
-        "-n      Add a Cepstral Variance Normalisation stage after deltas\n"
         "-f list Read input and output files from list\n"
         "Anything else prints this information\n"
     );
@@ -75,13 +71,11 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Raw file source and normaliser for 16 bit files */
-    FileSource<short>* source = new FileSource<short>();
-    Normalise* n = new Normalise(source);
-
-    /* Frontend */
+    /* Use the ASR factory for the source and front-end */
     ASRFactory factory;
-    Plugin<float>* f = factory.Frontend(n);
+    Source* source;
+    Plugin<float>* s = factory.CreateSource(source);
+    Plugin<float>* f = factory.CreateFrontend(s);
 
     /* An HTK file sink */
     HTKSink sink(f);

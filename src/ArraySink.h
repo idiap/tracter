@@ -28,6 +28,8 @@ public:
         UnarySink<T>::mObjectName = iObjectName;
         UnarySink<T>::mArraySize = iInput->GetArraySize();
         MinSize(iInput, 1);
+        UnarySink<T>::Initialise();
+        UnarySink<T>::Reset();
     }
 
     /** Get the array with the given index.  Returns true if successful. */
