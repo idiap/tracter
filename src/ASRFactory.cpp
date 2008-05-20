@@ -77,36 +77,6 @@ Plugin<float>* Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
         exit(EXIT_FAILURE);
     }
 
-    bool cmn = GetEnv("NormaliseMean", 1);
-    if (cmn)
-    {
-        Mean* m = new Mean(plugin);
-        Subtract* s = new Subtract(plugin, m);
-        plugin = s;
-    }
-
-    int deltaOrder = GetEnv("DeltaOrder", 0);
-    if (deltaOrder > 0)
-    {
-        Concatenate* c = new Concatenate();
-        c->Add(plugin);
-        for (int i=0; i<deltaOrder; i++)
-        {
-            Delta* d = new Delta(plugin);
-            c->Add(d);
-            plugin = d;
-        }
-        plugin = c;
-    }
-
-    bool cvn = GetEnv("NormaliseVariance", 0);
-    if (cvn)
-    {
-        Variance* v = new Variance(plugin);
-        Divide* d = new Divide(plugin, v);
-        plugin = d;
-    }
-
     return plugin;
 }
 
@@ -127,14 +97,60 @@ Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
     return n;
 }
 
+Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)
+{
+    Plugin<float>* plugin = iPlugin;
+    int deltaOrder = GetEnv("DeltaOrder", 0);
+    if (deltaOrder > 0)
+    {
+        Concatenate* c = new Concatenate();
+        c->Add(plugin);
+        for (int i=0; i<deltaOrder; i++)
+        {
+            Delta* d = new Delta(plugin);
+            c->Add(d);
+            plugin = d;
+        }
+        plugin = c;
+    }
+    return plugin;
+}
+
+Plugin<float>* Tracter::ASRFactory::normaliseMean(Plugin<float>* iPlugin)
+{
+    Plugin<float>* plugin = iPlugin;
+    bool cmn = GetEnv("NormaliseMean", 1);
+    if (cmn)
+    {
+        Mean* m = new Mean(iPlugin);
+        Subtract* s = new Subtract(iPlugin, m);
+        plugin = s;
+    }
+    return plugin;
+}
+
+Plugin<float>* Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
+{
+    Plugin<float>* plugin = iPlugin;
+    bool cvn = GetEnv("NormaliseVariance", 0);
+    if (cvn)
+    {
+        Variance* v = new Variance(iPlugin);
+        Divide* d = new Divide(iPlugin, v);
+        plugin = d;
+    }
+    return plugin;
+}
+
 Plugin<float>* Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
 {
-    /* Basic signal processing chain */
     ZeroFilter* zf = new ZeroFilter(iPlugin);
     Periodogram* p = new Periodogram(zf);
     MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
-    return c;
+    Plugin<float>* plugin = normaliseMean(c);
+    plugin = deltas(plugin);
+    return plugin;
 }
 
 Plugin<float>* Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
@@ -163,20 +179,29 @@ Plugin<float>* Tracter::ASRFactory::noiseFrontend(Plugin<float>* iPlugin)
     MAPSpectrum *mp = new MAPSpectrum(p, nn, gn);
     MelFilter* mf = new MelFilter(mp);
     Cepstrum* c = new Cepstrum(mf);
-    return c;
+    Mean* m = new Mean(c);
+    Subtract* s = new Subtract(c, m);
+    Plugin<float>* d = deltas(s);
+    return d;
 }
 
 Plugin<float>* Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)
 {
     /* Basic signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(iPlugin);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    Cepstrum* c = new Cepstrum(mf);
+    Plugin<float>* p = iPlugin;
+    p = new ZeroFilter(p);
+    p = new Periodogram(p);
+    p = new MelFilter(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
 
-    Energy* e = new Energy(iPlugin);
-    ModulationVAD* v = new ModulationVAD(e);
-    VADGate* g = new VADGate(c, v);
+    /* VAD */
+    Plugin<float>* v = iPlugin;
+    v = new Energy(v);
+    ModulationVAD* mv = new ModulationVAD(v);
+    v = new VADGate(p, mv);
 
-    return g;
+    return v;
 }

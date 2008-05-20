@@ -43,6 +43,10 @@ namespace Tracter
         Plugin<float>* fileSource(Source*& iSource);
         Plugin<float>* alsaSource(Source*& iSource);
 
+        Plugin<float>* deltas(Plugin<float>* iPlugin);
+        Plugin<float>* normaliseMean(Plugin<float>* iPlugin);
+        Plugin<float>* normaliseVariance(Plugin<float>* iPlugin);
+
         Plugin<float>* basicFrontend(Plugin<float>* iPlugin);
         Plugin<float>* noiseFrontend(Plugin<float>* iPlugin);
         Plugin<float>* plpFrontend(Plugin<float>* iPlugin);
