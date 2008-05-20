@@ -8,16 +8,7 @@
 #ifndef PLUGINOBJECT_H
 #define PLUGINOBJECT_H
 
-/**
- * Namespace for tracter objects.
- *
- * Right now this isn't used consistently.
- */
-namespace Tracter {
-    extern bool sShowConfig; ///< If set, plugins echo their configuration
-    extern int sVerbose;     ///< Some plugins echo information depending on
-                             ///  the numerical value of this.
-}
+#include "TracterObject.h"
 
 /**
  * A contiguous area of interest of a circular cache.
@@ -50,13 +41,37 @@ struct CachePointer
     int offset;
 };
 
+/** Storage of minimum / maximum */
+#include <algorithm>
+class MinMax
+{
+public:
+    /** Storage */
+    int min;
+    int max;
+
+    /** Constructor */
+    MinMax()
+    {
+        min = INT_MAX;
+        max = INT_MIN;
+    }
+
+    /** Add new datum */
+    void Update(int iVal)
+    {
+        min = std::min(min, iVal);
+        max = std::max(min, iVal);
+    }
+};
+
 /**
  * The type independent root of all plugins.
  *
  * PluginObject is designed to be inherited by a type specific
  * implementation.
  */
-class PluginObject
+class PluginObject : public Tracter::Object
 {
 public:
     PluginObject(void);
@@ -82,22 +97,19 @@ public:
     }
 
 protected:
-    void MinSize(PluginObject* iObject, int iSize, int iReadAhead = 0);
-    void ReadAhead(int iReadAhead = 0);
+    void MinSize(PluginObject* iObject, int iMinSize, int iReadAhead = 0);
+    void Initialise(
+        const PluginObject* iDownStream = 0,
+        int iReadBack = 0, int iReadAhead = 0
+    );
 
-    float GetEnv(const char* iSuffix, float iDefault);
-    int GetEnv(const char* iSuffix, int iDefault);
-    const char* GetEnv(const char* iSuffix, const char* iDefault);
     PluginObject* Connect(PluginObject* iInput);
 
-    virtual void MinSize(int iSize, int iReadAhead);
+    virtual void MinSize(int iMinSize, int iReadAhead);
     virtual void Resize(int iSize) = 0;
     virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
     virtual bool UnaryFetch(IndexType iIndex, int iOffset);
     virtual PluginObject* GetInput(int iInput) { return 0; }
-
-
-    const char* mObjectName; ///< Name of this object
 
     int mSize;          ///< Size of the cache
     int mArraySize;     ///< Size of each cache element
@@ -106,16 +118,32 @@ protected:
     bool mIndefinite;   ///< If true, cache grows indefinitely
     CachePointer mHead; ///< Next position to write to
     CachePointer mTail; ///< Oldest position written to
-    int mReadAhead;     ///< Maximum read-ahead of output buffers
+    int mMinSize;       ///< Maximum requested minimum size
+
+    int mNInit;
+    int mMaxReadAhead;     ///< Maximum read-ahead of output buffers
+    int mMinReadAhead;
+    int mMaxReadBack;
+    int mMinReadBack;
+    int mTotalReadAhead;
+    int mTotalReadBack;
+
+    MinMax mGlobalReadAhead;
+    MinMax mGlobalReadBack;
 
     float mSampleFreq;  ///< The source sample frequency in Hertz
     int mSamplePeriod;  ///< Integer sample period of this plugin
 
+    int SecondsToSamples(float iSeconds)
+    {
+        float samples =  iSeconds * mSampleFreq / mSamplePeriod;
+        return (int)(samples + 0.5);
+    }
+
 private:
-    const char* getEnv(const char* iSuffix, const char* iDefault);
     void Reset(PluginObject* iDownStream);
     bool Delete(PluginObject* iDownStream);
-    PluginObject* mDownStream;
+    const PluginObject* mDownStream;
 };
 
 #endif /* PLUGINOBJECT_H */

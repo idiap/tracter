@@ -20,9 +20,10 @@ void ZeroFilter::MinSize(int iSize, int iReadAhead)
     assert(iSize > 0);
     PluginObject::MinSize(iSize, iReadAhead);
 
-    // We expect the input buffer to be at least the size of each request
+    // We expect the input buffer to be at least the size of each
+    // request, then +1 for the possible read-behind
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize, 0);
+    PluginObject::MinSize(mInput, iSize+1, 0);
 }
 
 int ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)

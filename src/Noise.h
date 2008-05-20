@@ -25,6 +25,28 @@ public:
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);
 
+    /**
+     * Really basic accumulator.  However, it can be overridden by a
+     * derived class to implement accumulation of a function of the
+     * input.
+     */
+    virtual float Accumulate(float iAccumulator, float iInput)
+    {
+        float ret = iAccumulator + iInput;
+        return ret;
+    }
+
+    /**
+     * Calculate the mean of accumulated samples.  Just a division,
+     * but can be overridden by a derived class to implement, say, a
+     * geometric mean.
+     */
+    virtual float Calculate(float iAccumulator, int iN)
+    {
+        float ret = iAccumulator / iN;
+        return ret;
+    }
+
 private:
     bool mValid;
     bool mEnd;

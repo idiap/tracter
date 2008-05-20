@@ -55,7 +55,7 @@ public:
 
 private:
     MMap mMap;
-    short* mCache;
+    T* mCache;
 
     void Resize(int iSize)
     {

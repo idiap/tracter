@@ -19,10 +19,14 @@ void Laguerre::SetOrder(int iOrder)
     mDD.resize(mOrder-1);
 }
 
-float Laguerre::Evaluate(float iEstimate, std::vector<float>& iPoly)
+float Laguerre::Evaluate(float iEstimate, const std::vector<float>& iPoly)
 {
-    assert(mOrder+1 == iPoly.size());
+    assert(mOrder+1 == (int)iPoly.size());
+    return Evaluate(iEstimate, &iPoly[0]);
+}
 
+float Laguerre::Evaluate(float iEstimate, const float* iPoly)
+{
     // Set first and second differential coefficients
     for (int i=0; i<mOrder; i++)
         mD[i] = iPoly[i+1] * (i+1);

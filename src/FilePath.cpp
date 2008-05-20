@@ -73,7 +73,7 @@ void FilePath::MakePath()
     mPath.copy(&mTmp[0], mTmp.size());
 
     // Replace separators with nulls
-    for (int i=0; i<mTmp.size(); i++)
+    for (unsigned int i=0; i<mTmp.size(); i++)
     {
         if ((mTmp[i] == '/') || (mTmp[i] == '\0'))
         {

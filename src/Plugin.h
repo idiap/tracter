@@ -8,6 +8,7 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
+#include <cassert>
 #include "PluginObject.h"
 
 /**
@@ -51,6 +52,19 @@ public:
         mOffset = iCacheArea.offset;
     }
 
+    /**
+     * Index operator.  Returns a (reference to) the Nth object.
+     */
+    T& operator[](int iIndex)
+    {
+        assert( mOffset >= mCacheArea.offset ||
+                mOffset <  mCacheArea.len[1] );
+        return mPlugin->GetPointer(mOffset)[iIndex];
+    }
+
+    /**
+     * Dereference operator.  Returns a (reference to) the object.
+     */
     T& operator*()
     {
         assert( mOffset >= mCacheArea.offset ||
@@ -58,7 +72,9 @@ public:
         return *(mPlugin->GetPointer(mOffset));
     }
 
-    /** Prefix operator */
+    /**
+     * Prefix operator.  Increments the iterator in an efficient way.
+     */
     CacheIterator<T>& operator++()
     {
         if (++mOffset >= mCacheArea.offset + mCacheArea.len[0])

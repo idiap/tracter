@@ -8,42 +8,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "FileSource.h"
-#include "Normalise.h"
-#include "ZeroFilter.h"
-#include "Periodogram.h"
-#include "MelFilter.h"
-#include "Cepstrum.h"
 #include "HTKSink.h"
-#include "Mean.h"
-#include "Subtract.h"
-#include "SpectralSubtract.h"
-#include "Noise.h"
-#include "Concatenate.h"
-#include "Delta.h"
-#include "Pixmap.h"
-#include "ComplexSample.h"
-#include "ComplexPeriodogram.h"
 #include "FilePath.h"
-#include "Variance.h"
-#include "Divide.h"
-#include "Histogram.h"
+#include "ASRFactory.h"
 
-/**
- * A basic ASR front-end with pre-emphasis, and cepstral mean
- * subtraction.
- */
-Plugin<float>* BasicFrontend(Plugin<float>* iSource)
-{
-    /* Signal processing chain */
-    ZeroFilter* zf = new ZeroFilter(iSource);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    Cepstrum* c = new Cepstrum(mf);
-    Mean* m = new Mean(c);
-    Subtract* s = new Subtract(c, m);
-    return s;
-}
+using namespace Tracter;
 
 void Usage()
 {
@@ -52,7 +21,6 @@ void Usage()
         "Options:\n"
         "-v      Increment verbosity level (e.g., -v -v -v sets it to 3)\n"
         "-c      Dump the configuration parameters to stdout\n"
-        "-d n    Add deltas up to order n\n"
         "-f list Read input and output files from list\n"
         "Anything else prints this information\n"
     );
@@ -63,10 +31,6 @@ void Usage()
  */
 int main(int argc, char** argv)
 {
-    bool verbose = false;
-    int deltaOrder = 0;
-    bool cvn = false;
-
     const char* fileList = 0;
     const char* file[2] = {0, 0};
     int fileCount = 0;
@@ -89,7 +53,6 @@ int main(int argc, char** argv)
         switch (argv[i][1])
         {
         case 'v':
-            verbose = true;
             Tracter::sVerbose++;
             break;
 
@@ -97,16 +60,8 @@ int main(int argc, char** argv)
             fileList = argv[++i];
             break;
 
-        case 'd':
-            deltaOrder = atoi(argv[++i]);
-            break;
-
         case 'c':
             Tracter::sShowConfig = true;
-            break;
-
-        case 'n':
-            cvn = true;
             break;
 
         default:
@@ -116,34 +71,11 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Raw file source and normaliser for 16 bit files */
-    FileSource<short>* source = new FileSource<short>();
-    Normalise* n = new Normalise(source);
-
-    /* Choose a front-end architecture */
-    Plugin<float>* f = BasicFrontend(n);
-
-    /* Add deltas up to deltaOrder */
-    if (deltaOrder > 0)
-    {
-        Concatenate* c = new Concatenate();
-        c->Add(f);
-        for (int i=0; i<deltaOrder; i++)
-        {
-            Delta* d = new Delta(f);
-            c->Add(d);
-            f = d;
-        }
-        f = c;
-    }
-
-    /* Cepstral Variance Normalisation */
-    if (cvn)
-    {
-        Variance* v = new Variance(f);
-        Divide* d = new Divide(f, v);
-        f = d;
-    }
+    /* Use the ASR factory for the source and front-end */
+    ASRFactory factory;
+    Source* source;
+    Plugin<float>* s = factory.CreateSource(source);
+    Plugin<float>* f = factory.CreateFrontend(s);
 
     /* An HTK file sink */
     HTKSink sink(f);
@@ -179,7 +111,7 @@ int main(int argc, char** argv)
         char file2[1024];
         while (fscanf(list, "%s %s", file1, file2) == 2)
         {
-            if (verbose)
+            if (Tracter::sVerbose > 1)
                 printf("%s\n %s\n", file1, file2);
             sink.Reset();
             source->Open(file1);

@@ -28,7 +28,6 @@
 #include "ComplexSample.h"
 #include "ComplexPeriodogram.h"
 #include "FilePath.h"
-#include "Resample.h"
 
 class SinkSucker : public UnarySink<float>
 {
@@ -40,7 +39,8 @@ public:
         mObjectName = iObjectName;
         mArraySize = iInput->GetArraySize();
         MinSize(iInput, 10);
-        ReadAhead(0);
+        Initialise();
+        Reset();
     }
 
     void Pull(int iIndex, int len)
@@ -100,8 +100,7 @@ int main(int argc, char** argv)
 #endif
 
     Normalise* n = new Normalise(a);
-    Resample* sr = new Resample(n);
-    ZeroFilter* zf = new ZeroFilter(sr);
+    ZeroFilter* zf = new ZeroFilter(n);
     Periodogram* p = new Periodogram(zf);
     MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
@@ -161,7 +160,7 @@ int main(int argc, char** argv)
     FileSource<short>* cs = new FileSource<short>();
     Normalise* cn = new Normalise(cs);
     ComplexSample* ccs = new ComplexSample(cn);
-    ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
+    //ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
     ArraySink<complex> csink(ccs);
     cs->Open("testfile.dat");
     csink.Reset();

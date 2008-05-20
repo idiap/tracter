@@ -5,6 +5,7 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <algorithm>
 #include "ALSASource.h"
 
 /*
@@ -21,17 +22,16 @@ static int alsaErr;
         exit(1); \
     }
 
-ALSASource::ALSASource(const char* iDevice)
+ALSASource::ALSASource(const char* iObjectName)
 {
-    assert(iDevice);
+    mObjectName = iObjectName;
+    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
+    mSamplePeriod = 1;
+    mHandle = 0;
 
-    /* Allocate space and initialise a handle */
+    /* Allocate space and output to stdout */
     ALSACheck( snd_pcm_status_malloc(&mStatus) );
     ALSACheck( snd_output_stdio_attach(&mOutput, stdout, 0) );
-    ALSACheck( snd_pcm_open(&mHandle, iDevice, SND_PCM_STREAM_CAPTURE, 0) );
-    assert(snd_pcm_state(mHandle) == SND_PCM_STATE_OPEN);
-
-    setHardwareParameters();
 }
 
 ALSASource::~ALSASource()
@@ -39,11 +39,24 @@ ALSASource::~ALSASource()
     snd_pcm_status_free(mStatus);
 }
 
+void ALSASource::Open(const char* iDeviceName)
+{
+    assert(iDeviceName);
+    ALSACheck(
+        snd_pcm_open(&mHandle, iDeviceName, SND_PCM_STREAM_CAPTURE, 0)
+    );
+    assert(snd_pcm_state(mHandle) == SND_PCM_STATE_OPEN);
+    setHardwareParameters();
+    Start();
+    if (Tracter::sVerbose > 0)
+        statusDump();
+}
+
 snd_pcm_uframes_t ALSASource::setHardwareParameters()
 {
     /* Default values for parameters */
     int dir;
-    unsigned int sampleRate = 11025;
+    unsigned int sampleRate = (unsigned int)mSampleFreq;
     snd_pcm_uframes_t bufferSize;
     snd_pcm_uframes_t periodSize = 256;
 
@@ -90,9 +103,8 @@ void ALSASource::Start()
     //assert(area[0].step == 16);
 
     // info
-    //printf("Begin; step = %u, offset = %lu, frames = %lu\n", area[0].step, offset, frames);
-    printf("State: %s\n", snd_pcm_state_name(snd_pcm_state(mHandle)));
-    statusDump();
+    //printf("Begin; step = %u, offset = %lu, frames = %lu\n",
+    //       area[0].step, offset, frames);
 }
 
 //
@@ -100,38 +112,34 @@ void ALSASource::Start()
 // 1. It's request driven, so dangerous if the ALSA buffer is too small
 // 2. The skipping actually reads rather than ignores
 //
-#ifndef Min
-# define Min(a, b) ((a<b) ? (a) : (b))
-#endif
 int ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
-    printf("ALSASource::Fetch\n");
     snd_pcm_sframes_t avail;
 
     // However unlikely, it's possible that the read is ahead of the
     // current sample.  In this case, we need to skip samples.
     int skip = iIndex - mHead.index;
-    printf("Skipping %d samples:", skip);
     while (skip > 0)
     {
+        printf("Skipping %d samples:", skip);
         static short skipBuffer[1024];
         ALSACheck( snd_pcm_wait(mHandle, -1) );
         avail = snd_pcm_avail_update(mHandle);
-        int read = Min(skip, avail);
-        read = Min(read, 1024);
+        int read = std::min<int>(skip, avail);
+        read = std::min(read, 1024);
         ALSACheck( snd_pcm_readi(mHandle, skipBuffer, read) );
         skip -= read;
         assert(skip >= 0);
-        printf(" %d", read);
+        printf(" %d\n", read);
     }
-    printf("\n");
 
     // After possible skipping, read the number of samples required
     while ((avail = snd_pcm_avail_update(mHandle)) < iOutputArea.Length())
         ALSACheck( snd_pcm_wait(mHandle, -1) );
 
-    printf("Avail: %ld  requested: %d %d\n",
-           avail, iOutputArea.len[0], iOutputArea.len[1]);
+    if (Tracter::sVerbose > 2)
+        printf("ALSASource::Fetch: Avail: %ld  requested: %d %d\n",
+               avail, iOutputArea.len[0], iOutputArea.len[1]);
 
     ALSACheck(snd_pcm_readi(mHandle, GetPointer(iOutputArea.offset),
                             iOutputArea.len[0]) );

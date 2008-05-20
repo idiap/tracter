@@ -52,8 +52,9 @@ protected:
         mCache.resize(Plugin<T>::mArraySize
                       ? iSize * Plugin<T>::mArraySize
                       : iSize);
-        //printf("Resize from %d to %d with capacity %u\n",
-        //       Plugin<T>::mSize, iSize, mCache.capacity());
+        if (Tracter::sVerbose > 1)
+            printf("CachedPlugin::Resize(%s) %d to %d\n",
+                   Plugin<T>::mObjectName, Plugin<T>::mSize, iSize);
     }
 
 private:

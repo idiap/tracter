@@ -30,6 +30,7 @@ private:
     float mMax;
     float mScale;
     int mCount;
+    int mMinCount;
     int mNBins;
     std::vector< std::vector<float> > mBin;
     bool mPDF;

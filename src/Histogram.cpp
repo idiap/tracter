@@ -26,6 +26,7 @@ Histogram::Histogram(Plugin<float>* iInput, const char* iObjectName)
     mScale = (float)mNBins/(mMax-mMin);
     mPower = GetEnv("Power", 1.0f);
     mCount = 0;
+    mMinCount = GetEnv("MinCount", 1);
 
     mBin.resize(mArraySize);
     for (int i=0; i<mArraySize; i++)
@@ -81,7 +82,7 @@ void Histogram::write()
     {
         printf("%e", ((float)i + 0.5) / mScale + mMin);
         for (int j=0; j<mArraySize; j++)
-            printf(" %e", mBin[j][i] * scale);
+            printf(" %e", mBin[j][i] >= mMinCount ? mBin[j][i] * scale : 0.0);
         printf("\n");
     }
 }

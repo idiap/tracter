@@ -18,6 +18,7 @@ class Cepstrum : public UnaryPlugin<float, float>
 {
 public:
     Cepstrum(Plugin<float>* iInput, const char* iObjectName = "Cepstrum");
+    virtual ~Cepstrum();
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);
@@ -25,6 +26,7 @@ protected:
 private:
     float mFloor;
     float mLogFloor;
+    int mFloored;
     int mNLogData;
     int mNCepstra;
     float* mLogData;

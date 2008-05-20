@@ -9,6 +9,30 @@
 #include <fftw3.h>
 #include "Fourier.h"
 
+/*
+ * From the FFTW FAQ:
+ *
+ * Question 3.8. FFTW gives different results between runs
+ *
+ * If you use FFTW_MEASURE or FFTW_PATIENT mode, then the algorithm
+ * FFTW employs is not deterministic: it depends on runtime
+ * performance measurements. This will cause the results to vary
+ * slightly from run to run. However, the differences should be
+ * slight, on the order of the floating-point precision, and therefore
+ * should have no practical impact on most applications.
+ *
+ * If you use saved plans (wisdom) or FFTW_ESTIMATE mode, however,
+ * then the algorithm is deterministic and the results should be
+ * identical between runs.
+ *
+ * From PNG:
+ *
+ * FFT_MEASURE is the default.  Floating point precision my arse; it's
+ * enough to give 3rd/4th significant digit effects in features.  It's
+ * not right for experiments that you want to repeat.
+ */
+
+
 namespace FourierFFTW
 {
     static int sInstanceCount = 0;
@@ -67,7 +91,8 @@ void Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
         Allocate<fftwf_complex, complex>(iOrder, ioIData, &m.IData);
     fftwf_complex* odata =
         Allocate<fftwf_complex, complex>(iOrder, ioOData, &m.OData);
-    m.Plan = fftwf_plan_dft_1d(iOrder, idata, odata, FFTW_FORWARD, 0);
+    m.Plan = fftwf_plan_dft_1d(iOrder, idata, odata, FFTW_FORWARD,
+                               FFTW_ESTIMATE);
 }
 
 
@@ -90,7 +115,7 @@ void Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
         Allocate<float, float>(iOrder, ioIData, &m.IData);
     fftwf_complex* odata =
         Allocate<fftwf_complex, complex>(iOrder/2+1, ioOData, &m.OData);
-    m.Plan = fftwf_plan_dft_r2c_1d(iOrder, idata, odata, 0);
+    m.Plan = fftwf_plan_dft_r2c_1d(iOrder, idata, odata, FFTW_ESTIMATE);
 }
 
 /**
@@ -113,7 +138,8 @@ void Fourier::Init(int iOrder, float** ioIData, float** ioOData)
         Allocate<float, float>(iOrder, ioIData, &m.IData);
     float* odata =
         Allocate<float, float>(iOrder, ioOData, &m.OData);
-    m.Plan = fftwf_plan_r2r_1d(iOrder, idata, odata, FFTW_REDFT10, 0);
+    m.Plan = fftwf_plan_r2r_1d(iOrder, idata, odata, FFTW_REDFT10,
+                               FFTW_ESTIMATE);
 }
 
 Fourier::~Fourier()

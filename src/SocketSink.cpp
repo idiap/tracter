@@ -24,6 +24,8 @@ SocketSink::SocketSink(
     mObjectName = iObjectName;
     mArraySize = mInput->GetArraySize();
     MinSize(iInput, 1);
+    Initialise();
+    Reset();
 
     mPort = GetEnv("Port", 30000);
 
