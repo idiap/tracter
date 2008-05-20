@@ -41,6 +41,30 @@ struct CachePointer
     int offset;
 };
 
+/** Storage of minimum / maximum */
+#include <algorithm>
+class MinMax
+{
+public:
+    /** Storage */
+    int min;
+    int max;
+
+    /** Constructor */
+    MinMax()
+    {
+        min = INT_MAX;
+        max = INT_MIN;
+    }
+
+    /** Add new datum */
+    void Update(int iVal)
+    {
+        min = std::min(min, iVal);
+        max = std::max(min, iVal);
+    }
+};
+
 /**
  * The type independent root of all plugins.
  *
@@ -74,7 +98,10 @@ public:
 
 protected:
     void MinSize(PluginObject* iObject, int iMinSize, int iReadAhead = 0);
-    void Initialise(int iReadAhead = 0);
+    void Initialise(
+        const PluginObject* iDownStream = 0,
+        int iReadBack = 0, int iReadAhead = 0
+    );
 
     PluginObject* Connect(PluginObject* iInput);
 
@@ -92,7 +119,17 @@ protected:
     CachePointer mHead; ///< Next position to write to
     CachePointer mTail; ///< Oldest position written to
     int mMinSize;       ///< Maximum requested minimum size
-    int mReadAhead;     ///< Maximum read-ahead of output buffers
+
+    int mNInit;
+    int mMaxReadAhead;     ///< Maximum read-ahead of output buffers
+    int mMinReadAhead;
+    int mMaxReadBack;
+    int mMinReadBack;
+    int mTotalReadAhead;
+    int mTotalReadBack;
+
+    MinMax mGlobalReadAhead;
+    MinMax mGlobalReadBack;
 
     float mSampleFreq;  ///< The source sample frequency in Hertz
     int mSamplePeriod;  ///< Integer sample period of this plugin
@@ -106,7 +143,7 @@ protected:
 private:
     void Reset(PluginObject* iDownStream);
     bool Delete(PluginObject* iDownStream);
-    PluginObject* mDownStream;
+    const PluginObject* mDownStream;
 };
 
 #endif /* PLUGINOBJECT_H */

@@ -5,9 +5,10 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <climits>
 #include "PluginObject.h"
 
 /**
@@ -45,7 +46,13 @@ PluginObject::PluginObject()
     mDownStream = 0;
     mIndefinite = false;
     mMinSize = 0;
-    mReadAhead = 0;
+    mNInit = 0;
+    mMinReadAhead = INT_MAX;
+    mMaxReadAhead = 0;
+    mMinReadBack = INT_MAX;
+    mMaxReadBack = 0;
+    mTotalReadAhead = 0;
+    mTotalReadBack = 0;
 
     mSampleFreq = 0.0f;
     mSamplePeriod = 0;
@@ -99,8 +106,19 @@ void PluginObject::MinSize(PluginObject* iInput, int iMinSize, int iReadAhead)
 void PluginObject::MinSize(int iMinSize, int iReadAhead)
 {
     // Keep track of the maximum read-ahead
-    if (mReadAhead < iReadAhead)
-        mReadAhead = iReadAhead;
+    if (mMaxReadAhead < iReadAhead)
+        mMaxReadAhead = iReadAhead;
+    if (mMinReadAhead > iReadAhead)
+        mMinReadAhead = iReadAhead;
+
+    if (iMinSize > 0)
+    {
+        int readBack = iMinSize - iReadAhead - 1;
+        if (mMaxReadBack < readBack)
+            mMaxReadBack = readBack;
+        if (mMinReadBack > readBack)
+            mMinReadBack = readBack;
+    }
 
     // Only continue if it's not already set to grow indefinitely
     if (mIndefinite)
@@ -127,55 +145,106 @@ void PluginObject::MinSize(int iMinSize, int iReadAhead)
 }
 
 /**
- * Initialises read-ahead by passing back accumulated read-ahead
+ * Initialises read-ahead and read-back by passing back accumulated
  * values.  If a plugin has more than one output, it sizes the cache
- * to deal with the read-ahead.  This means that if one branch reads
- * ahead, the data is still around for the other branch to fetch.
- * Individual Plugins may be called several times as the graph is
- * expanded to a tree.
+ * to deal with the read-back and read-ahead.  This means that if one
+ * branch reads ahead, the data is still around for the other branch
+ * to fetch.
  *
- * N.B. I'm not sure the algorithm is right.  Certainly some caches
- * can end up too large.  So far the only real test case is deltas.
- * The VAD will be the acid test.
+ * The algorithm is roughly as follows:
+ *
+ * There is a local read associated with the immediate downstream
+ * plugin(s) and and a global read associated with further downstream
+ * plugins.  Plugins with only one output (immediate downstream
+ * plugin) only need concern themselves with the local read.  Those
+ * with more than one output need to take into account the global
+ * read.
+ *
+ * Reads are accumulated as they are passed back through plugins.
+ * This is the global read.
+ *
+ * Local reads are stored in the preceding (upstream) plugin.  This
+ * means that a plugin with multiple inputs does not need to store
+ * distinct reads for each input outside the constructor.  The
+ * down-side is that the upstream plugin cannot distinguish different
+ * reads for different immediate downstream plugins.
+ *
+ * Plugins know how many outputs are connected, but not what they are.
+ * Each plugin waits for initialisation from each output until
+ * propagating the initialisation to inputs.
+ *
+ * Aside, this is still a mess.  Some caches are too big.
  */
-void PluginObject::Initialise(int iReadAhead)
+void PluginObject::Initialise(
+    const PluginObject* iDownStream, int iReadBack, int iReadAhead
+)
 {
-    //printf("%s 1: iReadAhead %d mReadAhead %d mSize %d\n",
-    //       mObjectName ? mObjectName : "Sink",
-    //       iReadAhead, mReadAhead, mSize);
+    assert((mNOutputs == 0) /* Sink */ || (mNInit < mNOutputs) /* Plugin */);
 
-    if (iReadAhead < 0)
+    // First time: Set the favoured downstream plugin to the caller
+    if (!mDownStream)
+        mDownStream = iDownStream;
+
+    // Set to indefinite if necessary
+    if ((mNOutputs > 0) && (iReadAhead < 0))
     {
         mIndefinite = true;
         if (Tracter::sVerbose > 0)
-            printf("PluginObject::ReadAhead(%s):"
+            printf("PluginObject::Initialise(%s):"
                    " cache set to indefinite size\n", mObjectName);
     }
 
-    // Resize if necessary
-    if (!mIndefinite)
-    {
-        int newSize = (mNOutputs > 1) ? iReadAhead + mMinSize : mMinSize;
-        if (newSize > mSize)
-        {
-            Resize(newSize);
-            mSize = newSize;
-        }
-    }
+    // Accumulate readahead and readback from all outputs
+    mTotalReadAhead += iReadAhead;
+    mTotalReadBack += iReadBack;
+
+    mGlobalReadAhead.Update(iReadAhead);
+    mGlobalReadBack.Update(iReadBack);
 
     if (Tracter::sVerbose > 1)
-        printf("PluginObject::ReadAhead(%s):"
-               " iReadAhead %d mReadAhead %d mSize %d\n",
-               mObjectName, iReadAhead, mReadAhead, mSize);
-
-    // Recurse over *all* inputs - the graph is expanded into a tree
-    for (int i=0; i<mNInputs; i++)
     {
-        PluginObject* input = GetInput(i);
-        assert(input);
-        int scale = mSamplePeriod / input->mSamplePeriod;
-        int readAhead = mIndefinite ? -1 : (mReadAhead + iReadAhead) * scale;
-        input->Initialise(readAhead);
+        printf("PluginObject::Initialise(%s):"
+               " i [%d:%d] m [%d,%d:%d,%d] tot [%d:%d]\n",
+               mObjectName,
+               iReadBack, iReadAhead,
+               mMinReadBack, mMaxReadBack, mMinReadAhead, mMaxReadAhead,
+               mTotalReadBack, mTotalReadAhead);
+        printf(" grb: [%d,%d]  gra [%d,%d]\n",
+               mGlobalReadBack.min, mGlobalReadBack.max,
+               mGlobalReadAhead.min, mGlobalReadAhead.max);
+    }
+
+    // If the accumulation is complete, then recurse the call
+    if ((mNOutputs == 0) || (++mNInit == mNOutputs))
+    {
+        // Resize if necessary
+        if (!mIndefinite)
+        {
+            // Add in the sizes of the previous plugins
+            int readAhead = mTotalReadAhead + mMaxReadAhead;
+            int readBack = mTotalReadBack + mMaxReadBack;
+            int newSize = (mNOutputs > 1)
+                ? readBack + 1 + readAhead
+                : mMinSize;
+            assert(newSize >= mMinSize);
+            if (newSize > mSize)
+            {
+                Resize(newSize);
+                mSize = newSize;
+            }
+        }
+
+        // Recurse over *all* inputs
+        for (int i=0; i<mNInputs; i++)
+        {
+            PluginObject* input = GetInput(i);
+            assert(input);
+            int scale = mSamplePeriod / input->mSamplePeriod;
+            int readAhead =
+                mIndefinite ? -1 : (mMaxReadAhead+iReadAhead) * scale;
+            int readBack  = (mMaxReadBack+iReadBack) * scale;
+            input->Initialise(this, readBack, readAhead);
+        }
     }
 }
 
@@ -190,15 +259,9 @@ void PluginObject::Reset(
     PluginObject* iDownStream ///< this pointer of calling class
 )
 {
-    if (!mDownStream)
-        // First time: Set the favoured downstream plugin to the caller
-        mDownStream = iDownStream;
-    else
-        // Only proceed if the calling plugin is the favoured one
-        if (mDownStream != iDownStream)
-            return;
-
-    Reset(true);
+    // Only proceed if the calling plugin is the favoured one
+    if (mDownStream == iDownStream)
+        Reset(true);
 }
 
 /**

@@ -27,7 +27,7 @@ Periodogram::Periodogram(
     assert(mFrameSize > 0);
     assert(mFramePeriod > 0);
 
-    PluginObject::MinSize(mInput, mFrameSize);
+    MinSize(mInput, mFrameSize);
     mRealData = 0;
     mComplexData = 0;
     mFourier.Init(mFrameSize, &mRealData, &mComplexData);

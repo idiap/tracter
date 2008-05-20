@@ -29,6 +29,13 @@
 class Sink : public PluginObject
 {
 public:
+    Sink()
+    {
+        mMinReadBack = 0;
+        mMaxReadBack = 0;
+        mMinReadAhead = 0;
+        mMaxReadAhead = 0;
+    }
 
     /** Fetch() should not be called on a sink */
     int Fetch(IndexType iIndex, CacheArea& iOutputArea)
