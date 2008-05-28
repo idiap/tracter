@@ -36,6 +36,7 @@ ALSASource::ALSASource(const char* iObjectName)
 
 ALSASource::~ALSASource()
 {
+    snd_pcm_close(mHandle);
     snd_pcm_status_free(mStatus);
 }
 
