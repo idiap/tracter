@@ -48,9 +48,6 @@ namespace Tracter
         Plugin<float>* normaliseVariance(Plugin<float>* iPlugin);
 
         Plugin<float>* basicFrontend(Plugin<float>* iPlugin);
-        Plugin<float>* noiseFrontend(Plugin<float>* iPlugin);
-        Plugin<float>* plpFrontend(Plugin<float>* iPlugin);
-        Plugin<float>* complexFrontend(Plugin<float>* iPlugin);
         Plugin<float>* basicVADFrontend(Plugin<float>* iPlugin);
     };
 }

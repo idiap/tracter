@@ -26,12 +26,6 @@
 #include "ModulationVAD.h"
 #include "VADGate.h"
 
-#include "PLP.h"
-#include "WarpedPeriodogram.h"
-#include "Noise.h"
-#include "GeometricNoise.h"
-#include "MAPSpectrum.h"
-
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -42,9 +36,6 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
     // List all available front-ends
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
-    mFrontend["Noise"] = &Tracter::ASRFactory::noiseFrontend;
-    mFrontend["PLP"] = &Tracter::ASRFactory::plpFrontend;
-    mFrontend["Complex"] = &Tracter::ASRFactory::complexFrontend;
     mFrontend["BasicVAD"] = &Tracter::ASRFactory::basicVADFrontend;
 }
 
@@ -147,39 +138,6 @@ Plugin<float>* Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
     Plugin<float>* p = iPlugin;
     p = new ZeroFilter(p);
     p = new Periodogram(p);
-    p = new MelFilter(p);
-    p = new Cepstrum(p);
-    p = normaliseMean(p);
-    p = deltas(p);
-    p = normaliseVariance(p);
-    return p;
-}
-
-Plugin<float>* Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
-{
-    ZeroFilter* zf = new ZeroFilter(iPlugin);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    PLP* l = new PLP(mf);
-    return l;
-}
-
-Plugin<float>* Tracter::ASRFactory::complexFrontend(Plugin<float>* iPlugin)
-{
-    ZeroFilter* zf = new ZeroFilter(iPlugin);
-    WarpedPeriodogram* p = new WarpedPeriodogram(zf);
-    Cepstrum* c = new Cepstrum(p);
-    return c;
-}
-
-Plugin<float>* Tracter::ASRFactory::noiseFrontend(Plugin<float>* iPlugin)
-{
-    Plugin<float> *p, *gn, *nn;
-    p = new ZeroFilter(iPlugin);
-    p = new Periodogram(p);
-    gn = new GeometricNoise(p);
-    nn = new Noise(p);
-    p = new MAPSpectrum(p, nn, gn);
     p = new MelFilter(p);
     p = new Cepstrum(p);
     p = normaliseMean(p);

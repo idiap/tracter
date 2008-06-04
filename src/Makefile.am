@@ -10,7 +10,7 @@ bin_PROGRAMS = \
 
 noinst_PROGRAMS = \
 	socketserver socketclient \
-	creature testfile fft parser noise \
+	creature testfile fft parser \
 	alsafile
 
 lib_LIBRARIES = libtracter.a
@@ -24,16 +24,12 @@ libtracter_a_SOURCES = \
 	SlidingDFT.cpp \
 	TracterObject.cpp \
 	ASRFactory.cpp \
-	FrequencyWarp.cpp \
-	WarpedPeriodogram.cpp \
 	LowEnergyEnvelope.cpp \
 	Tokenise.cpp \
 	Histogram.cpp \
 	Laguerre.cpp \
 	Variance.cpp \
 	Divide.cpp \
-	MAPSpectrum.cpp \
-	MAPNoise.cpp \
 	FilePath.cpp \
 	SocketSink.cpp \
 	SocketSource.cpp \
@@ -57,7 +53,6 @@ libtracter_a_SOURCES = \
 	Noise.cpp \
 	Subtract.cpp \
 	SpectralSubtract.cpp \
-	PLP.cpp \
 	Pixmap.cpp
 
 include_HEADERS = $(libtracter_a_SOURCES:.cpp=.h) \
@@ -98,9 +93,6 @@ endif
 
 parser_SOURCES = parser.cpp
 parser_LDADD = libtracter.a
-
-noise_SOURCES = noise.cpp
-noise_LDADD = libtracter.a
 
 fft_SOURCES = fft.cpp
 fft_LDADD = libtracter.a $(FFT_LIBS)
