@@ -19,6 +19,7 @@ class MelFilter : public UnaryPlugin<float, float>
 {
 public:
     MelFilter(Plugin<float>* iInput, const char* iObjectName = "MelFilter");
+    virtual ~MelFilter() throw() {}
     void DumpBins();
 
 protected:

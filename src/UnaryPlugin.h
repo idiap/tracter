@@ -28,6 +28,7 @@ public:
         Connect(iInput);
         mInput = iInput;
     }
+    virtual ~UnaryPlugin() throw () {}
 
 protected:
     PluginObject* GetInput(int iInput)

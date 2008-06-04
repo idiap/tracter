@@ -25,6 +25,7 @@ class Mean : public UnaryPlugin<float, float>
 {
 public:
     Mean(Plugin<float>* iInput, const char* iObjectName = "Mean");
+    virtual ~Mean() throw() {}
     virtual void Reset(bool iPropagate);
     void SetTimeConstant(float iSeconds);
 

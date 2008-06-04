@@ -19,8 +19,6 @@ void Usage()
     puts(
         "Usage: tracter [options] [infile outfile | -f file-list]\n"
         "Options:\n"
-        "-v      Increment verbosity level (e.g., -v -v -v sets it to 3)\n"
-        "-c      Dump the configuration parameters to stdout\n"
         "-f list Read input and output files from list\n"
         "Anything else prints this information\n"
     );
@@ -52,16 +50,8 @@ int main(int argc, char** argv)
         /* Arguments beginning with a '-' */
         switch (argv[i][1])
         {
-        case 'v':
-            Tracter::sVerbose++;
-            break;
-
         case 'f':
             fileList = argv[++i];
-            break;
-
-        case 'c':
-            Tracter::sShowConfig = true;
             break;
 
         default:
@@ -71,16 +61,18 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Use the ASR factory for the source and front-end */
     ASRFactory factory;
     Source* source;
+
+    /* Use the ASR factory for the source and front-end */
     Plugin<float>* s = factory.CreateSource(source);
     Plugin<float>* f = factory.CreateFrontend(s);
 
     /* An HTK file sink */
     HTKSink sink(f);
-    FilePath path;
+    fflush(0);
 
+    FilePath path;
     if (!fileList)
     {
         /* If there's no file list we need 2 files */
@@ -89,10 +81,23 @@ int main(int argc, char** argv)
             printf("Not enough files defined\n");
             exit(EXIT_FAILURE);
         }
-        source->Open(file[0]);
-        path.SetName(file[1]);
-        path.MakePath();
-        sink.Open(file[1]);
+        try
+        {
+            source->Open(file[0]);
+            path.SetName(file[1]);
+            path.MakePath();
+            sink.Open(file[1]);
+        }
+        catch(std::exception& e)
+        {
+            printf("Caught exception: %s\n", e.what());
+            return 1;
+        }
+        catch(...)
+        {
+            printf("Caught unknown exception\n");
+            return 1;
+        }
     }
     else
     {
@@ -112,7 +117,7 @@ int main(int argc, char** argv)
         while (fscanf(list, "%s %s", file1, file2) == 2)
         {
             if (Tracter::sVerbose > 1)
-                printf("%s\n %s\n", file1, file2);
+                printf("raw: %s\nhtk: %s\n", file1, file2);
             sink.Reset();
             source->Open(file1);
             path.SetName(file2);

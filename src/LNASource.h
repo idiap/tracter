@@ -20,6 +20,7 @@ class LNASource : public CachedPlugin<float>, public Source
 {
 public:
     LNASource(const char* iObjectName = "LNASource");
+    virtual ~LNASource() throw() {}
     void Open(const char* iFileName);
 
 private:

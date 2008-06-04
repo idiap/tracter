@@ -81,7 +81,7 @@ SocketSink::SocketSink(
     close(sockFD);
 }
 
-SocketSink::~SocketSink()
+SocketSink::~SocketSink() throw()
 {
     if (mFD)
     {

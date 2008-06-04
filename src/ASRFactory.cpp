@@ -144,13 +144,15 @@ Plugin<float>* Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
 
 Plugin<float>* Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
 {
-    ZeroFilter* zf = new ZeroFilter(iPlugin);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    Cepstrum* c = new Cepstrum(mf);
-    Plugin<float>* plugin = normaliseMean(c);
-    plugin = deltas(plugin);
-    return plugin;
+    Plugin<float>* p = iPlugin;
+    p = new ZeroFilter(p);
+    p = new Periodogram(p);
+    p = new MelFilter(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
 }
 
 Plugin<float>* Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
@@ -172,17 +174,18 @@ Plugin<float>* Tracter::ASRFactory::complexFrontend(Plugin<float>* iPlugin)
 
 Plugin<float>* Tracter::ASRFactory::noiseFrontend(Plugin<float>* iPlugin)
 {
-    ZeroFilter* zf = new ZeroFilter(iPlugin);
-    Periodogram* p = new Periodogram(zf);
-    GeometricNoise* gn = new GeometricNoise(p);
-    Noise* nn = new Noise(p);
-    MAPSpectrum *mp = new MAPSpectrum(p, nn, gn);
-    MelFilter* mf = new MelFilter(mp);
-    Cepstrum* c = new Cepstrum(mf);
-    Mean* m = new Mean(c);
-    Subtract* s = new Subtract(c, m);
-    Plugin<float>* d = deltas(s);
-    return d;
+    Plugin<float> *p, *gn, *nn;
+    p = new ZeroFilter(iPlugin);
+    p = new Periodogram(p);
+    gn = new GeometricNoise(p);
+    nn = new Noise(p);
+    p = new MAPSpectrum(p, nn, gn);
+    p = new MelFilter(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
 }
 
 Plugin<float>* Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)

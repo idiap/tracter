@@ -22,6 +22,7 @@ class FileSink : public UnarySink<float>
 {
 public:
     FileSink(Plugin<float>* iInput, const char* iObjectName = "FileSink");
+    virtual ~FileSink() throw() {}
     void Open(const char* iFile);
 
 private:

@@ -22,7 +22,7 @@ class SocketSource : public CachedPlugin<float>, public Source
 {
 public:
     SocketSource(const char* iObjectName = "SocketSource");
-    ~SocketSource();
+    ~SocketSource() throw ();
     void Open(const char* iFileName);
 
 protected:

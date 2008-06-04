@@ -24,7 +24,7 @@ SocketSource::SocketSource(const char* iObjectName)
     mFD = 0;
 }
 
-SocketSource::~SocketSource()
+SocketSource::~SocketSource() throw()
 {
     close(mFD);
     mFD = 0;

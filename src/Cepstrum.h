@@ -18,7 +18,7 @@ class Cepstrum : public UnaryPlugin<float, float>
 {
 public:
     Cepstrum(Plugin<float>* iInput, const char* iObjectName = "Cepstrum");
-    virtual ~Cepstrum();
+    virtual ~Cepstrum() throw();
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);

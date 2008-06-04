@@ -23,7 +23,7 @@ template <class T>
 class CachedPlugin : public Plugin<T>
 {
 public:
-    virtual ~CachedPlugin<T>()
+    virtual ~CachedPlugin<T>() throw()
     {
         // Nothing to do
     }

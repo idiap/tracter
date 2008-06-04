@@ -29,6 +29,7 @@ public:
         Plugin<T>::mSampleFreq = Plugin<T>::GetEnv("SampleFreq", 8000.0f);
         Plugin<T>::mSamplePeriod = 1;
     }
+    virtual ~FileSource() throw() {}
 
     virtual void Open(const char* iFileName)
     {

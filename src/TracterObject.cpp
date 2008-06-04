@@ -3,8 +3,28 @@
 #include <cstdlib>
 #include "TracterObject.h"
 
+bool Tracter::sInitialised = false;
 bool Tracter::sShowConfig = false;
 int Tracter::sVerbose = 0;
+
+/**
+ * Constructor.  Initialises static verbosity and config output
+ * options, or returns immediately if they are set.
+ */
+Tracter::Object::Object()
+{
+    if (Tracter::sInitialised)
+        return;
+
+    mObjectName = "Tracter";
+
+    Tracter::sShowConfig = GetEnv("shConfig", 0);
+    if (Tracter::sShowConfig)
+        GetEnv("shConfig", 0); // Do it again to get the output :-)
+    Tracter::sVerbose = GetEnv("Verbose", 0);
+    Tracter::sInitialised = true;
+}
+
 
 /**
  * Uses the name of the object as a prefix and iSuffix as a suffix to

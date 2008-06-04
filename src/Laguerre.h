@@ -31,4 +31,25 @@ private:
     std::vector<float> mDD;
 };
 
+
+/**
+ * Newton Raphson
+ */
+class NewtonRaphson
+{
+public:
+    void SetOrder(int iOrder)
+    {
+        mOrder = iOrder;
+        mD.resize(mOrder);
+    }
+
+    float Evaluate(float iEstimate, const std::vector<float>& iPoly);
+    float Evaluate(float iEstimate, const float* iPoly);
+
+private:
+    int mOrder;
+    std::vector<float> mD;
+};
+
 #endif /* LAGUERRE_H */

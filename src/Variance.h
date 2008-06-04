@@ -25,6 +25,7 @@ class Variance : public UnaryPlugin<float, float>
 {
 public:
     Variance(Plugin<float>* iInput, const char* iObjectName = "Variance");
+    virtual ~Variance() throw() {}
     virtual void Reset(bool iPropagate);
     void SetTimeConstant(float iSeconds);
 

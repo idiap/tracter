@@ -14,7 +14,7 @@ Pixmap::Pixmap(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
+    mArraySize = GetEnv("ArraySize", iInput->GetArraySize());
     assert(mArraySize >= 0);
 
     // Keep all the input

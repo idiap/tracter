@@ -79,6 +79,47 @@ float Laguerre::Evaluate(float iEstimate, const float* iPoly)
     return x;
 }
 
+float NewtonRaphson::Evaluate(float iEstimate, const std::vector<float>& iPoly)
+{
+    assert(mOrder+1 == (int)iPoly.size());
+    return Evaluate(iEstimate, &iPoly[0]);
+}
+
+float NewtonRaphson::Evaluate(float iEstimate, const float* iPoly)
+{
+    // Set first differential coefficients
+    for (int i=0; i<mOrder; i++)
+        mD[i] = iPoly[i+1] * (i+1);
+
+    float x = iEstimate;
+    for (int iter=0; iter<10; iter++)
+    {
+        float p = iPoly[0];
+        for (int i=1; i<mOrder+1; i++)
+            p += iPoly[i] * powf(x, i);
+
+        // If p is small, we're there.
+        if (fabs(p) < FLT_MIN)
+            break;
+
+        float d = mD[0];
+        for (int i=1; i<mOrder; i++)
+            d += mD[i] * powf(x, i);
+
+        float a = p/d;
+        x -= a;
+        //printf("%d: %f %e %e\n", iter, x, a, p);
+
+        // If a is too small to make a difference, we're there.  This
+        // is less tight than the check on p above.
+        if (fabs(a) < FLT_EPSILON)
+            break;
+    }
+
+    return x;
+}
+
+
 #ifdef MAIN
 int main()
 {
@@ -93,10 +134,17 @@ int main()
     poly[3] = -26.0f;
     poly[4] = 1.0f;
 
+    printf("Laguerre\n");
     Laguerre l;
     l.SetOrder(poly.size()-1);
-    float f = l.Evaluate(-5, poly);
+    float f = l.Evaluate(30, poly);
     printf("f: %f\n", f);
+
+    printf("NewtonRaphson\n");
+    NewtonRaphson n;
+    n.SetOrder(poly.size()-1);
+    float g = n.Evaluate(30, poly);
+    printf("f: %f\n", g);
 
     return 0;
 }

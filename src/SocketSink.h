@@ -17,7 +17,7 @@ class SocketSink : public UnarySink<float>
 {
 public:
     SocketSink(Plugin<float>* iInput, const char* iObjectName = "SocketSink");
-    ~SocketSink();
+    virtual ~SocketSink() throw();
     void Pull();
 
 private:

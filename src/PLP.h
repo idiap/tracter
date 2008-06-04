@@ -18,6 +18,7 @@ class PLP : public UnaryPlugin<float, float>
 {
 public:
     PLP(Plugin<float>* iInput, const char* iObjectName = "PLP");
+    virtual ~PLP() throw() {}
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);

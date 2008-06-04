@@ -8,10 +8,13 @@
 #ifndef TRACTEROBJECT_H
 #define TRACTEROBJECT_H
 
+#include <exception>
+
 /**
  * Tracter namespace
  */
 namespace Tracter {
+    extern bool sInitialised;
     extern bool sShowConfig;
     extern int sVerbose;
 }
@@ -28,6 +31,10 @@ namespace Tracter
 {
     class Object
     {
+    public:
+        Object();
+        virtual ~Object() throw () {} // Stops destructors throwing exceptions
+
     protected:
         const char* mObjectName; ///< Name of this object
 
@@ -37,6 +44,21 @@ namespace Tracter
 
     private:
         const char* getEnv(const char* iSuffix, const char* iDefault);
+    };
+
+    class Exception: public std::exception
+    {
+    public:
+        Exception(const char* iString)
+        {
+            mString = iString;
+        }
+        virtual const char* what() const throw()
+        {
+            return mString;
+        }
+    private:
+        const char* mString;
     };
 }
 

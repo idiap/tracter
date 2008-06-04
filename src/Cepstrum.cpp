@@ -34,7 +34,7 @@ Cepstrum::Cepstrum(
     mFourier.Init(mNLogData, &mLogData, &mCepstra);
 }
 
-Cepstrum::~Cepstrum()
+Cepstrum::~Cepstrum() throw()
 {
     if ((Tracter::sVerbose > 0) && (mFloored > 0))
         printf("Cepstrum: floored %d values < %e\n", mFloored, mFloor);

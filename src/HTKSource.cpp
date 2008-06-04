@@ -97,7 +97,8 @@ void HTKSource::Open(const char* iFileName)
         exit(EXIT_FAILURE);
     }
 
-    printf("nSamples: %d  parm: %ho\n", nSamples, parmKind);
+    if (Tracter::sVerbose > 0)
+        printf("nSamples: %d  parm: %ho\n", nSamples, parmKind);
     mNSamples = nSamples;
     mMapData = (float*)data;
 }

@@ -20,6 +20,7 @@ class HTKSource : public CachedPlugin<float>, public Source
 {
 public:
     HTKSource(const char* iObjectName = "HTKSource");
+    virtual ~HTKSource() throw() {}
     void Open(const char* iFileName);
 
 private:

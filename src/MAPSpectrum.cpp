@@ -73,19 +73,19 @@ MAPSpectrum::MAPSpectrum(
         for (int i=0; i<mArraySize; i++)
             mNoise[i] = 1.0f;
 
-    // Set Laguerre polynomial order etc.
+    // Set Solver polynomial order etc.
     switch (mEstimator)
     {
     case 12:
-        mLaguerre.SetOrder(4);
+        mSolver.SetOrder(4);
         break;
 
     case 13:
-        mLaguerre.SetOrder(5);
+        mSolver.SetOrder(5);
         break;
 
     case 14:
-        mLaguerre.SetOrder(6);
+        mSolver.SetOrder(6);
         break;
 
     default:
@@ -304,7 +304,7 @@ float MAPSpectrum::IncompleteGammaLog(float iTotal, float iNoise)
     s[1] = 1.0f/B*v2*d + v*d + a*v2 + t*d;
     s[0] = v2*d;
 
-    float sHat = mLaguerre.Evaluate(t, s);
+    float sHat = mSolver.Evaluate(t, s);
     return sHat;
 }
 
@@ -325,7 +325,7 @@ float MAPSpectrum::IncompleteGammaMag(float iTotal, float iNoise)
     s[1] = -2.0f*v2*d-1.0f/B*v4+2.0f*t*d;
     s[0] = a*v4-v4-1.0f/B*v4*d;
 
-    float sHat = mLaguerre.Evaluate(sqrt(t), s);
+    float sHat = mSolver.Evaluate(sqrt(t), s);
     return sHat;
 }
 
@@ -347,6 +347,6 @@ float MAPSpectrum::IncompleteGammaMagLog(float iTotal, float iNoise)
     s[1] = -2.0f*v2*d-1.0f/B*v4+2.0f*t*d+v4*d;
     s[0] = a*v4-v4-1.0f/B*v4*d;
 
-    float sHat = mLaguerre.Evaluate(t, s);
+    float sHat = mSolver.Evaluate(t, s);
     return sHat;
 }

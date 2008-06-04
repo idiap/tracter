@@ -11,6 +11,7 @@
 #include "CachedPlugin.h"
 #include "MAPNoise.h"
 
+
 /**
  * MAP spectral estimator
  */
@@ -20,6 +21,7 @@ public:
     MAPSpectrum(Plugin<float>* iInput1, Plugin<float>* iInput2,
                 Plugin<float>* iChannelInput = 0,
                 const char* iObjectName = "MAPSpectrum");
+    virtual ~MAPSpectrum() throw() {}
 
 protected:
     PluginObject* GetInput(int iInput);
@@ -36,7 +38,8 @@ private:
     float mDelta;
     float mSNR;
     std::vector<float> mNoise;
-    Laguerre mLaguerre;
+    //Laguerre mSolver;
+    NewtonRaphson mSolver;
 
     float Average(float* iArray);
     float InverseGammaFixedMode(float iTotal, float iNoise, float iMode);

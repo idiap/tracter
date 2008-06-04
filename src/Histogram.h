@@ -18,7 +18,7 @@ class Histogram : public UnaryPlugin<float, float>
 {
 public:
     Histogram(Plugin<float>* iInput, const char* iObjectName = "Histogram");
-    ~Histogram();
+    virtual ~Histogram() throw();
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);

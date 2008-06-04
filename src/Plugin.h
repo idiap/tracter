@@ -19,7 +19,7 @@ template <class T>
 class Plugin : public PluginObject
 {
 public:
-    virtual ~Plugin<T>()
+    virtual ~Plugin<T>() throw ()
     {
         // A kind of post-hoc check that the next plugin called Connect()
         assert(mNOutputs > 0);
