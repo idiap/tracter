@@ -73,15 +73,17 @@ void FilePath::MakePath()
     mPath.copy(&mTmp[0], mTmp.size());
 
     // Replace separators with nulls
-    for (unsigned int i=0; i<mTmp.size(); i++)
+    // Ignore the first character
+    for (unsigned int i=1; i<mTmp.size(); i++)
     {
         if ((mTmp[i] == '/') || (mTmp[i] == '\0'))
         {
             mTmp[i] = '\0';
             if (mkdir(&mTmp[0], 0777) && (errno != EEXIST))
             {
-                printf("FilePath: MakePath failed for %s\n", &mTmp[0]);
+                printf("FilePath: MakePath failed for \"%s\"\n", &mTmp[0]);
                 perror("mkdir");
+                Dump();
                 exit(EXIT_FAILURE);
             }
             mTmp[i] = '/';

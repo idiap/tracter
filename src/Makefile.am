@@ -6,8 +6,11 @@
 #
 
 bin_PROGRAMS = \
+	tracter htktopixmap
+
+noinst_PROGRAMS = \
 	socketserver socketclient \
-	creature testfile tracter fft parser \
+	creature testfile fft parser \
 	alsafile
 
 lib_LIBRARIES = libtracter.a
@@ -110,3 +113,6 @@ socketserver_LDADD = libtracter.a
 
 alsafile_SOURCES = alsafile.cpp
 alsafile_LDADD = libtracter.a @ALSA_LIBS@
+
+htktopixmap_SOURCES = htktopixmap.cpp
+htktopixmap_LDADD = libtracter.a

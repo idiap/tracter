@@ -60,6 +60,7 @@ bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
         return false;
     float* input = mInput->GetPointer(inputArea.offset);
     float* cache = GetPointer(iOffset);
+    //printf("Input: %e %e %e\n", input[0], input[1], input[2]);
     for (int i=0; i<mArraySize; i++)
         cache[i] = input[i];
 

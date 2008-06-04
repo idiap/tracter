@@ -36,6 +36,7 @@ public:
         mMinReadAhead = 0;
         mMaxReadAhead = 0;
     }
+    ~Sink() throw () {}
 
     /** Fetch() should not be called on a sink */
     int Fetch(IndexType iIndex, CacheArea& iOutputArea)

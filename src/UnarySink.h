@@ -20,7 +20,7 @@ class UnarySink : public Sink
 public:
 
     /** A UnarySink destructor calls a recursive delete of the whole graph */
-    virtual ~UnarySink()
+    virtual ~UnarySink() throw ()
     {
         Delete();
     }

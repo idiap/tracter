@@ -19,6 +19,7 @@ public:
     LowEnergyEnvelope(
         Plugin<float>* iInput, const char* iObjectName = "LowEnergyEnvelope"
     );
+    virtual ~LowEnergyEnvelope() throw();
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);

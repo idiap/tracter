@@ -15,7 +15,7 @@ class Tokenise : public UnaryPlugin<std::string, char>
 {
 public:
     Tokenise(Plugin<char>* iInput, const char* iObjectName = "Tokenise");
-    virtual ~Tokenise() {};
+    virtual ~Tokenise() throw() {}
 
 protected:
     std::string mQuote;

@@ -75,7 +75,7 @@ class PluginObject : public Tracter::Object
 {
 public:
     PluginObject(void);
-    virtual ~PluginObject(void) {};
+    virtual ~PluginObject(void) throw () {};
 
     /* Dumps the contents of the class */
     void Dump();

@@ -23,6 +23,7 @@ class HTKSink : public UnarySink<float>
 {
 public:
     HTKSink(Plugin<float>* iInput, const char* iObjectName = "HTKSink");
+    virtual ~HTKSink() throw() {}
     void Open(const char* iFile);
 
 private:

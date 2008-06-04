@@ -17,6 +17,7 @@ class Concatenate : public CachedPlugin<float>
 {
 public:
     Concatenate(const char* iObjectName = "Concatenate");
+    virtual ~Concatenate() throw() {}
     void Add(Plugin<float>* iInput);
 
 protected:

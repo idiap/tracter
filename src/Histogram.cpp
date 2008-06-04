@@ -63,7 +63,7 @@ bool Histogram::UnaryFetch(IndexType iIndex, int iOffset)
     return true;
 }
 
-Histogram::~Histogram()
+Histogram::~Histogram() throw()
 {
     write();
 }

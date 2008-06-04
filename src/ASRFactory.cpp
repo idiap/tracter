@@ -26,9 +26,6 @@
 #include "ModulationVAD.h"
 #include "VADGate.h"
 
-#include "Noise.h"
-#include "GeometricNoise.h"
-
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -138,13 +135,15 @@ Plugin<float>* Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
 
 Plugin<float>* Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
 {
-    ZeroFilter* zf = new ZeroFilter(iPlugin);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    Cepstrum* c = new Cepstrum(mf);
-    Plugin<float>* plugin = normaliseMean(c);
-    plugin = deltas(plugin);
-    return plugin;
+    Plugin<float>* p = iPlugin;
+    p = new ZeroFilter(p);
+    p = new Periodogram(p);
+    p = new MelFilter(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
 }
 
 Plugin<float>* Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)

@@ -18,8 +18,8 @@
 class ALSASource : public CachedPlugin<short>, public Source
 {
 public:
-    ALSASource(const char* iObjectName = "FileSource");
-    ~ALSASource();
+    ALSASource(const char* iObjectName = "ALSASource");
+    ~ALSASource() throw();
     void Start();
     void Open(const char* iDeviceName);
 

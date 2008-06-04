@@ -19,6 +19,7 @@ class Delta : public UnaryPlugin<float, float>
 {
 public:
     Delta(Plugin<float>* iInput, const char* iObjectName = "Delta");
+    virtual ~Delta() throw() {}
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);

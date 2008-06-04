@@ -25,6 +25,7 @@ class Periodogram : public UnaryPlugin<float, float>
 public:
     Periodogram(Plugin<float>* iInput,
                 const char* iObjectName = "Periodogram");
+    virtual ~Periodogram() throw() {}
 
 protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);

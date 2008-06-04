@@ -34,7 +34,7 @@ ALSASource::ALSASource(const char* iObjectName)
     ALSACheck( snd_output_stdio_attach(&mOutput, stdout, 0) );
 }
 
-ALSASource::~ALSASource()
+ALSASource::~ALSASource() throw()
 {
     snd_pcm_close(mHandle);
     snd_pcm_status_free(mStatus);
