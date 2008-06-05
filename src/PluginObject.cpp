@@ -46,7 +46,7 @@ PluginObject::PluginObject()
     mDownStream = 0;
     mIndefinite = false;
     mMinSize = 0;
-    mNInit = 0;
+    mNInitialised = 0;
     mMinReadAhead = INT_MAX;
     mMaxReadAhead = 0;
     mMinReadBack = INT_MAX;
@@ -56,6 +56,7 @@ PluginObject::PluginObject()
 
     mSampleFreq = 0.0f;
     mSamplePeriod = 0;
+    mAsync = false;
 }
 
 /**
@@ -179,7 +180,7 @@ void PluginObject::Initialise(
     const PluginObject* iDownStream, int iReadBack, int iReadAhead
 )
 {
-    assert((mNOutputs == 0) /* Sink */ || (mNInit < mNOutputs) /* Plugin */);
+    assert((mNOutputs == 0) /* Sink */ || (mNInitialised < mNOutputs) /* Plugin */);
 
     // First time: Set the favoured downstream plugin to the caller
     if (!mDownStream)
@@ -215,7 +216,7 @@ void PluginObject::Initialise(
     }
 
     // If the accumulation is complete, then recurse the call
-    if ((mNOutputs == 0) || (++mNInit == mNOutputs))
+    if ((mNOutputs == 0) || (++mNInitialised == mNOutputs))
     {
         // Resize if necessary
         if (!mIndefinite)
@@ -343,6 +344,20 @@ void PluginObject::Dump()
            mTail.index, mTail.offset, mHead.index, mHead.offset);
 }
 
+
+/**
+ * Update a cachepointer.
+ * Handles wraparound too.
+ */
+void PluginObject::MovePointer(CachePointer& iPointer, int iLen)
+{
+    iPointer.index += iLen;
+    iPointer.offset += iLen;
+    if (iPointer.offset >= mSize)
+        iPointer.offset -= mSize;
+}
+
+
 /**
  * Read data from an input Plugin.  This is the core of the cached
  * plugin concept.  If data already exists it just returns the cache
@@ -407,12 +422,15 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
             return 0;
         if (len < iLength)
             oRange.Set(len, 0, mSize);
-        mHead.index = iIndex + len;
-        mHead.offset = len;
-        if (mHead.offset >= mSize)
-            mHead.offset -= mSize;
-        mTail.index = iIndex;
-        mTail.offset = 0;
+        if (!mAsync)
+        {
+            mHead.index = iIndex + len;
+            mHead.offset = len;
+            if (mHead.offset >= mSize)
+                mHead.offset -= mSize;
+            mTail.index = iIndex;
+            mTail.offset = 0;
+        }
         return len;
     }
 
@@ -428,17 +446,20 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
             CacheArea area;
             area.Set(fetch, mHead.offset, mSize);
             len = Fetch(mHead.index, area);
-            mHead.index += len;
-            mHead.offset += len;
-            if (mHead.offset >= mSize)
-                mHead.offset -= mSize;
-            if (mHead.index - mTail.index > mSize)
+            if (!mAsync)
             {
-                int diff = mHead.index - mTail.index - mSize;
-                mTail.index += diff;
-                mTail.offset += diff;
-                if (mTail.offset >= mSize)
-                    mTail.offset -= mSize;
+                mHead.index += len;
+                mHead.offset += len;
+                if (mHead.offset >= mSize)
+                    mHead.offset -= mSize;
+                if (mHead.index - mTail.index > mSize)
+                {
+                    int diff = mHead.index - mTail.index - mSize;
+                    mTail.index += diff;
+                    mTail.offset += diff;
+                    if (mTail.offset >= mSize)
+                        mTail.offset -= mSize;
+                }
             }
             len = iLength - fetch + len;
         }

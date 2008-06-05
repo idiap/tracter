@@ -90,12 +90,12 @@ int main(int argc, char** argv)
         }
         catch(std::exception& e)
         {
-            printf("Caught exception: %s\n", e.what());
+            fprintf(stderr, "Caught exception: %s\n", e.what());
             return 1;
         }
         catch(...)
         {
-            printf("Caught unknown exception\n");
+            fprintf(stderr, "Caught unknown exception\n");
             return 1;
         }
     }

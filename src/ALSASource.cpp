@@ -6,6 +6,8 @@
  */
 
 #include <algorithm>
+#include <time.h>
+
 #include "ALSASource.h"
 
 /*
@@ -17,7 +19,7 @@ static int alsaErr;
     alsaErr = f; \
     if (alsaErr < 0) \
     { \
-        printf("ALSA error at %s line %d: %s:\n", \
+        fprintf(stderr, "ALSA error at %s line %d: %s:\n", \
                __FILE__, __LINE__, snd_strerror(alsaErr)); \
         exit(1); \
     }
@@ -28,6 +30,15 @@ ALSASource::ALSASource(const char* iObjectName)
     mSampleFreq = GetEnv("SampleFreq", 8000.0f);
     mSamplePeriod = 1;
     mHandle = 0;
+
+    float seconds = GetEnv("BufferTime", 1.0f);
+    int samples = SecondsToSamples(seconds);
+    MinSize(this, samples);
+    if (Tracter::sVerbose > 0)
+        printf("ALSASource: buffer set to %d samples\n", samples);
+
+    /* Tell the PluginObject that we will take care of the pointers */
+    mAsync = true;
 
     /* Allocate space and output to stdout */
     ALSACheck( snd_pcm_status_malloc(&mStatus) );
@@ -40,15 +51,78 @@ ALSASource::~ALSASource() throw()
     snd_pcm_status_free(mStatus);
 }
 
+/** Pass the callback information to the asyncCallback() method */
+static void staticCallback(snd_async_handler_t *iHandler)
+{
+    void* object = snd_async_handler_get_callback_private(iHandler);
+    ((ALSASource*)object)->asyncCallback();
+}
+
+void ALSASource::asyncCallback()
+{
+    assert(mHandle);
+    snd_pcm_sframes_t avail = snd_pcm_avail_update(mHandle);
+    if (Tracter::sVerbose > 2)
+        printf("ALSASource::syncCallback: avail = %ld\n", avail);
+    if (avail < 0)
+    {
+        printf("Aaagh, avail < 0 %ld\n", avail);
+        exit(1);
+    }
+    assert(mSize >= avail);
+    assert(!mIndefinite);
+
+    int xrun = 0;
+    int len0 = mSize - mHead.offset;
+    len0 = std::min((int)avail, len0);
+    if (len0 > 0)
+        ALSACheck( snd_pcm_readi(mHandle, GetPointer(mHead.offset), len0) );
+    if ((mTail.offset >= mHead.offset) &&
+        (mHead.index != mTail.index) &&
+        (mTail.offset < mHead.offset + len0))
+        xrun = mHead.offset + len0 - mTail.offset;
+
+    int len1 = avail - len0;
+    if (len1 > 0)
+        ALSACheck( snd_pcm_readi(mHandle, GetPointer(0), len1) );
+    if (xrun > 0)
+        xrun += len1;
+    else if ((mTail.offset < len1))
+        xrun = len1 - mTail.offset;
+
+    //printf("s = %d h = %d,%ld t = %d,%ld  len0 = %d len1 = %d xrun = %d\n",
+    //       mSize, mHead.offset, mHead.index, mTail.offset, mTail.index,
+    //       len0, len1, xrun);
+
+    MovePointer(mHead, avail);
+    if (xrun > 0)
+        MovePointer(mTail, xrun);
+}
+
 void ALSASource::Open(const char* iDeviceName)
 {
     assert(iDeviceName);
+
+    /* Get a PCM handle and set it up */
     ALSACheck(
         snd_pcm_open(&mHandle, iDeviceName, SND_PCM_STREAM_CAPTURE, 0)
     );
     assert(snd_pcm_state(mHandle) == SND_PCM_STATE_OPEN);
     setHardwareParameters();
-    Start();
+
+    /* Add the callback information */
+    snd_async_handler_t* ahandler;
+    ALSACheck(
+        snd_async_add_pcm_handler(&ahandler, mHandle, staticCallback, this)
+    );
+
+    /* Start the PCM */
+    ALSACheck( snd_pcm_start(mHandle) );
+    assert(snd_pcm_state(mHandle) == SND_PCM_STATE_RUNNING);
+
+    if (Tracter::sVerbose > 1)
+        snd_pcm_dump(mHandle, mOutput);
+
     if (Tracter::sVerbose > 0)
         statusDump();
 }
@@ -79,6 +153,11 @@ snd_pcm_uframes_t ALSASource::setHardwareParameters()
                                                  bufferSize) );
     ALSACheck( snd_pcm_hw_params_set_period_size_near(mHandle, hwparams,
                                                       &periodSize, &dir) );
+    if ((int)periodSize*2 > mSize)
+    {
+        Resize(periodSize*2);
+        mSize = periodSize*2;
+    }
 
     if (Tracter::sVerbose > 1)
         snd_pcm_hw_params_dump(hwparams, mOutput);
@@ -93,80 +172,23 @@ snd_pcm_uframes_t ALSASource::setHardwareParameters()
     return bufferSize;
 }
 
-void ALSASource::Start()
-{
-    /* Start the PCM */
-    ALSACheck( snd_pcm_start(mHandle) );
-    assert(snd_pcm_state(mHandle) == SND_PCM_STATE_RUNNING);
-
-    if (Tracter::sVerbose > 1)
-        snd_pcm_dump(mHandle, mOutput);
-
-    /* Cycle the MMAP calls once to get the Source location */
-    //const snd_pcm_channel_area_t* area;
-    //snd_pcm_uframes_t offset, frames;
-    //ALSACheck( snd_pcm_mmap_begin(mHandle, &area, &offset, &frames) );
-    //ALSACheck( snd_pcm_mmap_commit(mHandle, offset, 0) );
-    //mData = (short*)area[0].addr;
-    //assert(area[0].step == 16);
-
-    // info
-    //printf("Begin; step = %u, offset = %lu, frames = %lu\n",
-    //       area[0].step, offset, frames);
-}
-
-//
-// This is really crap for at least two reasons:
-// 1. It's request driven, so dangerous if the ALSA buffer is too small
-// 2. The skipping actually reads rather than ignores
-//
 int ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
-    snd_pcm_sframes_t avail;
-
-    // However unlikely, it's possible that the read is ahead of the
-    // current sample.  In this case, we need to skip samples.
-    int skip = iIndex - mHead.index;
-    while (skip > 0)
-    {
-        printf("Skipping %d samples:", skip);
-        static short skipBuffer[1024];
-        ALSACheck( snd_pcm_wait(mHandle, -1) );
-        avail = snd_pcm_avail_update(mHandle);
-        int read = std::min<int>(skip, avail);
-        read = std::min(read, 1024);
-        ALSACheck( snd_pcm_readi(mHandle, skipBuffer, read) );
-        skip -= read;
-        assert(skip >= 0);
-        printf(" %d\n", read);
-    }
-
-    // After possible skipping, read the number of samples required
-    while ((avail = snd_pcm_avail_update(mHandle)) < iOutputArea.Length())
-    {
-        if (avail < 0)
-            printf("Aaagh %d\n", (int)avail);
-        ALSACheck( snd_pcm_wait(mHandle, -1) );
-    }
-
     if (Tracter::sVerbose > 2)
-        printf("ALSASource::Fetch: Avail: %ld  requested: %d %d\n",
-               avail, iOutputArea.len[0], iOutputArea.len[1]);
+        printf("ALSASource::Fetch: requested: %d %d\n",
+               iOutputArea.len[0], iOutputArea.len[1]);
 
-    int readErr = snd_pcm_readi(mHandle, GetPointer(iOutputArea.offset),
-                                iOutputArea.len[0]);
-    if (readErr < 0)
+    /* The fetch is actually completely asynchronous, so just sleep
+     * until the head pointer passes where we need to be */
+    timespec req;
+    req.tv_sec = 0;
+    req.tv_nsec = 100000;
+    while (mHead.index < iIndex + iOutputArea.Length())
     {
-        if (readErr == -EPIPE)
-            printf("-EPIPE\n");
-        if (snd_pcm_state(mHandle) == SND_PCM_STATE_XRUN)
-            printf("XRUN\n");
-        statusDump();
-        return 0;
+        assert(snd_pcm_state(mHandle) == SND_PCM_STATE_RUNNING);
+        struct timespec rem;
+        nanosleep(&req, &rem);
     }
-
-    if (iOutputArea.len[1])
-        ALSACheck( snd_pcm_readi(mHandle, GetPointer(), iOutputArea.len[1]) );
 
     // Done
     return iOutputArea.Length();

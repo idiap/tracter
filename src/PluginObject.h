@@ -102,8 +102,8 @@ protected:
         const PluginObject* iDownStream = 0,
         int iReadBack = 0, int iReadAhead = 0
     );
-
     PluginObject* Connect(PluginObject* iInput);
+    void MovePointer(CachePointer& iPointer, int iLen);
 
     virtual void MinSize(int iMinSize, int iReadAhead);
     virtual void Resize(int iSize) = 0;
@@ -119,8 +119,9 @@ protected:
     CachePointer mHead; ///< Next position to write to
     CachePointer mTail; ///< Oldest position written to
     int mMinSize;       ///< Maximum requested minimum size
+    bool mAsync;        ///< Flag that the cache is updated asynchronously
 
-    int mNInit;
+    int mNInitialised;
     int mMaxReadAhead;     ///< Maximum read-ahead of output buffers
     int mMinReadAhead;
     int mMaxReadBack;

@@ -22,7 +22,7 @@ FileSink::FileSink(
     Reset();
 
     mFile = 0;
-    mByteOrder.SetTarget(ENDIAN_BIG);
+
     if (mByteOrder.WrongEndian())
         mTemp.resize(mArraySize);
     mMaxSize = GetEnv("MaxSize", 0);

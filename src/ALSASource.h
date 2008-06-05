@@ -20,8 +20,8 @@ class ALSASource : public CachedPlugin<short>, public Source
 public:
     ALSASource(const char* iObjectName = "ALSASource");
     ~ALSASource() throw();
-    void Start();
     void Open(const char* iDeviceName);
+    void asyncCallback();
 
 protected:
     virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
@@ -30,6 +30,7 @@ private:
     snd_output_t* mOutput;
     snd_pcm_t* mHandle;
     snd_pcm_status_t* mStatus;
+
     snd_pcm_uframes_t setHardwareParameters();
     void statusDump()
     {
