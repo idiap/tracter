@@ -5,7 +5,9 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include "math.h"
+#include <cstring>
+#include <cmath>
+
 #include "Variance.h"
 
 Variance::Variance(Plugin<float>* iInput, const char* iObjectName)

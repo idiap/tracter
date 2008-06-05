@@ -5,6 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cstring>
+
 #include "Mean.h"
 
 Mean::Mean(Plugin<float>* iInput, const char* iObjectName)

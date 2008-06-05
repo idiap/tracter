@@ -17,6 +17,7 @@ AC_CONFIG_HEADER([config.h])
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_RANLIB
 
 
@@ -83,8 +84,6 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h stdlib.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_C_CONST
 AC_TYPE_SIZE_T
 
 # Checks for library functions.

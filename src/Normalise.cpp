@@ -5,6 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cstring>
+
 #include "Normalise.h"
 
 Normalise::Normalise(

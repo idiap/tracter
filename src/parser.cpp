@@ -15,7 +15,7 @@ int main()
     Tokenise* t = new Tokenise(f);
     ArraySink<std::string> sink = ArraySink<std::string>(t);
 
-    char* file = "testfile.txt";
+    const char* file = "testfile.txt";
     printf("Opening file %s\n", file);
     f->Open(file);
 

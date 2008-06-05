@@ -74,7 +74,7 @@ void* MMap::Map(const char* iFileName)
     }
 
     if (Tracter::sVerbose > 1)
-        printf("MMap: %s size %d\n", iFileName, mSize);
+        printf("MMap: %s size %d\n", iFileName, (int)mSize);
 
     return mMap;
 }

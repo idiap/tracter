@@ -5,9 +5,7 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <stdio.h>
-
-#include "config.h"
+#include <cstdio>
 
 #include "CachedPlugin.h"
 #include "FileSource.h"
@@ -28,6 +26,8 @@
 #include "ComplexSample.h"
 #include "ComplexPeriodogram.h"
 #include "FilePath.h"
+
+#include "config.h"
 
 class SinkSucker : public UnarySink<float>
 {

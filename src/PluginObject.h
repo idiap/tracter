@@ -42,6 +42,7 @@ struct CachePointer
 };
 
 /** Storage of minimum / maximum */
+#include <climits>
 #include <algorithm>
 class MinMax
 {
