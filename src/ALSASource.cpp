@@ -59,7 +59,7 @@ snd_pcm_uframes_t ALSASource::setHardwareParameters()
     int dir;
     unsigned int sampleRate = (unsigned int)mSampleFreq;
     snd_pcm_uframes_t bufferSize;
-    snd_pcm_uframes_t periodSize = 256;
+    snd_pcm_uframes_t periodSize = 160;
 
     /* Allocate a structure and populate with possible values */
     snd_pcm_hw_params_t* hwparams;
@@ -80,12 +80,16 @@ snd_pcm_uframes_t ALSASource::setHardwareParameters()
     ALSACheck( snd_pcm_hw_params_set_period_size_near(mHandle, hwparams,
                                                       &periodSize, &dir) );
 
+    if (Tracter::sVerbose > 1)
+        snd_pcm_hw_params_dump(hwparams, mOutput);
+
     /* Write the parameters to the card and free the space */
     ALSACheck( snd_pcm_hw_params(mHandle, hwparams) );
     snd_pcm_hw_params_free(hwparams);
 
     /* The above should bring the card state up to PREPARED */
     assert(snd_pcm_state(mHandle) == SND_PCM_STATE_PREPARED);
+
     return bufferSize;
 }
 
@@ -94,6 +98,9 @@ void ALSASource::Start()
     /* Start the PCM */
     ALSACheck( snd_pcm_start(mHandle) );
     assert(snd_pcm_state(mHandle) == SND_PCM_STATE_RUNNING);
+
+    if (Tracter::sVerbose > 1)
+        snd_pcm_dump(mHandle, mOutput);
 
     /* Cycle the MMAP calls once to get the Source location */
     //const snd_pcm_channel_area_t* area;
@@ -136,14 +143,28 @@ int ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 
     // After possible skipping, read the number of samples required
     while ((avail = snd_pcm_avail_update(mHandle)) < iOutputArea.Length())
+    {
+        if (avail < 0)
+            printf("Aaagh %d\n", (int)avail);
         ALSACheck( snd_pcm_wait(mHandle, -1) );
+    }
 
     if (Tracter::sVerbose > 2)
         printf("ALSASource::Fetch: Avail: %ld  requested: %d %d\n",
                avail, iOutputArea.len[0], iOutputArea.len[1]);
 
-    ALSACheck(snd_pcm_readi(mHandle, GetPointer(iOutputArea.offset),
-                            iOutputArea.len[0]) );
+    int readErr = snd_pcm_readi(mHandle, GetPointer(iOutputArea.offset),
+                                iOutputArea.len[0]);
+    if (readErr < 0)
+    {
+        if (readErr == -EPIPE)
+            printf("-EPIPE\n");
+        if (snd_pcm_state(mHandle) == SND_PCM_STATE_XRUN)
+            printf("XRUN\n");
+        statusDump();
+        return 0;
+    }
+
     if (iOutputArea.len[1])
         ALSACheck( snd_pcm_readi(mHandle, GetPointer(), iOutputArea.len[1]) );
 

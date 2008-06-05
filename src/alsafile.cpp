@@ -14,12 +14,16 @@
 int main(int argc, char** argv)
 {
     printf("ALSA to file\n");
+    if (argc != 2)
+    {
+        printf("Usage: %s <device>\n", argv[0]);
+        return 1;
+    }
 
-    Tracter::sShowConfig = true;
     ALSASource* source = new ALSASource();
     Normalise* n = new Normalise(source);
     FileSink sink(n);
-    source->Open("plughw:1");
+    source->Open(argv[1]);
     sink.Reset();
     sink.Open("alsa.raw");
 
