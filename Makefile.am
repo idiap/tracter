@@ -7,7 +7,7 @@
 
 SUBDIRS = src
 DIST_SUBDIRS = src doc
-EXTRA_DIST = Doxyfile.pc.in tracter.pc.in
+EXTRA_DIST = Doxyfile.in tracter.pc.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tracter.pc

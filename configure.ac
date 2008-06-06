@@ -18,8 +18,7 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_PROG_RANLIB
-
+AC_PROG_LIBTOOL
 
 # Kiss FFT
 # Doesn't come as a proper package so we need a directory name

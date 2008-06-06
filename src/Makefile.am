@@ -13,9 +13,9 @@ noinst_PROGRAMS = \
 	creature testfile fft parser \
 	alsafile
 
-lib_LIBRARIES = libtracter.a
+lib_LTLIBRARIES = libtracter.la
 
-libtracter_a_SOURCES = \
+TRACTER_SOURCES = \
 	FileSink.cpp \
 	VADGate.cpp \
 	VADStateMachine.cpp \
@@ -55,7 +55,7 @@ libtracter_a_SOURCES = \
 	SpectralSubtract.cpp \
 	Pixmap.cpp
 
-include_HEADERS = $(libtracter_a_SOURCES:.cpp=.h) \
+include_HEADERS = $(TRACTER_SOURCES:.cpp=.h) \
 	Fourier.h \
 	ArraySink.h \
 	CachedPlugin.h \
@@ -66,53 +66,53 @@ include_HEADERS = $(libtracter_a_SOURCES:.cpp=.h) \
 	UnaryPlugin.h \
 	UnarySink.h
 
+libtracter_la_SOURCES = $(TRACTER_SOURCES)
 
 # Blank, but added to later
-dist_libtracter_a_SOURCES=
-nodist_libtracter_a_SOURCES=
-libtracter_a_CPPFLAGS=
-libtracter_a_CFLAGS= 
+nodist_libtracter_la_SOURCES=
+libtracter_la_CPPFLAGS=
+libtracter_la_CFLAGS= 
 
-# nodist has the side effect of not building FourierXXXX.h with .cpp=.h
 if WITH_KISS_FFT
-nodist_libtracter_a_SOURCES += \
-	FourierKiss.cpp \
+libtracter_la_SOURCES += \
+	FourierKiss.cpp
+nodist_libtracter_la_SOURCES += \
 	@KISS_FFT_DIR@/tools/kiss_fftr.c \
 	@KISS_FFT_DIR@/kiss_fft.c
-dist_libtracter_a_SOURCES += FourierKiss.cpp
-libtracter_a_CPPFLAGS += -I@KISS_FFT_DIR@ -I@KISS_FFT_DIR@/tools
+libtracter_la_CPPFLAGS += -I@KISS_FFT_DIR@ -I@KISS_FFT_DIR@/tools
 FFT_LIBS =
 endif
 
 if WITH_FFTW3F
-nodist_libtracter_a_SOURCES += FourierFFTW.cpp
-dist_libtracter_a_SOURCES += FourierFFTW.cpp
-libtracter_a_CFLAGS += @FFTW3F_CFLAGS@
+libtracter_la_SOURCES += FourierFFTW.cpp
+libtracter_la_CFLAGS += @FFTW3F_CFLAGS@
 FFT_LIBS = @FFTW3F_LIBS@
 endif
 
+libtracter_la_LIBADD = $(FFT_LIBS) @ALSA_LIBS@
+
 parser_SOURCES = parser.cpp
-parser_LDADD = libtracter.a
+parser_LDADD = libtracter.la
 
 fft_SOURCES = fft.cpp
-fft_LDADD = libtracter.a $(FFT_LIBS)
+fft_LDADD = libtracter.la
 
 testfile_SOURCES = testfile.c
 
 tracter_SOURCES = tracter.cpp
-tracter_LDADD = libtracter.a $(FFT_LIBS) @ALSA_LIBS@
+tracter_LDADD = libtracter.la
 
 creature_SOURCES = creature.cpp
-creature_LDADD = libtracter.a $(FFT_LIBS)
+creature_LDADD = libtracter.la
 
 socketclient_SOURCES = socketclient.cpp
-socketclient_LDADD = libtracter.a
+socketclient_LDADD = libtracter.la
 
 socketserver_SOURCES = socketserver.cpp
-socketserver_LDADD = libtracter.a
+socketserver_LDADD = libtracter.la
 
 alsafile_SOURCES = alsafile.cpp
-alsafile_LDADD = libtracter.a @ALSA_LIBS@
+alsafile_LDADD = libtracter.la
 
 htktopixmap_SOURCES = htktopixmap.cpp
-htktopixmap_LDADD = libtracter.a
+htktopixmap_LDADD = libtracter.la
