@@ -29,7 +29,7 @@ protected:
     bool UnaryFetch(IndexType iIndex, int iOffset);
 
 private:
-    int mIndex;
+    IndexType mIndex;
     int mNBins;
     int mLookAhead;
     int mLookBack;

@@ -42,6 +42,7 @@ VADGate::VADGate(
     mVADInput = iVADInput;
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
+    mSilenceConfirmed = -1;
     mIndexZero = 0;
 
     mEnabled = GetEnv("Enable", 1);
@@ -53,8 +54,7 @@ void VADGate::Reset(bool iPropagate)
 {
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
-    //mIndexZero = 0;
-    //CachedPlugin<float>::Reset(iPropagate);
+    CachedPlugin<float>::Reset(false);
 }
 
 bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
@@ -65,9 +65,11 @@ bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     // iIndex is from the downstream point of view.  Reality could be ahead.
     iIndex += mIndexZero;
 
+    // This will update iIndex to mSpeechTriggered 
     if (mEnabled && !gate(iIndex))
     {
-        mIndexZero = iIndex;
+        assert(mSilenceConfirmed > iIndex);
+        mIndexZero = mSilenceConfirmed;
         mSpeechTriggered = -1;
         mSpeechConfirmed = -1;
         return false;
@@ -80,7 +82,6 @@ bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
 
     float* input = mInput->GetPointer(inputArea.offset);
     float* cache = GetPointer(iOffset);
-    //printf("Input: %e %e %e\n", input[0], input[1], input[2]);
     for (int i=0; i<mArraySize; i++)
         cache[i] = input[i];
 
@@ -90,12 +91,12 @@ bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
 
 bool VADGate::gate(IndexType& iIndex)
 {
-    if ((mSpeechTriggered < 0) && !confirmSpeech())
+    if ((mSpeechTriggered < 0) && !confirmSpeech(iIndex))
     {
         // Failed to find any speech
         return false;
     }
-    iIndex += mSpeechTriggered;
+    iIndex += mSpeechTriggered - mIndexZero;
 
     if ((iIndex > mSpeechConfirmed))
     {
@@ -120,9 +121,11 @@ bool VADGate::readVADState(IndexType iIndex)
     return true;
 }
 
-bool VADGate::confirmSpeech()
+bool VADGate::confirmSpeech(IndexType iIndex)
 {
-    IndexType index = -1;
+    if (Tracter::sVerbose > 0)
+        printf("VADGate::confirmSpeech\n");
+    IndexType index = iIndex - 1;
     do
     {
         do
@@ -145,8 +148,8 @@ bool VADGate::confirmSpeech()
     mSpeechConfirmed = index;
 
     if (Tracter::sVerbose > 0)
-        printf("VADGate::confirmSpeech: Found at frame %ld\n",
-               mSpeechTriggered);
+        printf("VADGate::confirmSpeech: Frame %ld confirmed at %ld\n",
+               mSpeechTriggered, mSpeechConfirmed);
     return true;
 }
 
@@ -165,5 +168,8 @@ bool VADGate::reconfirmSpeech(IndexType iIndex)
         mSpeechConfirmed = iIndex;
         return true;
     }
+
+    assert(mState == SILENCE_CONFIRMED);
+    mSilenceConfirmed = iIndex;
     return false;
 }

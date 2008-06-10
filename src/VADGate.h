@@ -34,11 +34,12 @@ private:
     VADState mState;
     IndexType mSpeechTriggered;
     IndexType mSpeechConfirmed;
+    IndexType mSilenceConfirmed;
     IndexType mIndexZero;
 
     bool gate(IndexType& iIndex);
     bool readVADState(IndexType iIndex);
-    bool confirmSpeech();
+    bool confirmSpeech(IndexType iIndex);
     bool reconfirmSpeech(IndexType iIndex);
 };
 
