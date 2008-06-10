@@ -55,7 +55,7 @@ TRACTER_SOURCES = \
 	SpectralSubtract.cpp \
 	Pixmap.cpp
 
-include_HEADERS = $(TRACTER_SOURCES:.cpp=.h) \
+pkginclude_HEADERS = $(TRACTER_SOURCES:.cpp=.h) \
 	Fourier.h \
 	ArraySink.h \
 	CachedPlugin.h \

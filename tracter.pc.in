@@ -8,4 +8,4 @@ Name: Tracter
 Description: A data-flow framework
 Version: @VERSION@
 Libs: -L${libdir} -ltracter @FFTW3F_LIBS@ @ALSA_LIBS@
-Cflags: -I${includedir}
+Cflags: -I${includedir}/@PACKAGE@
