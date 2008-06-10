@@ -7,6 +7,7 @@ following commands are necessary to boot up the gnu build environment:
 
  autoheader
  aclocal
+ libtoolize
  autoconf
  automake -a
 
@@ -16,7 +17,7 @@ several parallel builds that don't mess up the source directory:
 
  mkdir build
  cd build
- CFLAGS=-Wall ../configure
+ ../configure CXXFLAGS='-Wall -Werror -Os -g'
  make
 
 The executables will appear in build/src

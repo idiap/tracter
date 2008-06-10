@@ -24,6 +24,7 @@ public:
 protected:
     PluginObject* GetInput(int iInput);
     bool UnaryFetch(IndexType iIndex, int iOffset);
+    virtual void Reset(bool iPropagate);
 
 private:
     Plugin<float>* mInput;
@@ -33,6 +34,7 @@ private:
     VADState mState;
     IndexType mSpeechTriggered;
     IndexType mSpeechConfirmed;
+    IndexType mIndexZero;
 
     bool gate(IndexType& iIndex);
     bool readVADState(IndexType iIndex);

@@ -42,8 +42,19 @@ VADGate::VADGate(
     mVADInput = iVADInput;
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
+    mIndexZero = 0;
 
     mEnabled = GetEnv("Enable", 1);
+}
+
+/** Catch reset.  Don't pass it on to upstream plugins yet, although
+ * that could be an option later */
+void VADGate::Reset(bool iPropagate)
+{
+    mSpeechTriggered = -1;
+    mSpeechConfirmed = -1;
+    //mIndexZero = 0;
+    //CachedPlugin<float>::Reset(iPropagate);
 }
 
 bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
@@ -51,13 +62,22 @@ bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     assert(iIndex >= 0);
     assert(iOffset >= 0);
 
+    // iIndex is from the downstream point of view.  Reality could be ahead.
+    iIndex += mIndexZero;
+
     if (mEnabled && !gate(iIndex))
+    {
+        mIndexZero = iIndex;
+        mSpeechTriggered = -1;
+        mSpeechConfirmed = -1;
         return false;
+    }
 
     // Copy input to output
     CacheArea inputArea;
     if (mInput->Read(inputArea, iIndex) == 0)
-        return false;
+        throw Tracter::Exception("Unexpected out of input data");
+
     float* input = mInput->GetPointer(inputArea.offset);
     float* cache = GetPointer(iOffset);
     //printf("Input: %e %e %e\n", input[0], input[1], input[2]);
@@ -73,7 +93,6 @@ bool VADGate::gate(IndexType& iIndex)
     if ((mSpeechTriggered < 0) && !confirmSpeech())
     {
         // Failed to find any speech
-        mSpeechTriggered = -1;
         return false;
     }
     iIndex += mSpeechTriggered;
