@@ -103,6 +103,9 @@ void ALSASource::Open(const char* iDeviceName)
 {
     assert(iDeviceName);
 
+    if (mHandle)
+        throw Tracter::Exception("ALSASource::Open: handle exists");
+
     /* Get a PCM handle and set it up */
     ALSACheck(
         snd_pcm_open(&mHandle, iDeviceName, SND_PCM_STREAM_CAPTURE, 0)

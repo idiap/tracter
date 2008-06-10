@@ -297,7 +297,7 @@ void PluginObject::Reset(
  */
 bool PluginObject::Delete(PluginObject* iDownStream)
 {
-    // One reset cycle must have occured for this to work
+    // Initialise must have occured for this to work
     if (!mDownStream)
         assert(0);
 
