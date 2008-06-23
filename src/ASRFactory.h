@@ -32,6 +32,7 @@ namespace Tracter
     {
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
+	virtual ~ASRFactory() throw () {}
         Plugin<float>* CreateFrontend(Plugin<float>* iPlugin);
         Plugin<float>* CreateSource(Source*& iSource);
 
@@ -42,6 +43,7 @@ namespace Tracter
     private:
         Plugin<float>* fileSource(Source*& iSource);
         Plugin<float>* alsaSource(Source*& iSource);
+        Plugin<float>* socketSource(Source*& iSource);
 
         Plugin<float>* deltas(Plugin<float>* iPlugin);
         Plugin<float>* normaliseMean(Plugin<float>* iPlugin);

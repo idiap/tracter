@@ -187,7 +187,7 @@ void PluginObject::Initialise(
         mDownStream = iDownStream;
 
     // Set to indefinite if necessary
-    if ((mNOutputs > 0) && (iReadAhead < 0))
+    if ((mNOutputs > 1) && (iReadAhead < 0))
     {
         mIndefinite = true;
         if (Tracter::sVerbose > 0)

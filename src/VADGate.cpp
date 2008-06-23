@@ -171,5 +171,9 @@ bool VADGate::reconfirmSpeech(IndexType iIndex)
 
     assert(mState == SILENCE_CONFIRMED);
     mSilenceConfirmed = iIndex;
+    if (Tracter::sVerbose > 0)
+        printf("VADGate::reconfirmSpeech: Silence confirmed at %ld\n",
+               mSilenceConfirmed);
+
     return false;
 }

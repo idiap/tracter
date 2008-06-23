@@ -9,6 +9,7 @@
 
 #include "FileSource.h"
 #include "ALSASource.h"
+#include "SocketSource.h"
 #include "Normalise.h"
 
 #include "Mean.h"
@@ -33,6 +34,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     // List all sources
     mSource["File"] = &Tracter::ASRFactory::fileSource;
     mSource["ALSA"] = &Tracter::ASRFactory::alsaSource;
+    mSource["Socket"] = &Tracter::ASRFactory::socketSource;
 
     // List all available front-ends
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
@@ -86,6 +88,13 @@ Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
     Normalise* n = new Normalise(s);
     iSource = s;
     return n;
+}
+
+Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
+{
+    SocketSource* s = new SocketSource();
+    iSource = s;
+    return s;
 }
 
 Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)

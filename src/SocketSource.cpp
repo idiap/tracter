@@ -102,7 +102,7 @@ int SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         ssize_t nGot = 0;
         while (nGot < nGet)
         {
-            printf(".");
+	  //printf(".");
             ssize_t n = recv(mFD, cache+nGot, nGet-nGot, 0);
             nGot += n;
             if (n == -1)
@@ -110,13 +110,16 @@ int SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
                 perror("mObjectName");
                 exit(EXIT_FAILURE);
             }
+#if 0
             if (n == 0)
             {
                 printf("Read 0\n");
                 break;
             }
+#endif
         }
-        printf("Got %d bytes\n", (int)nGot);
+	if (Tracter::sVerbose > 1)
+	  printf("Got %d bytes\n", (int)nGot);
         if (nGot < nGet)
             break;
 
