@@ -2,8 +2,9 @@ If you got tracter as a tarball then it includes a standard gnu build
 environment.  Just follow the instructions in INSTALL, although you
 might wish to use a VPATH build described below.
 
-If you got tracter from git, you need autoconf and automake.  The
-following commands are necessary to boot up the gnu build environment:
+If you got tracter from git, you need autoconf, automake and libtool.
+The following commands are necessary to boot up the gnu build
+environment:
 
  autoheader
  aclocal
@@ -22,8 +23,8 @@ several parallel builds that don't mess up the source directory:
 
 The executables will appear in build/src
 
-Documentation is provided in doxygen form.  Go to the installation
-root (the directory containing Doxyfile) and type
+Documentation is provided in doxygen form.  Go to the build directory
+(the directory containing Doxyfile) and type
 
  doxygen
 

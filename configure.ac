@@ -8,8 +8,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.60)
-AC_INIT([Tracter], [0.1.0])
+AC_PREREQ(2.59)
+AC_INIT([Tracter], [0.2.0])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/PluginObject.cpp])
 AC_CONFIG_HEADER([config.h])
@@ -67,8 +67,9 @@ AM_CONDITIONAL([WITH_FFTW3F], [test $ac_cv_fftw3f == 1])
 
 
 # ALSA
+# 1.0.6 is the version on CentOS at Sheffield; our Debian's is higher
 PKG_CHECK_MODULES(
-    ALSA, alsa >= 1.0.13, ac_cv_alsa=1, ac_cv_alsa=0
+    ALSA, alsa >= 1.0.6, ac_cv_alsa=1, ac_cv_alsa=0
 )
 AC_DEFINE_UNQUOTED(
     [HAVE_ALSA], ${ac_cv_alsa},
