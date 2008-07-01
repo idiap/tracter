@@ -23,6 +23,8 @@
 #include "MelFilter.h"
 #include "Cepstrum.h"
 
+#include "LPCepstrum.h"
+
 #include "Energy.h"
 #include "ModulationVAD.h"
 #include "VADGate.h"
@@ -39,6 +41,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     // List all available front-ends
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
     mFrontend["BasicVAD"] = &Tracter::ASRFactory::basicVADFrontend;
+    mFrontend["PLP"] = &Tracter::ASRFactory::plpFrontend;
 }
 
 Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
@@ -174,4 +177,13 @@ Plugin<float>* Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)
     v = new VADGate(p, mv);
 
     return v;
+}
+
+Plugin<float>* Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
+{
+    ZeroFilter* zf = new ZeroFilter(iPlugin);
+    Periodogram* p = new Periodogram(zf);
+    MelFilter* mf = new MelFilter(p);
+    LPCepstrum* l = new LPCepstrum(mf);
+    return l;
 }

@@ -16,6 +16,7 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	LPCepstrum.cpp \
 	FileSink.cpp \
 	VADGate.cpp \
 	VADStateMachine.cpp \

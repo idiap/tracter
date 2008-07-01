@@ -32,7 +32,7 @@ namespace Tracter
     {
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
-	virtual ~ASRFactory() throw () {}
+        virtual ~ASRFactory() throw () {}
         Plugin<float>* CreateFrontend(Plugin<float>* iPlugin);
         Plugin<float>* CreateSource(Source*& iSource);
 
@@ -51,6 +51,7 @@ namespace Tracter
 
         Plugin<float>* basicFrontend(Plugin<float>* iPlugin);
         Plugin<float>* basicVADFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* plpFrontend(Plugin<float>* iPlugin);
     };
 }
 
