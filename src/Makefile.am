@@ -16,6 +16,7 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	ScreenSink.cpp \
 	LPCepstrum.cpp \
 	FileSink.cpp \
 	VADGate.cpp \
@@ -74,6 +75,11 @@ nodist_libtracter_la_SOURCES=
 libtracter_la_CPPFLAGS=
 libtracter_la_CFLAGS= 
 
+if WITH_HTK
+libtracter_la_SOURCES += HCopyWrapper.cpp
+libtracter_la_CPPFLAGS += @HTK_INCLUDES@
+endif
+
 if WITH_KISS_FFT
 libtracter_la_SOURCES += \
 	FourierKiss.cpp
@@ -90,7 +96,7 @@ libtracter_la_CFLAGS += @FFTW3F_CFLAGS@
 FFT_LIBS = @FFTW3F_LIBS@
 endif
 
-libtracter_la_LIBADD = $(FFT_LIBS) @ALSA_LIBS@
+libtracter_la_LIBADD = $(FFT_LIBS) @ALSA_LIBS@ @HTK_LIBS@
 
 parser_SOURCES = parser.cpp
 parser_LDADD = libtracter.la

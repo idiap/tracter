@@ -20,6 +20,33 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
+# HTK
+AC_ARG_WITH(htk-includes,
+  [AS_HELP_STRING(
+    [--with-htk-includes=DIR],
+    [Directory containing HTK headers]
+  )],
+  [],
+  [with_htk_includes=no]
+)
+AC_ARG_WITH(htk-libs,
+  [AS_HELP_STRING(
+    [--with-htk-libs=DIR],
+    [List of HTK libraries]
+  )],
+  [],
+  [with_htk_libs=no]
+)
+AM_CONDITIONAL([WITH_HTK], [test "x$with_htk_includes" != xno])
+AC_MSG_CHECKING([whether to use HTK])
+AS_IF(
+  [test "x$with_htk_includes" != xno],
+  [AC_SUBST([HTK_LIBS], [$with_htk_libs])
+   AC_SUBST([HTK_INCLUDES], [$with_htk_includes])
+   AC_MSG_RESULT(yes)],
+  [AC_MSG_RESULT(no)]
+)
+
 # Kiss FFT
 # Doesn't come as a proper package so we need a directory name
 AC_ARG_WITH(kiss_fft,
