@@ -76,8 +76,9 @@ libtracter_la_CPPFLAGS=
 libtracter_la_CFLAGS= 
 
 if WITH_HTK
-libtracter_la_SOURCES += HCopyWrapper.cpp
+TRACTER_SOURCES += HCopyWrapper.cpp
 libtracter_la_CPPFLAGS += @HTK_INCLUDES@
+noinst_PROGRAMS += hcopytester
 endif
 
 if WITH_KISS_FFT
@@ -123,3 +124,7 @@ alsafile_LDADD = libtracter.la
 
 htktopixmap_SOURCES = htktopixmap.cpp
 htktopixmap_LDADD = libtracter.la
+
+hcopytester_SOURCES = hcopytester.cpp
+hcopytester_CPPFLAGS = @HTK_INCLUDES@
+hcopytester_LDADD = libtracter.la

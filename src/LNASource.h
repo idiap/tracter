@@ -16,7 +16,7 @@
 /**
  * Uses an LNA file as a source
  */
-class LNASource : public CachedPlugin<float>, public Source
+class LNASource : public CachedPlugin<float>, public Tracter::Source
 {
 public:
     LNASource(const char* iObjectName = "LNASource");

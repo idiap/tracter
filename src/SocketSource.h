@@ -18,7 +18,7 @@
  * graph to be a TCP socket.  It presupposes that some process on
  * another machine exists to supply data to the socket.
  */
-class SocketSource : public CachedPlugin<float>, public Source
+class SocketSource : public CachedPlugin<float>, public Tracter::Source
 {
 public:
     SocketSource(const char* iObjectName = "SocketSource");

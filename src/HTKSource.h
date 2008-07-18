@@ -16,7 +16,7 @@
 /**
  * Plugin to deal with HTK feature files
  */
-class HTKSource : public CachedPlugin<float>, public Source
+class HTKSource : public CachedPlugin<float>, public Tracter::Source
 {
 public:
     HTKSource(const char* iObjectName = "HTKSource");

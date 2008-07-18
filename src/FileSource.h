@@ -19,7 +19,7 @@
  * Reads raw files as file maps.
  */
 template <class T>
-class FileSource : public Plugin<T>, public Source
+class FileSource : public Plugin<T>, public Tracter::Source
 {
 public:
 

@@ -12,6 +12,34 @@
  */
 
 #include "HCopyWrapper.h"
+
+#include "HMath.h"
+#include "HSigP.h"
+#include "HVQ.h"
+#include "HLabel.h"
+#include "HModel.h"
+#include "esignal.h"
+#ifdef UNIX
+#include <sys/ioctl.h>
+#endif
+
+#undef FALSE
+#undef TRUE
+
+extern "C"
+{
+    /******************************************************************
+     * Audio interface required by HParm - see cpp file for more info.
+     ******************************************************************/
+    Ptr  fOpen(Ptr xInfo,char *fn,BufferInfo *info);
+    void fClose(Ptr xInfo,Ptr bInfo);
+    void fStart(Ptr xInfo,Ptr bInfo);
+    void fStop(Ptr xInfo,Ptr bInfo);
+    int  fNumSamp(Ptr xInfo,Ptr bInfo);
+    int  fGetData(Ptr xInfo,Ptr bInfo,int n,Ptr data);
+};
+
+
 #include <stdio.h>
 
 /*
@@ -31,16 +59,16 @@
  *              and lastly start buffering.
  */
 HCopyWrapper::HCopyWrapper(
-    Plugin<short>* iInput,
+    Plugin<hcopy_t>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, short>(iInput)
+    : UnaryPlugin<float, hcopy_t>(iInput)
 {
     /***********************************************
      * First sort out tracter specific/non-HTK stuff
      ***********************************************/
     mObjectName = iObjectName;
-    MinSize(iInput, READAHEAD_FNUMSAMP);
+    MinSize(iInput, 400); // Why?  You'd imagine READAHEAD_FNUMSAMP.
     lastSampleCopied = -1;
     lastFrameCopied = -1;
 
@@ -241,6 +269,8 @@ bool HCopyWrapper::UnaryFetch(IndexType iIndex, int iOffset)
  * for operating the source.
  */
 Ptr fOpen(Ptr thisHC,char *fn,BufferInfo *bInfo){
+    if (Tracter::sVerbose > 0)
+        printf("HCopyWrapper: fOpen()\n");
     return ((HCopyWrapper*)thisHC)->fOpen__(fn,bInfo);
 }
 Ptr HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
@@ -270,7 +300,11 @@ Ptr HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
  * necessary the info block itself).
  */
 void fClose(Ptr thisHC,Ptr bInfo)
-{}  // Most of the work will be done by the destructor so nothing to do.
+{
+    // Most of the work will be done by the destructor so nothing to do.
+    if (Tracter::sVerbose > 0)
+        printf("HCopyWrapper: fClose()\n");
+}
 
 /* Start data capture for real-time sources
  *
@@ -279,7 +313,11 @@ void fClose(Ptr thisHC,Ptr bInfo)
  * Start data capture.  Offline sources can ignore this call.
  */
 void fStart(Ptr thisHC,Ptr bInfo)
-{}  // Most of the work will have been done by tracter so nothing to do.
+{
+    // Most of the work will have been done by tracter so nothing to do.
+    if (Tracter::sVerbose > 0)
+        printf("HCopyWrapper: fStart()\n");
+}
 
 /* Stop data capture for real-time sources
  *
@@ -288,7 +326,11 @@ void fStart(Ptr thisHC,Ptr bInfo)
  * Stop data capture.  Offline sources can ignore this call.
  */
 void fStop(Ptr thisHC,Ptr bInfo)
-{}  // Most of the work will be done by the destructor so nothing to do.
+{
+    // Most of the work will be done by the destructor so nothing to do.
+    if (Tracter::sVerbose > 0)
+        printf("HCopyWrapper: fStop()\n");
+}
 
 /* Query samples readable without blocking
  *
@@ -311,11 +353,16 @@ int fNumSamp(Ptr thisHC,Ptr bInfo)
 int HCopyWrapper::fNumSamp__(Ptr bInfo)
 {
     /*
-     * The only way to determine the number of samples available is to call
-     * "Read()" whose more descriptive name is "CalculateTheEntireUpstreamChain()"
+     * The only way to determine the number of samples available is to
+     * call "Read()" whose more descriptive name is
+     * "CalculateTheEntireUpstreamChain()"
      */
     CacheArea inputArea;
-    int i = -1 - mInput->Read( inputArea, lastSampleCopied+1, READAHEAD_FNUMSAMP);
+    int nRead = mInput->Read( inputArea, lastSampleCopied+1,
+                               READAHEAD_FNUMSAMP);
+    int i = -1 - nRead;
+    if (Tracter::sVerbose > 2)
+        printf("%s::fNumSamp: read %d\n", mObjectName, nRead);
     return (i<-1) ? i : 0;
 }
 
@@ -356,11 +403,24 @@ int HCopyWrapper::fGetData__(Ptr bInfo,int n,Ptr samples)
     /*
      * Copy the audio data from tracter's circular input buffer to samples.
      */
-    short* p = (short*)mInput->GetPointer();
     short* s = (short*)samples;
+#ifndef HCOPY_FLOAT
+    short* p = (short*)mInput->GetPointer();
     memcpy( s , p+inputArea.offset , inputArea.len[0]*sizeof(short) );
     if (inputArea.len[1]>0)
         memcpy( s+inputArea.len[0] , p , inputArea.len[1]*sizeof(short) );
+#else
+    /* Convert float to short */
+    float* p = mInput->GetPointer(inputArea.offset);
+    for (int i=0; i<inputArea.len[0]; i++)
+        s[i] = (short)(p[i]*32768);
+    if (inputArea.len[1] > 0)
+    {
+        p = mInput->GetPointer();
+        for (int i=0; i<inputArea.len[1]; i++)
+            s[inputArea.len[0] + i] = (short)(p[i]*32768);
+    }
+#endif
     lastSampleCopied += got;
     return got;
 }

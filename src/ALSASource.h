@@ -15,7 +15,7 @@
 /**
  * Source plugin that reads data from an ALSA device.
  */
-class ALSASource : public CachedPlugin<short>, public Source
+class ALSASource : public CachedPlugin<short>, public Tracter::Source
 {
 public:
     ALSASource(const char* iObjectName = "ALSASource");

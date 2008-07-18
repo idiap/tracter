@@ -369,6 +369,9 @@ void PluginObject::MovePointer(CachePointer& iPointer, int iLen)
  */
 int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
 {
+    if (Tracter::sVerbose > 2)
+        printf("Read on %s: index %ld  length %d\n",
+               mObjectName, iIndex, iLength);
     assert(iLength >= 0);
     assert(iIndex >= 0);
     assert(mIndefinite || (iLength <= mSize));  // Request > cache size
