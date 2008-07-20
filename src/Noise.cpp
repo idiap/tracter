@@ -7,7 +7,7 @@
 
 #include "Noise.h"
 
-Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
+Tracter::Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -24,7 +24,7 @@ Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
         MinSize(iInput, 1, mNInit-1);
 }
 
-void Noise::Reset(bool iPropagate)
+void Tracter::Noise::Reset(bool iPropagate)
 {
     // Invalidate the estimate
     mValid = false;
@@ -33,7 +33,7 @@ void Noise::Reset(bool iPropagate)
     UnaryPlugin<float, float>::Reset(iPropagate);
 }
 
-bool Noise::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(mSize == 1);

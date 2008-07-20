@@ -7,7 +7,7 @@
 
 #include "VADGate.h"
 
-PluginObject* VADGate::GetInput(int iInput)
+Tracter::PluginObject* Tracter::VADGate::GetInput(int iInput)
 {
     // Enumerate the inputs
     switch (iInput)
@@ -24,7 +24,7 @@ PluginObject* VADGate::GetInput(int iInput)
     return 0;
 }
 
-VADGate::VADGate(
+Tracter::VADGate::VADGate(
     Plugin<float>* iInput,
     Plugin<VADState>* iVADInput,
     const char* iObjectName
@@ -50,14 +50,14 @@ VADGate::VADGate(
 
 /** Catch reset.  Don't pass it on to upstream plugins yet, although
  * that could be an option later */
-void VADGate::Reset(bool iPropagate)
+void Tracter::VADGate::Reset(bool iPropagate)
 {
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
     CachedPlugin<float>::Reset(false);
 }
 
-bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(iOffset >= 0);
@@ -89,7 +89,7 @@ bool VADGate::UnaryFetch(IndexType iIndex, int iOffset)
 }
 
 
-bool VADGate::gate(IndexType& iIndex)
+bool Tracter::VADGate::gate(IndexType& iIndex)
 {
     if ((mSpeechTriggered < 0) && !confirmSpeech(iIndex))
     {
@@ -111,7 +111,7 @@ bool VADGate::gate(IndexType& iIndex)
     return true;
 }
 
-bool VADGate::readVADState(IndexType iIndex)
+bool Tracter::VADGate::readVADState(IndexType iIndex)
 {
     CacheArea vadArea;
     if (mVADInput->Read(vadArea, iIndex) == 0)
@@ -121,7 +121,7 @@ bool VADGate::readVADState(IndexType iIndex)
     return true;
 }
 
-bool VADGate::confirmSpeech(IndexType iIndex)
+bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 {
     if (Tracter::sVerbose > 0)
         printf("VADGate::confirmSpeech\n");
@@ -153,7 +153,7 @@ bool VADGate::confirmSpeech(IndexType iIndex)
     return true;
 }
 
-bool VADGate::reconfirmSpeech(IndexType iIndex)
+bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
 {
     assert(mState == SILENCE_TRIGGERED);
     do

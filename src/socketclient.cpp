@@ -5,10 +5,12 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <stdio.h>
+#include <cstdio>
+
 #include "SocketSource.h"
 #include "ArraySink.h"
 
+using namespace Tracter;
 
 int main(int argc, char** argv)
 {

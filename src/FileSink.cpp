@@ -7,7 +7,7 @@
 
 #include "FileSink.h"
 
-FileSink::FileSink(
+Tracter::FileSink::FileSink(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -31,7 +31,7 @@ FileSink::FileSink(
 /**
  * Opens the given file and sucks data into it.
  */
-void FileSink::Open(const char* iFile)
+void Tracter::FileSink::Open(const char* iFile)
 {
     assert(iFile);
     assert(!mFile);

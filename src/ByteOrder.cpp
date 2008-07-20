@@ -5,12 +5,13 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
+
 #include "ByteOrder.h"
 
 /** Determine native byte order and initialise source and target ordering */
-ByteOrder::ByteOrder()
+Tracter::ByteOrder::ByteOrder()
 {
     /* A short and two chars in the same location */
     assert(sizeof(short) == 2);
@@ -42,7 +43,7 @@ ByteOrder::ByteOrder()
  * Swaps byte order unconditionally for an array of even sized
  * elements.
  */
-void ByteOrder::Swap(
+void Tracter::ByteOrder::Swap(
     void* iData,      ///< Pointer to data to swap
     size_t iDataSize, ///< Size of each datum
     int iDataCount    ///< Number of data

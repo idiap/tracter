@@ -9,6 +9,8 @@
 #include "Pixmap.h"
 #include "ArraySink.h"
 
+using namespace Tracter;
+
 int main(int argc, char** argv)
 {
     if (argc != 2)

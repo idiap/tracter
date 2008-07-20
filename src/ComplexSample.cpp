@@ -7,14 +7,16 @@
 
 #include "ComplexSample.h"
 
-ComplexSample::ComplexSample(Plugin<float>* iInput, const char* iObjectName)
+Tracter::ComplexSample::ComplexSample(
+    Plugin<float>* iInput, const char* iObjectName
+)
     : UnaryPlugin<complex, float>(iInput)
 {
     mObjectName = iObjectName;
     mSampleFreq /= 4;
 }
 
-void ComplexSample::MinSize(int iSize, int iReadAhead)
+void Tracter::ComplexSample::MinSize(int iSize, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -25,7 +27,7 @@ void ComplexSample::MinSize(int iSize, int iReadAhead)
     PluginObject::MinSize(mInput, iSize * 4 - 2, 0);
 }
 
-int ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

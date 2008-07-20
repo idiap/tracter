@@ -7,7 +7,7 @@
 
 #include "Energy.h"
 
-Energy::Energy(
+Tracter::Energy::Energy(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -23,7 +23,7 @@ Energy::Energy(
     PluginObject::MinSize(mInput, mFrameSize);
 }
 
-bool Energy::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Energy::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

@@ -9,7 +9,7 @@
 
 #include "Mean.h"
 
-Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
+Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -46,7 +46,7 @@ Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
     SetTimeConstant(GetEnv("TimeConstant", 0.5f));
 }
 
-void Mean::SetTimeConstant(float iSeconds)
+void Tracter::Mean::SetTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
     float n = iSeconds * mSampleFreq / mSamplePeriod;
@@ -59,7 +59,7 @@ void Mean::SetTimeConstant(float iSeconds)
         printf("Mean: pole is %f\n", mPole);
 }
 
-void Mean::Reset(bool iPropagate)
+void Tracter::Mean::Reset(bool iPropagate)
 {
     // Zero the mean
     for (int i=0; i<mArraySize; i++)
@@ -70,7 +70,7 @@ void Mean::Reset(bool iPropagate)
     UnaryPlugin<float, float>::Reset(iPropagate);
 }
 
-bool Mean::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Mean::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     switch (mMeanType)
@@ -99,7 +99,7 @@ bool Mean::UnaryFetch(IndexType iIndex, int iOffset)
     return true;
 }
 
-void Mean::processAll()
+void Tracter::Mean::processAll()
 {
     // Calculate mean over whole input range
     int frame = 0;
@@ -124,7 +124,7 @@ void Mean::processAll()
 #endif
 }
 
-bool Mean::adaptFrame(IndexType iIndex)
+bool Tracter::Mean::adaptFrame(IndexType iIndex)
 {
     assert(iIndex >= 0);
 

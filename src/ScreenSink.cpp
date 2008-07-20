@@ -7,7 +7,7 @@
 
 #include "ScreenSink.h"
 
-ScreenSink::ScreenSink(
+Tracter::ScreenSink::ScreenSink(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -27,7 +27,7 @@ ScreenSink::ScreenSink(
 /**
  * Suck data onto screen.
  */
-void ScreenSink::Open()
+void Tracter::ScreenSink::Open()
 {
 
     /* Processing loop */
@@ -38,7 +38,7 @@ void ScreenSink::Open()
         float* f = mInput->GetPointer(cache.offset);
         printf("%d: ", index++ );
         for (int i = 0 ; i < mArraySize ; i++ ){
-			printf( "%.3f ",f[i]);
+            printf( "%.3f ",f[i]);
         }
         printf("\n");
         if ((mMaxSize > 0) && (index >= mMaxSize))

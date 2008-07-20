@@ -10,22 +10,25 @@
 
 #include "CachedPlugin.h"
 
-/**
- * Divides a first input by a second.
- */
-class Divide : public CachedPlugin<float>
+namespace Tracter
 {
-public:
-    Divide(Plugin<float>* iInput1, Plugin<float>* iInput2,
-             const char* iObjectName = "Divide");
+    /**
+     * Divides a first input by a second.
+     */
+    class Divide : public CachedPlugin<float>
+    {
+    public:
+        Divide(Plugin<float>* iInput1, Plugin<float>* iInput2,
+               const char* iObjectName = "Divide");
 
-protected:
-    PluginObject* GetInput(int iInput);
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        PluginObject* GetInput(int iInput);
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    Plugin<float>* mInput1;
-    Plugin<float>* mInput2;
-};
+    private:
+        Plugin<float>* mInput1;
+        Plugin<float>* mInput2;
+    };
+}
 
 #endif /* DIVIDE_H */

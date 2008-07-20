@@ -7,7 +7,7 @@
 
 #include "SpectralSubtract.h"
 
-PluginObject* SpectralSubtract::GetInput(int iInput)
+Tracter::PluginObject* Tracter::SpectralSubtract::GetInput(int iInput)
 {
     // Enumerate the inputs
     switch (iInput)
@@ -24,7 +24,7 @@ PluginObject* SpectralSubtract::GetInput(int iInput)
     return 0;
 }
 
-SpectralSubtract::SpectralSubtract(
+Tracter::SpectralSubtract::SpectralSubtract(
     Plugin<float>* iInput1,
     Plugin<float>* iInput2,
     const char* iObjectName
@@ -46,7 +46,7 @@ SpectralSubtract::SpectralSubtract(
         MinSize(GetInput(i), 1);
 }
 
-bool SpectralSubtract::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::SpectralSubtract::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(iOffset >= 0);

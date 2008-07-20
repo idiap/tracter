@@ -10,23 +10,26 @@
 
 #include "CachedPlugin.h"
 
-/**
- * Constucts a concatenated vector from constituent inputs
- */
-class Concatenate : public CachedPlugin<float>
+namespace Tracter
 {
-public:
-    Concatenate(const char* iObjectName = "Concatenate");
-    virtual ~Concatenate() throw() {}
-    void Add(Plugin<float>* iInput);
+    /**
+     * Constucts a concatenated vector from constituent inputs
+     */
+    class Concatenate : public CachedPlugin<float>
+    {
+    public:
+        Concatenate(const char* iObjectName = "Concatenate");
+        virtual ~Concatenate() throw() {}
+        void Add(Plugin<float>* iInput);
 
-protected:
-    PluginObject* GetInput(int iInput);
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        PluginObject* GetInput(int iInput);
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    std::vector< Plugin<float>* > mInput;
-    std::vector<int> mLength;
-};
+    private:
+        std::vector< Plugin<float>* > mInput;
+        std::vector<int> mLength;
+    };
+}
 
 #endif /* CONCATENATE_H */

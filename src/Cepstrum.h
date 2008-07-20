@@ -11,28 +11,31 @@
 #include "Fourier.h"
 #include "UnaryPlugin.h"
 
-/**
- * Generate the cepstrum of an input
- */
-class Cepstrum : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    Cepstrum(Plugin<float>* iInput, const char* iObjectName = "Cepstrum");
-    virtual ~Cepstrum() throw();
+    /**
+     * Generate the cepstrum of an input
+     */
+    class Cepstrum : public UnaryPlugin<float, float>
+    {
+    public:
+        Cepstrum(Plugin<float>* iInput, const char* iObjectName = "Cepstrum");
+        virtual ~Cepstrum() throw();
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    float mFloor;
-    float mLogFloor;
-    int mFloored;
-    int mNLogData;
-    int mNCepstra;
-    float* mLogData;
-    float* mCepstra;
-    bool mC0;
-    Fourier mFourier;
-};
+    private:
+        float mFloor;
+        float mLogFloor;
+        int mFloored;
+        int mNLogData;
+        int mNCepstra;
+        float* mLogData;
+        float* mCepstra;
+        bool mC0;
+        Fourier mFourier;
+    };
+}
 
 #endif /* CEPSTRUM_H */

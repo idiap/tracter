@@ -5,11 +5,13 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <stdio.h>
+#include <cstdio>
+
 #include "FileSource.h"
 #include "Normalise.h"
 #include "SocketSink.h"
 
+using namespace Tracter;
 
 int main(int argc, char** argv)
 {

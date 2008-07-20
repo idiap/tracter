@@ -14,27 +14,30 @@
 #include "UnaryPlugin.h"
 #include "ComplexSample.h" // for the complex definitions
 
-/**
- * Calculate a periodogram (aka power spectral density).  The inputs
- * are complex numbers from, e.g., quadrature sampling.
- */
-class ComplexPeriodogram : public UnaryPlugin<float, complex>
+namespace Tracter
 {
-public:
-    ComplexPeriodogram(Plugin<complex>* iInput,
-                       const char* iObjectName = "ComplexPeriodogram");
-    virtual ~ComplexPeriodogram() throw() {}
+    /**
+     * Calculate a periodogram (aka power spectral density).  The inputs
+     * are complex numbers from, e.g., quadrature sampling.
+     */
+    class ComplexPeriodogram : public UnaryPlugin<float, complex>
+    {
+    public:
+        ComplexPeriodogram(Plugin<complex>* iInput,
+                           const char* iObjectName = "ComplexPeriodogram");
+        virtual ~ComplexPeriodogram() throw() {}
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    int mFrameSize;
-    int mFramePeriod;
-    complex* mInputData;
-    complex* mOutputData;
-    Fourier mFourier;
-    std::vector<float> mWindow;
-};
+    private:
+        int mFrameSize;
+        int mFramePeriod;
+        complex* mInputData;
+        complex* mOutputData;
+        Fourier mFourier;
+        std::vector<float> mWindow;
+    };
+}
 
 #endif /* COMPLEXPERIODOGRAM_H */

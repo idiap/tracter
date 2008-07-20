@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "LowEnergyEnvelope.h"
 
-LowEnergyEnvelope::LowEnergyEnvelope(
+Tracter::LowEnergyEnvelope::LowEnergyEnvelope(
     Plugin<float>* iInput, const char* iObjectName
 )
     : UnaryPlugin<float, float>(iInput)
@@ -31,7 +31,7 @@ LowEnergyEnvelope::LowEnergyEnvelope(
     MinSize(iInput, mNWindow, mNGamma-1);
 }
 
-bool LowEnergyEnvelope::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
 

@@ -7,7 +7,7 @@
 
 #include "HTKSink.h"
 
-HTKSink::HTKSink(
+Tracter::HTKSink::HTKSink(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -33,7 +33,7 @@ HTKSink::HTKSink(
     mParmKind |= 000100; // _E
 }
 
-void HTKSink::WriteHeader(FILE* iFile)
+void Tracter::HTKSink::WriteHeader(FILE* iFile)
 {
     /* Copy header */
     int nSamples = mNSamples;
@@ -66,7 +66,7 @@ void HTKSink::WriteHeader(FILE* iFile)
 /**
  * Opens the given file and sucks data into it.
  */
-void HTKSink::Open(const char* iFile)
+void Tracter::HTKSink::Open(const char* iFile)
 {
     assert(iFile);
     assert(!mFile);

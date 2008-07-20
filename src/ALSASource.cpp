@@ -24,7 +24,7 @@ static int alsaErr;
         exit(1); \
     }
 
-ALSASource::ALSASource(const char* iObjectName)
+Tracter::ALSASource::ALSASource(const char* iObjectName)
 {
     mObjectName = iObjectName;
     mSampleFreq = GetEnv("SampleFreq", 8000.0f);
@@ -45,7 +45,7 @@ ALSASource::ALSASource(const char* iObjectName)
     ALSACheck( snd_output_stdio_attach(&mOutput, stdout, 0) );
 }
 
-ALSASource::~ALSASource() throw()
+Tracter::ALSASource::~ALSASource() throw()
 {
     snd_pcm_close(mHandle);
     snd_pcm_status_free(mStatus);
@@ -55,10 +55,10 @@ ALSASource::~ALSASource() throw()
 static void staticCallback(snd_async_handler_t *iHandler)
 {
     void* object = snd_async_handler_get_callback_private(iHandler);
-    ((ALSASource*)object)->asyncCallback();
+    ((Tracter::ALSASource*)object)->asyncCallback();
 }
 
-void ALSASource::asyncCallback()
+void Tracter::ALSASource::asyncCallback()
 {
     assert(mHandle);
     snd_pcm_sframes_t avail = snd_pcm_avail_update(mHandle);
@@ -99,7 +99,7 @@ void ALSASource::asyncCallback()
         MovePointer(mTail, xrun);
 }
 
-void ALSASource::Open(const char* iDeviceName)
+void Tracter::ALSASource::Open(const char* iDeviceName)
 {
     assert(iDeviceName);
 
@@ -130,7 +130,7 @@ void ALSASource::Open(const char* iDeviceName)
         statusDump();
 }
 
-snd_pcm_uframes_t ALSASource::setHardwareParameters()
+snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
 {
     /* Default values for parameters */
     int dir;
@@ -175,7 +175,7 @@ snd_pcm_uframes_t ALSASource::setHardwareParameters()
     return bufferSize;
 }
 
-int ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     if (Tracter::sVerbose > 2)
         printf("ALSASource::Fetch: requested: %d %d\n",

@@ -15,7 +15,7 @@
 #include "SocketSource.h"
 
 
-SocketSource::SocketSource(const char* iObjectName)
+Tracter::SocketSource::SocketSource(const char* iObjectName)
     : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
@@ -27,7 +27,7 @@ SocketSource::SocketSource(const char* iObjectName)
     mFD = 0;
 }
 
-SocketSource::~SocketSource() throw()
+Tracter::SocketSource::~SocketSource() throw()
 {
     close(mFD);
     mFD = 0;
@@ -37,7 +37,7 @@ SocketSource::~SocketSource() throw()
 /**
  * Connects to a socket.
  */
-void SocketSource::Open(const char* iHostName)
+void Tracter::SocketSource::Open(const char* iHostName)
 {
     assert(iHostName);
 
@@ -86,7 +86,7 @@ void SocketSource::Open(const char* iHostName)
  * The Fetch call.  Right now it breaks the fetch into smaller bits,
  * which is not big and not clever.
  */
-int SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     int i;
     int offset = iOutputArea.offset;
@@ -102,7 +102,6 @@ int SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         ssize_t nGot = 0;
         while (nGot < nGet)
         {
-	  //printf(".");
             ssize_t n = recv(mFD, cache+nGot, nGet-nGot, 0);
             nGot += n;
             if (n == -1)
@@ -118,8 +117,8 @@ int SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             }
 #endif
         }
-	if (Tracter::sVerbose > 1)
-	  printf("Got %d bytes\n", (int)nGot);
+        if (Tracter::sVerbose > 1)
+            printf("Got %d bytes\n", (int)nGot);
         if (nGot < nGet)
             break;
 

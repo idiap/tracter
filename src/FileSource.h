@@ -14,61 +14,65 @@
 #include "Source.h"
 #include "MMap.h"
 
-/**
- * File source template
- * Reads raw files as file maps.
- */
-template <class T>
-class FileSource : public Plugin<T>, public Tracter::Source
+namespace Tracter
 {
-public:
-
-    FileSource(const char* iObjectName = "FileSource")
+    /**
+     * File source template
+     * Reads raw files as file maps.
+     */
+    template <class T>
+    class FileSource : public Plugin<T>, public Tracter::Source
     {
-        Plugin<T>::mObjectName = iObjectName;
-        Plugin<T>::mSampleFreq = Plugin<T>::GetEnv("SampleFreq", 8000.0f);
-        Plugin<T>::mSamplePeriod = 1;
-    }
-    virtual ~FileSource() throw() {}
+    public:
 
-    virtual void Open(const char* iFileName)
-    {
-        // The file map *is* the cache
-        assert(iFileName);
-        mCache = (T*)mMap.Map(iFileName);
-        Plugin<T>::mSize = mMap.GetSize() / sizeof(T);
-        Plugin<T>::mTail.index = 0;
-        Plugin<T>::mTail.offset = 0;
-        Plugin<T>::mHead.index = Plugin<T>::mSize;
-        Plugin<T>::mHead.offset = 0;
-    }
+        FileSource(const char* iObjectName = "FileSource")
+        {
+            Plugin<T>::mObjectName = iObjectName;
+            Plugin<T>::mSampleFreq = Plugin<T>::GetEnv("SampleFreq", 8000.0f);
+            Plugin<T>::mSamplePeriod = 1;
+        }
+        virtual ~FileSource() throw() {}
 
-    T* GetPointer(int iIndex = 0)
-    {
-        return &mCache[iIndex];
-    }
+        virtual void Open(const char* iFileName)
+        {
+            // The file map *is* the cache
+            assert(iFileName);
+            mCache = (T*)mMap.Map(iFileName);
+            Plugin<T>::mSize = mMap.GetSize() / sizeof(T);
+            Plugin<T>::mTail.index = 0;
+            Plugin<T>::mTail.offset = 0;
+            Plugin<T>::mHead.index = Plugin<T>::mSize;
+            Plugin<T>::mHead.offset = 0;
+        }
 
-    virtual void Reset(bool iPropagate)
-    {
-        // Don't call the base class, don't reset the pointers
-        return;
-    }
+        T* GetPointer(int iIndex = 0)
+        {
+            return &mCache[iIndex];
+        }
 
-private:
-    MMap mMap;
-    T* mCache;
+        virtual void Reset(bool iPropagate)
+        {
+            // Don't call the base class, don't reset the pointers
+            return;
+        }
 
-    void Resize(int iSize)
-    {
-        return;
-    }
+    private:
+        MMap mMap;
+        T* mCache;
 
-    virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea)
-    {
-        // If this gets called by the base, it probably means we're out of data
-        assert(iIndex >= 0);
-        return 0;
-    }
-};
+        void Resize(int iSize)
+        {
+            return;
+        }
+
+        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea)
+        {
+            // If this gets called by the base, it probably means
+            // we're out of data
+            assert(iIndex >= 0);
+            return 0;
+        }
+    };
+}
 
 #endif /* FILESOURCE_H */

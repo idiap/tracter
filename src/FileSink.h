@@ -8,28 +8,30 @@
 #ifndef FILESINK_H
 #define FILESINK_H
 
-#include <stdio.h>
-
+#include <cstdio>
 #include <vector>
 
 #include "UnarySink.h"
 #include "ByteOrder.h"
 
-/**
- * Sinks to a file.
- */
-class FileSink : public UnarySink<float>
+namespace Tracter
 {
-public:
-    FileSink(Plugin<float>* iInput, const char* iObjectName = "FileSink");
-    virtual ~FileSink() throw() {}
-    void Open(const char* iFile);
+    /**
+     * Sinks to a file.
+     */
+    class FileSink : public UnarySink<float>
+    {
+    public:
+        FileSink(Plugin<float>* iInput, const char* iObjectName = "FileSink");
+        virtual ~FileSink() throw() {}
+        void Open(const char* iFile);
 
-private:
-    FILE* mFile;
-    ByteOrder mByteOrder;
-    std::vector<float> mTemp;
-    int mMaxSize;
-};
+    private:
+        FILE* mFile;
+        ByteOrder mByteOrder;
+        std::vector<float> mTemp;
+        int mMaxSize;
+    };
+}
 
 #endif /* FILESINK_H */

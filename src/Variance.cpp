@@ -10,7 +10,7 @@
 
 #include "Variance.h"
 
-Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
+Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -49,7 +49,7 @@ Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     SetTimeConstant(GetEnv("TimeConstant", 0.5f));
 }
 
-void Variance::SetTimeConstant(float iSeconds)
+void Tracter::Variance::SetTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
     float n = iSeconds * mSampleFreq / mSamplePeriod;
@@ -62,7 +62,7 @@ void Variance::SetTimeConstant(float iSeconds)
         printf("Variance: pole is %f\n", mPole);
 }
 
-void Variance::Reset(bool iPropagate)
+void Tracter::Variance::Reset(bool iPropagate)
 {
     // Zero the variance
     for (int i=0; i<mArraySize; i++)
@@ -73,7 +73,7 @@ void Variance::Reset(bool iPropagate)
     UnaryPlugin<float, float>::Reset(iPropagate);
 }
 
-bool Variance::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Variance::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     switch (mVarianceType)
@@ -102,7 +102,7 @@ bool Variance::UnaryFetch(IndexType iIndex, int iOffset)
     return true;
 }
 
-void Variance::processAll()
+void Tracter::Variance::processAll()
 {
     // Calculate variance over whole input range
     int frame = 0;
@@ -127,7 +127,7 @@ void Variance::processAll()
 #endif
 }
 
-bool Variance::adaptFrame(IndexType iIndex)
+bool Tracter::Variance::adaptFrame(IndexType iIndex)
 {
     assert(iIndex >= 0);
 

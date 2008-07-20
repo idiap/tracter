@@ -46,19 +46,13 @@ extern "C"
  * STACKSIZE as defined in HCopy
  */
 #define STACKSIZE 100000        /* assume ~100K wave files */
-/*
- * When HTK requests the number of samples available we need to do a fetch
- * for data from the upstream elements. For this we need to request a certain
- * number of samples. This value is set here.
- */
-#define READAHEAD_FNUMSAMP 160
 
 /*
  * Constructor: Set up variables, initialise HTK components,
  *              allocate memory, read the HTK config file
  *              and lastly start buffering.
  */
-HCopyWrapper::HCopyWrapper(
+Tracter::HCopyWrapper::HCopyWrapper(
     Plugin<hcopy_t>* iInput,
     const char* iObjectName
 )
@@ -68,7 +62,6 @@ HCopyWrapper::HCopyWrapper(
      * First sort out tracter specific/non-HTK stuff
      ***********************************************/
     mObjectName = iObjectName;
-    MinSize(iInput, 400); // Why?  You'd imagine READAHEAD_FNUMSAMP.
     lastSampleCopied = -1;
     lastFrameCopied = -1;
 
@@ -179,7 +172,7 @@ HCopyWrapper::HCopyWrapper(
 /*
  * Destructor
  */
-HCopyWrapper::~HCopyWrapper() throw() {
+Tracter::HCopyWrapper::~HCopyWrapper() throw() {
     CloseBuffer( pbuf );
     DeleteHeap( &iStack );
 }
@@ -188,7 +181,7 @@ HCopyWrapper::~HCopyWrapper() throw() {
 /*
  * UnaryFetch as required by UnaryPlugin
  */
-bool HCopyWrapper::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::HCopyWrapper::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     /*
@@ -271,17 +264,23 @@ bool HCopyWrapper::UnaryFetch(IndexType iIndex, int iOffset)
 Ptr fOpen(Ptr thisHC,char *fn,BufferInfo *bInfo){
     if (Tracter::sVerbose > 0)
         printf("HCopyWrapper: fOpen()\n");
-    return ((HCopyWrapper*)thisHC)->fOpen__(fn,bInfo);
+    return ((Tracter::HCopyWrapper*)thisHC)->fOpen__(fn,bInfo);
 }
-Ptr HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
+Ptr Tracter::HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
 {
+    // At this point we have enough information to set up the plugin
+    mArraySize=bInfo->tgtVecSize;
+    mSamplePeriod=bInfo->frRate;
+    MinSize(mInput, bInfo->frSize);
+
+    if (Tracter::sVerbose > 0)
+        printf("%s: vec size %d, frame size %d, frame rate %d\n",
+               mObjectName, bInfo->tgtVecSize, bInfo->frSize, bInfo->frRate);
+
     /*
      * Get the feature vector dimensionality and allocate memory for
      * an observation.
      */
-    mArraySize=bInfo->tgtVecSize;
-    //mSamplePeriod=bInfo->frSize;
-    mSamplePeriod=bInfo->frRate;
     int swidth0=1;
     short swidth[SMAX];
     Boolean saveAsVQ = FALSE;
@@ -348,9 +347,9 @@ int fNumSamp(Ptr thisHC,Ptr bInfo)
      * This is a global wrapper function so that a C program can access
      * the C++ function below as a call back.
      */
-    return ( (HCopyWrapper*)thisHC )->fNumSamp__(bInfo);
+    return ( (Tracter::HCopyWrapper*)thisHC )->fNumSamp__(bInfo);
 }
-int HCopyWrapper::fNumSamp__(Ptr bInfo)
+int Tracter::HCopyWrapper::fNumSamp__(Ptr bInfo)
 {
     /*
      * The only way to determine the number of samples available is to
@@ -358,8 +357,7 @@ int HCopyWrapper::fNumSamp__(Ptr bInfo)
      * "CalculateTheEntireUpstreamChain()"
      */
     CacheArea inputArea;
-    int nRead = mInput->Read( inputArea, lastSampleCopied+1,
-                               READAHEAD_FNUMSAMP);
+    int nRead = mInput->Read(inputArea, lastSampleCopied+1, mSamplePeriod);
     int i = -1 - nRead;
     if (Tracter::sVerbose > 2)
         printf("%s::fNumSamp: read %d\n", mObjectName, nRead);
@@ -387,9 +385,9 @@ int fGetData(Ptr thisHC,Ptr bInfo,int n,Ptr samples)
      * This is a global wrapper function so that a C program can access
      * the C++ function below as a call back.
      */
-    return ( (HCopyWrapper*)thisHC )->fGetData__(bInfo,n,samples);
+    return ( (Tracter::HCopyWrapper*)thisHC )->fGetData__(bInfo,n,samples);
 }
-int HCopyWrapper::fGetData__(Ptr bInfo,int n,Ptr samples)
+int Tracter::HCopyWrapper::fGetData__(Ptr bInfo,int n,Ptr samples)
 {
     /*
      * Perform a read for n samples

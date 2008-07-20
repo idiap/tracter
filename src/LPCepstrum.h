@@ -11,27 +11,32 @@
 #include "Fourier.h"
 #include "UnaryPlugin.h"
 
-/**
- * LPCepstrum analysis from a warped spectrum
- */
-class LPCepstrum : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    LPCepstrum(Plugin<float>* iInput, const char* iObjectName = "LPCepstrum");
-    virtual ~LPCepstrum() throw() {}
+    /**
+     * LPCepstrum analysis from a warped spectrum
+     */
+    class LPCepstrum : public UnaryPlugin<float, float>
+    {
+    public:
+        LPCepstrum(
+            Plugin<float>* iInput, const char* iObjectName = "LPCepstrum"
+        );
+        virtual ~LPCepstrum() throw() {}
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    int mOrder;
-    int mNCompressed;
-    int mNCepstra;
-    bool mC0;
-    float mCompressionPower;
-    float* mCompressed;
-    float* mAutoCorrelation;
-    Fourier mFourier;
-};
+    private:
+        int mOrder;
+        int mNCompressed;
+        int mNCepstra;
+        bool mC0;
+        float mCompressionPower;
+        float* mCompressed;
+        float* mAutoCorrelation;
+        Fourier mFourier;
+    };
+}
 
 #endif /* LPCEPSTRUM_H */

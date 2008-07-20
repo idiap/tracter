@@ -7,7 +7,7 @@
 
 #include "Subtract.h"
 
-PluginObject* Subtract::GetInput(int iInput)
+Tracter::PluginObject* Tracter::Subtract::GetInput(int iInput)
 {
     // Enumerate the inputs
     switch (iInput)
@@ -24,7 +24,7 @@ PluginObject* Subtract::GetInput(int iInput)
     return 0;
 }
 
-Subtract::Subtract(
+Tracter::Subtract::Subtract(
     Plugin<float>* iInput1,
     Plugin<float>* iInput2,
     const char* iObjectName
@@ -43,7 +43,7 @@ Subtract::Subtract(
         MinSize(GetInput(i), 1);
 }
 
-bool Subtract::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Subtract::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(iOffset >= 0);

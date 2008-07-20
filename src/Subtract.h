@@ -10,22 +10,25 @@
 
 #include "CachedPlugin.h"
 
-/**
- * Subtracts a second input from a first.
- */
-class Subtract : public CachedPlugin<float>
+namespace Tracter
 {
-public:
-    Subtract(Plugin<float>* iInput1, Plugin<float>* iInput2,
-             const char* iObjectName = "Subtract");
+    /**
+     * Subtracts a second input from a first.
+     */
+    class Subtract : public CachedPlugin<float>
+    {
+    public:
+        Subtract(Plugin<float>* iInput1, Plugin<float>* iInput2,
+                 const char* iObjectName = "Subtract");
 
-protected:
-    PluginObject* GetInput(int iInput);
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        PluginObject* GetInput(int iInput);
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    Plugin<float>* mInput1;
-    Plugin<float>* mInput2;
-};
+    private:
+        Plugin<float>* mInput1;
+        Plugin<float>* mInput2;
+    };
+}
 
 #endif /* SUBTRACT_H */

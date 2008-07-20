@@ -10,7 +10,7 @@
 
 #include "Histogram.h"
 
-Histogram::Histogram(Plugin<float>* iInput, const char* iObjectName)
+Tracter::Histogram::Histogram(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -37,7 +37,7 @@ Histogram::Histogram(Plugin<float>* iInput, const char* iObjectName)
     }
 }
 
-bool Histogram::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Histogram::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
 
@@ -63,12 +63,12 @@ bool Histogram::UnaryFetch(IndexType iIndex, int iOffset)
     return true;
 }
 
-Histogram::~Histogram() throw()
+Tracter::Histogram::~Histogram() throw()
 {
     write();
 }
 
-void Histogram::write()
+void Tracter::Histogram::write()
 {
     assert(mMax > mMin);
 

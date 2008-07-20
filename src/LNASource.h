@@ -12,23 +12,25 @@
 #include "Source.h"
 #include "MMap.h"
 
-
-/**
- * Uses an LNA file as a source
- */
-class LNASource : public CachedPlugin<float>, public Tracter::Source
+namespace Tracter
 {
-public:
-    LNASource(const char* iObjectName = "LNASource");
-    virtual ~LNASource() throw() {}
-    void Open(const char* iFileName);
+    /**
+     * Uses an LNA file as a source
+     */
+    class LNASource : public CachedPlugin<float>, public Tracter::Source
+    {
+    public:
+        LNASource(const char* iObjectName = "LNASource");
+        virtual ~LNASource() throw() {}
+        void Open(const char* iFileName);
 
-private:
-    MMap mMap;
-    void* mMapData;
-    int mMapSize;
-    bool mLNA16;
-    virtual bool UnaryFetch(IndexType iIndex, int iOffset);
-};
+    private:
+        MMap mMap;
+        void* mMapData;
+        int mMapSize;
+        bool mLNA16;
+        virtual bool UnaryFetch(IndexType iIndex, int iOffset);
+    };
+}
 
 #endif /* LNASOURCE_H */

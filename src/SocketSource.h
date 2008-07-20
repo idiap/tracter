@@ -13,24 +13,27 @@
 #include "Source.h"
 #include "CachedPlugin.h"
 
-/**
- * Source from a TCP socket.  This allows the source of a tracter
- * graph to be a TCP socket.  It presupposes that some process on
- * another machine exists to supply data to the socket.
- */
-class SocketSource : public CachedPlugin<float>, public Tracter::Source
+namespace Tracter
 {
-public:
-    SocketSource(const char* iObjectName = "SocketSource");
-    ~SocketSource() throw ();
-    void Open(const char* iFileName);
+    /**
+     * Source from a TCP socket.  This allows the source of a tracter
+     * graph to be a TCP socket.  It presupposes that some process on
+     * another machine exists to supply data to the socket.
+     */
+    class SocketSource : public CachedPlugin<float>, public Tracter::Source
+    {
+    public:
+        SocketSource(const char* iObjectName = "SocketSource");
+        ~SocketSource() throw ();
+        void Open(const char* iFileName);
 
-protected:
-    int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+    protected:
+        int Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
-private:
-    int mFD;
-    unsigned short mPort;
-};
+    private:
+        int mFD;
+        unsigned short mPort;
+    };
+}
 
 #endif /* SOCKETSOURCE_H */

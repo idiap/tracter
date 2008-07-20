@@ -12,38 +12,43 @@
 
 #include "UnaryPlugin.h"
 
-/**
- * Mel scaled filter bank.
- */
-class MelFilter : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    MelFilter(Plugin<float>* iInput, const char* iObjectName = "MelFilter");
-    virtual ~MelFilter() throw() {}
-    void DumpBins();
+    /**
+     * Mel scaled filter bank.
+     */
+    class MelFilter : public UnaryPlugin<float, float>
+    {
+    public:
+        MelFilter(
+            Plugin<float>* iInput, const char* iObjectName = "MelFilter"
+        );
+        virtual ~MelFilter() throw() {}
+        void DumpBins();
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    std::vector<int> mBin;   // Mel 'centers' in terms of DFT bins
-    std::vector< std::vector<float> > mWeight; // The actual filters
+    private:
+        std::vector<int> mBin;   // Mel 'centers' in terms of DFT bins
+        std::vector< std::vector<float> > mWeight; // The actual filters
 
-    float hertzToMel(float iHertz);
-    float melToHertz(float iHertz);
-    int hertzToBin(float iHertz, int iNBins);
-    float binToHertz(int iBin, int iNBins);
+        float hertzToMel(float iHertz);
+        float melToHertz(float iHertz);
+        int hertzToBin(float iHertz, int iNBins);
+        float binToHertz(int iBin, int iNBins);
 
-    void initAlignedBins();
-    void initSmoothBins();
-    void normaliseBins();
-    float warpHertz(float iHertz, float iAlpha);
+        void initAlignedBins();
+        void initSmoothBins();
+        void normaliseBins();
+        float warpHertz(float iHertz, float iAlpha);
 
-    float mLoHertz;
-    float mHiHertz;
-    float mLoWarp;
-    float mHiWarp;
-    float mAlpha;
-};
+        float mLoHertz;
+        float mHiHertz;
+        float mLoWarp;
+        float mHiWarp;
+        float mAlpha;
+    };
+}
 
 #endif /* MELFILTER_H */

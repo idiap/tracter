@@ -21,6 +21,7 @@ void Usage()
         "Options:\n"
         "-f list Read input and output files from list\n"
         "Anything else prints this information\n"
+        "Set environment variable Tracter_shConfig to 1 for more options\n"
     );
 }
 

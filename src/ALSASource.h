@@ -12,30 +12,33 @@
 #include "Source.h"
 #include "CachedPlugin.h"
 
-/**
- * Source plugin that reads data from an ALSA device.
- */
-class ALSASource : public CachedPlugin<short>, public Tracter::Source
+namespace Tracter
 {
-public:
-    ALSASource(const char* iObjectName = "ALSASource");
-    ~ALSASource() throw();
-    void Open(const char* iDeviceName);
-    void asyncCallback();
-
-protected:
-    virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
-
-private:
-    snd_output_t* mOutput;
-    snd_pcm_t* mHandle;
-    snd_pcm_status_t* mStatus;
-
-    snd_pcm_uframes_t setHardwareParameters();
-    void statusDump()
+    /**
+     * Source plugin that reads data from an ALSA device.
+     */
+    class ALSASource : public CachedPlugin<short>, public Source
     {
-        snd_pcm_status_dump(mStatus, mOutput);
-    }
-};
+    public:
+        ALSASource(const char* iObjectName = "ALSASource");
+        ~ALSASource() throw();
+        void Open(const char* iDeviceName);
+        void asyncCallback();
+
+    protected:
+        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+
+    private:
+        snd_output_t* mOutput;
+        snd_pcm_t* mHandle;
+        snd_pcm_status_t* mStatus;
+
+        snd_pcm_uframes_t setHardwareParameters();
+        void statusDump()
+        {
+            snd_pcm_status_dump(mStatus, mOutput);
+        }
+    };
+}
 
 #endif /* ALSASOURCE_H */

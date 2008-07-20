@@ -5,9 +5,10 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h> // For memset()
+#include <cstdio>
+#include <cstdlib>
+#include <cstring> // For memset()
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -15,7 +16,7 @@
 
 #include "SocketSink.h"
 
-SocketSink::SocketSink(
+Tracter::SocketSink::SocketSink(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -81,7 +82,7 @@ SocketSink::SocketSink(
     close(sockFD);
 }
 
-SocketSink::~SocketSink() throw()
+Tracter::SocketSink::~SocketSink() throw()
 {
     if (mFD)
     {
@@ -90,7 +91,7 @@ SocketSink::~SocketSink() throw()
     }
 }
 
-void SocketSink::Pull()
+void Tracter::SocketSink::Pull()
 {
     CacheArea ca;
     int index = 0;

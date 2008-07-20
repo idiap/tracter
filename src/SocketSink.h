@@ -10,20 +10,24 @@
 
 #include "UnarySink.h"
 
-/**
- * Sinks to a socket.
- */
-class SocketSink : public UnarySink<float>
+namespace Tracter
 {
-public:
-    SocketSink(Plugin<float>* iInput, const char* iObjectName = "SocketSink");
-    virtual ~SocketSink() throw();
-    void Pull();
+    /**
+     * Sinks to a socket.
+     */
+    class SocketSink : public UnarySink<float>
+    {
+    public:
+        SocketSink(
+            Plugin<float>* iInput, const char* iObjectName = "SocketSink"
+        );
+        virtual ~SocketSink() throw();
+        void Pull();
 
-private:
-    int mFD;
-    unsigned short mPort;
-};
-
+    private:
+        int mFD;
+        unsigned short mPort;
+    };
+}
 
 #endif /* SOCKETSINK_H */

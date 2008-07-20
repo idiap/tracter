@@ -11,31 +11,35 @@
 #include <vector>
 #include "UnaryPlugin.h"
 
-/**
- * Writes a Histogram representing the input
- */
-class Histogram : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    Histogram(Plugin<float>* iInput, const char* iObjectName = "Histogram");
-    virtual ~Histogram() throw();
+    /**
+     * Writes a Histogram representing the input
+     */
+    class Histogram : public UnaryPlugin<float, float>
+    {
+    public:
+        Histogram(
+            Plugin<float>* iInput, const char* iObjectName = "Histogram"
+        );
+        virtual ~Histogram() throw();
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    void write();
+    private:
+        void write();
 
-    float mMin;
-    float mMax;
-    float mScale;
-    int mCount;
-    int mMinCount;
-    int mNBins;
-    std::vector< std::vector<float> > mBin;
-    bool mPDF;
-    float mPower;
-};
-
+        float mMin;
+        float mMax;
+        float mScale;
+        int mCount;
+        int mMinCount;
+        int mNBins;
+        std::vector< std::vector<float> > mBin;
+        bool mPDF;
+        float mPower;
+    };
+}
 
 #endif /* HISTOGRAM_H */

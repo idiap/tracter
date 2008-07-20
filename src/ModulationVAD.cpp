@@ -7,7 +7,9 @@
 
 #include "ModulationVAD.h"
 
-ModulationVAD::ModulationVAD(Plugin<float>* iInput, const char* iObjectName)
+Tracter::ModulationVAD::ModulationVAD(
+    Plugin<float>* iInput, const char* iObjectName
+)
     : UnaryPlugin<VADState, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -50,7 +52,7 @@ ModulationVAD::ModulationVAD(Plugin<float>* iInput, const char* iObjectName)
                mConfirmSpeechTime, mConfirmSilenceTime);
 }
 
-bool ModulationVAD::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::ModulationVAD::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex == mIndex+1);
     mIndex = iIndex;

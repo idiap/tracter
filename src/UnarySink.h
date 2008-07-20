@@ -11,40 +11,46 @@
 #include "Sink.h"
 #include "Plugin.h"
 
-/**
- * A unary sink is a sink with just one input.
- */
-template <class T>
-class UnarySink : public Sink
+namespace Tracter
 {
-public:
-
-    /** A UnarySink destructor calls a recursive delete of the whole graph */
-    virtual ~UnarySink() throw ()
+    /**
+     * A unary sink is a sink with just one input.
+     */
+    template <class T>
+    class UnarySink : public Tracter::Sink
     {
-        Delete();
-    }
+    public:
 
-    /** Initialises a single input */
-    UnarySink<T>(Plugin<T>* iInput)
-    {
-        mObjectName = "UnarySink";
-        Connect(iInput);
-        mInput = iInput;
-    }
+        /**
+         * A UnarySink destructor calls a recursive delete of the
+         * whole graph
+         */
+        virtual ~UnarySink() throw ()
+        {
+            Delete();
+        }
 
-protected:
+        /** Initialises a single input */
+        UnarySink<T>(Plugin<T>* iInput)
+        {
+            mObjectName = "UnarySink";
+            Connect(iInput);
+            mInput = iInput;
+        }
 
-    /** Return a pointer to the one and only input */
-    PluginObject* GetInput(int iInput)
-    {
-        assert(iInput == 0);
-        assert(mNInputs == 1);
-        return mInput;
-    }
+    protected:
 
-    Plugin<T>* mInput;
+        /** Return a pointer to the one and only input */
+        PluginObject* GetInput(int iInput)
+        {
+            assert(iInput == 0);
+            assert(mNInputs == 1);
+            return mInput;
+        }
 
-};
+        Plugin<T>* mInput;
+
+    };
+}
 
 #endif /* UNARYSINK_H */

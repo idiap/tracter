@@ -6,9 +6,10 @@
  */
 
 #include <cassert>
+
 #include "VADStateMachine.h"
 
-VADStateMachine::VADStateMachine()
+Tracter::VADStateMachine::VADStateMachine()
 {
     mState = SILENCE_CONFIRMED;
     mTime = 0;
@@ -16,7 +17,7 @@ VADStateMachine::VADStateMachine()
     mConfirmSilenceTime = 0;
 }
 
-void VADStateMachine::Update(bool iSpeech)
+void Tracter::VADStateMachine::Update(bool iSpeech)
 {
     switch (mState)
     {

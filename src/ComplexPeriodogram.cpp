@@ -8,7 +8,7 @@
 #include <math.h>
 #include "ComplexPeriodogram.h"
 
-ComplexPeriodogram::ComplexPeriodogram(
+Tracter::ComplexPeriodogram::ComplexPeriodogram(
     Plugin<complex>* iInput,
     const char* iObjectName
 )
@@ -35,7 +35,7 @@ ComplexPeriodogram::ComplexPeriodogram(
         mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (mArraySize - 1));
 }
 
-bool ComplexPeriodogram::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

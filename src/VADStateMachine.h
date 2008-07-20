@@ -8,33 +8,36 @@
 #ifndef VADSTATEMACHINE_H
 #define VADSTATEMACHINE_H
 
-/**
- * Defines a four-state FSM implementing a Schmitt trigger for VAD.
- */
-enum VADState
+namespace Tracter
 {
-    SPEECH_TRIGGERED,
-    SPEECH_CONFIRMED,
-    SILENCE_TRIGGERED,
-    SILENCE_CONFIRMED
-};
+    /**
+     * Defines a four-state FSM implementing a Schmitt trigger for VAD.
+     */
+    enum VADState
+    {
+        SPEECH_TRIGGERED,
+        SPEECH_CONFIRMED,
+        SILENCE_TRIGGERED,
+        SILENCE_CONFIRMED
+    };
 
-/**
- * State Machine for VAD.  Implements a state machine requiring a
- * minimum number of speech or silence frames before confirming speech
- * or silence.
- */
-class VADStateMachine
-{
-public:
-    VADStateMachine();
-    void Update(bool iSpeech);
+    /**
+     * State Machine for VAD.  Implements a state machine requiring a
+     * minimum number of speech or silence frames before confirming speech
+     * or silence.
+     */
+    class VADStateMachine
+    {
+    public:
+        VADStateMachine();
+        void Update(bool iSpeech);
 
-protected:
-    VADState mState;
-    int mTime;
-    int mConfirmSpeechTime;
-    int mConfirmSilenceTime;
-};
+    protected:
+        VADState mState;
+        int mTime;
+        int mConfirmSpeechTime;
+        int mConfirmSilenceTime;
+    };
+}
 
 #endif /* VADSTATEMACHINE_H */

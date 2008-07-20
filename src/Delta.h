@@ -12,23 +12,26 @@
 
 #include "UnaryPlugin.h"
 
-/**
- * Plugin to calculate delta features
- */
-class Delta : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    Delta(Plugin<float>* iInput, const char* iObjectName = "Delta");
-    virtual ~Delta() throw() {}
+    /**
+     * Plugin to calculate delta features
+     */
+    class Delta : public UnaryPlugin<float, float>
+    {
+    public:
+        Delta(Plugin<float>* iInput, const char* iObjectName = "Delta");
+        virtual ~Delta() throw() {}
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    int mTheta;
-    int mWindow;
-    std::vector<float*> mFeature;
-    std::vector<float> mWeight;
-};
+    private:
+        int mTheta;
+        int mWindow;
+        std::vector<float*> mFeature;
+        std::vector<float> mWeight;
+    };
+}
 
 #endif /* DELTA_H */

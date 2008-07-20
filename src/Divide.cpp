@@ -7,7 +7,7 @@
 
 #include "Divide.h"
 
-PluginObject* Divide::GetInput(int iInput)
+Tracter::PluginObject* Tracter::Divide::GetInput(int iInput)
 {
     // Enumerate the inputs
     switch (iInput)
@@ -24,7 +24,7 @@ PluginObject* Divide::GetInput(int iInput)
     return 0;
 }
 
-Divide::Divide(
+Tracter::Divide::Divide(
     Plugin<float>* iInput1,
     Plugin<float>* iInput2,
     const char* iObjectName
@@ -43,7 +43,7 @@ Divide::Divide(
         MinSize(GetInput(i), 1);
 }
 
-bool Divide::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Divide::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(iOffset >= 0);

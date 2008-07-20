@@ -8,58 +8,59 @@
 #ifndef CACHEDPLUGIN_H
 #define CACHEDPLUGIN_H
 
-#include <assert.h>
-#include <stdio.h>
-
+#include <cassert>
+#include <cstdio>
 #include <vector>
 
 #include "Plugin.h"
 
-/**
- * This is a type specific implementation of the plugin object with
- * cache storage.
- */
-template <class T>
-class CachedPlugin : public Plugin<T>
+namespace Tracter
 {
-public:
-    virtual ~CachedPlugin<T>() throw()
-    {
-        // Nothing to do
-    }
-
     /**
-     * Get a pointer to the cache
-     * returns a reference.
+     * This is a type specific implementation of the plugin object with
+     * cache storage.
      */
-    T* GetPointer(int iIndex = 0)
+    template <class T>
+    class CachedPlugin : public Plugin<T>
     {
-        return &mCache[Plugin<T>::mArraySize
-                       ? iIndex * Plugin<T>::mArraySize
-                       : iIndex];
-    }
+    public:
+        virtual ~CachedPlugin<T>() throw()
+        {
+            // Nothing to do
+        }
 
-protected:
-    CachedPlugin<T>()
-    {
-        // Nothing to do
-    }
+        /**
+         * Get a pointer to the cache
+         * returns a reference.
+         */
+        T* GetPointer(int iIndex = 0)
+        {
+            return &mCache[Plugin<T>::mArraySize
+                           ? iIndex * Plugin<T>::mArraySize
+                           : iIndex];
+        }
 
-    virtual void Resize(int iSize)
-    {
-        assert(iSize > 0);
-        assert(iSize > Plugin<T>::mSize);
-        mCache.resize(Plugin<T>::mArraySize
-                      ? iSize * Plugin<T>::mArraySize
-                      : iSize);
-        if (Tracter::sVerbose > 1)
-            printf("CachedPlugin::Resize(%s) %d to %d\n",
-                   Plugin<T>::mObjectName, Plugin<T>::mSize, iSize);
-    }
+    protected:
+        CachedPlugin<T>()
+        {
+            // Nothing to do
+        }
 
-private:
+        virtual void Resize(int iSize)
+        {
+            assert(iSize > 0);
+            assert(iSize > Plugin<T>::mSize);
+            mCache.resize(Plugin<T>::mArraySize
+                          ? iSize * Plugin<T>::mArraySize
+                          : iSize);
+            if (Tracter::sVerbose > 1)
+                printf("CachedPlugin::Resize(%s) %d to %d\n",
+                       Plugin<T>::mObjectName, Plugin<T>::mSize, iSize);
+        }
 
-    std::vector<T> mCache;
-};
+    private:
+        std::vector<T> mCache;
+    };
+}
 
 #endif /* CACHEDPLUGIN_H */

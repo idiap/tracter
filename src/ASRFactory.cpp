@@ -24,6 +24,7 @@
 #include "Cepstrum.h"
 
 #include "LPCepstrum.h"
+#include "HCopyWrapper.h"
 
 #include "Energy.h"
 #include "ModulationVAD.h"
@@ -42,9 +43,10 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
     mFrontend["BasicVAD"] = &Tracter::ASRFactory::basicVADFrontend;
     mFrontend["PLP"] = &Tracter::ASRFactory::plpFrontend;
+    mFrontend["HTK"] = &Tracter::ASRFactory::htkFrontend;
 }
 
-Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
 {
     Plugin<float> *plugin = 0;
 
@@ -60,7 +62,8 @@ Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
     return plugin;
 }
 
-Plugin<float>* Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
+Tracter::Plugin<float>*
+Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
 {
     Plugin<float> *plugin = 0;
 
@@ -77,7 +80,7 @@ Plugin<float>* Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
 }
 
 
-Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
 {
     FileSource<short>* s = new FileSource<short>();
     Normalise* n = new Normalise(s);
@@ -85,7 +88,7 @@ Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
     return n;
 }
 
-Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
 {
     ALSASource* s = new ALSASource();
     Normalise* n = new Normalise(s);
@@ -93,14 +96,14 @@ Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
     return n;
 }
 
-Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
 {
     SocketSource* s = new SocketSource();
     iSource = s;
     return s;
 }
 
-Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)
+Tracter::Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)
 {
     Plugin<float>* plugin = iPlugin;
     int deltaOrder = GetEnv("DeltaOrder", 0);
@@ -119,7 +122,8 @@ Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)
     return plugin;
 }
 
-Plugin<float>* Tracter::ASRFactory::normaliseMean(Plugin<float>* iPlugin)
+Tracter::Plugin<float>*
+Tracter::ASRFactory::normaliseMean(Plugin<float>* iPlugin)
 {
     Plugin<float>* plugin = iPlugin;
     bool cmn = GetEnv("NormaliseMean", 1);
@@ -132,7 +136,8 @@ Plugin<float>* Tracter::ASRFactory::normaliseMean(Plugin<float>* iPlugin)
     return plugin;
 }
 
-Plugin<float>* Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
+Tracter::Plugin<float>*
+Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
 {
     Plugin<float>* plugin = iPlugin;
     bool cvn = GetEnv("NormaliseVariance", 0);
@@ -145,7 +150,8 @@ Plugin<float>* Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
     return plugin;
 }
 
-Plugin<float>* Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
+Tracter::Plugin<float>*
+Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
 {
     Plugin<float>* p = iPlugin;
     p = new ZeroFilter(p);
@@ -158,7 +164,8 @@ Plugin<float>* Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
     return p;
 }
 
-Plugin<float>* Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)
+Tracter::Plugin<float>*
+Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)
 {
     /* Basic signal processing chain */
     Plugin<float>* p = iPlugin;
@@ -179,11 +186,24 @@ Plugin<float>* Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)
     return v;
 }
 
-Plugin<float>* Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
+Tracter::Plugin<float>*
+Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
 {
-    ZeroFilter* zf = new ZeroFilter(iPlugin);
-    Periodogram* p = new Periodogram(zf);
-    MelFilter* mf = new MelFilter(p);
-    LPCepstrum* l = new LPCepstrum(mf);
-    return l;
+    Plugin<float>* p = iPlugin;
+    p = new ZeroFilter(p);
+    p = new Periodogram(p);
+    p = new MelFilter(p);
+    p = new LPCepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
+}
+
+Tracter::Plugin<float>*
+Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
+{
+    Plugin<float>* p = iPlugin;
+    p = new HCopyWrapper(p);
+    return p;
 }

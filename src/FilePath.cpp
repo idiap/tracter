@@ -5,8 +5,9 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
+
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -21,7 +22,7 @@
  * this way is more efficient than creating a new instance for each
  * filename as storage is re-used without being re-allocated.
  */
-void FilePath::SetName(const char* iFilePath)
+void Tracter::FilePath::SetName(const char* iFilePath)
 {
     assert(iFilePath);
 
@@ -62,7 +63,7 @@ void FilePath::SetName(const char* iFilePath)
  * subsequent open of the full filename using standard library
  * routines should work.  Similar to 'mkdir -p'.
  */
-void FilePath::MakePath()
+void Tracter::FilePath::MakePath()
 {
     // Return if the path isn't defined
     if (mPath.size() == 0)
@@ -94,7 +95,7 @@ void FilePath::MakePath()
 /**
  * Dump the internal state.  Basically for debugging.
  */
-void FilePath::Dump()
+void Tracter::FilePath::Dump()
 {
     printf(" Path: %s\n", mPath.c_str());
     printf(" Base: %s\n", mBase.c_str());

@@ -8,36 +8,38 @@
 #ifndef HTKSINK_H
 #define HTKSINK_H
 
-#include <stdio.h>
-
+#include <cstdio>
 #include <vector>
 
 #include "UnarySink.h"
 #include "ByteOrder.h"
 
-/**
- * Sinks to an HTK format parameter file.  The file is always written
- * big-endian.
- */
-class HTKSink : public UnarySink<float>
+namespace Tracter
 {
-public:
-    HTKSink(Plugin<float>* iInput, const char* iObjectName = "HTKSink");
-    virtual ~HTKSink() throw() {}
-    void Open(const char* iFile);
+    /**
+     * Sinks to an HTK format parameter file.  The file is always written
+     * big-endian.
+     */
+    class HTKSink : public UnarySink<float>
+    {
+    public:
+        HTKSink(Plugin<float>* iInput, const char* iObjectName = "HTKSink");
+        virtual ~HTKSink() throw() {}
+        void Open(const char* iFile);
 
-private:
-    FILE* mFile;
-    ByteOrder mByteOrder;
-    std::vector<float> mTemp;
+    private:
+        FILE* mFile;
+        ByteOrder mByteOrder;
+        std::vector<float> mTemp;
 
-    /* Header */
-    int mNSamples;
-    int mSampPeriod;
-    short mSampSize;
-    short mParmKind;
+        /* Header */
+        int mNSamples;
+        int mSampPeriod;
+        short mSampSize;
+        short mParmKind;
 
-    void WriteHeader(FILE* iFile);
-};
+        void WriteHeader(FILE* iFile);
+    };
+}
 
 #endif /* HTKSINK_H */

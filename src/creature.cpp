@@ -29,6 +29,8 @@
 
 #include "config.h"
 
+using namespace Tracter;
+
 class SinkSucker : public UnarySink<float>
 {
 public:

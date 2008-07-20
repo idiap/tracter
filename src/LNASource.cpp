@@ -5,13 +5,13 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 #include "LNASource.h"
 
 /** Constructor */
-LNASource::LNASource(const char* iObjectName)
+Tracter::LNASource::LNASource(const char* iObjectName)
     : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
@@ -32,7 +32,7 @@ LNASource::LNASource(const char* iObjectName)
 /**
  * Maps the LNA file
  */
-void LNASource::Open(const char* iFileName)
+void Tracter::LNASource::Open(const char* iFileName)
 {
     assert(iFileName);
     mMapData = mMap.Map(iFileName);
@@ -46,7 +46,7 @@ void LNASource::Open(const char* iFileName)
  * The fetch call is necessary to convert from integer to floating
  * point form.
  */
-bool LNASource::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::LNASource::UnaryFetch(IndexType iIndex, int iOffset)
 {
     if (iIndex >= mMapSize)
         return false;

@@ -10,7 +10,7 @@
 /* Rather arbitrary, but should stop too many cache fetches */
 const int BLOCK_SIZE = 16;
 
-Tokenise::Tokenise(Plugin<char>* iInput, const char* iObjectName)
+Tracter::Tokenise::Tokenise(Plugin<char>* iInput, const char* iObjectName)
     : UnaryPlugin<std::string, char>(iInput)
 {
     mObjectName = iObjectName;
@@ -24,7 +24,7 @@ Tokenise::Tokenise(Plugin<char>* iInput, const char* iObjectName)
     mLine = 0;
 }
 
-bool Tokenise::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
 

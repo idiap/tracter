@@ -8,25 +8,29 @@
 #ifndef SCREENSINK_H
 #define SCREENSINK_H
 
-#include <stdio.h>
-
+#include <cstdio>
 #include <vector>
 
 #include "UnarySink.h"
 #include "ByteOrder.h"
 
-/**
- * Sinks to screen.
- */
-class ScreenSink : public UnarySink<float>
+namespace Tracter
 {
-public:
-    ScreenSink(Plugin<float>* iInput, const char* iObjectName = "ScreenSink");
-    virtual ~ScreenSink() throw() {}
-    void Open();
+    /**
+     * Sinks to screen.
+     */
+    class ScreenSink : public UnarySink<float>
+    {
+    public:
+        ScreenSink(
+            Plugin<float>* iInput, const char* iObjectName = "ScreenSink"
+        );
+        virtual ~ScreenSink() throw() {}
+        void Open();
 
-private:
-    int mMaxSize;
-};
+    private:
+        int mMaxSize;
+    };
+}
 
 #endif /* SCREENSINK_H */

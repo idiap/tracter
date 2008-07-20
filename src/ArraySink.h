@@ -10,45 +10,48 @@
 
 #include "UnarySink.h"
 
-/**
- * An ArraySink is a type of sink that just provides a method for
- * reading individual arrays from a graph.  i.e., it is an interface
- * between tracter and non-tracter-aware routines.  The arrays could
- * be feature vectors.
- */
-template <class T>
-class ArraySink : public UnarySink<T>
+namespace Tracter
 {
-public:
-
-    /** Create an ArraySink with the input min-size set to 1 */
-    ArraySink(Plugin<T>* iInput, const char* iObjectName = "ArraySink")
-        : UnarySink<T>(iInput)
+    /**
+     * An ArraySink is a type of sink that just provides a method for
+     * reading individual arrays from a graph.  i.e., it is an interface
+     * between tracter and non-tracter-aware routines.  The arrays could
+     * be feature vectors.
+     */
+    template <class T>
+    class ArraySink : public UnarySink<T>
     {
-        UnarySink<T>::mObjectName = iObjectName;
-        UnarySink<T>::mArraySize = iInput->GetArraySize();
-        MinSize(iInput, 1);
-        UnarySink<T>::Initialise();
-        UnarySink<T>::Reset();
-    }
+    public:
 
-    /** Get the array with the given index.  Returns true if successful. */
-    bool GetArray(
-        T*& ioData, ///< Pointer to the returned data
-        int iIndex  ///< Index of the required array
-    )
-    {
-        CacheArea ca;
-        int got = UnarySink<T>::mInput->Read(ca, iIndex);
-        if (got == 0)
+        /** Create an ArraySink with the input min-size set to 1 */
+        ArraySink(Plugin<T>* iInput, const char* iObjectName = "ArraySink")
+            : UnarySink<T>(iInput)
         {
-            ioData = 0;
-            return false;
+            UnarySink<T>::mObjectName = iObjectName;
+            UnarySink<T>::mArraySize = iInput->GetArraySize();
+            MinSize(iInput, 1);
+            UnarySink<T>::Initialise();
+            UnarySink<T>::Reset();
         }
 
-        ioData = UnarySink<T>::mInput->GetPointer(ca.offset);
-        return true;
-    }
-};
+        /** Get the array with the given index.  Returns true if successful. */
+        bool GetArray(
+            T*& ioData, ///< Pointer to the returned data
+            int iIndex  ///< Index of the required array
+        )
+        {
+            CacheArea ca;
+            int got = UnarySink<T>::mInput->Read(ca, iIndex);
+            if (got == 0)
+            {
+                ioData = 0;
+                return false;
+            }
+
+            ioData = UnarySink<T>::mInput->GetPointer(ca.offset);
+            return true;
+        }
+    };
+}
 
 #endif /* ARRAYSINK_H */

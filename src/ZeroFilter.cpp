@@ -7,14 +7,14 @@
 
 #include "ZeroFilter.h"
 
-ZeroFilter::ZeroFilter(Plugin<float>* iInput, const char* iObjectName)
+Tracter::ZeroFilter::ZeroFilter(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
     mZero = GetEnv("Zero", 0.97f);
 }
 
-void ZeroFilter::MinSize(int iSize, int iReadAhead)
+void Tracter::ZeroFilter::MinSize(int iSize, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -26,7 +26,7 @@ void ZeroFilter::MinSize(int iSize, int iReadAhead)
     PluginObject::MinSize(mInput, iSize+1, 0);
 }
 
-int ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

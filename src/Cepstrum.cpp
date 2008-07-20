@@ -5,11 +5,12 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <math.h>
-#include <float.h>
+#include <cmath>
+#include <cfloat>
+
 #include "Cepstrum.h"
 
-Cepstrum::Cepstrum(
+Tracter::Cepstrum::Cepstrum(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -34,13 +35,13 @@ Cepstrum::Cepstrum(
     mFourier.Init(mNLogData, &mLogData, &mCepstra);
 }
 
-Cepstrum::~Cepstrum() throw()
+Tracter::Cepstrum::~Cepstrum() throw()
 {
     if ((Tracter::sVerbose > 0) && (mFloored > 0))
         printf("Cepstrum: floored %d values < %e\n", mFloored, mFloor);
 }
 
-bool Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

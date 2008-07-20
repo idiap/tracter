@@ -15,7 +15,7 @@
  * Set a CacheArea to represent a particular range at a particular
  * offset.
  */
-void CacheArea::Set(int iLength, int iOffset, int iSize)
+void Tracter::CacheArea::Set(int iLength, int iOffset, int iSize)
 {
     assert(iLength >= 0);
     assert(iOffset >= 0);
@@ -32,7 +32,7 @@ void CacheArea::Set(int iLength, int iOffset, int iSize)
     }
 }
 
-PluginObject::PluginObject()
+Tracter::PluginObject::PluginObject()
 {
     mObjectName = 0;
     mSize = 0;
@@ -72,7 +72,7 @@ PluginObject::PluginObject()
  *
  * @returns iInput
  */
-PluginObject* PluginObject::Connect(PluginObject* iInput)
+Tracter::PluginObject* Tracter::PluginObject::Connect(PluginObject* iInput)
 {
     assert(iInput);
     mNInputs++;
@@ -92,7 +92,9 @@ PluginObject* PluginObject::Connect(PluginObject* iInput)
  * should be called by the derived class, which doesn't have
  * permission to call the input plugin directly.
  */
-void PluginObject::MinSize(PluginObject* iInput, int iMinSize, int iReadAhead)
+void Tracter::PluginObject::MinSize(
+    PluginObject* iInput, int iMinSize, int iReadAhead
+)
 {
     assert(iInput);
     iInput->MinSize(iMinSize, iReadAhead);
@@ -104,7 +106,7 @@ void PluginObject::MinSize(PluginObject* iInput, int iMinSize, int iReadAhead)
  * plugin.  A negative size means that the cache should grow
  * indefinitely
  */
-void PluginObject::MinSize(int iMinSize, int iReadAhead)
+void Tracter::PluginObject::MinSize(int iMinSize, int iReadAhead)
 {
     // Keep track of the maximum read-ahead
     if (mMaxReadAhead < iReadAhead)
@@ -176,7 +178,7 @@ void PluginObject::MinSize(int iMinSize, int iReadAhead)
  *
  * Aside, this is still a mess.  Some caches are too big.
  */
-void PluginObject::Initialise(
+void Tracter::PluginObject::Initialise(
     const PluginObject* iDownStream, int iReadBack, int iReadAhead
 )
 {
@@ -256,7 +258,7 @@ void PluginObject::Initialise(
  * one as an input, it only gets reset once.  Calls the public method,
  * which can be hooked.
  */
-void PluginObject::Reset(
+void Tracter::PluginObject::Reset(
     PluginObject* iDownStream ///< this pointer of calling class
 )
 {
@@ -271,7 +273,7 @@ void PluginObject::Reset(
  * plugin is only reset once in a recursive reset - the graph is not
  * expanded to a tree.
  */
-void PluginObject::Reset(
+void Tracter::PluginObject::Reset(
     bool iPropagate ///< If true, recursively resets all input plugins
 )
 {
@@ -295,7 +297,7 @@ void PluginObject::Reset(
  *
  * @returns true if the caller can delete the object
  */
-bool PluginObject::Delete(PluginObject* iDownStream)
+bool Tracter::PluginObject::Delete(PluginObject* iDownStream)
 {
     // Initialise must have occured for this to work
     if (!mDownStream)
@@ -327,7 +329,7 @@ bool PluginObject::Delete(PluginObject* iDownStream)
  * this call either directly or via a Sink that does so if
  * intermediate plugins are allocated on the stack.
  */
-void PluginObject::Delete()
+void Tracter::PluginObject::Delete()
 {
     // The sink plugin should have no downstream favoured plugin
     assert(!mDownStream);
@@ -338,7 +340,7 @@ void PluginObject::Delete()
 /**
  * Dump basic data.  Only useful for debugging.
  */
-void PluginObject::Dump()
+void Tracter::PluginObject::Dump()
 {
     printf("Tail index(%lu) offset(%u)  Head index(%lu) offset(%u)\n",
            mTail.index, mTail.offset, mHead.index, mHead.offset);
@@ -349,7 +351,7 @@ void PluginObject::Dump()
  * Update a cachepointer.
  * Handles wraparound too.
  */
-void PluginObject::MovePointer(CachePointer& iPointer, int iLen)
+void Tracter::PluginObject::MovePointer(CachePointer& iPointer, int iLen)
 {
     iPointer.index += iLen;
     iPointer.offset += iLen;
@@ -367,7 +369,9 @@ void PluginObject::MovePointer(CachePointer& iPointer, int iLen)
  * @returns the number of data actually available.  It may be less
  * than the number requested.
  */
-int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
+int Tracter::PluginObject::Read(
+    CacheArea& oRange, IndexType iIndex, int iLength
+)
 {
     if (Tracter::sVerbose > 2)
         printf("Read on %s: index %ld  length %d\n",
@@ -507,7 +511,7 @@ int PluginObject::Read(CacheArea& oRange, IndexType iIndex, int iLength)
  * @returns the number of data actually available.  It may be less
  * than the number requested.
  */
-int PluginObject::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::PluginObject::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
 
@@ -532,7 +536,7 @@ int PluginObject::Fetch(IndexType iIndex, CacheArea& iOutputArea)
  * @returns true if the fetch was successful, false otherwise,
  * implying that the chain is out of data.
  */
-bool PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
 {
     printf("PluginObject: UnaryFetch called.  This should not happen.\n");
     exit(EXIT_FAILURE);

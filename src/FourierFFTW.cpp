@@ -5,7 +5,7 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <assert.h>
+#include <cassert>
 #include <fftw3.h>
 #include "Fourier.h"
 
@@ -32,13 +32,12 @@
  * not right for experiments that you want to repeat.
  */
 
-
 namespace FourierFFTW
 {
     static int sInstanceCount = 0;
 };
 
-struct FourierData
+struct Tracter::FourierData
 {
     void* IData;
     void* OData;
@@ -75,7 +74,7 @@ Tl* Allocate(int iSize, Tc** ioCData, void** ioLData)
 /*
  * Complex to Complex transform
  */
-void Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
+void Tracter::Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
 {
     assert(ioIData);
     assert(ioOData);
@@ -99,7 +98,7 @@ void Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
 /*
  * Real to Complex transform
  */
-void Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
+void Tracter::Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
 {
     assert(ioIData);
     assert(ioOData);
@@ -122,7 +121,7 @@ void Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
  * Real to Real transform, a.k.a. cosine transform
  * Wired to do DFT2 right now.
  */
-void Fourier::Init(int iOrder, float** ioIData, float** ioOData)
+void Tracter::Fourier::Init(int iOrder, float** ioIData, float** ioOData)
 {
     assert(ioIData);
     assert(ioOData);
@@ -142,7 +141,7 @@ void Fourier::Init(int iOrder, float** ioIData, float** ioOData)
                                FFTW_ESTIMATE);
 }
 
-Fourier::~Fourier()
+Tracter::Fourier::~Fourier()
 {
     if (!mFourierData)
         return;
@@ -165,7 +164,7 @@ Fourier::~Fourier()
  * Run the actual transform based on the parameters set up in the
  * constructor.
  */
-void Fourier::Transform()
+void Tracter::Fourier::Transform()
 {
     assert(mFourierData);
     FourierData& m = *mFourierData;

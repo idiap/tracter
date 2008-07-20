@@ -11,37 +11,39 @@
 #include "CachedPlugin.h"
 #include "VADStateMachine.h"
 
-/**
- * VAD Gate.  Allows frames through from input to output depending on
- * a VAD input.
- */
-class VADGate : public CachedPlugin<float>
+namespace Tracter
 {
-public:
-    VADGate(Plugin<float>* iInput, Plugin<VADState>* iVADInput,
-            const char* iObjectName = "VADGate");
+    /**
+     * VAD Gate.  Allows frames through from input to output depending
+     * on a VAD input.
+     */
+    class VADGate : public CachedPlugin<float>
+    {
+    public:
+        VADGate(Plugin<float>* iInput, Plugin<VADState>* iVADInput,
+                const char* iObjectName = "VADGate");
 
-protected:
-    PluginObject* GetInput(int iInput);
-    bool UnaryFetch(IndexType iIndex, int iOffset);
-    virtual void Reset(bool iPropagate);
+    protected:
+        PluginObject* GetInput(int iInput);
+        bool UnaryFetch(IndexType iIndex, int iOffset);
+        virtual void Reset(bool iPropagate);
 
-private:
-    Plugin<float>* mInput;
-    Plugin<VADState>* mVADInput;
+    private:
+        Plugin<float>* mInput;
+        Plugin<VADState>* mVADInput;
 
-    bool mEnabled;
-    VADState mState;
-    IndexType mSpeechTriggered;
-    IndexType mSpeechConfirmed;
-    IndexType mSilenceConfirmed;
-    IndexType mIndexZero;
+        bool mEnabled;
+        VADState mState;
+        IndexType mSpeechTriggered;
+        IndexType mSpeechConfirmed;
+        IndexType mSilenceConfirmed;
+        IndexType mIndexZero;
 
-    bool gate(IndexType& iIndex);
-    bool readVADState(IndexType iIndex);
-    bool confirmSpeech(IndexType iIndex);
-    bool reconfirmSpeech(IndexType iIndex);
-};
-
+        bool gate(IndexType& iIndex);
+        bool readVADState(IndexType iIndex);
+        bool confirmSpeech(IndexType iIndex);
+        bool reconfirmSpeech(IndexType iIndex);
+    };
+}
 
 #endif /* VADGATE_H */

@@ -5,37 +5,38 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
+
 #include "MelFilter.h"
 
 /** Convert a value in Hertz to the mel scale. */
-float MelFilter::hertzToMel(float iHertz)
+float Tracter::MelFilter::hertzToMel(float iHertz)
 {
     return 2595.0f * log10f(1.0f + iHertz / 700.0f);
 }
 
 /** Convert a value from the mel scale to Hertz. */
-float MelFilter::melToHertz(float iMel)
+float Tracter::MelFilter::melToHertz(float iMel)
 {
     return 700.0 * (powf(10, iMel / 2595.0f) - 1.0f);
 }
 
 /** Convert a value in Hertz to its closest periodogram bin. */
-int MelFilter::hertzToBin(float iHertz, int iNBins)
+int Tracter::MelFilter::hertzToBin(float iHertz, int iNBins)
 {
     float hiHertz = mSampleFreq / 2;
     return (int)(iHertz / hiHertz * (iNBins-1) + 0.5);
 }
 
 /** Convert a periodogram bin to its center frequency. */
-float MelFilter::binToHertz(int iBin, int iNBins)
+float Tracter::MelFilter::binToHertz(int iBin, int iNBins)
 {
     float hiHertz = mSampleFreq / 2;
     return (float)iBin * hiHertz / (float)(iNBins-1);
 }
 
-MelFilter::MelFilter(
+Tracter::MelFilter::MelFilter(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -63,7 +64,7 @@ MelFilter::MelFilter(
         normaliseBins();
 }
 
-bool MelFilter::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::MelFilter::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(iOffset >= 0);
@@ -95,7 +96,7 @@ bool MelFilter::UnaryFetch(IndexType iIndex, int iOffset)
  * DSR frontend, and the bins seem to be a little wide in that the
  * triangles overlap a little at the bottom.
  */
-void MelFilter::initAlignedBins()
+void Tracter::MelFilter::initAlignedBins()
 {
     assert(mArraySize > 0);
 
@@ -134,7 +135,7 @@ void MelFilter::initAlignedBins()
  * not obviously triangular, but are properly spaced and probably
  * respond better to VTLN.  This is similar to the way HTK does it.
  */
-void MelFilter::initSmoothBins()
+void Tracter::MelFilter::initSmoothBins()
 {
     assert(mArraySize > 0);
 
@@ -193,7 +194,7 @@ void MelFilter::initSmoothBins()
  * not) just appears as a constant offset in cepstral space.  Cepstral
  * mean normalisation will remove it.
  */
-void MelFilter::normaliseBins()
+void Tracter::MelFilter::normaliseBins()
 {
     assert(mArraySize > 0);
 
@@ -212,7 +213,7 @@ void MelFilter::normaliseBins()
  * Warp a value in Hertz by wavelength scale alpha.  This is based on
  * the HTK 'kite' picture for VTLN.
  */
-float MelFilter::warpHertz(
+float Tracter::MelFilter::warpHertz(
     float iHertz,   ///< Value to warp
     float iAlpha    ///< Warp factor
 )
@@ -258,7 +259,7 @@ float MelFilter::warpHertz(
  * Dumps the bin weights to gnuplot's (trivial) data format so they
  * can be plotted.
  */
-void MelFilter::DumpBins()
+void Tracter::MelFilter::DumpBins()
 {
     // Build a fully expanded array
     std::vector< std::vector<float> > output;

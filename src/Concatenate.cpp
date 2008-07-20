@@ -7,20 +7,20 @@
 
 #include "Concatenate.h"
 
-PluginObject* Concatenate::GetInput(int iInput)
+Tracter::PluginObject* Tracter::Concatenate::GetInput(int iInput)
 {
     assert(iInput < mNInputs);
     return mInput[iInput];
 }
 
-Concatenate::Concatenate(const char* iObjectName)
+Tracter::Concatenate::Concatenate(const char* iObjectName)
     : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
     mArraySize = 0;
 }
 
-void Concatenate::Add(Plugin<float>* iInput)
+void Tracter::Concatenate::Add(Plugin<float>* iInput)
 {
     mInput.push_back(iInput);
     mLength.push_back(iInput->GetArraySize());
@@ -29,7 +29,7 @@ void Concatenate::Add(Plugin<float>* iInput)
     MinSize(iInput, 1);
 }
 
-bool Concatenate::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Concatenate::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     assert(iOffset >= 0);

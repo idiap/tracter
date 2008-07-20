@@ -10,27 +10,28 @@
 
 #include "UnaryPlugin.h"
 
-/**
- * Writes a Pixmap (image) representing the input
- */
-class Pixmap : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    Pixmap(Plugin<float>* iInput, const char* iObjectName = "Pixmap");
+    /**
+     * Writes a Pixmap (image) representing the input
+     */
+    class Pixmap : public UnaryPlugin<float, float>
+    {
+    public:
+        Pixmap(Plugin<float>* iInput, const char* iObjectName = "Pixmap");
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    void write();
+    private:
+        void write();
 
-    int mLoIndex;
-    int mHiIndex;
-    float mMin;
-    float mMax;
-
-    bool mLog;
-};
-
+        int mLoIndex;
+        int mHiIndex;
+        float mMin;
+        float mMax;
+        bool mLog;
+    };
+}
 
 #endif /* PIXMAP_H */

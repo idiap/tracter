@@ -5,10 +5,11 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <stdlib.h>
+#include <cstdlib>
+
 #include "HTKSource.h"
 
-HTKSource::HTKSource(const char* iObjectName)
+Tracter::HTKSource::HTKSource(const char* iObjectName)
     : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
@@ -25,7 +26,7 @@ HTKSource::HTKSource(const char* iObjectName)
 /**
  * Maps the HTK parameter file and reads the header
  */
-void HTKSource::Open(const char* iFileName)
+void Tracter::HTKSource::Open(const char* iFileName)
 {
     assert(iFileName);
     mMapData = (float*)mMap.Map(iFileName);
@@ -106,7 +107,7 @@ void HTKSource::Open(const char* iFileName)
 /**
  * The Fetch call is necessary to byte swap the data
  */
-int HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     int i;
     int offset = iOutputArea.offset;

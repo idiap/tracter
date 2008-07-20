@@ -5,7 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <math.h>
+#include <cmath>
+
 #include "Periodogram.h"
 
 /**
@@ -13,7 +14,7 @@
  * - FrameSize (256)
  * - FramePeriod (80)
  */
-Periodogram::Periodogram(
+Tracter::Periodogram::Periodogram(
     Plugin<float>* iInput,
     const char* iObjectName
 )
@@ -40,7 +41,7 @@ Periodogram::Periodogram(
         mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (mFrameSize - 1));
 }
 
-bool Periodogram::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Periodogram::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

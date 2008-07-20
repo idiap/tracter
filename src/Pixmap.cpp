@@ -5,12 +5,12 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include "math.h"
-#include "float.h"
+#include <cmath>
+#include <cfloat>
 
 #include "Pixmap.h"
 
-Pixmap::Pixmap(Plugin<float>* iInput, const char* iObjectName)
+Tracter::Pixmap::Pixmap(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -28,7 +28,7 @@ Pixmap::Pixmap(Plugin<float>* iInput, const char* iObjectName)
     mLog = GetEnv("Log", 1);
 }
 
-bool Pixmap::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
 
@@ -58,7 +58,7 @@ bool Pixmap::UnaryFetch(IndexType iIndex, int iOffset)
     return true;
 }
 
-void Pixmap::write()
+void Tracter::Pixmap::write()
 {
     // Header
     assert(mLoIndex >= 0);

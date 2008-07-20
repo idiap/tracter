@@ -9,6 +9,8 @@
 #include "Tokenise.h"
 #include "ArraySink.h"
 
+using namespace Tracter;
+
 int main()
 {
     FileSource<char>* f = new FileSource<char>();

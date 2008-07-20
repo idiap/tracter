@@ -7,7 +7,7 @@
 
 #include "Delta.h"
 
-Delta::Delta(Plugin<float>* iInput, const char* iObjectName)
+Tracter::Delta::Delta(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -30,11 +30,11 @@ Delta::Delta(Plugin<float>* iInput, const char* iObjectName)
         mWeight[i] = (float)(i - mTheta) / denom;
 }
 
-//
-// This is the calculation for one frame.  Pretty trivial, but the
-// edge effects make the code quite long.
-//
-bool Delta::UnaryFetch(IndexType iIndex, int iOffset)
+/*
+ * This is the calculation for one frame.  Pretty trivial, but the
+ * edge effects make the code quite long.
+ */
+bool Tracter::Delta::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

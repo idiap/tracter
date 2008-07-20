@@ -8,7 +8,7 @@
 #include <math.h>
 #include "LPCepstrum.h"
 
-LPCepstrum::LPCepstrum(Plugin<float>* iInput, const char* iObjectName)
+Tracter::LPCepstrum::LPCepstrum(Plugin<float>* iInput, const char* iObjectName)
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
@@ -36,7 +36,7 @@ LPCepstrum::LPCepstrum(Plugin<float>* iInput, const char* iObjectName)
     mFourier.Init(mNCompressed, &mCompressed, &mAutoCorrelation);
 }
 
-bool LPCepstrum::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

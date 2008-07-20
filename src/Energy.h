@@ -10,18 +10,21 @@
 
 #include "UnaryPlugin.h"
 
-class Energy : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    Energy(Plugin<float>* iInput,
-           const char* iObjectName = "Energy");
+    class Energy : public UnaryPlugin<float, float>
+    {
+    public:
+        Energy(Plugin<float>* iInput,
+               const char* iObjectName = "Energy");
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    int mFrameSize;
-    int mFramePeriod;
-};
+    private:
+        int mFrameSize;
+        int mFramePeriod;
+    };
+}
 
 #endif /* ENERGY_H */

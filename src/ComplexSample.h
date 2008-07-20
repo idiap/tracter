@@ -8,23 +8,27 @@
 #ifndef COMPLEXSAMPLE_H
 #define COMPLEXSAMPLE_H
 
+#include <complex>
+
 #include "UnaryPlugin.h"
 
-#include <complex>
-typedef std::complex<float> complex;
-
-/**
- * Implements a sample consisting of a single complex.
- */
-class ComplexSample : public UnaryPlugin<complex, float>
+namespace Tracter
 {
-public:
-    ComplexSample(Plugin<float>* iInput,
-                  const char* iObjectName = "ComplexSample");
-    void MinSize(int iSize, int iReadAhead);
+    typedef std::complex<float> complex;
 
-protected:
-    int Fetch(IndexType iIndex, CacheArea& iOutputArea);
-};
+    /**
+     * Implements a sample consisting of a single complex.
+     */
+    class ComplexSample : public UnaryPlugin<complex, float>
+    {
+    public:
+        ComplexSample(Plugin<float>* iInput,
+                      const char* iObjectName = "ComplexSample");
+        void MinSize(int iSize, int iReadAhead);
+
+    protected:
+        int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+    };
+}
 
 #endif /* COMPLEXSAMPLE_H */

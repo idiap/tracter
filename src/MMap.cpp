@@ -5,24 +5,26 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+
 #include <unistd.h>
-#include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+
 #include "TracterObject.h"
 #include "MMap.h"
 
-MMap::MMap()
+Tracter::MMap::MMap()
 {
     mFD = 0;
     mMap = 0;
 }
 
-MMap::~MMap()
+Tracter::MMap::~MMap()
 {
     if (mMap)
         munmap(mMap, mSize);
@@ -30,12 +32,12 @@ MMap::~MMap()
         close(mFD);
 }
 
-size_t MMap::GetSize()
+size_t Tracter::MMap::GetSize()
 {
     return mSize;
 }
 
-void* MMap::Map(const char* iFileName)
+void* Tracter::MMap::Map(const char* iFileName)
 {
     assert(iFileName);
 

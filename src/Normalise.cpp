@@ -9,7 +9,7 @@
 
 #include "Normalise.h"
 
-Normalise::Normalise(
+Tracter::Normalise::Normalise(
     Plugin<short>* iInput,
     const char* iObjectName
 )
@@ -35,7 +35,7 @@ Normalise::Normalise(
     mByteOrder.SetSource(endian);
 }
 
-void Normalise::MinSize(int iSize, int iReadAhead)
+void Tracter::Normalise::MinSize(int iSize, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -46,7 +46,7 @@ void Normalise::MinSize(int iSize, int iReadAhead)
     PluginObject::MinSize(mInput, iSize, 0);
 }
 
-int Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;

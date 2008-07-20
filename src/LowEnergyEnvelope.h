@@ -10,25 +10,29 @@
 
 #include "UnaryPlugin.h"
 
-/**
- * Use the Low Energy Envelope method to estimate noise
- */
-class LowEnergyEnvelope : public UnaryPlugin<float, float>
+namespace Tracter
 {
-public:
-    LowEnergyEnvelope(
-        Plugin<float>* iInput, const char* iObjectName = "LowEnergyEnvelope"
-    );
-    virtual ~LowEnergyEnvelope() throw() {}
+    /**
+     * Use the Low Energy Envelope method to estimate noise
+     */
+    class LowEnergyEnvelope : public UnaryPlugin<float, float>
+    {
+    public:
+        LowEnergyEnvelope(
+            Plugin<float>* iInput,
+            const char* iObjectName = "LowEnergyEnvelope"
+        );
+        virtual ~LowEnergyEnvelope() throw() {}
 
-protected:
-    bool UnaryFetch(IndexType iIndex, int iOffset);
+    protected:
+        bool UnaryFetch(IndexType iIndex, int iOffset);
 
-private:
-    int mNWindow;
-    int mNGamma;
-    float mCorrection;
-    std::vector< std::vector<float> > mTmp;
-};
+    private:
+        int mNWindow;
+        int mNGamma;
+        float mCorrection;
+        std::vector< std::vector<float> > mTmp;
+    };
+}
 
 #endif /* LOWENERGYENVELOPE_H */

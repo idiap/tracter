@@ -9,47 +9,51 @@
 #define GEOMETRICNOISE_H
 
 #include <cmath>
+
 #include "Noise.h"
 
-/**
- * Stores a noise estimate using geometric mean
- *
- * Functionality is identical to Noise, except that it implements a
- * geometric mean instead of arithmetic.
- */
-class GeometricNoise : public Noise
+namespace Tracter
 {
-public:
     /**
-     * Constructor.  Just sets the object name.
+     * Stores a noise estimate using geometric mean
+     *
+     * Functionality is identical to Noise, except that it implements a
+     * geometric mean instead of arithmetic.
      */
-    GeometricNoise(
-        Plugin<float>* iInput, const char* iObjectName = "GeometricNoise"
-    )
-        :Noise(iInput, iObjectName)
+    class GeometricNoise : public Noise
     {
-    }
+    public:
+        /**
+         * Constructor.  Just sets the object name.
+         */
+        GeometricNoise(
+            Plugin<float>* iInput, const char* iObjectName = "GeometricNoise"
+        )
+            :Noise(iInput, iObjectName)
+        {
+        }
 
 
-protected:
+    protected:
 
-    /**
-     * Accumulator.  Overridden for geometric mean
-     */
-    virtual float Accumulate(float iAccumulator, float iInput)
-    {
-        float ret = iAccumulator + logf(iInput);
-        return ret;
-    }
+        /**
+         * Accumulator.  Overridden for geometric mean
+         */
+        virtual float Accumulate(float iAccumulator, float iInput)
+        {
+            float ret = iAccumulator + logf(iInput);
+            return ret;
+        }
 
-    /**
-     * Mean Calculator.  Overridden for geometric mean
-     */
-    virtual float Calculate(float iAccumulator, int iN)
-    {
-        float ret = expf(iAccumulator / iN);
-        return ret;
-    }
-};
+        /**
+         * Mean Calculator.  Overridden for geometric mean
+         */
+        virtual float Calculate(float iAccumulator, int iN)
+        {
+            float ret = expf(iAccumulator / iN);
+            return ret;
+        }
+    };
+}
 
 #endif /* GEOMETRICNOISE_H */
