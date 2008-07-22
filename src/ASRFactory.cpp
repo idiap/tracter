@@ -5,6 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include "config.h"
+
 #include "ASRFactory.h"
 
 #include "FileSource.h"
@@ -24,7 +26,10 @@
 #include "Cepstrum.h"
 
 #include "LPCepstrum.h"
-#include "HCopyWrapper.h"
+
+#ifdef HAVE_HTK
+# include "HCopyWrapper.h"
+#endif
 
 #include "Energy.h"
 #include "ModulationVAD.h"
@@ -43,7 +48,9 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
     mFrontend["BasicVAD"] = &Tracter::ASRFactory::basicVADFrontend;
     mFrontend["PLP"] = &Tracter::ASRFactory::plpFrontend;
+#ifdef HAVE_HTK
     mFrontend["HTK"] = &Tracter::ASRFactory::htkFrontend;
+#endif
 }
 
 Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
@@ -200,6 +207,7 @@ Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
     return p;
 }
 
+#ifdef HAVE_HTK
 Tracter::Plugin<float>*
 Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
 {
@@ -207,3 +215,4 @@ Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
     p = new HCopyWrapper(p);
     return p;
 }
+#endif

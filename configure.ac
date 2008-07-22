@@ -43,6 +43,10 @@ AS_IF(
   [test "x$with_htk_includes" != xno],
   [AC_SUBST([HTK_LIBS], [$with_htk_libs])
    AC_SUBST([HTK_INCLUDES], [$with_htk_includes])
+   AC_DEFINE_UNQUOTED(
+       [HAVE_HTKLIB], 1,
+       [Define to 1 if you have HTK.]
+     )
    AC_MSG_RESULT(yes)],
   [AC_MSG_RESULT(no)]
 )

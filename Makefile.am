@@ -11,3 +11,5 @@ EXTRA_DIST = Doxyfile.in tracter.pc.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tracter.pc
+
+nodist_pkginclude_HEADERS = config.h
