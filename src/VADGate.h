@@ -33,6 +33,8 @@ namespace Tracter
         Plugin<VADState>* mVADInput;
 
         bool mEnabled;
+        bool mOnline;
+
         VADState mState;
         IndexType mSpeechTriggered;
         IndexType mSpeechConfirmed;

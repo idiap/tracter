@@ -46,15 +46,19 @@ Tracter::VADGate::VADGate(
     mIndexZero = 0;
 
     mEnabled = GetEnv("Enable", 1);
+    mOnline = GetEnv("Online", 0);
 }
 
-/** Catch reset.  Don't pass it on to upstream plugins yet, although
- * that could be an option later */
+/**
+ * Catch reset.  Whether to pass upstream is an option.  In an online
+ * mode, it shouldn't be passed on, but when the input is a sequence
+ * of files it should be.
+ */
 void Tracter::VADGate::Reset(bool iPropagate)
 {
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
-    CachedPlugin<float>::Reset(false);
+    CachedPlugin<float>::Reset(!mOnline);  // Propagate if not online
 }
 
 bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
@@ -68,7 +72,15 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     // This will update iIndex to mSpeechTriggered 
     if (mEnabled && !gate(iIndex))
     {
-        assert(mSilenceConfirmed > iIndex);
+        if (Tracter::sVerbose > 0)
+            printf("gate returned: index %ld silConf %ld\n",
+                   iIndex, mSilenceConfirmed);
+        if (mOnline && (mSilenceConfirmed <= iIndex))
+            throw Tracter::Exception("iIndex ahead of silence");
+        assert(
+            (mSilenceConfirmed < 0) ||   /* Failed to find silence */
+            (mSilenceConfirmed > iIndex) /* Succeeded */
+        );
         mIndexZero = mSilenceConfirmed;
         mSpeechTriggered = -1;
         mSpeechConfirmed = -1;
@@ -78,7 +90,10 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     // Copy input to output
     CacheArea inputArea;
     if (mInput->Read(inputArea, iIndex) == 0)
-        throw Tracter::Exception("Unexpected out of input data");
+        if (mOnline)
+            throw Tracter::Exception("Unexpected out of input data");
+        else
+            return false;
 
     float* input = mInput->GetPointer(inputArea.offset);
     float* cache = GetPointer(iOffset);
@@ -124,7 +139,7 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
 bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 {
     if (Tracter::sVerbose > 0)
-        printf("VADGate::confirmSpeech\n");
+        printf("VADGate::confirmSpeech entered\n");
     IndexType index = iIndex - 1;
     do
     {
