@@ -52,7 +52,7 @@ Tracter::ALSASource::~ALSASource() throw()
 }
 
 /** Pass the callback information to the asyncCallback() method */
-static void staticCallback(snd_async_handler_t *iHandler)
+void Tracter::ALSASource::staticCallback(snd_async_handler_t *iHandler)
 {
     void* object = snd_async_handler_get_callback_private(iHandler);
     ((Tracter::ALSASource*)object)->asyncCallback();

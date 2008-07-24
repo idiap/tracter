@@ -35,6 +35,8 @@
 #include "ModulationVAD.h"
 #include "VADGate.h"
 
+#include "SocketTee.h"
+
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -61,10 +63,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
     if (mSource[source])
         plugin = (this->*mSource[source])(iSource);
     else
-    {
-        printf("ASRFactory: Unknown source %s\n", source);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("ASRFactory: Unknown source %s\n", source);
 
     return plugin;
 }
@@ -78,10 +77,7 @@ Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
     if (mFrontend[frontend])
         plugin = (this->*mFrontend[frontend])(iPlugin);
     else
-    {
-        printf("ASRFactory: Unknown frontend %s\n", frontend);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("ASRFactory: Unknown frontend %s\n", frontend);
 
     return plugin;
 }

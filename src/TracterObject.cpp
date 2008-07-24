@@ -97,3 +97,41 @@ const char* Tracter::Object::GetEnv(
         return env;
     return iDefault;
 }
+
+#include <cstdarg>
+
+/**
+ * Verbose output.  Prints output to stdout depending on the verbosity
+ * level.  Written using cstdarg such that printf like parameter lists
+ * can be passed.
+ */
+void Tracter::Object::Verbose(int iLevel, const char* iString, ...)
+{
+    if (iLevel > sVerbose)
+        return;
+
+    printf("%s: ", mObjectName);
+    va_list ap;
+    va_start(ap, iString);
+    vprintf(iString, ap);
+    va_end(ap);
+}
+
+/**
+ * Exception constructor.  Allows exception strings up to some fixed
+ * length using the cstdarg mechanism.
+ */
+Tracter::Exception::Exception(const char* iString, ...)
+{
+    va_list ap;
+    va_start(ap, iString);
+    int n = vsnprintf(mString, STRING_SIZE, iString, ap);
+    va_end(ap);
+    if ((n < 0) || (n >= STRING_SIZE))
+    {
+        // Truncated; replace the last 3 characters with an elipsis
+        mString[STRING_SIZE-2] = '.';
+        mString[STRING_SIZE-3] = '.';
+        mString[STRING_SIZE-4] = '.';
+    }
+}

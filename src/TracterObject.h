@@ -22,10 +22,19 @@ namespace Tracter {
 /**
  * Root of all tracter objects.
  *
- * This class defines basic functionality for tracter objects.
- *
- * Right now, this is just the environment variable parameter
+ * This class defines basic functionality for tracter objects.  Right
+ * now, this is just exceptions and the environment variable parameter
  * mechanism.
+ *
+ * A tracter object is an object with a name.  The name allows
+ * parameters for the object to be picked up from an environment
+ * variable prefixed with that name.  It also allows debugging to
+ * identify which object gave rise to which behaviour.
+ *
+ * Tracter::Object also defines two global options: Verbose is a
+ * numerical value corresponding to a verbosity level.  ShowConfig is
+ * a boolean defining whether to output the configuration (parameters)
+ * as it is consulted.
  */
 namespace Tracter
 {
@@ -42,23 +51,23 @@ namespace Tracter
         int GetEnv(const char* iSuffix, int iDefault);
         const char* GetEnv(const char* iSuffix, const char* iDefault);
 
+        void Verbose(int iLevel, const char* iString, ...);
+
     private:
         const char* getEnv(const char* iSuffix, const char* iDefault);
     };
 
+    const int STRING_SIZE = 80;
     class Exception: public std::exception
     {
     public:
-        Exception(const char* iString)
-        {
-            mString = iString;
-        }
+        Exception(const char* iString, ...);
         virtual const char* what() const throw()
         {
             return mString;
         }
     private:
-        const char* mString;
+        char mString[STRING_SIZE];
     };
 }
 

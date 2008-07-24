@@ -33,6 +33,7 @@ namespace Tracter
         snd_pcm_t* mHandle;
         snd_pcm_status_t* mStatus;
 
+        static void staticCallback(snd_async_handler_t *iHandler);
         snd_pcm_uframes_t setHardwareParameters();
         void statusDump()
         {

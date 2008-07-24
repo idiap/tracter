@@ -16,7 +16,6 @@ int main(int argc, char** argv)
 {
     printf("Socket client\n");
 
-    Tracter::sShowConfig = true;
     SocketSource* ss = new SocketSource;
     ArraySink<float> as(ss);
     ss->Open("localhost");

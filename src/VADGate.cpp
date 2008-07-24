@@ -72,11 +72,10 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     // This will update iIndex to mSpeechTriggered 
     if (mEnabled && !gate(iIndex))
     {
-        if (Tracter::sVerbose > 0)
-            printf("gate returned: index %ld silConf %ld\n",
-                   iIndex, mSilenceConfirmed);
+        Verbose(1, "gate returned: index %ld silConf %ld\n",
+                iIndex, mSilenceConfirmed);
         if (mOnline && (mSilenceConfirmed <= iIndex))
-            throw Tracter::Exception("iIndex ahead of silence");
+            throw Exception("iIndex ahead of silence");
         assert(
             (mSilenceConfirmed < 0) ||   /* Failed to find silence */
             (mSilenceConfirmed > iIndex) /* Succeeded */
@@ -138,8 +137,7 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
 
 bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 {
-    if (Tracter::sVerbose > 0)
-        printf("VADGate::confirmSpeech entered\n");
+    Verbose(1, "confirmSpeech entered\n");
     IndexType index = iIndex - 1;
     do
     {
@@ -162,9 +160,8 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
     while (mState != SPEECH_CONFIRMED);
     mSpeechConfirmed = index;
 
-    if (Tracter::sVerbose > 0)
-        printf("VADGate::confirmSpeech: Frame %ld confirmed at %ld\n",
-               mSpeechTriggered, mSpeechConfirmed);
+    Verbose(1, "confirmSpeech: Frame %ld confirmed at %ld\n",
+            mSpeechTriggered, mSpeechConfirmed);
     return true;
 }
 
@@ -186,9 +183,8 @@ bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
 
     assert(mState == SILENCE_CONFIRMED);
     mSilenceConfirmed = iIndex;
-    if (Tracter::sVerbose > 0)
-        printf("VADGate::reconfirmSpeech: Silence confirmed at %ld\n",
-               mSilenceConfirmed);
+    Verbose(1, "reconfirmSpeech: Silence confirmed at %ld\n",
+            mSilenceConfirmed);
 
     return false;
 }

@@ -16,6 +16,7 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	SocketTee.cpp \
 	ScreenSink.cpp \
 	LPCepstrum.cpp \
 	FileSink.cpp \

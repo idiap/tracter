@@ -5,8 +5,6 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <cstdio>
-#include <cstdlib>
 #include <cstring> // For memset()
 
 #include <unistd.h>
@@ -16,6 +14,9 @@
 
 #include "SocketSink.h"
 
+/**
+ * Constructor.
+ */
 Tracter::SocketSink::SocketSink(
     Plugin<float>* iInput,
     const char* iObjectName
@@ -34,17 +35,15 @@ Tracter::SocketSink::SocketSink(
     int sockFD = socket(AF_INET, SOCK_STREAM, 0);
     if (sockFD < 0)
     {
-        printf("%s: socket() failed\n", mObjectName);
         perror(mObjectName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: socket() failed\n", mObjectName);
     }
 
     int yes = 1;
     if (setsockopt(sockFD, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
-        printf("%s: setsockopt() failed\n", mObjectName);
         perror(mObjectName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: setsockopt() failed\n", mObjectName);
     }
 
     struct sockaddr_in server;
@@ -55,30 +54,29 @@ Tracter::SocketSink::SocketSink(
 
     if (bind(sockFD, (struct sockaddr *)&server, sizeof(server)) == -1)
     {
-        printf("%s: bind() failed for port %hu\n", mObjectName, mPort);
         perror(mObjectName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: bind() failed for port %hu\n",
+                        mObjectName, mPort);
     }
 
     if (listen(sockFD, 1) == -1)
     {
-        printf("%s: listen() failed for port %hu\n", mObjectName, mPort);
         perror(mObjectName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: listen() failed for port %hu\n",
+                        mObjectName, mPort);
     }
 
-    printf("%s: waiting for connection\n", mObjectName);
+    Verbose(1, "waiting for connection\n");
     struct sockaddr_in client;
     socklen_t clientSize = sizeof(client);
     mFD = accept(sockFD, (struct sockaddr *)&client, &clientSize);
     if (mFD == -1)
     {
-        printf("%s: accept() failed for port %hu\n", mObjectName, mPort);
         perror(mObjectName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: accept() failed for port %hu\n",
+                        mObjectName, mPort);
     }
-    printf("%s: got connection from %s\n",
-           mObjectName, inet_ntoa(client.sin_addr));
+    Verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
     close(sockFD);
 }
 
@@ -102,13 +100,13 @@ void Tracter::SocketSink::Pull()
         float* data = mInput->GetPointer(ca.offset);
         ssize_t nSend = arraySize*sizeof(float);
         ssize_t nSent = send(mFD, data, arraySize*sizeof(float), 0);
-        printf("Send %d  sent %d  total %d\n",
-               (int)nSend, (int)nSent, total++);
+        Verbose(2, "Send %d  sent %d  total %d\n",
+                (int)nSend, (int)nSent, total++);
         if (nSent == -1)
         {
-            printf("%s: send() failed for port %hu\n", mObjectName, mPort);
             perror(mObjectName);
-            exit(EXIT_FAILURE);
+            throw Exception("%s: send() failed for port %hu\n",
+                            mObjectName, mPort);
         }
     }
     close(mFD);

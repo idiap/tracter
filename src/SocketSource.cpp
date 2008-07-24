@@ -52,18 +52,17 @@ void Tracter::SocketSource::Open(const char* iHostName)
     if (!hostEnt)
     {
         // Would be better to parse h_errno here
-        printf("%s: gethostbyname() failed for %s\n",
-               mObjectName, iHostName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: gethostbyname() failed for %s\n",
+                        mObjectName, iHostName);
     }
 
     // For the file descriptor
     mFD = socket(PF_INET, SOCK_STREAM, 0);
     if (mFD < 0)
     {
-        printf("%s: socket() failed for %s\n", mObjectName, iHostName);
         perror(mObjectName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: socket() failed for %s\n",
+                        mObjectName, iHostName);
     }
 
     // Connect using the host address, port and file descriptor
@@ -75,10 +74,9 @@ void Tracter::SocketSource::Open(const char* iHostName)
 
     if (connect(mFD, (struct sockaddr *)&server, sizeof(server)) == -1)
     {
-        printf("%s: connect() failed for %s:%hu\n",
-               mObjectName, iHostName, mPort);
         perror(mObjectName);
-        exit(EXIT_FAILURE);
+        throw Exception("%s: connect() failed for %s:%hu\n",
+                        mObjectName, iHostName, mPort);
     }
 }
 
