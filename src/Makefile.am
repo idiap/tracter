@@ -101,7 +101,7 @@ libtracter_la_CFLAGS += @FFTW3F_CFLAGS@
 FFT_LIBS = @FFTW3F_LIBS@
 endif
 
-libtracter_la_LIBADD = $(FFT_LIBS) @ALSA_LIBS@ @HTK_LIBS@
+libtracter_la_LIBADD = $(FFT_LIBS) @ALSA_LIBS@ @HTK_LIBS@ -lpthread
 
 parser_SOURCES = parser.cpp
 parser_LDADD = libtracter.la

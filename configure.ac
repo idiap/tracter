@@ -37,19 +37,16 @@ AC_ARG_WITH(htk-libs,
   [],
   [with_htk_libs=no]
 )
-AM_CONDITIONAL([WITH_HTK], [test "x$with_htk_includes" != xno])
 AC_MSG_CHECKING([whether to use HTK])
 AS_IF(
   [test "x$with_htk_includes" != xno],
-  [AC_SUBST([HTK_LIBS], [$with_htk_libs])
-   AC_SUBST([HTK_INCLUDES], [$with_htk_includes])
-   AC_DEFINE_UNQUOTED(
-       [HAVE_HTKLIB], 1,
-       [Define to 1 if you have HTK.]
-     )
+  [AC_DEFINE([HAVE_HTKLIB], [1], [Define if you have HTK.])
    AC_MSG_RESULT(yes)],
   [AC_MSG_RESULT(no)]
 )
+AC_SUBST([HTK_INCLUDES], [$with_htk_includes])
+AC_SUBST([HTK_LIBS], [$with_htk_libs])
+AM_CONDITIONAL([WITH_HTK], [test "$with_htk_includes" != no])
 
 # Kiss FFT
 # Doesn't come as a proper package so we need a directory name
@@ -61,52 +58,45 @@ AC_ARG_WITH(kiss_fft,
   [],
   [with_kiss_fft=no]
 )
-AM_CONDITIONAL([WITH_KISS_FFT], [test "x$with_kiss_fft" != xno])
 AC_MSG_CHECKING([whether to use Kiss FFT])
 AS_IF(
   [test "x$with_kiss_fft" != xno],
   [AS_IF(
     [test -d "$with_kiss_fft"],
     [AC_MSG_RESULT([$with_kiss_fft])
-     AC_SUBST([KISS_FFT_DIR], [$with_kiss_fft])
-     AC_DEFINE_UNQUOTED(
-       [HAVE_KISS_FFT], 1,
-       [Define to 1 if you have Kiss FFT.]
-     )],
+     AC_DEFINE([HAVE_KISS_FFT], [1], [Define if you have Kiss FFT.])],
     [AC_MSG_ERROR([Can't find directory $with_kiss_fft])]
   )],
   [AC_MSG_RESULT([no])]
 )
+AM_CONDITIONAL([WITH_KISS_FFT], [test "$with_kiss_fft" != no])
+AC_SUBST([KISS_FFT_DIR], [$with_kiss_fft])
 
 
 # fftw3f
-PKG_CHECK_MODULES(
-    FFTW3F, fftw3f >= 3.1.2, ac_cv_fftw3f=1, ac_cv_fftw3f=0
-)
+PKG_CHECK_MODULES(FFTW3F, fftw3f >= 3.1.2, ac_cv_fftw3f=1, ac_cv_fftw3f=0)
 AS_IF(
-  [test "x$with_kiss_fft" != xno],
+  [test "$with_kiss_fft" != no],
   [ac_cv_fftw3f=0
    AC_MSG_RESULT([FFTW3 overridden by Kiss FFT])],
-  [AC_DEFINE_UNQUOTED(
-     [HAVE_FFTW3F], ${ac_cv_fftw3f},
-     [Define to 1 if you have libfftw3f.]
-   )
-   AC_SUBST(FFTW3F_CFLAGS)
-   AC_SUBST(FFTW3F_LIBS)]
+  [AS_IF(
+    [test "$ac_cv_fftw3f" = 1],
+    [AC_DEFINE([HAVE_FFTW3F], [1], [Define if you have libfftw3f.])]
+   )]
 )
-AM_CONDITIONAL([WITH_FFTW3F], [test $ac_cv_fftw3f == 1])
+AM_CONDITIONAL([WITH_FFTW3F], [test "$ac_cv_fftw3f" = 1])
+AC_SUBST(FFTW3F_CFLAGS)
+AC_SUBST(FFTW3F_LIBS)
 
 
 # ALSA
 # 1.0.6 is the version on CentOS at Sheffield; our Debian's is higher
-PKG_CHECK_MODULES(
-    ALSA, alsa >= 1.0.6, ac_cv_alsa=1, ac_cv_alsa=0
+PKG_CHECK_MODULES(ALSA, alsa >= 1.0.6, ac_cv_alsa=1, ac_cv_alsa=0)
+AS_IF(
+  [test "$ac_cv_alsa" = 1],
+  [AC_DEFINE([HAVE_ALSA], [1], [Define if you have ALSA.])]
 )
-AC_DEFINE_UNQUOTED(
-    [HAVE_ALSA], ${ac_cv_alsa},
-    [Define to 1 if you have ALSA.]
-)
-AM_CONDITIONAL([WITH_ALSA], [test $ac_cv_alsa == 1])
+AM_CONDITIONAL([WITH_ALSA], [test "$ac_cv_alsa" = 1])
 AC_SUBST(ALSA_CFLAGS)
 AC_SUBST(ALSA_LIBS)
 
