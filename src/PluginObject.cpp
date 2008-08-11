@@ -6,8 +6,6 @@
  */
 
 #include <cassert>
-#include <cstdio>
-#include <cstdlib>
 #include <climits>
 #include "PluginObject.h"
 
@@ -132,8 +130,7 @@ void Tracter::PluginObject::MinSize(int iMinSize, int iReadAhead)
         // It's an indefinitely resizing cache
         mIndefinite = true;
         assert(mObjectName);
-        if (Tracter::sVerbose > 0)
-            printf("%s cache set to indefinite size\n", mObjectName);
+        Verbose(1, "cache set to indefinite size\n");
     }
     else
     {
@@ -141,7 +138,6 @@ void Tracter::PluginObject::MinSize(int iMinSize, int iReadAhead)
         assert(iMinSize > 0);
         if (iMinSize > mMinSize)
         {
-            //Resize(iMinSize);
             mMinSize = iMinSize;
         }
     }
@@ -182,7 +178,8 @@ void Tracter::PluginObject::Initialise(
     const PluginObject* iDownStream, int iReadBack, int iReadAhead
 )
 {
-    assert((mNOutputs == 0) /* Sink */ || (mNInitialised < mNOutputs) /* Plugin */);
+    assert((mNOutputs == 0) /* Sink */ ||
+           (mNInitialised < mNOutputs) /* Plugin */);
 
     // First time: Set the favoured downstream plugin to the caller
     if (!mDownStream)
@@ -192,9 +189,7 @@ void Tracter::PluginObject::Initialise(
     if ((mNOutputs > 1) && (iReadAhead < 0))
     {
         mIndefinite = true;
-        if (Tracter::sVerbose > 0)
-            printf("PluginObject::Initialise(%s):"
-                   " cache set to indefinite size\n", mObjectName);
+        Verbose(1, "PluginObject::Initialise: cache set to indefinite size\n");
     }
 
     // Accumulate readahead and readback from all outputs
@@ -204,18 +199,15 @@ void Tracter::PluginObject::Initialise(
     mGlobalReadAhead.Update(iReadAhead);
     mGlobalReadBack.Update(iReadBack);
 
-    if (Tracter::sVerbose > 1)
-    {
-        printf("PluginObject::Initialise(%s):"
-               " i [%d:%d] m [%d,%d:%d,%d] tot [%d:%d]\n",
-               mObjectName,
-               iReadBack, iReadAhead,
-               mMinReadBack, mMaxReadBack, mMinReadAhead, mMaxReadAhead,
-               mTotalReadBack, mTotalReadAhead);
-        printf(" grb: [%d,%d]  gra [%d,%d]\n",
-               mGlobalReadBack.min, mGlobalReadBack.max,
-               mGlobalReadAhead.min, mGlobalReadAhead.max);
-    }
+    Verbose(2, "PluginObject::Initialise(%s):"
+            " i [%d:%d] m [%d,%d:%d,%d] tot [%d:%d]\n",
+            mObjectName,
+            iReadBack, iReadAhead,
+            mMinReadBack, mMaxReadBack, mMinReadAhead, mMaxReadAhead,
+            mTotalReadBack, mTotalReadAhead);
+    Verbose(2, " grb: [%d,%d]  gra [%d,%d]\n",
+            mGlobalReadBack.min, mGlobalReadBack.max,
+            mGlobalReadAhead.min, mGlobalReadAhead.max);
 
     // If the accumulation is complete, then recurse the call
     if ((mNOutputs == 0) || (++mNInitialised == mNOutputs))
@@ -233,7 +225,6 @@ void Tracter::PluginObject::Initialise(
             if (newSize > mSize)
             {
                 Resize(newSize);
-                mSize = newSize;
             }
         }
 
@@ -277,7 +268,6 @@ void Tracter::PluginObject::Reset(
     bool iPropagate ///< If true, recursively resets all input plugins
 )
 {
-    //printf("Reset with ArraySize = %d\n", mArraySize);
     mHead.index = 0;
     mHead.offset = 0;
     mTail.index = 0;
@@ -338,16 +328,6 @@ void Tracter::PluginObject::Delete()
 }
 
 /**
- * Dump basic data.  Only useful for debugging.
- */
-void Tracter::PluginObject::Dump()
-{
-    printf("Tail index(%lu) offset(%u)  Head index(%lu) offset(%u)\n",
-           mTail.index, mTail.offset, mHead.index, mHead.offset);
-}
-
-
-/**
  * Update a cachepointer.
  * Handles wraparound too.
  */
@@ -373,9 +353,7 @@ int Tracter::PluginObject::Read(
     CacheArea& oRange, IndexType iIndex, int iLength
 )
 {
-    if (Tracter::sVerbose > 2)
-        printf("Read on %s: index %ld  length %d\n",
-               mObjectName, iIndex, iLength);
+    Verbose(3, "Read: index %ld  length %d\n", iIndex, iLength);
     assert(iLength >= 0);
     assert(iIndex >= 0);
     assert(mIndefinite || (iLength <= mSize));  // Request > cache size
@@ -399,7 +377,6 @@ int Tracter::PluginObject::Read(
             if (mSize < iIndex + iLength)
             {
                 Resize(iIndex + iLength);
-                mSize = iIndex + iLength;
             }
             CacheArea area;
             area.Set(fetch, mHead.offset, mSize);
@@ -487,12 +464,9 @@ int Tracter::PluginObject::Read(
     }
 
     // Otherwise (case 4) the request was for lost data
-    printf("PluginObject(%s): Backwards cache access, data lost\n",
-           mObjectName);
-    printf("Head = %ld  Tail = %ld  Request index = %ld\n",
-           mHead.index, mTail.index, iIndex);
-    assert(0);
-    oRange.Set(0, 0, mSize);
+    throw Exception("%s: PluginObject: Backwards cache access, data lost\n"
+                    "Head = %ld  Tail = %ld  Request index = %ld\n",
+                    mObjectName, mHead.index, mTail.index, iIndex);
 
     return 0;
 }
@@ -538,7 +512,7 @@ int Tracter::PluginObject::Fetch(IndexType iIndex, CacheArea& iOutputArea)
  */
 bool Tracter::PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
 {
-    printf("PluginObject: UnaryFetch called.  This should not happen.\n");
-    exit(EXIT_FAILURE);
+    throw Exception("%s: PluginObject: UnaryFetch called."
+                    "  This should not happen.", mObjectName);
     return false;
 }

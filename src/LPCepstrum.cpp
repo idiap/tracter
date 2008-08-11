@@ -5,7 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <math.h>
+#include <cmath>
+
 #include "LPCepstrum.h"
 
 Tracter::LPCepstrum::LPCepstrum(Plugin<float>* iInput, const char* iObjectName)
@@ -25,11 +26,8 @@ Tracter::LPCepstrum::LPCepstrum(Plugin<float>* iInput, const char* iObjectName)
 
     // We get as many autocorrelation coeffs as input dimensions
     if (mOrder >= mNCompressed)
-    {
-        printf("%s: Order (%d) must be less than input dimension (%d)\n",
-               mObjectName, mOrder, mNCompressed);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("%s: Order(%d) must be less than input dimension(%d)",
+                        mObjectName, mOrder, mNCompressed);
 
     mCompressed = 0;
     mAutoCorrelation = 0;

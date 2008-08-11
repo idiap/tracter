@@ -37,8 +37,8 @@ Tracter::Cepstrum::Cepstrum(
 
 Tracter::Cepstrum::~Cepstrum() throw()
 {
-    if ((Tracter::sVerbose > 0) && (mFloored > 0))
-        printf("Cepstrum: floored %d values < %e\n", mFloored, mFloor);
+    if (mFloored > 0)
+        Verbose(1, "floored %d values < %e\n", mFloored, mFloor);
 }
 
 bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)

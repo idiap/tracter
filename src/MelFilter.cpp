@@ -6,7 +6,6 @@
  */
 
 #include <cmath>
-#include <cstdlib>
 
 #include "MelFilter.h"
 
@@ -240,17 +239,13 @@ float Tracter::MelFilter::warpHertz(
         warp = scale*iHertz;
 
     if (warp < mLoHertz)
-    {
         // ...which is very unlikely
-        printf("MelFilter: warp (%f) < mLoHertz (%f)\n", warp, mLoHertz);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("MelFilter: warp (%f) < mLoHertz (%f)\n",
+                        warp, mLoHertz);
     if (warp > mHiHertz * 1.00001) // to allow for accumulated errors
-    {
         // Over-zealous alpha?
-        printf("MelFilter: warp (%f) > mHiHertz (%f)\n", warp, mHiHertz);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("MelFilter: warp (%f) > mHiHertz (%f)\n",
+                        warp, mHiHertz);
 
     return warp;
 }

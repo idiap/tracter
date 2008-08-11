@@ -10,10 +10,13 @@
 #include "ASRFactory.h"
 
 #include "FileSource.h"
-#include "ALSASource.h"
 #include "SocketSource.h"
-#include "Normalise.h"
 
+#ifdef HAVE_ALSA
+# include "ALSASource.h"
+#endif
+
+#include "Normalise.h"
 #include "Mean.h"
 #include "Subtract.h"
 #include "Concatenate.h"
@@ -43,8 +46,10 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
     // List all sources
     mSource["File"] = &Tracter::ASRFactory::fileSource;
-    mSource["ALSA"] = &Tracter::ASRFactory::alsaSource;
     mSource["Socket"] = &Tracter::ASRFactory::socketSource;
+#ifdef HAVE_ALSA
+    mSource["ALSA"] = &Tracter::ASRFactory::alsaSource;
+#endif
 
     // List all available front-ends
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
@@ -91,6 +96,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
     return n;
 }
 
+#ifdef HAVE_ALSA
 Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
 {
     ALSASource* s = new ALSASource();
@@ -98,6 +104,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
     iSource = s;
     return n;
 }
+#endif
 
 Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
 {

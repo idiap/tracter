@@ -57,10 +57,7 @@ void Tracter::HTKSink::WriteHeader(FILE* iFile)
     fail |= (fwrite(&sampSize,   2, 1, iFile) != 1);
     fail |= (fwrite(&parmKind,   2, 1, iFile) != 1);
     if (fail)
-    {
-        printf("HTKSink: Failed to write HTK header\n");
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("HTKSink: Failed to write HTK header");
 }
 
 /**
@@ -73,10 +70,7 @@ void Tracter::HTKSink::Open(const char* iFile)
 
     mFile = fopen(iFile, "w");
     if (!mFile)
-    {
-        printf("HTKSink: Failed to open file %s\n", iFile);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("HTKSink: Failed to open file %s", iFile);
 
     WriteHeader(mFile);
 
@@ -94,19 +88,13 @@ void Tracter::HTKSink::Open(const char* iFile)
             mByteOrder.Swap(f, sizeof(float), mArraySize);
         }
         if (fwrite(f, sizeof(float), mArraySize, mFile) != (size_t)mArraySize)
-        {
-            printf("HTKSink: Failed to write to file %s\n", iFile);
-            exit(EXIT_FAILURE);
-        }
+            throw Exception("HTKSink: Failed to write to file %s", iFile);
     }
     mNSamples = index - 1;
     rewind(mFile);
     WriteHeader(mFile);
 
     if (fclose(mFile) != 0)
-    {
-        printf("HTKSink: Could not close file %s\n", iFile);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("HTKSink: Could not close file %s", iFile);
     mFile = 0;
 }

@@ -5,7 +5,6 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <cstdlib>
 #include <cstdio>
 #include <cassert>
 
@@ -43,24 +42,15 @@ void* Tracter::MMap::Map(const char* iFileName)
 
     // Close the previous map if there was one
     if (mMap)
-       if (munmap(mMap, mSize) != 0)
-        {
-            printf("Failed to unmap file\n");
-            exit(EXIT_FAILURE);
-        }
+        if (munmap(mMap, mSize) != 0)
+            throw Exception("MMap: Failed to unmap file");
     if (mFD)
         if (close(mFD) != 0)
-        {
-            printf("Failed to close file\n");
-            exit(EXIT_FAILURE);
-        }
+            throw Exception("MMap: Failed to close file");
 
     mFD = open(iFileName, O_RDONLY);
     if (mFD == -1)
-    {
-        printf("MMap: Failed to open file %s\n", iFileName);
-        exit(1);
-    }
+        throw Exception("MMap: Failed to open file %s", iFileName);
 
     // Get the map size via the file size
     struct stat buf;
@@ -70,12 +60,9 @@ void* Tracter::MMap::Map(const char* iFileName)
     // Do the actual map.  Hint that the OS can use the same place as before.
     mMap = mmap(mMap, buf.st_size, PROT_READ, MAP_SHARED, mFD, 0);
     if (mMap == MAP_FAILED)
-    {
-        printf("MMap: Failed to map file %s\n", iFileName);
-        exit(1);
-    }
+        throw Exception("MMap: Failed to map file %s", iFileName);
 
-    if (Tracter::sVerbose > 1)
+    if (sVerbose > 1)
         printf("MMap: %s size %d\n", iFileName, (int)mSize);
 
     return mMap;

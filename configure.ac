@@ -106,6 +106,7 @@ AC_DEFINE_UNQUOTED(
     [HAVE_ALSA], ${ac_cv_alsa},
     [Define to 1 if you have ALSA.]
 )
+AM_CONDITIONAL([WITH_ALSA], [test $ac_cv_alsa == 1])
 AC_SUBST(ALSA_CFLAGS)
 AC_SUBST(ALSA_LIBS)
 

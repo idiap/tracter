@@ -6,12 +6,12 @@
  */
 
 #include <cassert>
-#include <cstdlib>
 
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "TracterObject.h"
 #include "FilePath.h"
 
 /**
@@ -82,10 +82,10 @@ void Tracter::FilePath::MakePath()
             mTmp[i] = '\0';
             if (mkdir(&mTmp[0], 0777) && (errno != EEXIST))
             {
-                printf("FilePath: MakePath failed for \"%s\"\n", &mTmp[0]);
                 perror("mkdir");
                 Dump();
-                exit(EXIT_FAILURE);
+                throw Exception("FilePath: MakePath failed for \"%s\"",
+                                &mTmp[0]);
             }
             mTmp[i] = '/';
         }

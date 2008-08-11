@@ -38,10 +38,7 @@ void Tracter::FileSink::Open(const char* iFile)
 
     mFile = fopen(iFile, "w");
     if (!mFile)
-    {
-        printf("FileSink: Failed to open file %s\n", iFile);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("FileSink: Failed to open file %s", iFile);
 
     /* Processing loop */
     int index = 0;
@@ -57,18 +54,12 @@ void Tracter::FileSink::Open(const char* iFile)
             mByteOrder.Swap(f, sizeof(float), mArraySize);
         }
         if (fwrite(f, sizeof(float), mArraySize, mFile) != (size_t)mArraySize)
-        {
-            printf("FileSink: Failed to write to file %s\n", iFile);
-            exit(EXIT_FAILURE);
-        }
+            throw Exception("FileSink: Failed to write to file %s", iFile);
         if ((mMaxSize > 0) && (index >= mMaxSize))
             break;
     }
 
     if (fclose(mFile) != 0)
-    {
-        printf("FileSink: Could not close file %s\n", iFile);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("FileSink: Could not close file %s", iFile);
     mFile = 0;
 }

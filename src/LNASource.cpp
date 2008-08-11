@@ -6,7 +6,7 @@
  */
 
 #include <cmath>
-#include <cstdlib>
+#include <cassert>
 
 #include "LNASource.h"
 
@@ -39,7 +39,7 @@ void Tracter::LNASource::Open(const char* iFileName)
     mMapSize = mMap.GetSize() / (mArraySize+1);
     if (mLNA16)
         mMapSize /= 2;
-    printf("LNA Size %d\n", mMapSize);
+    Verbose(1, "LNA Size %d\n", mMapSize);
 }
 
 /**
@@ -80,18 +80,13 @@ bool Tracter::LNASource::UnaryFetch(IndexType iIndex, int iOffset)
 
     /* Check the sum is close to unity */
     if ((sum < 0.97) || (sum > 1.03))
-    {
-        printf("LNASource: Checksum error at index %ld\n", iIndex);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("LNASource: Checksum error at index %ld", iIndex);
 
     /* Check the eos value is sensible */
     if ( ((iIndex <  mMapSize-1) && (eos != 0x00)) ||
          ((iIndex == mMapSize-1) && (eos != 0x80)) )
-    {
-        printf("LNASource: EOS marker error (%d) at index %ld\n", eos, iIndex);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("LNASource: EOS marker error (%d) at index %ld\n",
+                        eos, iIndex);
 
     return true;
 }

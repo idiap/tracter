@@ -55,8 +55,7 @@ void Tracter::Mean::SetTimeConstant(float iSeconds)
 
     assert(mPole > 0.0f);
     assert(mPole < 1.0f);
-    if (Tracter::sVerbose)
-        printf("Mean: pole is %f\n", mPole);
+    Verbose(1, "Mean: pole is %f\n", mPole);
 }
 
 void Tracter::Mean::Reset(bool iPropagate)

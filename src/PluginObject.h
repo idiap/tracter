@@ -81,14 +81,11 @@ namespace Tracter
         PluginObject(void);
         virtual ~PluginObject(void) throw () {};
 
-        /* Dumps the contents of the class */
-        void Dump();
         int Read(CacheArea& oArea, IndexType iIndex, int iLength = 1);
         virtual void Reset(bool iPropagate = true);
         void Delete();
 
-        /** Returns the array size of the cache.  Can be called by a
-         * downstream plugin to set its own default size. */
+        /** Returns the array size of the cache. */
         int GetArraySize()
         {
             return mArraySize;
@@ -115,8 +112,8 @@ namespace Tracter
         virtual bool UnaryFetch(IndexType iIndex, int iOffset);
         virtual PluginObject* GetInput(int iInput) { return 0; }
 
-        int mSize;          ///< Size of the cache
-        int mArraySize;     ///< Size of each cache element
+        int mSize;          ///< Size of the cache counted in frames
+        int mArraySize;     ///< Size of each cache frame
         int mNInputs;       ///< Number of inputs
         int mNOutputs;      ///< Number of outputs
         bool mIndefinite;   ///< If true, cache grows indefinitely

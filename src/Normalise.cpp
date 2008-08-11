@@ -27,10 +27,7 @@ Tracter::Normalise::Normalise(
         else if (strcmp(env, "NATIVE") == 0)
             endian = ENDIAN_NATIVE;
         else
-        {
-            printf("Normalise: Unknown byte order: %s\n", env);
-            exit(EXIT_FAILURE);
-        }
+            throw Exception("Normalise: Unknown byte order: %s\n", env);
     }
     mByteOrder.SetSource(endian);
 }

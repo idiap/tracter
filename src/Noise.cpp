@@ -73,8 +73,7 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
                 //printf("j: %d\n", j);
                 if (!mInput->Read(ca, j))
                 {
-                    if (Tracter::sVerbose > 0)
-                        printf("Noise: out of data\n");
+                    Verbose(1, "out of data\n");
                     return false;
                 }
 
@@ -90,7 +89,7 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
         mValid = true;
 
         // Print out the noise estimate
-        if (Tracter::sVerbose > 2)
+        if (sVerbose > 2)
             for (int i=0; i<mArraySize; i++)
                 printf("%e\n", output[i]);
     }

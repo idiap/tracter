@@ -19,9 +19,8 @@ static int alsaErr;
     alsaErr = f; \
     if (alsaErr < 0) \
     { \
-        fprintf(stderr, "ALSA error at %s line %d: %s:\n", \
-               __FILE__, __LINE__, snd_strerror(alsaErr)); \
-        exit(1); \
+        throw Exception("ALSA error at %s line %d: %s:\n", \
+                        __FILE__, __LINE__, snd_strerror(alsaErr)); \
     }
 
 Tracter::ALSASource::ALSASource(const char* iObjectName)
@@ -34,8 +33,7 @@ Tracter::ALSASource::ALSASource(const char* iObjectName)
     float seconds = GetEnv("BufferTime", 1.0f);
     int samples = SecondsToSamples(seconds);
     MinSize(this, samples);
-    if (Tracter::sVerbose > 0)
-        printf("ALSASource: buffer set to %d samples\n", samples);
+    Verbose(1, "buffer set to %d samples\n", samples);
 
     /* Tell the PluginObject that we will take care of the pointers */
     mAsync = true;
@@ -62,13 +60,10 @@ void Tracter::ALSASource::asyncCallback()
 {
     assert(mHandle);
     snd_pcm_sframes_t avail = snd_pcm_avail_update(mHandle);
-    if (Tracter::sVerbose > 2)
-        printf("ALSASource::syncCallback: avail = %ld\n", avail);
+    Verbose(3, "asyncCallback: avail = %ld\n", avail);
     if (avail < 0)
-    {
-        printf("Aaagh, avail < 0 %ld\n", avail);
-        exit(1);
-    }
+        throw Exception("Aaagh, avail < 0 %ld", avail);
+
     assert(mSize >= avail);
     assert(!mIndefinite);
 
@@ -123,10 +118,10 @@ void Tracter::ALSASource::Open(const char* iDeviceName)
     ALSACheck( snd_pcm_start(mHandle) );
     assert(snd_pcm_state(mHandle) == SND_PCM_STATE_RUNNING);
 
-    if (Tracter::sVerbose > 1)
+    if (sVerbose > 1)
         snd_pcm_dump(mHandle, mOutput);
 
-    if (Tracter::sVerbose > 0)
+    if (sVerbose > 0)
         statusDump();
 }
 
@@ -159,10 +154,9 @@ snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
     if ((int)periodSize*2 > mSize)
     {
         Resize(periodSize*2);
-        mSize = periodSize*2;
     }
 
-    if (Tracter::sVerbose > 1)
+    if (sVerbose > 1)
         snd_pcm_hw_params_dump(hwparams, mOutput);
 
     /* Write the parameters to the card and free the space */
@@ -177,9 +171,8 @@ snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
 
 int Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
-    if (Tracter::sVerbose > 2)
-        printf("ALSASource::Fetch: requested: %d %d\n",
-               iOutputArea.len[0], iOutputArea.len[1]);
+    Verbose(3, "Fetch: requested: %d %d\n",
+            iOutputArea.len[0], iOutputArea.len[1]);
 
     /* The fetch is actually completely asynchronous, so just sleep
      * until the head pointer passes where we need to be */

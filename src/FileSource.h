@@ -8,8 +8,8 @@
 #ifndef FILESOURCE_H
 #define FILESOURCE_H
 
-#include <stdlib.h>
-#include <assert.h>
+#include <cassert>
+
 #include "Plugin.h"
 #include "Source.h"
 #include "MMap.h"
@@ -60,6 +60,7 @@ namespace Tracter
         MMap mMap;
         T* mCache;
 
+        /** It makes no sense to Resize a file source */
         void Resize(int iSize)
         {
             return;

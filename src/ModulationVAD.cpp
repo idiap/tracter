@@ -45,11 +45,10 @@ Tracter::ModulationVAD::ModulationVAD(
     MinSize(mInput, mNBins, mLookAhead + max);
     mIndex = -1;
 
-    if (Tracter::sVerbose > 1)
-        printf("%s: NBins=%d LookAhead=%d"
-               " ConfirmSpeech=%d ConfirmSilence=%d\n",
-               mObjectName, mNBins, mLookAhead,
-               mConfirmSpeechTime, mConfirmSilenceTime);
+    Verbose(2, "NBins=%d LookAhead=%d"
+            " ConfirmSpeech=%d ConfirmSilence=%d\n",
+            mNBins, mLookAhead,
+            mConfirmSpeechTime, mConfirmSilenceTime);
 }
 
 bool Tracter::ModulationVAD::UnaryFetch(IndexType iIndex, int iOffset)

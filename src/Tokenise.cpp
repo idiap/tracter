@@ -108,10 +108,7 @@ bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, int iOffset)
 
     // In the middle of something
     if (quote)
-    {
-        printf("Unexpected EOF at line %d\n", mLine);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("Unexpected EOF at line %d\n", mLine);
 
     // Deals with lack of a final newline
     if (inToken)

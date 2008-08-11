@@ -58,8 +58,7 @@ void Tracter::Variance::SetTimeConstant(float iSeconds)
 
     assert(mPole > 0.0f);
     assert(mPole < 1.0f);
-    if (Tracter::sVerbose)
-        printf("Variance: pole is %f\n", mPole);
+    Verbose(1, "Variance: pole is %f\n", mPole);
 }
 
 void Tracter::Variance::Reset(bool iPropagate)

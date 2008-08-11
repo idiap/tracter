@@ -71,11 +71,8 @@ void Tracter::Pixmap::write()
 
     // Body
     if (mLog && (mMin < 0.0f))
-    {
-        printf("%s: Minimum value is < 0, can't use log scaling\n",
-               mObjectName);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("%s: Minimum value is < 0, can't use log scaling\n",
+                        mObjectName);
 
     float min;
     float scale;

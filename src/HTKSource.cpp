@@ -79,27 +79,20 @@ void Tracter::HTKSource::Open(const char* iFileName)
     float subPeriod = htkPeriod - objPeriod;
     if ( (subPeriod >  1e-9) ||
          (subPeriod < -1e-9) )
-    {
-        printf("HTKSource: sample period %f not equal to expected period %f\n",
-               objPeriod, htkPeriod);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("HTKSource:"
+                        " sample period %f not equal to expected period %f",
+                        objPeriod, htkPeriod);
 
     if (sampSize/4 != mArraySize)
-    {
-        printf("HTKSource: sample size %d/4 not equal to expected size %d\n",
-               sampSize, mArraySize);
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("HTKSource:"
+                        " sample size %d/4 not equal to expected size %d\n",
+                        sampSize, mArraySize);
 
     if ((size_t)nSamples * sampSize + 12 != mMap.GetSize())
-    {
-        printf("HTKSource: data size in header not equal to size in file\n");
-        exit(EXIT_FAILURE);
-    }
+        throw Exception("HTKSource:"
+                        " data size in header not equal to size in file\n");
 
-    if (Tracter::sVerbose > 0)
-        printf("nSamples: %d  parm: %ho\n", nSamples, parmKind);
+    Verbose(1, "nSamples: %d  parm: %ho\n", nSamples, parmKind);
     mNSamples = nSamples;
     mMapData = (float*)data;
 }

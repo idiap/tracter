@@ -273,9 +273,8 @@ Ptr Tracter::HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
     mSamplePeriod=bInfo->frRate;
     MinSize(mInput, bInfo->frSize);
 
-    if (Tracter::sVerbose > 0)
-        printf("%s: vec size %d, frame size %d, frame rate %d\n",
-               mObjectName, bInfo->tgtVecSize, bInfo->frSize, bInfo->frRate);
+    Verbose(1, "vec size %d, frame size %d, frame rate %d\n",
+            bInfo->tgtVecSize, bInfo->frSize, bInfo->frRate);
 
     /*
      * Get the feature vector dimensionality and allocate memory for

@@ -104,8 +104,8 @@ int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             nGot += n;
             if (n == -1)
             {
-                perror("mObjectName");
-                exit(EXIT_FAILURE);
+                perror(mObjectName);
+                throw Exception("recv failed");
             }
 #if 0
             if (n == 0)
@@ -115,8 +115,7 @@ int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             }
 #endif
         }
-        if (Tracter::sVerbose > 1)
-            printf("Got %d bytes\n", (int)nGot);
+        Verbose(2, "Got %d bytes\n", (int)nGot);
         if (nGot < nGet)
             break;
 

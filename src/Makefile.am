@@ -10,8 +10,7 @@ bin_PROGRAMS = \
 
 noinst_PROGRAMS = \
 	socketserver socketclient \
-	creature testfile fft parser \
-	alsafile
+	creature testfile fft parser
 
 lib_LTLIBRARIES = libtracter.la
 
@@ -46,7 +45,6 @@ TRACTER_SOURCES = \
 	HTKSource.cpp \
 	HTKSink.cpp \
 	Delta.cpp \
-	ALSASource.cpp \
 	Concatenate.cpp \
 	Periodogram.cpp \
 	ZeroFilter.cpp \
@@ -75,6 +73,11 @@ libtracter_la_SOURCES = $(TRACTER_SOURCES)
 nodist_libtracter_la_SOURCES=
 libtracter_la_CPPFLAGS=
 libtracter_la_CFLAGS= 
+
+if WITH_ALSA
+TRACTER_SOURCES += ALSASource.cpp
+noinst_PROGRAMS += alsafile
+endif
 
 if WITH_HTK
 TRACTER_SOURCES += HCopyWrapper.cpp

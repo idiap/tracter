@@ -13,7 +13,6 @@
 #include "HTKSource.h"
 #include "Delta.h"
 #include "Concatenate.h"
-#include "ALSASource.h"
 #include "Periodogram.h"
 #include "ZeroFilter.h"
 #include "MelFilter.h"
@@ -28,6 +27,10 @@
 #include "FilePath.h"
 
 #include "config.h"
+
+#ifdef HAVE_ALSA
+# include "ALSASource.h"
+#endif
 
 using namespace Tracter;
 

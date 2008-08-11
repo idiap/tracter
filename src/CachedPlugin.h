@@ -9,7 +9,6 @@
 #define CACHEDPLUGIN_H
 
 #include <cassert>
-#include <cstdio>
 #include <vector>
 
 #include "Plugin.h"
@@ -53,9 +52,9 @@ namespace Tracter
             mCache.resize(Plugin<T>::mArraySize
                           ? iSize * Plugin<T>::mArraySize
                           : iSize);
-            if (Tracter::sVerbose > 1)
-                printf("CachedPlugin::Resize(%s) %d to %d\n",
-                       Plugin<T>::mObjectName, Plugin<T>::mSize, iSize);
+            Plugin<T>::mSize = iSize;
+            Verbose(2, "CachedPlugin::Resize: %d to %d\n",
+                    Plugin<T>::mSize, iSize);
         }
 
     private:

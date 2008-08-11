@@ -8,7 +8,7 @@
 #ifndef SINK_H
 #define SINK_H
 
-#include <assert.h>
+#include <cassert>
 
 #include "PluginObject.h"
 

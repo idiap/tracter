@@ -18,11 +18,11 @@ Tracter::Object::Object()
 
     mObjectName = "Tracter";
 
-    Tracter::sShowConfig = GetEnv("shConfig", 0);
+    sShowConfig = GetEnv("shConfig", 0);
     if (Tracter::sShowConfig)
         GetEnv("shConfig", 0); // Do it again to get the output :-)
-    Tracter::sVerbose = GetEnv("Verbose", 0);
-    Tracter::sInitialised = true;
+    sVerbose = GetEnv("Verbose", 0);
+    sInitialised = true;
 }
 
 
