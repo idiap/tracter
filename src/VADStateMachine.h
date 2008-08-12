@@ -11,7 +11,8 @@
 namespace Tracter
 {
     /**
-     * Defines a four-state FSM implementing a Schmitt trigger for VAD.
+     * Defines a four-state FSM implementing a kind of Schmitt trigger
+     * for VAD.
      */
     enum VADState
     {
@@ -31,6 +32,7 @@ namespace Tracter
     public:
         VADStateMachine();
         void Update(bool iSpeech);
+        void Reset();
 
     protected:
         VADState mState;

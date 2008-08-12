@@ -58,6 +58,11 @@ void Tracter::VADGate::Reset(bool iPropagate)
 {
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
+    mSilenceConfirmed = -1;
+    if (!mOnline)
+    {
+        mIndexZero = 0;
+    }
     CachedPlugin<float>::Reset(!mOnline);  // Propagate if not online
 }
 
@@ -105,6 +110,7 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
 
 bool Tracter::VADGate::gate(IndexType& iIndex)
 {
+    assert(iIndex >= 0);
     if ((mSpeechTriggered < 0) && !confirmSpeech(iIndex))
     {
         // Failed to find any speech
@@ -127,6 +133,7 @@ bool Tracter::VADGate::gate(IndexType& iIndex)
 
 bool Tracter::VADGate::readVADState(IndexType iIndex)
 {
+    assert(iIndex >= 0);
     CacheArea vadArea;
     if (mVADInput->Read(vadArea, iIndex) == 0)
         return false;
@@ -138,6 +145,9 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
 bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 {
     Verbose(1, "confirmSpeech entered\n");
+    assert(iIndex >= 0);
+//    assert((mState == SILENCE_CONFIRMED) || // Likely
+//           (mState == SPEECH_TRIGGERED));   // Not sure if this can happen
     IndexType index = iIndex - 1;
     do
     {
@@ -145,6 +155,8 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
         {
             if (!readVADState(++index))
                 return false;
+            assert((mState == SILENCE_CONFIRMED) ||
+                   (mState == SPEECH_TRIGGERED));
         }
         while (mState == SILENCE_CONFIRMED);
         assert(mState == SPEECH_TRIGGERED);
@@ -167,6 +179,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 
 bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
 {
+    assert(iIndex >= 0);
     assert(mState == SILENCE_TRIGGERED);
     do
     {

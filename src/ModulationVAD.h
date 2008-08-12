@@ -29,6 +29,7 @@ namespace Tracter
 
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
+        virtual void Reset(bool iPropagate);
 
     private:
         IndexType mIndex;

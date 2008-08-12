@@ -51,8 +51,17 @@ Tracter::ModulationVAD::ModulationVAD(
             mConfirmSpeechTime, mConfirmSilenceTime);
 }
 
+void Tracter::ModulationVAD::Reset(bool iPropagate)
+{
+    Verbose(2, "Reset\n");
+    mIndex = -1;
+    VADStateMachine::Reset();
+    UnaryPlugin<VADState, float>::Reset(iPropagate);
+}
+
 bool Tracter::ModulationVAD::UnaryFetch(IndexType iIndex, int iOffset)
 {
+    Verbose(3, "iIndex %ld\n", iIndex);
     assert(iIndex == mIndex+1);
     mIndex = iIndex;
     CacheArea inputArea;
@@ -89,11 +98,11 @@ bool Tracter::ModulationVAD::UnaryFetch(IndexType iIndex, int iOffset)
             mNoise += log10f(p[i]);
         }
         mNoise /= mLookAhead + 1;
-        if (mShowGuts)
-            printf("%ld %e %e %e %e\n",
-                   iIndex, log10f(energy), log10f(filter),
-                   mNoise, mNoise*mThreshold);
-        return true;
+        //if (mShowGuts)
+        //    printf("%ld %e %e %e %e\n",
+        //           iIndex, log10f(energy), log10f(filter),
+        //           mNoise, mNoise*mThreshold);
+        //return true;
     }
 
     /* Read the old value - the one just behind the DFT window */
