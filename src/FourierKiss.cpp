@@ -84,10 +84,8 @@ void Tracter::Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
 
     m.Type = COMPLEX_TO_COMPLEX;
 
-    kiss_fft_cpx* idata =
-        Allocate<kiss_fft_cpx, complex>(iOrder, ioIData, &m.IData, &m.MyIData);
-    kiss_fft_cpx* odata =
-        Allocate<kiss_fft_cpx, complex>(iOrder, ioOData, &m.OData, &m.MyOData);
+    Allocate<kiss_fft_cpx, complex>(iOrder, ioIData, &m.IData, &m.MyIData);
+    Allocate<kiss_fft_cpx, complex>(iOrder, ioOData, &m.OData, &m.MyOData);
     m.TmpData = 0;
     m.Config = kiss_fft_alloc(iOrder, 0, 0, 0);
 }
@@ -111,11 +109,8 @@ void Tracter::Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
 
     m.Type = REAL_TO_COMPLEX;
 
-    float* idata =
-        Allocate<float, float>(iOrder, ioIData, &m.IData, &m.MyIData);
-    kiss_fft_cpx* odata =
-        Allocate<kiss_fft_cpx, complex>(iOrder/2+1, ioOData, &m.OData,
-                                        &m.MyOData);
+    Allocate<float, float>(iOrder, ioIData, &m.IData, &m.MyIData);
+    Allocate<kiss_fft_cpx, complex>(iOrder/2+1, ioOData, &m.OData, &m.MyOData);
     m.TmpData = 0;
     m.Config = kiss_fftr_alloc(iOrder, 0, 0, 0);
 }
@@ -139,10 +134,8 @@ void Tracter::Fourier::Init(int iOrder, float** ioIData, float** ioOData)
     m.Type = DCT2;
     m.Order = iOrder;
 
-    float* idata =
-        Allocate<float, float>(iOrder*2, ioIData, &m.IData, &m.MyIData);
-    float* odata =
-        Allocate<float, float>(iOrder, ioOData, &m.OData, &m.MyOData);
+    Allocate<float, float>(iOrder*2, ioIData, &m.IData, &m.MyIData);
+    Allocate<float, float>(iOrder, ioOData, &m.OData, &m.MyOData);
     m.TmpData =
         (kiss_fft_cpx*)KISS_FFT_MALLOC((iOrder+1)*sizeof(kiss_fft_cpx));
     assert(m.TmpData);
