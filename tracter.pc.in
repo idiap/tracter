@@ -7,5 +7,5 @@ includedir=@includedir@
 Name: Tracter
 Description: A data-flow framework
 Version: @VERSION@
-Libs: -L${libdir} -ltracter @FFTW3F_LIBS@ @ALSA_LIBS@
+Libs: -L${libdir} -ltracter @ALSA_LIBS@
 Cflags: -I${includedir}/@PACKAGE@

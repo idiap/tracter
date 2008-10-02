@@ -92,16 +92,9 @@ nodist_libtracter_la_SOURCES += \
 	@KISS_FFT_DIR@/tools/kiss_fftr.c \
 	@KISS_FFT_DIR@/kiss_fft.c
 libtracter_la_CPPFLAGS += -I@KISS_FFT_DIR@ -I@KISS_FFT_DIR@/tools
-FFT_LIBS =
 endif
 
-if WITH_FFTW3F
-libtracter_la_SOURCES += FourierFFTW.cpp
-libtracter_la_CFLAGS += @FFTW3F_CFLAGS@
-FFT_LIBS = @FFTW3F_LIBS@
-endif
-
-libtracter_la_LIBADD = $(FFT_LIBS) @ALSA_LIBS@ @HTK_LIBS@ -lpthread
+libtracter_la_LIBADD = @ALSA_LIBS@ @HTK_LIBS@ -lpthread
 
 parser_SOURCES = parser.cpp
 parser_LDADD = libtracter.la

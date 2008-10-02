@@ -27,7 +27,7 @@ AC_ARG_WITH(htk-includes,
     [Directory containing HTK headers]
   )],
   [],
-  [with_htk_includes=no]
+  [with_htk_includes=""]
 )
 AC_ARG_WITH(htk-libs,
   [AS_HELP_STRING(
@@ -35,18 +35,18 @@ AC_ARG_WITH(htk-libs,
     [List of HTK libraries]
   )],
   [],
-  [with_htk_libs=no]
+  [with_htk_libs=""]
 )
 AC_MSG_CHECKING([whether to use HTK])
 AS_IF(
-  [test "x$with_htk_includes" != xno],
+  [test "$with_htk_includes" != ""],
   [AC_DEFINE([HAVE_HTKLIB], [1], [Define if you have HTK.])
    AC_MSG_RESULT(yes)],
   [AC_MSG_RESULT(no)]
 )
 AC_SUBST([HTK_INCLUDES], [$with_htk_includes])
 AC_SUBST([HTK_LIBS], [$with_htk_libs])
-AM_CONDITIONAL([WITH_HTK], [test "$with_htk_includes" != no])
+AM_CONDITIONAL([WITH_HTK], [test "$with_htk_includes" != ""])
 
 # Kiss FFT
 # Doesn't come as a proper package so we need a directory name
@@ -71,22 +71,6 @@ AS_IF(
 )
 AM_CONDITIONAL([WITH_KISS_FFT], [test "$with_kiss_fft" != no])
 AC_SUBST([KISS_FFT_DIR], [$with_kiss_fft])
-
-
-# fftw3f
-PKG_CHECK_MODULES(FFTW3F, fftw3f >= 3.1.2, ac_cv_fftw3f=1, ac_cv_fftw3f=0)
-AS_IF(
-  [test "$with_kiss_fft" != no],
-  [ac_cv_fftw3f=0
-   AC_MSG_RESULT([FFTW3 overridden by Kiss FFT])],
-  [AS_IF(
-    [test "$ac_cv_fftw3f" = 1],
-    [AC_DEFINE([HAVE_FFTW3F], [1], [Define if you have libfftw3f.])]
-   )]
-)
-AM_CONDITIONAL([WITH_FFTW3F], [test "$ac_cv_fftw3f" = 1])
-AC_SUBST(FFTW3F_CFLAGS)
-AC_SUBST(FFTW3F_LIBS)
 
 
 # ALSA
