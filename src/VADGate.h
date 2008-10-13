@@ -34,12 +34,15 @@ namespace Tracter
 
         bool mEnabled;
         bool mOnline;
+        bool mPushToTalk;
+        bool mForceDecode;
 
         VADState mState;
         IndexType mSpeechTriggered;
         IndexType mSpeechConfirmed;
         IndexType mSilenceConfirmed;
         IndexType mIndexZero;
+	IndexType mSpeechRemoved;
 
         bool gate(IndexType& iIndex);
         bool readVADState(IndexType iIndex);

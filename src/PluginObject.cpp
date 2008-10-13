@@ -9,6 +9,8 @@
 #include <climits>
 #include "PluginObject.h"
 
+bool Tracter::CacheArea::forceDecode = false;
+
 /**
  * Set a CacheArea to represent a particular range at a particular
  * offset.

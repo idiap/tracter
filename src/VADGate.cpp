@@ -36,7 +36,8 @@ Tracter::VADGate::VADGate(
     Connect(iInput);
     Connect(iVADInput);
     MinSize(iInput, 1);
-    MinSize(iVADInput, 1);
+    //MinSize(iVADInput, 1);
+    MinSize(iVADInput, 10000);
 
     mInput = iInput;
     mVADInput = iVADInput;
@@ -44,9 +45,13 @@ Tracter::VADGate::VADGate(
     mSpeechConfirmed = -1;
     mSilenceConfirmed = -1;
     mIndexZero = 0;
+    mSpeechRemoved = 0;
+
+    mForceDecode = false;
 
     mEnabled = GetEnv("Enable", 1);
     mOnline = GetEnv("Online", 0);
+    mPushToTalk = GetEnv("PushToTalk", 0);
 }
 
 /**
@@ -59,11 +64,12 @@ void Tracter::VADGate::Reset(bool iPropagate)
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
     mSilenceConfirmed = -1;
-    if (!mOnline)
+    mSpeechRemoved = 0;
+    if (!mOnline || mPushToTalk)
     {
         mIndexZero = 0;
     }
-    CachedPlugin<float>::Reset(!mOnline);  // Propagate if not online
+    CachedPlugin<float>::Reset(!mOnline || mPushToTalk);  // Propagate if not online
 }
 
 bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
@@ -74,21 +80,24 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     // iIndex is from the downstream point of view.  Reality could be ahead.
     iIndex += mIndexZero;
 
-    // This will update iIndex to mSpeechTriggered 
+    // This will update iIndex to mSpeechTriggered
     if (mEnabled && !gate(iIndex))
     {
         Verbose(1, "gate returned: index %ld silConf %ld\n",
                 iIndex, mSilenceConfirmed);
         if (mOnline && (mSilenceConfirmed <= iIndex))
             throw Exception("iIndex ahead of silence");
-        assert(
-            (mSilenceConfirmed < 0) ||   /* Failed to find silence */
+
+	//printf("%i %i\n", mSilenceConfirmed, iIndex);
+	assert(
+	    (mSilenceConfirmed < 0) ||   /* Failed to find silence */
             (mSilenceConfirmed > iIndex) /* Succeeded */
         );
         mIndexZero = mSilenceConfirmed;
         mSpeechTriggered = -1;
         mSpeechConfirmed = -1;
-        return false;
+
+	return false;
     }
 
     // Copy input to output
@@ -116,15 +125,29 @@ bool Tracter::VADGate::gate(IndexType& iIndex)
         // Failed to find any speech
         return false;
     }
-    iIndex += mSpeechTriggered - mIndexZero;
-
+    iIndex += mSpeechTriggered - mSpeechRemoved - mIndexZero;
+    //printf("iIndex %i, mSpeechTriggered %i mSpeechRemoved %i mIndexZero %i mSpeechConfirmed %i\n",iIndex,mSpeechTriggered,mSpeechRemoved,mIndexZero, mSpeechConfirmed); fflush(stdout);
     if ((iIndex > mSpeechConfirmed))
     {
-        if (!readVADState(iIndex))
-            return false;
+        if (!readVADState(iIndex)){
+	  mSilenceConfirmed = iIndex + 1;
+	  return false;
+        }
+        if (mForceDecode)
+        {
+      	  mSilenceConfirmed = iIndex + 1;
+      	  return false;
+        }
         if ((mState == SILENCE_TRIGGERED) && !reconfirmSpeech(iIndex))
         {
-            return false;
+	  assert(mSilenceConfirmed >=  mSpeechTriggered);
+	  mSpeechRemoved +=  mSilenceConfirmed - mSpeechTriggered;
+	  //printf("%i %i %i\n",iIndex, mSilenceConfirmed,mSpeechTriggered);
+//*??*/	  if (!confirmSpeech(mSilenceConfirmed)){
+              return false;
+//*??*/	  }
+
+	  //mSilenceRemoved += mSpeechTriggered - mSilenceConfirmed;
         }
     }
 
@@ -135,8 +158,21 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
 {
     assert(iIndex >= 0);
     CacheArea vadArea;
-    if (mVADInput->Read(vadArea, iIndex) == 0)
-        return false;
+    int ret_val = mVADInput->Read(vadArea, iIndex);
+    if (vadArea.forceDecode & (iIndex > 0))
+    {
+    	mForceDecode = true;
+        mSilenceConfirmed = iIndex;
+        mState = SILENCE_CONFIRMED;
+        vadArea.forceDecode = false;
+        Verbose(1, "button released at %ld\n", mSilenceConfirmed);
+        return true;
+    }
+    else
+    {
+    	mForceDecode = false;
+    }
+    if (ret_val == 0) return false;
     VADState* state = mVADInput->GetPointer(vadArea.offset);
     mState = *state;
     return true;
@@ -153,8 +189,9 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
     {
         do
         {
-            if (!readVADState(++index))
+	  if (!readVADState(++index) || mForceDecode){
                 return false;
+	  }
             assert((mState == SILENCE_CONFIRMED) ||
                    (mState == SPEECH_TRIGGERED));
         }
@@ -164,7 +201,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 
         do
         {
-            if (!readVADState(++index))
+            if (!readVADState(++index) || mForceDecode)
                 return false;
         }
         while (mState == SPEECH_TRIGGERED);
@@ -183,8 +220,10 @@ bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
     assert(mState == SILENCE_TRIGGERED);
     do
     {
-        if (!readVADState(++iIndex))
-            return false;
+      if (!readVADState(++iIndex)){
+	mSilenceConfirmed = iIndex + 1;
+	return false;
+      }
     }
     while (mState == SILENCE_TRIGGERED);
 

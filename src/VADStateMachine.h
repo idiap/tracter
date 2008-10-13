@@ -33,6 +33,7 @@ namespace Tracter
         VADStateMachine();
         void Update(bool iSpeech);
         void Reset();
+        void ConfirmSilence();
 
     protected:
         VADState mState;

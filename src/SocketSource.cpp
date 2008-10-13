@@ -24,6 +24,7 @@ Tracter::SocketSource::SocketSource(const char* iObjectName)
     mSamplePeriod = GetEnv("SamplePeriod", 80);
 
     mPort = GetEnv("Port", 30000);
+    mPacketMode = GetEnv("PacketMode", 0);
     mFD = 0;
 }
 
@@ -86,6 +87,7 @@ void Tracter::SocketSource::Open(const char* iHostName)
  */
 int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
+	bool hread = true;
     int i;
     int offset = iOutputArea.offset;
     int arraySize = mArraySize == 0 ? 1 : mArraySize;
@@ -95,8 +97,67 @@ int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             offset = 0;
         char* cache = (char*)GetPointer(offset);
 
-        // Read the socket
-        ssize_t nGet = arraySize*sizeof(float);
+        if (mPacketMode && hread)
+        {
+			// Read the header from the socket
+			ssize_t nDHGet = sizeof(mPH);
+			ssize_t nHGet = sizeof(mPH);
+			ssize_t nHGot = 0;
+
+			Verbose(2, "Ready to get %d bytes of the header (%d of %d)\n", (int)nHGet, i, iOutputArea.Length());
+
+			// Get the main part of the header
+			while ((nHGot < nHGet) && (nHGot < nDHGet))
+			{
+				ssize_t n = recv(mFD, ((char *)&mPH)+nHGot, nHGet-nHGot, 0);
+				Verbose(2, "Got first %d bytes of the header\n", (int)nHGot+n);
+
+				// Correct the header size
+				if ((nHGot == 0) && (n > 0))
+					nDHGet = mPH.header_size;
+
+				nHGot += n;
+				if (n == -1)
+				{
+					perror(mObjectName);
+					throw Exception("recv failed");
+				}
+	#if 0
+				if (n == 0)
+				{
+					printf("Read 0\n");
+					break;
+				}
+	#endif
+			}
+
+			// Get the rest of the header
+			while (nHGot < nDHGet)
+			{
+				char dummy;
+				ssize_t n = recv(mFD, &dummy, 1, 0);
+				Verbose(2, "Got first %d bytes of the header (including extra part)\n", (int)nHGot+n);
+				nHGot += n;
+				if (n == -1)
+				{
+					perror(mObjectName);
+					throw Exception("recv failed");
+				}
+	#if 0
+				if (n == 0)
+				{
+					printf("Read 0\n");
+					break;
+				}
+	#endif
+			}
+			Verbose(2, "Got %d bytes of the header (%d, 0x%X, %d, %d, %d)\n", (int)nHGot, (int)mPH.header_size, mPH.flags, (int)mPH.time_stamp[0], (int)mPH.time_stamp[1], (int)mPH.array_size);
+			if (nHGot < nHGet)
+				break;
+        }
+
+        // Read the data from the socket
+        ssize_t nGet = mPacketMode ? (min(max(1, mSize - offset), min(iOutputArea.Length() - i, mPH.array_size)) * sizeof(float)) : (arraySize * sizeof(float));
         ssize_t nGot = 0;
         while (nGot < nGet)
         {
@@ -115,14 +176,25 @@ int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             }
 #endif
         }
+        if (mPacketMode)
+        {
+			mPH.array_size -= nGot / sizeof(float);
+			hread = (mPH.array_size <= 0);
+			iOutputArea.forceDecode = ((mPH.flags & PACKET_HEADER_FLAG_END_OF_UTTERANCE) != 0);
+        }
         Verbose(2, "Got %d bytes\n", (int)nGot);
         if (nGot < nGet)
             break;
 
+        // In case of the end of utterance don't process further
+        if (mPacketMode && ((mPH.flags & PACKET_HEADER_FLAG_END_OF_UTTERANCE) != 0))
+        	break;
+
         //if (mByteOrder.WrongEndian())
         //    mByteOrder.Swap(cache, 4, arraySize);
-        iIndex++;
-        offset++;
+        iIndex += nGot / sizeof(float);
+        offset += nGot / sizeof(float);
+        i += nGot / sizeof(float) - 1;
     }
     return i;
 }

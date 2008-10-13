@@ -28,6 +28,7 @@ namespace Tracter
     public:
         int offset;
         int len[2];
+        static bool forceDecode;
 
         int Length() const
         {

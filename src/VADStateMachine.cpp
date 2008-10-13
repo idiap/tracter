@@ -25,6 +25,11 @@ void Tracter::VADStateMachine::Reset()
     mTime = 0;
 }
 
+void Tracter::VADStateMachine::ConfirmSilence()
+{
+    mState = SILENCE_CONFIRMED;
+}
+
 void Tracter::VADStateMachine::Update(bool iSpeech)
 {
     switch (mState)
