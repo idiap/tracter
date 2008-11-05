@@ -14,16 +14,17 @@ Tracter::ZeroFilter::ZeroFilter(Plugin<float>* iInput, const char* iObjectName)
     mZero = GetEnv("Zero", 0.97f);
 }
 
-void Tracter::ZeroFilter::MinSize(int iSize, int iReadAhead)
+void Tracter::ZeroFilter::MinSize(int iSize, int iReadBack, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize, iReadAhead);
+    PluginObject::MinSize(iSize, iReadBack, iReadAhead);
 
     // We expect the input buffer to be at least the size of each
-    // request, then +1 for the possible read-behind
+    // request, then +1 for the possible read-behind.  However, don't
+    // add on any extra read-ahead or back.
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize+1, 0);
+    PluginObject::MinSize(mInput, iSize+1, 1, 0);
 }
 
 int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)

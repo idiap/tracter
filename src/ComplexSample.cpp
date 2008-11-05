@@ -16,15 +16,15 @@ Tracter::ComplexSample::ComplexSample(
     mSampleFreq /= 4;
 }
 
-void Tracter::ComplexSample::MinSize(int iSize, int iReadAhead)
+void Tracter::ComplexSample::MinSize(int iSize, int iReadBack, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize, iReadAhead);
+    PluginObject::MinSize(iSize, iReadBack, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize * 4 - 2, 0);
+    PluginObject::MinSize(mInput, iSize * 4 - 2, 0, 0);
 }
 
 int Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)

@@ -21,7 +21,7 @@ namespace Tracter
         ZeroFilter(
             Plugin<float>* iInput, const char* iObjectName = "ZeroFilter"
         );
-        void MinSize(int iSize, int iReadAhead);
+        void MinSize(int iSize, int iReadBack, int iReadAhead);
 
     protected:
         int Fetch(IndexType iIndex, CacheArea& iOutputArea);

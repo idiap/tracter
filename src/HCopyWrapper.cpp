@@ -88,16 +88,16 @@ Tracter::HCopyWrapper::HCopyWrapper(
     /*
      * Initialise HTK (Straight cut and paste from HCopy)
      */
-    char *hcopy_version = "!HVER!HCopy:   3.4 [CUED 25/04/06]";
-    char *hcopy_vc_id = "$Id: HCopy.c,v 1.1.1.1 2006/10/11 09:54:59 jal58 Exp $";
-    char *htkargv[4];
-    htkargv[0] = "Tracter::HCopyWrapper";
-    htkargv[1] = "-C";
+    char hcopy_version[] = "!HVER!HCopy:   3.4 [CUED 25/04/06]";
+    char hcopy_vc_id[] = "$Id: HCopy.c,v 1.1.1.1 2006/10/11 09:54:59 jal58 Exp $";
+    char* htkargv[4];
+    htkargv[0] = (char*)"Tracter::HCopyWrapper";
+    htkargv[1] = (char*)"-C";
     htkargv[2] = (char*)GetEnv("ConfigFile", "hcopywrapper.cfg" );
-    htkargv[3] = "-D";
+    htkargv[3] = (char*)"-D";
     int htkargc = 4;
     if(InitShell(htkargc,htkargv,hcopy_version,hcopy_vc_id)<SUCCESS)
-        HError(1000,"HCopyWrapper: InitShell failed");
+        HError(1000, (char*)"HCopyWrapper: InitShell failed");
     InitMem();
     InitLabel();
     InitMath();
@@ -107,35 +107,35 @@ Tracter::HCopyWrapper::HCopyWrapper(
     InitVQ();
     InitModel();
     if(InitParm()<SUCCESS)
-        HError(1000,"HCopyWrapper: InitParm failed");
+        HError(1000,(char*)"HCopyWrapper: InitParm failed");
     /*
      * Get some of the config parameters for use immediately
      */
     ConfParam *cParm[MAXGLOBS];
-    int nParm = GetConfig("HCOPY", TRUE, cParm, MAXGLOBS);
+    int nParm = GetConfig((char*)"HCOPY", TRUE, cParm, MAXGLOBS);
     char buf[MAXSTRLEN];
     /*
      * Determine the source kind
      */
     ParmKind srcPK = 0;
-    if (GetConfStr(cParm,nParm,"SOURCEKIND",buf))
+    if (GetConfStr(cParm,nParm,(char*)"SOURCEKIND",buf))
     {
         srcPK = Str2ParmKind(buf);
     } else {
-        HError(1000,"HCopyWrapper: Couldn't determine SOURCEKIND");
+        HError(1000,(char*)"HCopyWrapper: Couldn't determine SOURCEKIND");
     }
     /*
      * Determine the sample rate of the source
      */
     HTime srcSampRate;          /* time in 100ns units */
-    if (!GetConfFlt(cParm,nParm,"SOURCERATE",&srcSampRate))
+    if (!GetConfFlt(cParm,nParm,(char*)"SOURCERATE",&srcSampRate))
     {
-        HError(1000,"HCopyWrapper: Couldn't determine SOURCERATE");
+        HError(1000,(char*)"HCopyWrapper: Couldn't determine SOURCERATE");
     }
     /*
      * Allocate an HTK heap iStack
      */
-    CreateHeap(&iStack, "InBuf", MSTAK, 1, 0.0, STACKSIZE, LONG_MAX);
+    CreateHeap(&iStack, (char*)"InBuf", MSTAK, 1, 0.0, STACKSIZE, LONG_MAX);
     /*
      * Create an HTK external source type HParmSrcDef and have it
      * point at the audio functions of this class. The first argument
@@ -164,7 +164,7 @@ Tracter::HCopyWrapper::HCopyWrapper(
                          activateVAD);
     if (pbuf == NULL)
     {
-        HError(1050,"HCopyWrapper: OpenExtBuffer returned NULL");
+        HError(1050,(char*)"HCopyWrapper: OpenExtBuffer returned NULL");
     }
 }
 
@@ -195,13 +195,14 @@ bool Tracter::HCopyWrapper::UnaryFetch(IndexType iIndex, int iOffset)
      */
     if ( iIndex != lastFrameCopied + 1 )
     {
-        HError( 1000 , "HCopyWrapper: Request for frames came out of order");
+        HError(1000,
+               (char*)"HCopyWrapper: Request for frames came out of order");
     }
     /*
      * Check on the HTK buffer status.
      */
     if ( BufferStatus( pbuf ) >= PB_STOPPED ) {
-        HError( -1000 , "HCopyWrapper: Buffer status >= PB_STOPPED");
+        HError( -1000 , (char*)"HCopyWrapper: Buffer status >= PB_STOPPED");
         return false;
     }
     /*
@@ -211,7 +212,7 @@ bool Tracter::HCopyWrapper::UnaryFetch(IndexType iIndex, int iOffset)
      */
     if ( ! ReadAsBuffer( pbuf, &data ) )
     {
-        HError( -1000 , "HCopyWrapper: ReadAsBuffer returned FALSE");
+        HError( -1000 , (char*)"HCopyWrapper: ReadAsBuffer returned FALSE");
         return false;
     }
     /*

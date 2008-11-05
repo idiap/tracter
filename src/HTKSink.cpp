@@ -97,4 +97,5 @@ void Tracter::HTKSink::Open(const char* iFile)
     if (fclose(mFile) != 0)
         throw Exception("HTKSink: Could not close file %s", iFile);
     mFile = 0;
+    Verbose(1, "Wrote %d frames\n", mNSamples);
 }

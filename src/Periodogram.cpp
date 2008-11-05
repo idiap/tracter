@@ -28,7 +28,8 @@ Tracter::Periodogram::Periodogram(
     assert(mFrameSize > 0);
     assert(mFramePeriod > 0);
 
-    MinSize(mInput, mFrameSize);
+    // Framers look ahead, not back
+    MinSize(mInput, mFrameSize, mFrameSize-1);
     mRealData = 0;
     mComplexData = 0;
     mFourier.Init(mFrameSize, &mRealData, &mComplexData);

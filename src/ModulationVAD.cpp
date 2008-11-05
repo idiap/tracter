@@ -10,9 +10,10 @@
 Tracter::ModulationVAD::ModulationVAD(
     Plugin<float>* iInput, const char* iObjectName
 )
-    : UnaryPlugin<VADState, float>(iInput)
 {
     mObjectName = iObjectName;
+    mInput = iInput;
+    Connect(iInput);
 
     /* For a 100Hz frame rate and bin 1 = 4Hz, we have nBins = 100/4 =
      * 25 */
@@ -22,6 +23,7 @@ Tracter::ModulationVAD::ModulationVAD(
     mDFT.SetRotation(1, mNBins);
     mLookAhead = mNBins / 2; // Round down
     mLookBack = mNBins - mLookAhead - 1;
+    MinSize(mInput, mNBins, mLookAhead);
 
     mShowGuts = GetEnv("ShowGuts", 0);
 
@@ -41,13 +43,11 @@ Tracter::ModulationVAD::ModulationVAD(
     mConfirmSpeechTime = SecondsToSamples(confirmSpeechTime);
     mConfirmSilenceTime = SecondsToSamples(confirmSilenceTime);
 
-    int max = std::max(mConfirmSpeechTime, mConfirmSilenceTime);
-    MinSize(mInput, mNBins, mLookAhead + max);
     mIndex = -1;
 
-    Verbose(2, "NBins=%d LookAhead=%d"
+    Verbose(2, "NBins=%d (-%d+%d)"
             " ConfirmSpeech=%d ConfirmSilence=%d\n",
-            mNBins, mLookAhead,
+            mNBins, mLookBack, mLookAhead,
             mConfirmSpeechTime, mConfirmSilenceTime);
 }
 
@@ -55,8 +55,7 @@ void Tracter::ModulationVAD::Reset(bool iPropagate)
 {
     Verbose(2, "Reset\n");
     mIndex = -1;
-    VADStateMachine::Reset();
-    UnaryPlugin<VADState, float>::Reset(iPropagate);
+    VADStateMachine::Reset(iPropagate);
 }
 
 bool Tracter::ModulationVAD::UnaryFetch(IndexType iIndex, int iOffset)

@@ -24,7 +24,7 @@ namespace Tracter
     public:
         ComplexSample(Plugin<float>* iInput,
                       const char* iObjectName = "ComplexSample");
-        void MinSize(int iSize, int iReadAhead);
+        void MinSize(int iSize, int iReadBack, int iReadAhead);
 
     protected:
         int Fetch(IndexType iIndex, CacheArea& iOutputArea);

@@ -30,7 +30,7 @@
 
 #include "LPCepstrum.h"
 
-#ifdef HAVE_HTK
+#ifdef HAVE_HTKLIB
 # include "HCopyWrapper.h"
 #endif
 
@@ -55,7 +55,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
     mFrontend["BasicVAD"] = &Tracter::ASRFactory::basicVADFrontend;
     mFrontend["PLP"] = &Tracter::ASRFactory::plpFrontend;
-#ifdef HAVE_HTK
+#ifdef HAVE_HTKLIB
     mFrontend["HTK"] = &Tracter::ASRFactory::htkFrontend;
 #endif
 }
@@ -210,7 +210,7 @@ Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
     return p;
 }
 
-#ifdef HAVE_HTK
+#ifdef HAVE_HTKLIB
 Tracter::Plugin<float>*
 Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
 {

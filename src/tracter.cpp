@@ -20,6 +20,7 @@ void Usage()
         "Usage: tracter [options] [infile outfile | -f file-list]\n"
         "Options:\n"
         "-f list Read input and output files from list\n"
+        "-l loop indefinitly if not in list mode\n"
         "Anything else prints this information\n"
         "Set environment variable Tracter_shConfig to 1 for more options\n"
     );
@@ -33,6 +34,7 @@ int main(int argc, char** argv)
     const char* fileList = 0;
     const char* file[2] = {0, 0};
     int fileCount = 0;
+    bool loop = false;
     for (int i=1; i<argc; i++)
     {
         /* Unqualified arguments are the input and output files */
@@ -53,6 +55,10 @@ int main(int argc, char** argv)
         {
         case 'f':
             fileList = argv[++i];
+            break;
+
+        case 'l':
+            loop = true;
             break;
 
         default:
@@ -87,7 +93,12 @@ int main(int argc, char** argv)
             source->Open(file[0]);
             path.SetName(file[1]);
             path.MakePath();
-            sink.Open(file[1]);
+            do
+            {
+                sink.Open(file[1]);
+                sink.Reset();
+            }
+            while (loop);
         }
         catch(std::exception& e)
         {

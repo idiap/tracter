@@ -20,7 +20,8 @@ Tracter::Energy::Energy(
     assert(mFrameSize > 0);
     assert(mFramePeriod > 0);
 
-    PluginObject::MinSize(mInput, mFrameSize);
+    // Framers look ahead, not back
+    PluginObject::MinSize(mInput, mFrameSize, mFrameSize-1);
 }
 
 bool Tracter::Energy::UnaryFetch(IndexType iIndex, int iOffset)

@@ -23,7 +23,7 @@ namespace Tracter
         Normalise(
             Plugin<short>* iInput, const char* iObjectName = "Normalise"
         );
-        void MinSize(int iSize, int iReadAhead);
+        void MinSize(int iSize, int iReadBack, int iReadAhead);
 
     protected:
         ByteOrder mByteOrder;

@@ -20,18 +20,26 @@ namespace Tracter
      * is modulated at about 4Hz.  The threshold is based on the noise
      * part of the unfiltered energy.
      */
-    class ModulationVAD : public UnaryPlugin<VADState, float>,
-                          public VADStateMachine
+    class ModulationVAD : public VADStateMachine
     {
     public:
         ModulationVAD(Plugin<float>* iInput,
                       const char* iObjectName = "ModulationVAD");
 
     protected:
+
+        PluginObject* GetInput(int iInput)
+        {
+            assert(iInput == 0);
+            assert(this->mNInputs == 1);
+            return mInput;
+        }
+
         bool UnaryFetch(IndexType iIndex, int iOffset);
         virtual void Reset(bool iPropagate);
 
     private:
+        Plugin<float>* mInput;
         IndexType mIndex;
         int mNBins;
         int mLookAhead;
@@ -43,6 +51,7 @@ namespace Tracter
         float mThreshold;
         bool mShowGuts;
     };
+
 }
 
 #endif /* MODULATIONVAD_H */

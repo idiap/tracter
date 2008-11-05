@@ -20,7 +20,7 @@ namespace Tracter
     class VADGate : public CachedPlugin<float>
     {
     public:
-        VADGate(Plugin<float>* iInput, Plugin<VADState>* iVADInput,
+        VADGate(Plugin<float>* iInput, VADStateMachine* iVADInput,
                 const char* iObjectName = "VADGate");
 
     protected:
@@ -33,16 +33,16 @@ namespace Tracter
         Plugin<VADState>* mVADInput;
 
         bool mEnabled;
-        bool mOnline;
-        bool mPushToTalk;
-        bool mForceDecode;
+        bool mSegmenting;
+        bool mRemoveSilence;
+        bool mEndOfData;
 
         VADState mState;
         IndexType mSpeechTriggered;
         IndexType mSpeechConfirmed;
         IndexType mSilenceConfirmed;
         IndexType mIndexZero;
-	IndexType mSpeechRemoved;
+        IndexType mSpeechRemoved;
 
         bool gate(IndexType& iIndex);
         bool readVADState(IndexType iIndex);

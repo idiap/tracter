@@ -28,7 +28,6 @@ namespace Tracter
     public:
         int offset;
         int len[2];
-        static bool forceDecode;
 
         int Length() const
         {
@@ -100,6 +99,9 @@ namespace Tracter
 
     protected:
         void MinSize(PluginObject* iObject, int iMinSize, int iReadAhead = 0);
+        void MinSize(
+            PluginObject* iInput, int iMinSize, int iReadBack, int iReadAhead
+        );
         void Initialise(
             const PluginObject* iDownStream = 0,
             int iReadBack = 0, int iReadAhead = 0
@@ -107,7 +109,7 @@ namespace Tracter
         PluginObject* Connect(PluginObject* iInput);
         void MovePointer(CachePointer& iPointer, int iLen);
 
-        virtual void MinSize(int iMinSize, int iReadAhead);
+        virtual void MinSize(int iMinSize, int iReadBack, int iReadAhead);
         virtual void Resize(int iSize) = 0;
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
         virtual bool UnaryFetch(IndexType iIndex, int iOffset);

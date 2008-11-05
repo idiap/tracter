@@ -94,6 +94,15 @@ void Tracter::ALSASource::asyncCallback()
         MovePointer(mTail, xrun);
 }
 
+/**
+ * Open an ALSA device.
+ *
+ * This currently uses the call snd_async_add_pcm_handler(), and seems
+ * to work OK.  However, there is talk that this is not a 'good'
+ * solution:
+ * http://mailman.alsa-project.org/pipermail/alsa-devel/2008-May/008030.html
+ * says that poll() would be better.  One day maybe...
+ */
 void Tracter::ALSASource::Open(const char* iDeviceName)
 {
     assert(iDeviceName);

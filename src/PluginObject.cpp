@@ -9,8 +9,6 @@
 #include <climits>
 #include "PluginObject.h"
 
-bool Tracter::CacheArea::forceDecode = false;
-
 /**
  * Set a CacheArea to represent a particular range at a particular
  * offset.
@@ -97,7 +95,25 @@ void Tracter::PluginObject::MinSize(
 )
 {
     assert(iInput);
-    iInput->MinSize(iMinSize, iReadAhead);
+    int readBack = 0;
+    if (iMinSize > 0)
+    {
+        // i.e, it's not indefinitely resizing
+        readBack = iMinSize - iReadAhead - 1;
+    }
+    iInput->MinSize(iMinSize, readBack, iReadAhead);
+}
+
+/**
+ * Allows minsize to be set with specify read ahead and back that
+ * don't necessarily add up properly.
+ */
+void Tracter::PluginObject::MinSize(
+    PluginObject* iInput, int iMinSize, int iReadBack, int iReadAhead
+)
+{
+    assert(iInput);
+    iInput->MinSize(iMinSize, iReadBack, iReadAhead);
 }
 
 
@@ -106,7 +122,9 @@ void Tracter::PluginObject::MinSize(
  * plugin.  A negative size means that the cache should grow
  * indefinitely
  */
-void Tracter::PluginObject::MinSize(int iMinSize, int iReadAhead)
+void Tracter::PluginObject::MinSize(
+    int iMinSize, int iReadBack, int iReadAhead
+)
 {
     // Keep track of the maximum read-ahead
     if (mMaxReadAhead < iReadAhead)
@@ -114,14 +132,10 @@ void Tracter::PluginObject::MinSize(int iMinSize, int iReadAhead)
     if (mMinReadAhead > iReadAhead)
         mMinReadAhead = iReadAhead;
 
-    if (iMinSize > 0)
-    {
-        int readBack = iMinSize - iReadAhead - 1;
-        if (mMaxReadBack < readBack)
-            mMaxReadBack = readBack;
-        if (mMinReadBack > readBack)
-            mMinReadBack = readBack;
-    }
+    if (mMaxReadBack < iReadBack)
+        mMaxReadBack = iReadBack;
+    if (mMinReadBack > iReadBack)
+        mMinReadBack = iReadBack;
 
     // Only continue if it's not already set to grow indefinitely
     if (mIndefinite)
@@ -201,9 +215,8 @@ void Tracter::PluginObject::Initialise(
     mGlobalReadAhead.Update(iReadAhead);
     mGlobalReadBack.Update(iReadBack);
 
-    Verbose(2, "PluginObject::Initialise(%s):"
+    Verbose(2, "PluginObject::Initialise:"
             " i [%d:%d] m [%d,%d:%d,%d] tot [%d:%d]\n",
-            mObjectName,
             iReadBack, iReadAhead,
             mMinReadBack, mMaxReadBack, mMinReadAhead, mMaxReadAhead,
             mTotalReadBack, mTotalReadAhead);
