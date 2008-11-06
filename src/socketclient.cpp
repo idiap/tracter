@@ -22,9 +22,12 @@ int main(int argc, char** argv)
     as.Reset();
     float* frame;
     int index = 0;
-    while(as.GetArray(frame, index++) && index < 1000)
+    while(as.GetArray(frame, index) && index < 1000)
     {
-        printf("%.3f\n", frame[0] * 32768);
+        printf("Val: %.3f ", frame[0] * 32768);
+        printf("Time: %lld = %.3f s\n",
+               as.TimeStamp(index), as.Seconds(index));
+        index++;
     }
 
     printf("Done\n");

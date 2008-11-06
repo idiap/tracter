@@ -23,11 +23,19 @@ namespace Tracter
     class SocketSource : public CachedPlugin<float>, public Tracter::Source
     {
     public:
-        SocketSource(const char* iObjectName = "SocketSource");
+        SocketSource(
+            void* iAuxiliary = 0, const char* iObjectName = "SocketSource"
+        );
         virtual ~SocketSource() throw ();
-        virtual void Open(const char* iFileName);
+        virtual void Open(const char* iHostName);
 
     protected:
+
+        /** Diverts basic time stamp reqests to the Source base class */
+        virtual TimeType TimeStamp(IndexType iIndex)
+        {
+            return Source::TimeStamp(iIndex);
+        }
         int Receive(int iNBytes, char* iBuffer);
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
         int mFD;

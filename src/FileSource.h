@@ -56,6 +56,13 @@ namespace Tracter
             return;
         }
 
+    protected:
+        /** Diverts basic time stamp reqests to the Source base class */
+        virtual TimeType TimeStamp(IndexType iIndex)
+        {
+            return Source::TimeStamp(iIndex);
+        }
+
     private:
         MMap mMap;
         T* mCache;

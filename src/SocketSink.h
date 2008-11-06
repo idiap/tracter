@@ -27,6 +27,7 @@ namespace Tracter
     private:
         int mFD;
         unsigned short mPort;
+        bool mHeader;
     };
 }
 

@@ -15,9 +15,6 @@ using namespace Tracter;
 
 int main(int argc, char** argv)
 {
-    printf("Socket client\n");
-
-    Tracter::sShowConfig = true;
     FileSource<short>* fs = new FileSource<short>;
     Normalise* n = new Normalise(fs);
     SocketSink ss(n);

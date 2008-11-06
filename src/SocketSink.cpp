@@ -30,6 +30,7 @@ Tracter::SocketSink::SocketSink(
     Reset();
 
     mPort = GetEnv("Port", 30000);
+    mHeader = GetEnv("Header", 1);
 
     // Get the file descriptor
     int sockFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -78,6 +79,18 @@ Tracter::SocketSink::SocketSink(
     }
     Verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
     close(sockFD);
+
+    if (mHeader)
+    {
+        TimeType time = TimeStamp();
+        ssize_t nSent = send(mFD, &time, sizeof(TimeType), 0);
+        if (nSent == -1)
+        {
+            perror(mObjectName);
+            throw Exception("%s: send() failed for port %hu\n",
+                            mObjectName, mPort);
+        }
+    }
 }
 
 Tracter::SocketSink::~SocketSink() throw()

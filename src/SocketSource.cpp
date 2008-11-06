@@ -15,14 +15,14 @@
 #include "SocketSource.h"
 
 
-Tracter::SocketSource::SocketSource(const char* iObjectName)
+Tracter::SocketSource::SocketSource(void* iAuxiliary, const char* iObjectName)
     : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
+    mAuxiliary = iAuxiliary;
     mArraySize = GetEnv("ArraySize", 39);
     mSampleFreq = GetEnv("SampleFreq", 8000.0f);
     mSamplePeriod = GetEnv("SamplePeriod", 80);
-
     mPort = GetEnv("Port", 30000);
 }
 
@@ -77,6 +77,14 @@ void Tracter::SocketSource::Open(const char* iHostName)
         throw Exception("%s: connect() failed for %s:%hu\n",
                         mObjectName, iHostName, mPort);
     }
+
+#if 0
+    if (mHeader)
+    {
+        if (Receive(sizeof(TimeType), (char*)&mTime) != sizeof(TimeType))
+            throw Exception("Failed to receive timestamp");
+    }
+#endif
 }
 
 /**

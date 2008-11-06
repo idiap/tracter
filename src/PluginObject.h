@@ -38,6 +38,7 @@ namespace Tracter
     };
 
     typedef long IndexType;
+    typedef long long TimeType;  ///< 64 bit type like ASIOTimeStamp
 
     /** Index / Offset pair for internal cache management */
     struct CachePointer
@@ -77,6 +78,8 @@ namespace Tracter
      */
     class PluginObject : public Tracter::Object
     {
+        friend class Source;
+
     public:
         PluginObject(void);
         virtual ~PluginObject(void) throw () {};
@@ -84,6 +87,14 @@ namespace Tracter
         int Read(CacheArea& oArea, IndexType iIndex, int iLength = 1);
         virtual void Reset(bool iPropagate = true);
         void Delete();
+
+        virtual TimeType TimeStamp(IndexType iIndex = 0);
+
+        /** Time in seconds */
+        double Seconds(IndexType iIndex)
+        {
+            return (double)TimeOffset(iIndex) * 1e-9;
+        };
 
         /** Returns the array size of the cache. */
         int GetArraySize()
@@ -102,7 +113,7 @@ namespace Tracter
         void MinSize(
             PluginObject* iInput, int iMinSize, int iReadBack, int iReadAhead
         );
-        void Initialise(
+        void* Initialise(
             const PluginObject* iDownStream = 0,
             int iReadBack = 0, int iReadAhead = 0
         );
@@ -114,6 +125,8 @@ namespace Tracter
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
         virtual bool UnaryFetch(IndexType iIndex, int iOffset);
         virtual PluginObject* GetInput(int iInput) { return 0; }
+
+        TimeType TimeOffset(IndexType iIndex);
 
         int mSize;          ///< Size of the cache counted in frames
         int mArraySize;     ///< Size of each cache frame
@@ -144,6 +157,8 @@ namespace Tracter
             float samples =  iSeconds * mSampleFreq / mSamplePeriod;
             return (int)(samples + 0.5);
         }
+
+        void* mAuxiliary; ///< Common object for each component chain
 
     private:
         void Reset(PluginObject* iDownStream);

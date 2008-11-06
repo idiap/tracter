@@ -190,7 +190,7 @@ void Tracter::PluginObject::MinSize(
  *
  * Aside, this is still a mess.  Some caches are too big.
  */
-void Tracter::PluginObject::Initialise(
+void* Tracter::PluginObject::Initialise(
     const PluginObject* iDownStream, int iReadBack, int iReadAhead
 )
 {
@@ -252,9 +252,16 @@ void Tracter::PluginObject::Initialise(
             int readAhead =
                 mIndefinite ? -1 : (mMaxReadAhead+iReadAhead) * scale;
             int readBack  = (mMaxReadBack+iReadBack) * scale;
-            input->Initialise(this, readBack, readAhead);
+            void* aux = input->Initialise(this, readBack, readAhead);
+            if (i == 0)
+                mAuxiliary = aux;
+            else
+                if (mAuxiliary != aux)
+                    throw Exception("Initialise: Mismatched aux. pointers");
         }
     }
+
+    return mAuxiliary;
 }
 
 
@@ -530,4 +537,34 @@ bool Tracter::PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
     throw Exception("%s: PluginObject: UnaryFetch called."
                     "  This should not happen.", mObjectName);
     return false;
+}
+
+/**
+ * Get a time stamp for the given index.
+ *
+ * A time stamp is a 64 bit signed integer counting nanoseconds.  This
+ * is based on the type used in ASIO.
+ */
+Tracter::TimeType Tracter::PluginObject::TimeStamp(IndexType iIndex)
+{
+    if (mNInputs == 0)
+        throw Exception("TimeStamp: No inputs."
+                        "  %s probably missing TimeStamp()", mObjectName);
+    PluginObject* input = GetInput(0);
+    assert(input);
+    TimeType time = input->TimeStamp();
+    if (iIndex)
+        time += TimeOffset(iIndex);
+    return time;
+}
+
+/**
+ * Calculate a time offset
+ */
+Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex)
+{
+    // There is undoubtedly a right way to do this.  This may not be
+    // it.
+    TimeType t = (TimeType)iIndex * mSamplePeriod * 1e9 / mSampleFreq;
+    return t;
 }

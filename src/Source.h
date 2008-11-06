@@ -8,6 +8,8 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
+#include "PluginObject.h" // For TimeType
+
 /**
  * Interface for a source plugin.  As a source plugin has basically
  * the same interface as any other plugin, this is designed to be
@@ -22,8 +24,19 @@ namespace Tracter
         /** Open a source with the given name */
         virtual void Open(const char* iName) = 0;
         virtual ~Source() {}
+
     protected:
-        char* mName;
+
+        virtual TimeType TimeStamp(IndexType iIndex)
+        {
+            TimeType time = mTime;
+            if (iIndex)
+                time += ((PluginObject*)this)->TimeOffset(iIndex);
+            return time;
+        }
+
+        //virtual TimeType TimeStamp(IndexType iIndex) = 0;
+        TimeType mTime;
     };
 }
 
