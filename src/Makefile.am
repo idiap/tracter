@@ -10,11 +10,12 @@ bin_PROGRAMS = \
 
 noinst_PROGRAMS = \
 	socketserver socketclient \
-	creature testfile fft parser
+	creature testfile fft parser resample
 
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	Frame.cpp \
 	SocketTee.cpp \
 	ScreenSink.cpp \
 	LPCepstrum.cpp \
@@ -74,6 +75,8 @@ nodist_libtracter_la_SOURCES=
 libtracter_la_CPPFLAGS=
 libtracter_la_CFLAGS= 
 
+libtracter_la_SOURCES += ResampleLRS.cpp
+
 if WITH_ALSA
 TRACTER_SOURCES += ALSASource.cpp
 noinst_PROGRAMS += alsafile
@@ -125,3 +128,6 @@ htktopixmap_LDADD = libtracter.la
 hcopytester_SOURCES = hcopytester.cpp
 hcopytester_CPPFLAGS = @HTK_INCLUDES@
 hcopytester_LDADD = libtracter.la
+
+resample_SOURCES = resample.cpp
+resample_LDADD = libtracter.la

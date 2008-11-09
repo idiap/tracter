@@ -7,6 +7,7 @@
 
 #include "SocketTee.h"
 
+#include <cstdio>
 #include <cstring> // For memset()
 
 #include <unistd.h>
