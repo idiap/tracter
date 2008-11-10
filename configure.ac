@@ -20,6 +20,34 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
+# libresample
+AC_ARG_WITH(libresample-includes,
+  [AS_HELP_STRING(
+    [--with-libresample-includes=DIR],
+    [Compiler flags to include libresample headers]
+  )],
+  [],
+  [with_libresample_includes=""]
+)
+AC_ARG_WITH(libresample-libs,
+  [AS_HELP_STRING(
+    [--with-libresample-libs=DIR],
+    [Linker flags to find libresample libraries]
+  )],
+  [],
+  [with_libresample_libs=""]
+)
+AC_MSG_CHECKING([whether to use libresample])
+AS_IF(
+  [test "$with_libresample_includes" != ""],
+  [AC_DEFINE([HAVE_LIBRESAMPLE], [1], [Define if you have libresample.])
+   AC_MSG_RESULT(yes)],
+  [AC_MSG_RESULT(no)]
+)
+AC_SUBST([LIBRESAMPLE_INCLUDES], [$with_libresample_includes])
+AC_SUBST([LIBRESAMPLE_LIBS], [$with_libresample_libs])
+AM_CONDITIONAL([WITH_LIBRESAMPLE], [test "$with_libresample_includes" != ""])
+
 # HTK
 AC_ARG_WITH(htk-includes,
   [AS_HELP_STRING(

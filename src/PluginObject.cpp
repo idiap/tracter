@@ -55,6 +55,7 @@ Tracter::PluginObject::PluginObject()
     mSampleFreq = 0.0f;
     mSamplePeriod = 0;
     mAsync = false;
+    mAuxiliary = 0;
 }
 
 /**
@@ -565,6 +566,6 @@ Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex)
 {
     // There is undoubtedly a right way to do this.  This may not be
     // it.
-    TimeType t = (TimeType)iIndex * mSamplePeriod * 1e9 / mSampleFreq;
+    TimeType t = (TimeType)((double)iIndex * mSamplePeriod * 1e9 / mSampleFreq);
     return t;
 }
