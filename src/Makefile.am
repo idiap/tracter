@@ -36,6 +36,7 @@ TRACTER_SOURCES = \
 	FilePath.cpp \
 	SocketSink.cpp \
 	SocketSource.cpp \
+	StreamSocketSource.cpp \
 	ComplexPeriodogram.cpp \
 	ComplexSample.cpp \
 	ByteOrder.cpp \

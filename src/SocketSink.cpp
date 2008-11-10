@@ -91,6 +91,7 @@ Tracter::SocketSink::SocketSink(
             throw Exception("%s: send() failed for port %hu\n",
                             mObjectName, mPort);
         }
+        Verbose(1, "Sent time %lld\n", time);
     }
 }
 

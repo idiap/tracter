@@ -78,14 +78,6 @@ void Tracter::SocketSource::Open(const char* iHostName)
         throw Exception("%s: connect() failed for %s:%hu\n",
                         mObjectName, iHostName, mPort);
     }
-
-#if 0
-    if (mHeader)
-    {
-        if (Receive(sizeof(TimeType), (char*)&mTime) != sizeof(TimeType))
-            throw Exception("Failed to receive timestamp");
-    }
-#endif
 }
 
 /**

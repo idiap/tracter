@@ -60,7 +60,9 @@ namespace Tracter
         /** Diverts basic time stamp reqests to the Source base class */
         virtual TimeType TimeStamp(IndexType iIndex)
         {
-            return Source::TimeStamp(iIndex);
+            TimeType time = Source::TimeStamp(iIndex);
+            Plugin<T>::Verbose(1, "time %lld\n", time);
+            return time;
         }
 
     private:

@@ -7,7 +7,7 @@
 
 #include <cstdio>
 
-#include "SocketSource.h"
+#include "StreamSocketSource.h"
 #include "ArraySink.h"
 
 using namespace Tracter;
@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 {
     printf("Socket client\n");
 
-    SocketSource* ss = new SocketSource;
+    StreamSocketSource* ss = new StreamSocketSource;
     ArraySink<float> as(ss);
     ss->Open("localhost");
     as.Reset();

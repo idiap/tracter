@@ -93,7 +93,7 @@ namespace Tracter
         /** Time in seconds */
         double Seconds(IndexType iIndex)
         {
-            return (double)TimeOffset(iIndex) * 1e-9;
+            return (double)TimeStamp(iIndex) * 1.0e-9;
         };
 
         /** Returns the array size of the cache. */

@@ -8,6 +8,8 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
+#include <cassert>
+
 #include "PluginObject.h" // For TimeType
 
 /**
@@ -24,6 +26,11 @@ namespace Tracter
         /** Open a source with the given name */
         virtual void Open(const char* iName) = 0;
         virtual ~Source() {}
+        virtual void SetTime(TimeType iTime)
+        {
+            assert(iTime >= 0);
+            mTime = iTime;
+        }
 
     protected:
 
