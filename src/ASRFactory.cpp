@@ -10,7 +10,7 @@
 #include "ASRFactory.h"
 
 #include "FileSource.h"
-#include "SocketSource.h"
+#include "StreamSocketSource.h"
 
 #ifdef HAVE_ALSA
 # include "ALSASource.h"
@@ -37,8 +37,6 @@
 #include "Energy.h"
 #include "ModulationVAD.h"
 #include "VADGate.h"
-
-#include "SocketTee.h"
 
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
@@ -108,7 +106,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
 
 Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
 {
-    SocketSource* s = new SocketSource();
+    StreamSocketSource* s = new StreamSocketSource();
     iSource = s;
     return s;
 }

@@ -25,5 +25,8 @@ void Tracter::StreamSocketSource::Open(const char* iHostName)
     /* Get the timestamp */
     if (Receive(sizeof(TimeType), (char*)&mTime) != sizeof(TimeType))
         throw Exception("Failed to receive timestamp");
+
+    /* The communication is ms, but we store ns */
+    mTime *= 1000;
     Verbose(1, "Time set to %lld\n", mTime);
 }

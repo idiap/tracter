@@ -57,7 +57,7 @@ namespace Tracter
         }
 
     protected:
-        /** Diverts basic time stamp reqests to the Source base class */
+        /** Diverts basic time stamp requests to the Source base class */
         virtual TimeType TimeStamp(IndexType iIndex)
         {
             TimeType time = Source::TimeStamp(iIndex);
