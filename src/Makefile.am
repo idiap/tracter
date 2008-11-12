@@ -76,6 +76,13 @@ nodist_libtracter_la_SOURCES=
 libtracter_la_CPPFLAGS=
 libtracter_la_CFLAGS= 
 
+if WITH_BSAPI
+TRACTER_SOURCES += \
+         BSAPIFilterBank.cpp \
+         BSAPIFastVTLN.cpp      
+libtracter_la_CPPFLAGS += @BSAPI_INCLUDES@
+endif
+
 if WITH_LIBRESAMPLE
 libtracter_la_SOURCES += ResampleLRS.cpp
 libtracter_la_CPPFLAGS += @LIBRESAMPLE_INCLUDES@
@@ -102,7 +109,12 @@ nodist_libtracter_la_SOURCES += \
 libtracter_la_CPPFLAGS += -I@KISS_FFT_DIR@ -I@KISS_FFT_DIR@/tools
 endif
 
-libtracter_la_LIBADD = @ALSA_LIBS@ @HTK_LIBS@ @LIBRESAMPLE_LIBS@ -lpthread
+libtracter_la_LIBADD = \
+	@ALSA_LIBS@ \
+	@HTK_LIBS@ \
+	@LIBRESAMPLE_LIBS@ \
+	@BSAPI_LIBS@ \
+	-lpthread
 
 parser_SOURCES = parser.cpp
 parser_LDADD = libtracter.la

@@ -20,6 +20,34 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
+# BSAPI
+AC_ARG_WITH(bsapi-includes,
+  [AS_HELP_STRING(
+    [--with-bsapi-includes=DIR],
+    [Directory containing BSAPI headers]
+  )],
+  [],
+  [with_bsapi_includes=""]
+)
+AC_ARG_WITH(bsapi-libs,
+  [AS_HELP_STRING(
+    [--with-bsapi-libs=DIR],
+    [List of BSAPI libraries]
+  )],
+  [],
+  [with_bsapi_libs=""]
+)
+AC_MSG_CHECKING([whether to use BSAPI])
+AS_IF(
+  [test "$with_bsapi_includes" != ""],
+  [AC_DEFINE([HAVE_BSAPI], [1], [Define if you have BSAPI.])
+   AC_MSG_RESULT(yes)],
+  [AC_MSG_RESULT(no)]
+)
+AC_SUBST([BSAPI_INCLUDES], [$with_bsapi_includes])
+AC_SUBST([BSAPI_LIBS], [$with_bsapi_libs])
+AM_CONDITIONAL([WITH_BSAPI], [test "$with_bsapi_includes" != ""])
+
 # libresample
 AC_ARG_WITH(libresample-includes,
   [AS_HELP_STRING(

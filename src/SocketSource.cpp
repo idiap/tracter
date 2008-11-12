@@ -25,6 +25,7 @@ Tracter::SocketSource::SocketSource(void* iAuxiliary, const char* iObjectName)
     mSampleFreq = GetEnv("SampleFreq", 8000.0f);
     mSamplePeriod = GetEnv("SamplePeriod", 80);
     mPort = GetEnv("Port", 30000);
+    mFD = 0;
 }
 
 Tracter::SocketSource::~SocketSource() throw()

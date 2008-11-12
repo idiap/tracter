@@ -52,6 +52,7 @@ namespace Tracter
         Plugin<float>* basicVADFrontend(Plugin<float>* iPlugin);
         Plugin<float>* plpFrontend(Plugin<float>* iPlugin);
         Plugin<float>* htkFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* posteriorFrontend(Plugin<float>* iPlugin);
     };
 }
 

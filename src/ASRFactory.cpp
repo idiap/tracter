@@ -27,11 +27,18 @@
 #include "Periodogram.h"
 #include "MelFilter.h"
 #include "Cepstrum.h"
+#include "Frame.h"
+#include "Resample.h"
 
 #include "LPCepstrum.h"
 
 #ifdef HAVE_HTKLIB
 # include "HCopyWrapper.h"
+#endif
+
+#ifdef HAVE_BSAPI
+# include "BSAPIFilterBank.h"
+# include "BSAPIFastVTLN.h"
 #endif
 
 #include "Energy.h"
@@ -53,8 +60,13 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
     mFrontend["BasicVAD"] = &Tracter::ASRFactory::basicVADFrontend;
     mFrontend["PLP"] = &Tracter::ASRFactory::plpFrontend;
+
 #ifdef HAVE_HTKLIB
     mFrontend["HTK"] = &Tracter::ASRFactory::htkFrontend;
+#endif
+
+#ifdef HAVE_BSAPI
+    mFrontend["Poster"] = &Tracter::ASRFactory::posteriorFrontend;
 #endif
 }
 
@@ -67,6 +79,10 @@ Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
         plugin = (this->*mSource[source])(iSource);
     else
         throw Exception("ASRFactory: Unknown source %s\n", source);
+
+    // Not sure if here is the right place...
+    if (GetEnv("Resample", 0))
+        plugin = new Resample(plugin);
 
     return plugin;
 }
@@ -214,6 +230,22 @@ Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
 {
     Plugin<float>* p = iPlugin;
     p = new HCopyWrapper(p);
+    return p;
+}
+#endif
+
+#ifdef HAVE_BSAPI
+Tracter::Plugin<float>*
+Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
+{
+    Plugin<float>* p = iPlugin;
+    p = new Frame(p);
+    // p = new BSAPIFilterBank(p);
+    p = new BSAPIFastVTLN(p);
+    // p = new HCopyWrapper(p, "HCopyWrapperPoster");
+    //  p = normaliseMean(p);
+    //  p = normaliseVariance(p);
+    // p = new BSAPIMLPForward(p);
     return p;
 }
 #endif
