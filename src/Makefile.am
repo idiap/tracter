@@ -76,10 +76,18 @@ nodist_libtracter_la_SOURCES=
 libtracter_la_CPPFLAGS=
 libtracter_la_CFLAGS= 
 
+if WITH_TORCH3
+TRACTER_SOURCES += \
+	SKMLP.cpp \
+	MLP.cpp \
+	MLPVAD.cpp
+libtracter_la_CPPFLAGS += @TORCH3_INCLUDES@
+endif
+
 if WITH_BSAPI
 TRACTER_SOURCES += \
-         BSAPIFilterBank.cpp \
-         BSAPIFastVTLN.cpp      
+	BSAPIFilterBank.cpp \
+	BSAPIFastVTLN.cpp      
 libtracter_la_CPPFLAGS += @BSAPI_INCLUDES@
 endif
 
@@ -114,6 +122,7 @@ libtracter_la_LIBADD = \
 	@HTK_LIBS@ \
 	@LIBRESAMPLE_LIBS@ \
 	@BSAPI_LIBS@ \
+	@TORCH3_LIBS@ \
 	-lpthread
 
 parser_SOURCES = parser.cpp

@@ -20,6 +20,65 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
+
+# ALSA
+# 1.0.6 is the version on CentOS at Sheffield; our Debian's is higher
+PKG_CHECK_MODULES(ALSA, alsa >= 1.0.6, ac_cv_alsa=1, ac_cv_alsa=0)
+AS_IF(
+  [test "$ac_cv_alsa" = 1],
+  [AC_DEFINE([HAVE_ALSA], [1], [Define if you have ALSA.])]
+)
+AM_CONDITIONAL([WITH_ALSA], [test "$ac_cv_alsa" = 1])
+AC_SUBST(ALSA_CFLAGS)
+AC_SUBST(ALSA_LIBS)
+
+
+# Check for Torch3 first using an explicit --with-torch3
+AC_MSG_CHECKING([whether to use Torch3])
+AC_ARG_WITH(torch3,
+  [AS_HELP_STRING(
+    [--with-torch3=DIR],
+    [Use Torch3 in DIR]
+  )],
+  [],
+  [with_torch3=yes]
+)
+AS_IF( [test "$with_torch3" = yes],
+
+  # yes is default, but not informative; Try via pkgconfig (at Idiap)
+  [PKG_CHECK_MODULES(TORCH, torch >= 3.1, pkg_torch3=1, pkg_torch3=0)
+   AS_IF( [test "$pkg_torch3" = 1],
+     [AC_DEFINE([HAVE_TORCH3], [1], [Define if you have TORCH3.])
+      AC_SUBST([TORCH3_INCLUDES], [$TORCH_CFLAGS])
+      AC_SUBST([TORCH3_LIBS], [$TORCH_LIBS])],
+     [with_torch3=no]
+   )],
+
+  # There is an explicit --with-torch3=dir
+  [AS_IF( [test "$with_torch3" != no],
+    [AS_IF( [test -d "$with_torch3"],
+      [AC_DEFINE([HAVE_TORCH3], [1], [Define if you have Torch3.])
+       AC_SUBST(
+         [TORCH3_INCLUDES],
+	 ["-I$with_torch3/core \
+	   -I$with_torch3/speech \
+           -I$with_torch3/datasets \
+           -I$with_torch3/distributions \
+           -I$with_torch3/gradients"]
+       )
+       AC_SUBST(
+         [TORCH3_LIBS],
+	 ["-L$with_torch3/libs/Linux_opt_float -ltorch"]
+       )],
+      [AC_MSG_ERROR([Can't find directory $with_torch3])
+       with_torch3=no]
+     )]
+   )
+   AC_MSG_RESULT([$with_torch3])]
+)
+AM_CONDITIONAL([WITH_TORCH3], [test "$with_torch3" != no])
+
+
 # BSAPI
 AC_ARG_WITH(bsapi-includes,
   [AS_HELP_STRING(
@@ -127,18 +186,6 @@ AS_IF(
 )
 AM_CONDITIONAL([WITH_KISS_FFT], [test "$with_kiss_fft" != no])
 AC_SUBST([KISS_FFT_DIR], [$with_kiss_fft])
-
-
-# ALSA
-# 1.0.6 is the version on CentOS at Sheffield; our Debian's is higher
-PKG_CHECK_MODULES(ALSA, alsa >= 1.0.6, ac_cv_alsa=1, ac_cv_alsa=0)
-AS_IF(
-  [test "$ac_cv_alsa" = 1],
-  [AC_DEFINE([HAVE_ALSA], [1], [Define if you have ALSA.])]
-)
-AM_CONDITIONAL([WITH_ALSA], [test "$ac_cv_alsa" = 1])
-AC_SUBST(ALSA_CFLAGS)
-AC_SUBST(ALSA_LIBS)
 
 
 # Checks for header files.

@@ -41,6 +41,12 @@
 # include "BSAPIFastVTLN.h"
 #endif
 
+#ifdef HAVE_TORCH3
+# include "MLP.h"
+# include "MLPVAD.h"
+# undef real
+#endif
+
 #include "Energy.h"
 #include "ModulationVAD.h"
 #include "VADGate.h"
@@ -239,6 +245,13 @@ Tracter::Plugin<float>*
 Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
 {
     Plugin<float>* p = iPlugin;
+#ifdef HAVE_TORCH3
+    // Nonsense for now...
+    p = new MLP(p);
+    MLPVAD* m = new MLPVAD(p);
+    p = new VADGate(p, m);
+#endif
+
     p = new Frame(p);
     // p = new BSAPIFilterBank(p);
     p = new BSAPIFastVTLN(p);

@@ -53,6 +53,7 @@ Tracter::VADGate::VADGate(
 
     mEnabled = GetEnv("Enable", 1);
     mSegmenting = GetEnv("Segmenting", 0);
+    mRemoveSilence = false;
 }
 
 /**
