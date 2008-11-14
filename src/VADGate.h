@@ -35,7 +35,7 @@ namespace Tracter
         bool mEnabled;
         bool mSegmenting;
         bool mRemoveSilence;
-        bool mEndOfData;
+        bool mUpstreamEndOfData;
 
         VADState mState;
         IndexType mSpeechTriggered;

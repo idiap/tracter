@@ -56,6 +56,7 @@ Tracter::PluginObject::PluginObject()
     mSamplePeriod = 0;
     mAsync = false;
     mAuxiliary = 0;
+    mEndOfData = -1;
 }
 
 /**
@@ -291,6 +292,7 @@ void Tracter::PluginObject::Reset(
     bool iPropagate ///< If true, recursively resets all input plugins
 )
 {
+    mEndOfData = -1;
     mHead.index = 0;
     mHead.offset = 0;
     mTail.index = 0;
@@ -403,7 +405,7 @@ int Tracter::PluginObject::Read(
             }
             CacheArea area;
             area.Set(fetch, mHead.offset, mSize);
-            len = Fetch(mHead.index, area);
+            len = FetchWrapper(mHead.index, area);
             mHead.index += len;
             mHead.offset += len;
             len = iLength - fetch + len;
@@ -423,7 +425,7 @@ int Tracter::PluginObject::Read(
     if ((mHead.index == mTail.index) || (iIndex > mHead.index))
     {
         oRange.Set(iLength, 0, mSize);
-        len = Fetch(iIndex, oRange);
+        len = FetchWrapper(iIndex, oRange);
         if (len == 0)
             // Don't mess up the cache if we were off the end
             return 0;
@@ -452,7 +454,7 @@ int Tracter::PluginObject::Read(
             assert(fetch > 0);
             CacheArea area;
             area.Set(fetch, mHead.offset, mSize);
-            len = Fetch(mHead.index, area);
+            len = FetchWrapper(mHead.index, area);
             if (!mAsync)
             {
                 mHead.index += len;
@@ -492,6 +494,35 @@ int Tracter::PluginObject::Read(
                     mObjectName, mHead.index, mTail.index, iIndex);
 
     return 0;
+}
+
+/**
+ * A Fetch() wrapper.  Read() will call this rather blindly.  Here we
+ * take care of the EOD flag, preventing unnecessary reads past EOD.
+ * This way, components only need to return EOD once.
+ *
+ * A Read() will never actually pass on a request past EOD to the
+ * Fetch() because, in finding out EOD is reached, data up until then
+ * should have been read (TODO: unless it's non-contiguous, but we can
+ * deal with that with a flag later).  So, if EOD is set, all requests
+ * here will be after it.
+ */
+int Tracter::PluginObject::FetchWrapper(
+    IndexType iIndex, CacheArea& iOutputArea
+)
+{
+    /*
+     */
+    if ((mEndOfData >= 0) && (iIndex >= mEndOfData))
+        return 0;
+
+    int len = Fetch(iIndex, iOutputArea);
+    if (len < iOutputArea.Length())
+    {
+        mEndOfData = iIndex + len;
+        Verbose(1, "EOD at index %ld\n", mEndOfData);
+    }
+    return len;
 }
 
 /**

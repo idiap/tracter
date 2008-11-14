@@ -159,8 +159,10 @@ namespace Tracter
         }
 
         void* mAuxiliary; ///< Common object for each component chain
+        IndexType mEndOfData;
 
     private:
+        int FetchWrapper(IndexType iIndex, CacheArea& iOutputArea);
         void Reset(PluginObject* iDownStream);
         bool Delete(PluginObject* iDownStream);
         const PluginObject* mDownStream;

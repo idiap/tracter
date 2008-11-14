@@ -49,7 +49,7 @@ Tracter::VADGate::VADGate(
     mIndexZero = 0;
     mSpeechRemoved = 0;
     mState = SILENCE_CONFIRMED;
-    mEndOfData = false;
+    mUpstreamEndOfData = false;
 
     mEnabled = GetEnv("Enable", 1);
     mSegmenting = GetEnv("Segmenting", 0);
@@ -74,8 +74,8 @@ void Tracter::VADGate::Reset(bool iPropagate)
     }
 
     // Propagate if not segmenting.  Always propagate after EOD.
-    CachedPlugin<float>::Reset(mEndOfData || !mSegmenting);
-    mEndOfData = false;
+    CachedPlugin<float>::Reset(mUpstreamEndOfData || !mSegmenting);
+    mUpstreamEndOfData = false;
 }
 
 bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
@@ -175,7 +175,7 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
     if (mVADInput->Read(vadArea, iIndex) == 0)
     {
         Verbose(1, "readVADState: End Of Data at %ld\n", iIndex);
-        mEndOfData = true;
+        mUpstreamEndOfData = true;
         return false;
     }
     VADState* state = mVADInput->GetPointer(vadArea.offset);
