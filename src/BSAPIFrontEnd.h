@@ -10,8 +10,8 @@
 /** See the file COPYING for the licence associated with this software.
  */
 
-#ifndef BSAPIFilterBank_H
-#define BSAPIFilterBank_H
+#ifndef BSAPIFrontEnd_H
+#define BSAPIFrontEnd_H
 
 #include <vector>
 
@@ -23,29 +23,43 @@ namespace Tracter
     /**
      * Plugin to calculate delta features
      */
-    class BSAPIFilterBank : public UnaryPlugin<float, float>
+    class BSAPIFrontEnd : public CachedPlugin<float>
     {
     public:
-        BSAPIFilterBank(Plugin<float>* iInput, const char* iObjectName = "BSAPIFilterBank");
-        virtual ~BSAPIFilterBank() throw();
+        BSAPIFrontEnd(Plugin<float>* iInput, const char* iObjectName = "BSAPIFrontEnd");
+        BSAPIFrontEnd(Plugin<float>* iInput, Plugin<float>* iInputWF, const char* iObjectName = "BSAPIFrontEnd");
+	virtual ~BSAPIFrontEnd() throw();
 
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
+	PluginObject* GetInput(int iInput);
 
     private:
-	SMelBanksI *mpMelBanks;
-	int SampleFreq;
-	
-	float WaveFromScaleUp;
 	int   inputdim; 
+	float WaveFromScaleUp;
+	float wf;
+	
+	SSpeechRecI *mpPLP;
+
+	int MaxBufferedFrames;
+
+	bool LastFrameProcess;
+
+	void InitFrontEnd(void);
+	void InitOutBuffer(void);
+	Plugin<float>* mInputWF; 
+	Plugin<float>* mInput; 
+
+	virtual SMelBanksI *BSAPI_METHOD GetMelTarget(SSpeechRecI *mpSpeechRec);
 
         class STarget : public SFeatureExtractionCallbackI
         {  
 	public:    
-	  STarget() : mpNnout(NULL) {}
-	  float *mpNnout;
+	  float *mpOutBuff;
+	  int nbuffsize;
+	  int MaxBuffSize;
 	  bool BSAPI_METHOD OnFeatureMatrix(SFloatMatrixI *pMatrix, int nFrames, unsigned int flags);
-	  } mTarget;
+	} mTarget;
     };
 }
 

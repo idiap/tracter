@@ -10,8 +10,8 @@
 /** See the file COPYING for the licence associated with this software.
  */
 
-#ifndef BSAPIFilterBank_H
-#define BSAPIFilterBank_H
+#ifndef BSAPITRANSFORM_H
+#define BSAPITRANSFORM_H
 
 #include <vector>
 
@@ -23,30 +23,35 @@ namespace Tracter
     /**
      * Plugin to calculate delta features
      */
-    class BSAPIFilterBank : public UnaryPlugin<float, float>
+    class BSAPITransform : public UnaryPlugin<float, float>
     {
     public:
-        BSAPIFilterBank(Plugin<float>* iInput, const char* iObjectName = "BSAPIFilterBank");
-        virtual ~BSAPIFilterBank() throw();
+        BSAPITransform(Plugin<float>* iInput, const char* iObjectName = "BSAPITransform");
+        virtual ~BSAPITransform() throw();
 
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
 
     private:
-	SMelBanksI *mpMelBanks;
-	int SampleFreq;
-	
-	float WaveFromScaleUp;
-	int   inputdim; 
+	int mContext;
+	int mWindow;
+        SFeaCatI *mpFeaCat;
+        SFloatMatrixI *mpInput;
+
+	int MaxBufferedFrames;
+
+        bool LastFrameProcess;
+
 
         class STarget : public SFeatureExtractionCallbackI
         {  
 	public:    
-	  STarget() : mpNnout(NULL) {}
-	  float *mpNnout;
+	  float *mpOutBuff;
+          int nbuffsize;
+          int MaxBuffSize;
 	  bool BSAPI_METHOD OnFeatureMatrix(SFloatMatrixI *pMatrix, int nFrames, unsigned int flags);
-	  } mTarget;
+	} mTarget;
     };
 }
 
-#endif /* BSAPIFilterBank_H */
+#endif /* BSAPITRANSFORM_H */

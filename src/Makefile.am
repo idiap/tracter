@@ -86,6 +86,8 @@ endif
 
 if WITH_BSAPI
 TRACTER_SOURCES += \
+	BSAPITransform.cpp \
+	BSAPIFrontEnd.cpp \
 	BSAPIFilterBank.cpp \
 	BSAPIFastVTLN.cpp      
 libtracter_la_CPPFLAGS += @BSAPI_INCLUDES@
@@ -95,6 +97,7 @@ if WITH_LIBRESAMPLE
 libtracter_la_SOURCES += ResampleLRS.cpp
 libtracter_la_CPPFLAGS += @LIBRESAMPLE_INCLUDES@
 noinst_PROGRAMS += resample
+pkginclude_HEADERS += Resample.h
 endif
 
 if WITH_ALSA

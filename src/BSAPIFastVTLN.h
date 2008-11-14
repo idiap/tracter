@@ -1,13 +1,7 @@
-/***********************************************************
- *  Copyright 2008 by Brno University of Technology        *
- *                    www.vutbr.cz                         *
- *                                                         *
- *  Author:           Martin Karafiat                      *
- *                    UPGM,FIT,VUT,Brno                    *
- *                    karafiat@fit.vutbr.cz                *
- ***********************************************************/
-
 /*
+ * Copyright 2007 by IDIAP Research Institute
+ *                   http://www.idiap.ch
+ *
  * See the file COPYING for the licence associated with this software.
  */
 
@@ -38,24 +32,10 @@ namespace Tracter
 	float WaveFromScaleUp;
 	float wf;
 	
-	SSpeechRecI *mpPLP;
 	SFastVtlnI  *mpFastVTLN;
 
 	int SamplingFreq;
 	int MaxBufferedFrames;
-
-	bool LastFrameProcess;
-
-        class STarget : public SFeatureExtractionCallbackI
-        {  
-	public:    
-	  float *mpOutBuff;
-	  int nbuffsize;
-	  int MaxBuffSize;
-	  bool BSAPI_METHOD OnFeatureMatrix(SFloatMatrixI *pMatrix, int nFrames, unsigned int flags);
-	} mTarget;
-	
-        virtual SMelBanksI *BSAPI_METHOD GetMelTarget(SSpeechRecI *mpSpeechRec);
 
 	//class SFastVtlnCallback : public SFastVtlnCallbackI
 	//{

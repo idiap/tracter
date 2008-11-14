@@ -7,8 +7,7 @@
  *                    karafiat@fit.vutbr.cz                *
  ***********************************************************/
 
-/*
- * See the file COPYING for the licence associated with this software.
+/** See the file COPYING for the licence associated with this software.
  */
 
 #include "BSAPIFilterBank.h"
@@ -24,9 +23,9 @@ Tracter::BSAPIFilterBank::BSAPIFilterBank(Plugin<float>* iInput, const char* iOb
     WaveFromScaleUp = GetEnv("WaveFromScaleUp",32768);
 
     int VecSize    = GetEnv("VecSize", 400);
-    int Step       = GetEnv("Step", 160);
+    int Step       = GetEnv("Step", 400);
     float PreemCoef  = GetEnv("PreemCoef", 0);
-    //int NBanks     = GetEnv("NBanks", 23);
+    int NBanks     = GetEnv("NBanks", 23);
     bool TakeLog    = GetEnv("TakeLog", 1);
     float LoFreq     = GetEnv("LoFreq", 0);
     float HiFreq     = GetEnv("HiFreq", SampleFreq/2);
@@ -41,16 +40,14 @@ Tracter::BSAPIFilterBank::BSAPIFilterBank(Plugin<float>* iInput, const char* iOb
         exit(1);
       }
 
-    //    virtual void    BSAPI_METHOD SetTransform(char *pTransformName) = 0;
     mpMelBanks->SetSampleFreq(SampleFreq);
     mpMelBanks->SetVectorSize(VecSize);
     mpMelBanks->SetStep(Step);
     mpMelBanks->SetPreemCoef(PreemCoef);
+    mpMelBanks->SetNBanks(NBanks);
     mpMelBanks->SetTakeLog(TakeLog);
     mpMelBanks->SetLowFreq(LoFreq);
     mpMelBanks->SetHighFreq(HiFreq);
-
-
 
     mpMelBanks->SetOutBatchSize(1);
     mpMelBanks->SetTarget(&mTarget);
@@ -58,28 +55,13 @@ Tracter::BSAPIFilterBank::BSAPIFilterBank(Plugin<float>* iInput, const char* iOb
     mArraySize = mpMelBanks->GetNOutputs();
     assert(mArraySize > 0);
 
-    // printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
+    //printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
 
-    /*
-    // mpInput = static_cast<SFloatMatrixI *>(BSAPICreateInstance(SIID_FLOATMATRIX));
-    
-    if(!mpInput)
-      {
-	fprintf(stderr, "No memory!");
-        exit(1);
-      }
-
-    if(!mpInput->Init(1, iInput->GetArraySize()))
-      {
-        exit(1);
-      }
-    */
 }
 
 Tracter::BSAPIFilterBank::~BSAPIFilterBank() throw ()
 {
   mpMelBanks->Release();
-  // mpInput->Release();
 }
 
 /*
@@ -91,56 +73,58 @@ bool Tracter::BSAPIFilterBank::UnaryFetch(IndexType iIndex, int iOffset)
     assert(iIndex >= 0);
     CacheArea inputArea;
     
-  
+    //printf("iIndex: %i\n", iIndex);
+
     int one = mInput->Read(inputArea, iIndex, 1);
-  
+    //    if (!one)
+    // return false;
+
     float *pframe  = mInput->GetPointer(inputArea.offset);
  
-    // float *pin_mat = mpInput->GetMem();
- 
-    for (int j=0; j<inputdim; j++) {
+    for (int j=0; j<one*inputdim; j++) {
       pframe[j]*=WaveFromScaleUp;
-      // if ( j % 10 == 0 )  printf ("\n");
-      // printf("%f ", pframe[j]);
+      //if ( j % 10 == 0 )  printf ("\n");
+      //printf("%f ", pframe[j]);
     }
-    // printf ("\n");
+    //printf ("\n");
     
+     
 
-    //for(int j = 0; j < mpInput->GetNColumns(); j++)
-    //  pin_mat[j] = pframe[j];
-    
-    if ( one == 0 ) 
-      mpMelBanks->OnWaveform( SWaveformSourceCallbackI::wfFloat , SampleFreq, 1, pframe, inputdim * sizeof(float), PF_LASTFRAME);
+    if (one)
+      mpMelBanks->OnWaveform( SWaveformSourceCallbackI::wfFloat , SampleFreq, 1, pframe, one * inputdim * sizeof(float), 0);
     else
-      mpMelBanks->OnWaveform( SWaveformSourceCallbackI::wfFloat , SampleFreq, 1, pframe, inputdim * sizeof(float), 0);
-
+      mpMelBanks->OnWaveform( SWaveformSourceCallbackI::wfFloat , SampleFreq, 1, pframe, one * inputdim * sizeof(float), PF_LASTFRAME);
+ 
     float* cache = GetPointer(iOffset);
     
     if (NULL != mTarget.mpNnout) {
       for (int i=0; i<mArraySize; i++) 
 	cache[i] = mTarget.mpNnout[i];
          
-      //      for (int i=0; i<mArraySize; i++)
-      // printf("%f ",cache[i]);
-      // printf ("\n"); 
+      /*      for (int i=0; i<mArraySize; i++)
+	printf("%f ",cache[i]);
+	printf ("\n");*/ 
 	
     }
     
-    return true;
+      return one>=1;
 }
 
 bool Tracter::BSAPIFilterBank::STarget::OnFeatureMatrix(SFloatMatrixI *pMatrix, int nFrames, unsigned int flags)
 {
-  float *pframe = pMatrix->GetMem();
+  
 
-  mpNnout = pframe;
- 
-  /*  
-   for (int i=0; i<nFrames; i++) {
+  if (nFrames){
+    float *pframe = pMatrix->GetMem();
+    mpNnout = pframe;
+    
+    /*  for (int i=0; i<nFrames; i++) {
     printf("%f ", mpNnout[i]);
   }
   printf ("\n"); 
   */
 
+  }
+ 
   return true;
 }
