@@ -39,8 +39,6 @@ namespace Tracter
         int Receive(int iNBytes, char* iBuffer);
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
         int mFD;
-
-    private:
         unsigned short mPort;
     };
 }
