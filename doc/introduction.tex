@@ -1,4 +1,5 @@
 \section{Introduction}
+\subsection{Overview}
 
 Tracter is a data-flow framework for signal processing.  It defines a
 library of components that each typically do a small amount of
@@ -19,6 +20,90 @@ Tracter distinguishes sources and sinks.
 %  \node [draw,on chain] {B};
 %  \node [draw,on chain] {C};
 %\end{tikzpicture}
+
+\subsection{API}
+
+One of the packages I use to write this document is called TikZ.  TikZ
+is an astounding piece of software; I had no idea it was possible to
+do things like that in \TeX.  However, the reason I mention it here is
+that I think it has a very nicely designed API.  Tikz has 3 distinct
+levels:
+\begin{description}
+\item[TikZ] itself is a top level interface to PGF.
+\item[PGF] is the actual language.
+\item[The underlying driver] layer disconnects PGF from the means of
+  rendering the graphics.
+\end{description}
+For me, tikz is an example of a really well thought out API.  It's
+well documented too - just the table of contents is 13 pages.
+
+Tracter aims to have this sort of hierarchical API.  I'm not sure it
+really succeeds, but the idea is to have about 4 or 5 layers:
+\begin{description}
+\item[Executables] are the top layer.  Generally speaking it's
+  possible to write an executable that has just one tracter component
+  and does something useful.
+\item[Factories] are the same level as some other APIs.  They define a
+  graph of components that constitute some useful block.  A factory is
+  actually a very thin layer; it just instantiates a graph of
+  components, so the overhead afer calling the factory is zero.
+\item[Components] are the main level.  A component is a node in a
+  directed graph of processing elements.  Components necessarily have
+  inputs and outputs.  To use them you have to buy into the data-flow
+  idea.
+\item[Objects] in tracter are things that have a name and can hence
+  receive parameters.  They don't necessarily take part in data flow
+  operations.  Factories are objects, as are components.
+\item[Algorithms] are the bottom layer; fundamental functions.  These
+  are the sorts of things that BLAS and LAPACK provide, and also
+  comprise DFTs, filters and the like.  They might even be written in
+  C or FORTRAN; not necessarily C++.
+\end{description}
+
+The most important level in tracter is the component
+level.\footnote{At the time of writing, this is the plugin level.  But
+  plugin is a bad name; it implies dynamic loading, which is not what
+  tracter is about.}  It is possible to write only components.
+However, if a component is really useful, it tends to be desirable to
+break it down into other objects, but objects that still require
+parameters to be passed to them.
+
+Tracter is really the wrong place to put fundamental functions.  Those
+belong in other libraries because they are useful outside the scope of
+tracter.
+
+An example of the hierarchy is a frequency warp.  It is possible to
+write a program that has a small number of components that calculate a
+frequency warp; the input is a periodogram and the output is a file,
+or cepstrum or the like.  In this sense, the warp is a component in
+the data-flow.  The frequency warp component itself is really just a
+fundamental function.  However, it has a lot of parameters, and can be
+used in different situations; this is an object in tracter terms.
+Ultimately, however, the frequency warp is a function with parameters
+that may even be implemented in some third party library; IPP for
+instance.
+
+This idea of fundamental libraries is one key point of tracter,
+completely independent from the data-flow part.  It brings together
+many independent libraries and allows them to be used in the same
+framework.  This is not a new thing; Octave does it, as does MPlayer.
+
+Somewhere in there is an interface layer too.  The idea that you can
+have alternative implementations of the same functionality.  Typically
+this is a DFT that could be from Kiss FFT, FFTW or even IPP.
+
+There is a programming methodology called ``Extreme Progamming'' (EP).
+EP encompasses many different philosophies, but one of them is the
+idea that you should implement only as much as you need.\footnote{In
+  some sense, tracter is way too over-engineered.}  The way to apply
+EP in tracter is to first write a technique as a component.  If the
+component is useful, expand it into one or more objects that are
+contained by a component.  If the core algorithms are useful, they can
+be abstracted out as a fundamental functions.
+
+That said, most of the fundamental functions are already written and
+exist in other libraries.  In this sense, tracter reduces to an
+exercise in writing Gnu configure scripts.
 
 
 %%% Local Variables: 

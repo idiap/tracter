@@ -5,6 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cstdio>
+
 #include "MLPVAD.h"
 
 Tracter::MLPVAD::MLPVAD(Plugin<float>* iInput, const char* iObjectName)
@@ -33,11 +35,9 @@ Tracter::MLPVAD::MLPVAD(Plugin<float>* iInput, const char* iObjectName)
     MinSize(mInput, mLookAhead,  mLookAhead+max);
     mIndex = -1;
 
-    if (Tracter::sVerbose > 1)
-        printf("%s: LookAhead=%d"
-               " ConfirmSpeech=%d ConfirmSilence=%d\n",
-               mObjectName, mLookAhead,
-               mConfirmSpeechTime, mConfirmSilenceTime);
+    Verbose(1, "%s: LookAhead=%d ConfirmSpeech=%d ConfirmSilence=%d\n",
+            mObjectName, mLookAhead,
+            mConfirmSpeechTime, mConfirmSilenceTime);
 }
 
 void Tracter::MLPVAD::Reset(bool iPropagate)
