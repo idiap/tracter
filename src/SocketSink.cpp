@@ -83,7 +83,7 @@ Tracter::SocketSink::SocketSink(
 
     if (mHeader)
     {
-        TimeType time = TimeStamp();
+        TimeType time = TimeStamp() / 1e6;
         ssize_t nSent = send(mFD, &time, sizeof(TimeType), 0);
         if (nSent == -1)
         {

@@ -1,0 +1,28 @@
+\section{Introduction}
+
+Tracter is a data-flow framework for signal processing.  It defines a
+library of components that each typically do a small amount of
+computation, but can become nodes in a directed graph where they work
+together (although independently) to do something more useful.
+
+Although tracter contains several implementations of basic algorithms,
+it has developed into a wrapper for libraries of basic algorithms.
+
+The components generally run serially, not in parallel; tracter does
+not do concurrent data-flow in the sense of Kahn process networks
+\citep{Lee1995}.
+
+Tracter distinguishes sources and sinks.
+
+%\begin{tikzpicture}[start chain]
+%  \node [draw,on chain] {A};
+%  \node [draw,on chain] {B};
+%  \node [draw,on chain] {C};
+%\end{tikzpicture}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "tracter"
+%%% TeX-PDF-mode: t
+%%% End: 

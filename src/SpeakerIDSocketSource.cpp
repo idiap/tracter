@@ -18,7 +18,9 @@
 #include "SpeakerIDSocketSource.h"
 
 
-Tracter::SpeakerIDSocketSource::SpeakerIDSocketSource(void* iAuxiliary, const char* iObjectName)
+Tracter::SpeakerIDSocketSource::SpeakerIDSocketSource(
+    void* iAuxiliary, const char* iObjectName
+)
   : StreamSocketSource(iAuxiliary, iObjectName)
 {
     mObjectName = iObjectName;
@@ -34,7 +36,9 @@ Tracter::SpeakerIDSocketSource::SpeakerIDSocketSource(void* iAuxiliary, const ch
  * The Fetch call.  Right now it breaks the fetch into smaller bits,
  * which is not big and not clever.
  */
-int Tracter::SpeakerIDSocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::SpeakerIDSocketSource::Fetch(
+    IndexType iIndex, CacheArea& iOutputArea
+)
 {
     int i;
     int offset = iOutputArea.offset;

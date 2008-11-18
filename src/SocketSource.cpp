@@ -112,32 +112,30 @@ int Tracter::SocketSource::Receive(int iNBytes, char* iBuffer)
     return (int)nGot;
 }
 
-
 /**
- * The Fetch call.  Right now it breaks the fetch into smaller bits,
- * which is not big and not clever.
+ * A simple fetch call.  Implemented as two calls to Receive().
  */
 int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
-    int i;
-    int offset = iOutputArea.offset;
-    int arraySize = mArraySize == 0 ? 1 : mArraySize;
-    for (i=0; i<iOutputArea.Length(); i++)
+    int arraySize = ((mArraySize == 0) ? 1 : mArraySize) * sizeof(float);
+
+    // First chunk of circular array
+    char* cache = (char*)GetPointer(iOutputArea.offset);
+    int nGet = arraySize * iOutputArea.len[0];
+    int nGot0 = Receive(nGet, cache);
+    if (nGot0 < nGet)
+        return nGot0 / arraySize;
+
+    if (iOutputArea.len[1])
     {
-        if (i == iOutputArea.len[0])
-            offset = 0;
-        char* cache = (char*)GetPointer(offset);
-
-        // Read the data from the socket
-        int nGet = arraySize * sizeof(float);
-        int nGot = Receive(nGet, cache);
-        Verbose(2, "Got %d bytes\n", (int)nGot);
-        if (nGot < nGet)
-            break;
-
-        iIndex++;
-        offset++;
+        // Second chunk of circular array
+        cache = (char*)GetPointer();
+        nGet = arraySize * iOutputArea.len[1];
+        int nGot1 = Receive(nGet, cache);
+        if (nGot1 < nGet)
+            return (nGot0 + nGot1) / arraySize;
     }
 
-    return i;
+    // If we get here, all was well
+    return iOutputArea.Length();
 }

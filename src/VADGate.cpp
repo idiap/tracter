@@ -53,7 +53,7 @@ Tracter::VADGate::VADGate(
 
     mEnabled = GetEnv("Enable", 1);
     mSegmenting = GetEnv("Segmenting", 0);
-    mRemoveSilence = false;
+    mRemoveSilence = GetEnv("RemoveSilence", 0);
 }
 
 /**
@@ -150,7 +150,7 @@ bool Tracter::VADGate::gate(IndexType& iIndex)
         if ((mState == SILENCE_TRIGGERED) && !reconfirmSpeech(iIndex))
         {
             assert(mSilenceConfirmed >= mSpeechTriggered);
-            if (mRemoveSilence)
+            if (mRemoveSilence && (mState == SILENCE_CONFIRMED))
             {
                 mSpeechRemoved += mSilenceConfirmed - mSpeechTriggered;
                 if (!confirmSpeech(mSilenceConfirmed))
@@ -231,6 +231,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
  */
 bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
 {
+    Verbose(1, "Attempting to reconfirm speech\n");
     assert(iIndex >= 0);
     assert(mState == SILENCE_TRIGGERED);
     do

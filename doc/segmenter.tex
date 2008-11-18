@@ -1,0 +1,107 @@
+\section{Segmenter behaviour}
+
+Tracter components respond to fetch operations from the output caches.
+The fetch will ask a component for a particular number of frames, $N$,
+and the component should request enough data from its input components
+to supply those $N$ frames.  The source components should block until
+enough data become available.  The fetch operation should then return
+an integer corresponding to the number of frames that were written to
+the cache; this is normally $N$.
+
+When data are no longer available, the components should return a
+number less than $N$.  Such a case is always indicative of data flow
+having been interrupted.  This is the only signal that a component is
+able to send downstream to indicate that data is no longer available.
+Call this the End Of Data signal (EOD).
+
+Downstream components will typically simply pass on EOD by returning
+frame counts less than those that were requested.  Some may choose to
+take some ``edge effect'' action, duplicating the final frame for
+instance, but will always eventually pass on EOD.
+
+Depending upon the application, a sink component can restart data flow
+by sending a reset signal.  This can be done, for instance, after
+changing a file-name at the source.  Reset does not close connections;
+it just resets counters and empties caches.
+
+A (VAD) gate component is special because it can choose to block
+reset.  When the end of a (speech) segment is detected, the gate
+returns EOD.  The application then resets the flow graph and requests
+more data.  Instead of propagating the reset upstream, the gate blocks
+it and simply restarts data flow at the beginning of the next segment.
+
+We have identified four different ``modes'' for the VAD gate:
+\begin{description}
+\item[Offline] In offline mode, the input is typically a file.  The
+  file is assumed to contain only one segment; the end of the segment
+  is taken to be the end of the file.  The application resets after
+  the segment; reset is likely to be accompanied by the application
+  changing the file-name on the source.
+\item[Offline segmented] As offline, but the file is assumed to
+  contain several segments.  Reset should simply move to the next
+  segment.  However, the end of the file is then difficult to spot.
+  The VAD gate is aware of EOF because upstream components will
+  indicate end of data.  The VAD gate indicates this to the
+  application by returning 0 frames for the first fetch after the end
+  of the file.  We call this a double EOD.
+\item[Online] Online is taken to mean that the input is ``live'' in
+  some sense.  The VAD gate is acting as a segmenter, and reset is
+  taken to mean select the next segment.  The real end of data implies
+  part of the system has shut-down.
+\item[PTT] Push To Talk.  The data is online, but is being segmented
+  to an extent by user intervention.  The end of data does not
+  correspond to a shut-down; it just means that the application should
+  wait until more data arrives.
+\end{description}
+
+\begin{table}[htb]
+  \centering
+  \begin{tabular}{|m{2cm}|m{3cm}|m{3cm}|m{3cm}|}
+    \hline
+    {\bf Mode} & {\bf Source} & {\bf Gate} & {\bf Sink / Application} \\
+    \hline\hline
+    Offline
+    & EOD at EOF
+    & Propagate reset
+    & Reset after EOD, change file \\
+    \hline
+    Offline segmented
+    & EOD at EOF
+    & Block reset, propagate after EOD
+    & Reset after EOD, change file after double EOD \\
+    \hline
+    Online
+    & EOD at shut-down
+    & Block reset
+    & Shut-down after EOD \\
+    \hline
+    PTT
+    & EOD at each segment
+    & Propagate reset
+    & Reset after EOD \\
+    \hline
+  \end{tabular}
+  \caption{Mapping of segmentation modes to component behaviour.}
+  \label{tab:SegmentationMode}
+\end{table}
+
+Table \ref{tab:SegmentationMode} shows the mapping between these modes
+and behaviour of the source, gate and sink components.  Notice that:
+\begin{enumerate}
+\item The source really only has one mode: EOD is sent whenever it
+  detects the end of a segment.
+\item The gate has three modes, but given that the sink will never
+  respond to a double EOD in online mode, it can be thought of as just
+  two.  It doesn't care about whether it is online or offline, rather
+  it needs to know whether to segment continuously or not.
+\item The sink needs to be able to detect double EOD for the offline
+  segmented mode.  However, given that it will only receive double EOD
+  in that mode, it need not distinguish the special case.
+\end{enumerate}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "tracter"
+%%% TeX-PDF-mode: t
+%%% End: 
