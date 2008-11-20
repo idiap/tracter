@@ -1,3 +1,10 @@
+/*
+ * Copyright 2008 by Idiap Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
+
 #ifndef SK_MLP_INC
 #define SK_MLP_INC
 
@@ -6,13 +13,13 @@
 #include "LogSoftMax.h"
 #include "Tanh.h"
 #include "SoftMax.h"
+#include "BlasLinear.h"
 #ifdef HAVE_SKORCH
 #include "FixedLinear.h"
 #include "AdaptLinear.h"
 #include "SharedLinear.h"
 #include "Sigmoid.h"
 #include "SumMachine.h"
-#include "BlasLinear.h"
 #include "Log.h"
 #include "SKBaumWelch.h"
 #include "Exp.h"
@@ -55,19 +62,19 @@ namespace Torch {
   // you'll have to ask me nicely to add these (clearly this class isn't destined for inheritance)
   typedef enum {
     LINEAR = 0,
-    LOGSOFTMAX,
-    TANH,
-    SOFTMAX,
     SHAREDLINEAR,
     SIGMOID,
+    LOGSOFTMAX,
+    SOFTMAX,
+    CONNECTED,
     SUMMACHINE,
+    TANH,
     BLASLINEAR,
     LOG,
     BAUMWELCH,
     EXP,
     SCALEDLIKELIHOOD,
     SKSOFTMAX,
-    CONNECTED,
     INVALID
   } SKMachineType;
 
@@ -137,13 +144,13 @@ namespace Torch {
     void addFCL(LogSoftMax *machine_){ addFCL(machine_,LOGSOFTMAX); };
     void addFCL(Tanh *machine_){ addFCL(machine_, TANH); };
     void addFCL(SoftMax *machine_){ addFCL(machine_, SOFTMAX); };
+    void addFCL(BlasLinear *machine_){ addFCL(machine_, BLASLINEAR); };
 #ifdef HAVE_SKORCH
     void addFCL(FixedLinear *machine_){ addFCL(machine_,LINEAR); };
     void addFCL(AdaptLinear *machine_){ addFCL(machine_,LINEAR); };
     void addFCL(SharedLinear *machine_){ addFCL(machine_,SHAREDLINEAR); };
     void addFCL(Sigmoid *machine_){ addFCL(machine_,SIGMOID); };
     void addFCL(SumMachine *machine_){ addFCL(machine_,SUMMACHINE); };
-    void addFCL(BlasLinear *machine_){ addFCL(machine_, BLASLINEAR); };
     void addFCL(Log *machine_){ addFCL(machine_, LOG); };
     void addFCL(Exp *machine_){ addFCL(machine_, EXP); };
     void addFCL(SKBaumWelch *machine_){ addFCL(machine_, BAUMWELCH); };
@@ -157,13 +164,13 @@ namespace Torch {
     void insertFCL(int layer_offset, Tanh *machine_){ insertFCL(layer_offset, machine_,TANH); };
     void insertFCL(int layer_offset, LogSoftMax *machine_){ insertFCL(layer_offset, machine_,LOGSOFTMAX); };
     void insertFCL(int layer_offset, SoftMax *machine_){ insertFCL(layer_offset, machine_,SOFTMAX); };
+    void insertFCL(int layer_offset, BlasLinear *machine_){ insertFCL(layer_offset, machine_,BLASLINEAR); };
 #ifdef HAVE_SKORCH
     void insertFCL(int layer_offset, FixedLinear *machine_){ insertFCL(layer_offset, machine_,LINEAR); };
     void insertFCL(int layer_offset, AdaptLinear *machine_){ insertFCL(layer_offset, machine_,LINEAR); };
     void insertFCL(int layer_offset, SharedLinear *machine_){ insertFCL(layer_offset, machine_,SHAREDLINEAR); };
     void insertFCL(int layer_offset, Sigmoid *machine_){ insertFCL(layer_offset, machine_,SIGMOID); };
     void insertFCL(int layer_offset, SumMachine *machine_){ insertFCL(layer_offset, machine_,SUMMACHINE); };
-    void insertFCL(int layer_offset, BlasLinear *machine_){ insertFCL(layer_offset, machine_,BLASLINEAR); };
     void insertFCL(int layer_offset, Log *machine_){ insertFCL(layer_offset, machine_,LOG); };
     void insertFCL(int layer_offset, SKBaumWelch *machine_){ insertFCL(layer_offset, machine_,BAUMWELCH); };
     void insertFCL(int layer_offset, ScaledLikelihood *machine_){ insertFCL(layer_offset, machine_, SCALEDLIKELIHOOD); };
@@ -176,13 +183,13 @@ namespace Torch {
     void addMachine(LogSoftMax *machine_, bool hide = false){ addMachine(machine_,LOGSOFTMAX,hide); };
     void addMachine(Tanh *machine_, bool hide = false){ addMachine(machine_,TANH,hide); };
     void addMachine(SoftMax *machine_, bool hide = false){ addMachine(machine_,SOFTMAX,hide); };
+    void addMachine(BlasLinear *machine_, bool hide = false){ addMachine(machine_,BLASLINEAR,hide); };
 #ifdef HAVE_SKORCH
     void addMachine(FixedLinear *machine_, bool hide = false){ addMachine(machine_,LINEAR,hide); };
     void addMachine(AdaptLinear *machine_, bool hide = false){ addMachine(machine_,LINEAR,hide); };
     void addMachine(SharedLinear *machine_, bool hide = false){ addMachine(machine_,SHAREDLINEAR,hide); };
     void addMachine(Sigmoid *machine_, bool hide = false){ addMachine(machine_,SIGMOID,hide); };
     void addMachine(SumMachine *machine_, bool hide = false){ addMachine(machine_,SUMMACHINE,hide); };
-    void addMachine(BlasLinear *machine_, bool hide = false){ addMachine(machine_,BLASLINEAR,hide); };
     void addMachine(Log *machine_, bool hide = false){ addMachine(machine_,LOG,hide); };
     void addMachine(Exp *machine_, bool hide = false){ addMachine(machine_,EXP,hide); };
     void addMachine(SKBaumWelch *machine_, bool hide = false){ addMachine(machine_,BAUMWELCH,hide); };

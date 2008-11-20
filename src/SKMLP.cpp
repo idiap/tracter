@@ -1,3 +1,9 @@
+/*
+ * Copyright 2008 by Idiap Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
 
 #include "SKMLP.h"
 #include "XFile.h"
@@ -56,11 +62,9 @@ namespace Torch {
       for(int m = 0; m < n_machines_on_layer[l]; m++){
 	ConnectedNode *node = machines[l][m];
 
-#ifdef HAVE_SKORCH
 	if (machine_infos[l][m]->desc == LINEAR || machine_infos[l][m]->desc == SHAREDLINEAR || machine_infos[l][m]->desc == CONNECTED || machine_infos[l][m]->desc == BLASLINEAR )
 	  printf("#     Machine %s with %i inputs and %i outputs\n",machine_map[machine_infos[l][m]->desc],node->machine->n_inputs,node->machine->n_outputs);
     else
-#endif
 	  printf("#     Machine %s with %i units\n",machine_map[machine_infos[l][m]->desc],node->machine->n_inputs);
 
 	if(l > 0){
@@ -492,13 +496,13 @@ namespace Torch {
 	    //message("Loading TANH machine with %i units", n_inputs_);
 	    new_machine = new(allocator) Tanh(n_inputs_);
 	    break;
-#ifdef HAVE_SKORCH
 	  case BLASLINEAR:
 	    //message("Loading BLASLINEAR machine");
 	    file->taggedRead(&n_inputs_,sizeof(int),1,"n_inputs");
 	    file->taggedRead(&n_outputs_,sizeof(int),1,"n_outputs");
 	    new_machine = new(allocator) BlasLinear(n_inputs_,n_outputs_); 
 	    break;
+#ifdef HAVE_SKORCH
 	  case SHAREDLINEAR:
 	    //message("Loading SHAREDLINEAR machine");
 	    file->taggedRead(&n_inputs_,sizeof(int),1,"n_inputs");
@@ -536,11 +540,11 @@ namespace Torch {
 	    new_machine = NULL; //new(allocator) SKBaumWelch(n_inputs_ );
 	    //removeLayer(); // and get rid of the last layer
 	    break;
+#endif
 	  case CONNECTED:
 	    // Mmmm recursivaliscous....
 	    new_machine = new(allocator) SKMLP();	  
 	    break;
-#endif
 	  default:
 	    error("SKMLP: I don't recognise the machine type.");
 	  }

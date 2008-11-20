@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 by IDIAP Research Institute
+ * Copyright 2008 by IDIAP Research Institute
  *                   http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
@@ -30,10 +30,9 @@ namespace Tracter
     private:
         int mTheta;
         int mWindow;
-	int mInputs;
-        //std::vector<float*> mFeature;
-        std::vector<float> mFeature;	
-	Torch::SKMLP mMLP;
+        int mInputs;
+        std::vector<float> mFeature;
+        Torch::SKMLP mMLP;
     };
 }
 

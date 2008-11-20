@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 by IDIAP Research Institute
+ * Copyright 2008 by IDIAP Research Institute
  *                   http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
@@ -26,9 +26,9 @@ Tracter::MLP::MLP(Plugin<float>* iInput, const char* iObjectName)
     mMLP.loadXFile(&xfile);
     //mMLP.build();
     if (mMLP.machine_infos[mMLP.n_layers-1][0]->desc == Torch::LOGSOFTMAX){
-    	Torch::SoftMax *sm = new Torch::SoftMax(mMLP.n_outputs);
-	mMLP.removeFCL();
-	mMLP.addFCL(sm);
+        Torch::SoftMax *sm = new Torch::SoftMax(mMLP.n_outputs);
+        mMLP.removeFCL();
+        mMLP.addFCL(sm);
     }
     mMLP.build();
     mMLP.setPartialBackprop();
@@ -73,9 +73,9 @@ bool Tracter::MLP::UnaryFetch(IndexType iIndex, int iOffset)
     for (int i=0; i<mWindow-wanted; i++)
     {
         float* p = mInput->GetPointer(offset);
-	for (int j=0; j<mInputs ; j++, p++){
-          mFeature[feature++] = *p;
-	}
+        for (int j=0; j<mInputs ; j++, p++){
+            mFeature[feature++] = *p;
+        }
     }
 
     // Copy pointers as if no edge effect
@@ -83,10 +83,10 @@ bool Tracter::MLP::UnaryFetch(IndexType iIndex, int iOffset)
     {
         if (i == inputArea.len[0])
             offset = 0;
-	float* p = mInput->GetPointer(offset++);
+        float* p = mInput->GetPointer(offset++);
         for (int j=0; j<mInputs ; j++, p++){
           mFeature[feature++] = *p;
-	}
+        }
     }
 
     // If we got frames back, but fewer than required, then we need to
@@ -94,10 +94,10 @@ bool Tracter::MLP::UnaryFetch(IndexType iIndex, int iOffset)
     int lastFeature = feature-mInputs;
     for (int i=0; i<wanted-lenGot; i++)
     {
-	float* p =  &(mFeature[lastFeature]);
+        float* p =  &(mFeature[lastFeature]);
         for (int j=0; j<mInputs ; j++, p++){
             mFeature[feature++] = *p;
-	}
+        }
     }
     assert(feature == mWindow*mInputs);
 
