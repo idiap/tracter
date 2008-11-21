@@ -1,4 +1,13 @@
 /*
+ * Copyright 2008 by The University of Sheffield
+ *
+ * Copyright 2008 by Idiap Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
+
+/*
  * HCopyWrapper.h
  *
  *  Created on: 01-Jul-2008

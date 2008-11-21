@@ -1,6 +1,15 @@
+/*
+ * Copyright 2007 by Idiap Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
+
 #include "TracterObject.h"
 
 bool Tracter::sInitialised = false;
@@ -62,7 +71,8 @@ float Tracter::Object::GetEnv(const char* iSuffix, float iDefault)
 {
     char def[256];
     if (Tracter::sShowConfig)
-        snprintf(def, 256, "%f", iDefault);
+        snprintf(def, 256,
+                 (fabs(iDefault) < 1e-2) ? "%.3e" : "%.3f", iDefault);
     if (const char* env = getEnv(iSuffix, def))
         return atof(env);
     return iDefault;
