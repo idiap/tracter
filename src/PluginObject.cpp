@@ -251,8 +251,9 @@ void* Tracter::PluginObject::Initialise(
             PluginObject* input = GetInput(i);
             assert(input);
             int scale = mSamplePeriod / input->mSamplePeriod;
-            int readAhead =
-                mIndefinite ? -1 : (mMaxReadAhead+iReadAhead) * scale;
+            int readAhead = (mIndefinite || (iReadAhead < 0))
+                ? -1
+                : (mMaxReadAhead+iReadAhead) * scale;
             int readBack  = (mMaxReadBack+iReadBack) * scale;
             void* aux = input->Initialise(this, readBack, readAhead);
             if (i == 0)
@@ -400,21 +401,24 @@ int Tracter::PluginObject::Read(
             int fetch = iIndex + iLength - mHead.index;
             assert(fetch > 0);
             if (mSize < iIndex + iLength)
-            {
                 Resize(iIndex + iLength);
-            }
             CacheArea area;
             area.Set(fetch, mHead.offset, mSize);
             len = FetchWrapper(mHead.index, area);
-            mHead.index += len;
-            mHead.offset += len;
-            len = iLength - fetch + len;
+            if (len > 0)
+            {
+                mHead.index += len;
+                mHead.offset += len;
+                len = iLength - fetch + len;
+                assert(len >= 0);
+            }
         }
         else
         {
             // As Case 3 below: The requested range is within the
             // current cache range.  Don't need to calculate anything
             len = iLength;
+            assert(len >= 0);
         }
         oRange.Set(len, iIndex, mSize);
         return len;
@@ -471,12 +475,14 @@ int Tracter::PluginObject::Read(
                 }
             }
             len = iLength - fetch + len;
+            assert(len >= 0);
         }
         else
         {
             // Case 3: The requested range is within the current cache
             // range.  Don't need to calculate anything
             len = iLength;
+            assert(len >= 0);
         }
 
         // Whichever of cases 2 and 3, we need to fix up the output
