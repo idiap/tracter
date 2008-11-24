@@ -29,7 +29,9 @@ namespace Tracter
 
     private:
 	int   inputdim; 
-	float WaveFromScaleUp;
+	float WaveformScaleUp;
+	float *mpInputWaveform;
+
 	float wf;
 	
 	SFastVtlnI  *mpFastVTLN;

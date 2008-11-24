@@ -23,16 +23,19 @@ namespace Tracter
     /**
      * Plugin to calculate delta features
      */
-    class BSAPITransform : public UnaryPlugin<float, float>
+    class BSAPITransform : public CachedPlugin<float>
     {
     public:
         BSAPITransform(Plugin<float>* iInput, const char* iObjectName = "BSAPITransform");
-        virtual ~BSAPITransform() throw();
+        BSAPITransform(Plugin<float>* iInput, Plugin<float>* iInputID, const char* iObjectName = "BSAPITransform");
+	virtual ~BSAPITransform() throw();
 
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
+	PluginObject* GetInput(int iInput);
 
     private:
+	int inputdim; 
 	int mContext;
 	int mWindow;
         SFeaCatI *mpFeaCat;
@@ -42,6 +45,15 @@ namespace Tracter
 
         bool LastFrameProcess;
 
+	void InitTransform(void);
+	void InitOutBuffer(void);
+
+	Plugin<float>* mInputID; 
+	Plugin<float>* mInput; 
+
+	const char* xformdir;
+	char  *mInputID_macroname_full;
+	float  mInputID_macroname;
 
         class STarget : public SFeatureExtractionCallbackI
         {  

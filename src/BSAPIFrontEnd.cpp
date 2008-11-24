@@ -43,7 +43,7 @@ Tracter::BSAPIFrontEnd::BSAPIFrontEnd(Plugin<float>* iInput, const char* iObject
 
     LastFrameProcess=0;
 
-    printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
+    //printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
 }
 
 Tracter::BSAPIFrontEnd::BSAPIFrontEnd(Plugin<float>* iInput, Plugin<float>* iInputWF, const char* iObjectName)
@@ -65,7 +65,7 @@ Tracter::BSAPIFrontEnd::BSAPIFrontEnd(Plugin<float>* iInput, Plugin<float>* iInp
 
     LastFrameProcess=0;
 
-    printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
+    // printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
 }
 
 
@@ -74,9 +74,14 @@ void Tracter::BSAPIFrontEnd::InitFrontEnd(void){
   const char* Config = GetEnv("Config","./configs/bsrec.plp.cfg");
 
   
-  WaveFromScaleUp = GetEnv("WaveFromScaleUp",32768);
+  WaveformScaleUp = GetEnv("WaveformScaleUp",32768);
   MaxBufferedFrames  = GetEnv("MaxBufferedFrames",5);
-    
+
+  // If scaling is needed, the memory is allocated
+  if ( WaveformScaleUp != 1 ) 
+    mpInputWaveform = new float[inputdim*MaxBufferedFrames];
+  
+  
   PluginObject::MinSize(mInput,  MaxBufferedFrames , MaxBufferedFrames);
   //PluginObject::MinSize(mInput,  5 , 5);
 
@@ -143,12 +148,20 @@ bool Tracter::BSAPIFrontEnd::UnaryFetch(IndexType iIndex, int iOffset)
     //    printf("numRead : %i\n", numRead);
   
     float *pframe  = mInput->GetPointer(inputArea.offset);
- 
-    for (int j=0; j<inputdim*extend; j++) {
-      pframe[j]*=WaveFromScaleUp;
-      //  if ( (j+1) % 10 == 0 )  printf ("\n");
-      //printf("%f ", pframe[j]);
-    }
+
+
+    // Memory scaling. If it is not needed, just pointer is copied 
+    if ( WaveformScaleUp != 1 ) 
+      for (int j=0; j<inputdim*extend; j++) 
+      	mpInputWaveform[j] = pframe[j] * WaveformScaleUp;
+    else
+      mpInputWaveform = pframe;
+    
+
+    //for (int j=0; j<inputdim*extend; j++) {
+    // if ( (j+1) % 10 == 0 )  printf ("\n");
+    //printf("%f ", mpInputWaveform[j]);
+    //}
     //printf ("\n");
     
 
@@ -157,7 +170,6 @@ bool Tracter::BSAPIFrontEnd::UnaryFetch(IndexType iIndex, int iOffset)
       if (numReadWF)
 	{
 	  wf = *mInputWF->GetPointer(inputArea.offset);
-      
 	  printf("wf: %f\n",wf);
 	  GetMelTarget(mpPLP)->SetWarpAlpha(wf);
 	}
@@ -166,11 +178,11 @@ bool Tracter::BSAPIFrontEnd::UnaryFetch(IndexType iIndex, int iOffset)
     
     if ( numRead == 0 ) {
       if (!LastFrameProcess)
-      mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, pframe, numRead * inputdim * sizeof(float), PF_LASTFRAME);
+      mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, mpInputWaveform, numRead * inputdim * sizeof(float), PF_LASTFRAME);
       LastFrameProcess=1;
     }
     else {
-      mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, pframe, numRead * inputdim * sizeof(float), 0);
+      mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, mpInputWaveform, numRead * inputdim * sizeof(float), 0);
       LastFrameProcess=0;
     }
 

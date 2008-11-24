@@ -21,8 +21,13 @@ Tracter::BSAPIFastVTLN::BSAPIFastVTLN(Plugin<float>* iInput, const char* iObject
     
     MaxBufferedFrames  = GetEnv("MaxBufferedFrames",5);
     SamplingFreq = GetEnv("SamplingFreq",16000);
-    WaveFromScaleUp = GetEnv("WaveFromScaleUp",32768);
+    WaveformScaleUp = GetEnv("WaveformScaleUp",32768);
+ 
+    // If scaling is needed, the memory is allocated
+    if ( WaveformScaleUp != 1 ) 
+      mpInputWaveform = new float[inputdim*MaxBufferedFrames];
     
+
     PluginObject::MinSize(mInput,  MaxBufferedFrames , MaxBufferedFrames);
  
     mpFastVTLN = static_cast<SFastVtlnI *>(BSAPICreateInstance(SIID_FASTVTLN));
@@ -78,18 +83,24 @@ bool Tracter::BSAPIFastVTLN::UnaryFetch(IndexType iIndex, int iOffset)
   
     float *pframe  = mInput->GetPointer(inputArea.offset);
  
-    for (int j=0; j<inputdim*extend; j++) {
-      pframe[j]*=WaveFromScaleUp;
-      //  if ( (j+1) % 10 == 0 )  printf ("\n");
-      //printf("%f ", pframe[j]);
-    }
+    // Memory scaling. If it is not needed, just pointer is copied 
+    if ( WaveformScaleUp != 1 ) 
+      for (int j=0; j<inputdim*extend; j++) 
+      	mpInputWaveform[j] = pframe[j] * WaveformScaleUp;
+    else
+      mpInputWaveform = pframe;
+    
+    //for (int j=0; j<inputdim*extend; j++) {
+    //  if ( (j+1) % 10 == 0 )  printf ("\n");
+    //printf("%f ", mpInputWaveform[j]);
+    //}
     //printf ("\n");
     
 
 
     //wf=1.0;
     if ( numRead )
-    mpFastVTLN->OnWaveform( SWaveformSourceCallbackI::wfFloat , SamplingFreq, 1, pframe,  numRead * inputdim * sizeof(float), 0);
+    mpFastVTLN->OnWaveform( SWaveformSourceCallbackI::wfFloat , SamplingFreq, 1, mpInputWaveform,  numRead * inputdim * sizeof(float), 0);
 
     wf = mpFastVTLN->GetWarpingFactor();
     printf("wf: %f\n",wf);

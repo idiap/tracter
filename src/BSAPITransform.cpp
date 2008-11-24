@@ -12,59 +12,117 @@
 
 #include "BSAPITransform.h"
 
+Tracter::PluginObject* Tracter::BSAPITransform::GetInput(int iInput)
+{
+    // Enumerate the inputs
+    switch (iInput)
+    {
+        case 0:
+            return mInput;
+        case 1:
+            return mInputID;
+        default:
+            assert(0);
+    }
+
+    // Should never get here
+    return 0;
+}
+
 Tracter::BSAPITransform::BSAPITransform(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-   
-    mContext    = GetEnv("Context", 15);
-    assert(mContext > 0);
+    inputdim    = iInput->GetArraySize(); 
 
-    MaxBufferedFrames  = GetEnv("MaxBufferedFrames",mContext+1);
- 
-    PluginObject::MinSize(mInput, MaxBufferedFrames, MaxBufferedFrames);
+    Connect(iInput);
+    mInput   = iInput;
+    
+    InitTransform();
 
-    mpFeaCat = static_cast<SFeaCatI *>(BSAPICreateInstance(SIID_FTR_FEACAT));
-    if(!mpFeaCat)
-      {
-        fprintf(stderr, "No memory!");
-        exit(1);
-      }
-
-    mpFeaCat->SetOutBatchSize(1);
-    mpFeaCat->SetStartFrameRepetition(mContext);
-    mpFeaCat->SetEndFrameRepetition(mContext-1); //Last frame is sent twice so mContext-1 repetition is enough
-    mpFeaCat->SetTarget(&mTarget);
-
-    const char* sfeacatmacro = GetEnv("MACRO", "macro");
-    if(!mpFeaCat->Load((char*)sfeacatmacro))
-      {
-        exit(1);
-      }
- 
-    mArraySize = mpFeaCat->GetNOutputs();
-    assert(mArraySize > 0);
-
-    // printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
-
-    mpInput = static_cast<SFloatMatrixI *>(BSAPICreateInstance(SIID_FLOATMATRIX));
-    if(!mpInput)
-      {
-	fprintf(stderr, "No memory!");
-        exit(1);
-      }
-
-    if(!mpInput->Init(1, iInput->GetArraySize()))
-      {
-        exit(1);
-      }
-
-    mTarget.MaxBuffSize = MaxBufferedFrames*mArraySize;
-    mTarget.mpOutBuff = new float[mTarget.MaxBuffSize];
-    mTarget.nbuffsize = 0;
-
+    InitOutBuffer();
+    
     LastFrameProcess=0;
 }
+
+Tracter::BSAPITransform::BSAPITransform(Plugin<float>* iInput, Plugin<float>* iInputID, const char* iObjectName)
+{
+    mObjectName = iObjectName;
+    inputdim    = iInput->GetArraySize(); 
+
+    Connect(iInput);
+    Connect(iInputID);
+
+    mInput     = iInput;
+    mInputID   = iInputID;
+    
+    PluginObject::MinSize(mInputID, 1, 1);
+ 
+    const char* xformdir = GetEnv("MACRODIR", "");
+    
+    mInputID_macroname_full = new char[strlen(xformdir) + sizeof(float)]; //Dir length + filename
+
+    strcpy(mInputID_macroname_full,xformdir);
+
+    InitTransform(); 
+
+    InitOutBuffer();
+    
+    LastFrameProcess=0;
+}
+
+
+void Tracter::BSAPITransform::InitTransform(void){
+  mContext    = GetEnv("Context", 15);
+  assert(mContext > 0);
+  
+  MaxBufferedFrames  = GetEnv("MaxBufferedFrames",mContext+1);
+  
+  PluginObject::MinSize(mInput, MaxBufferedFrames, MaxBufferedFrames);
+
+  mpFeaCat = static_cast<SFeaCatI *>(BSAPICreateInstance(SIID_FTR_FEACAT));
+  if(!mpFeaCat)
+    {
+      fprintf(stderr, "No memory!");
+        exit(1);
+    }
+  
+  mpFeaCat->SetOutBatchSize(1);
+  mpFeaCat->SetStartFrameRepetition(mContext);
+  mpFeaCat->SetEndFrameRepetition(mContext); //Last frame is sent twice so mContext-1 repetition is enough
+  mpFeaCat->SetTarget(&mTarget);
+
+  // Load Transform  
+  const char* sfeacatmacro = GetEnv("MACRO", "macro");
+  if(!mpFeaCat->Load((char*)sfeacatmacro))
+    {
+      exit(1);
+    }
+  
+  mArraySize = mpFeaCat->GetNOutputs();
+  assert(mArraySize > 0);
+  
+  // printf("ArraySizeIn %i   ArraySizeOut %i\n", iInput->GetArraySize(), mArraySize); 
+
+  mpInput = static_cast<SFloatMatrixI *>(BSAPICreateInstance(SIID_FLOATMATRIX));
+  if(!mpInput)
+    {
+      fprintf(stderr, "No memory!");
+      exit(1);
+    }
+
+  if(!mpInput->Init(1, inputdim))
+    {
+        exit(1);
+    }
+}
+
+void Tracter::BSAPITransform::InitOutBuffer(void){
+ 
+  mTarget.MaxBuffSize = MaxBufferedFrames*mArraySize;
+  mTarget.mpOutBuff = new float[mTarget.MaxBuffSize];
+  mTarget.nbuffsize = 0;
+}
+
 
 Tracter::BSAPITransform::~BSAPITransform() throw ()
 {
@@ -99,6 +157,18 @@ bool Tracter::BSAPITransform::UnaryFetch(IndexType iIndex, int iOffset)
     float *pframe = mInput->GetPointer(inputArea.offset);
     float *pin_mat = mpInput->GetMem();
  
+    
+    if( mInputID && ( mInputID_macroname != *mInputID->GetPointer(inputArea.offset) ) ){
+      mInputID_macroname = *mInputID->GetPointer(inputArea.offset);
+      strcpy(mInputID_macroname_full+strlen(xformdir), (char*)&mInputID_macroname);
+
+      printf("Using macro from: %s\n", mInputID_macroname_full);
+      if(!mpFeaCat->Load(mInputID_macroname_full))
+	{
+	  exit(1);
+	}
+    }
+    
     /*    for (int j=0; j<mArraySize; j++) {
 	if ( j % 10 == 0 )  printf ("\n");
 	printf("%f ", pframe[j]);
@@ -110,7 +180,7 @@ bool Tracter::BSAPITransform::UnaryFetch(IndexType iIndex, int iOffset)
       if (!LastFrameProcess){
 	// printf("LastFrameSent\n");
 	// In the mpInput is still saved last last frame from previous go
-	mpFeaCat->OnFeatureMatrix(mpInput, 1, PF_LASTFRAME);
+	mpFeaCat->OnFeatureMatrix(mpInput, 0, PF_LASTFRAME);
       }
       LastFrameProcess=1;
     }
