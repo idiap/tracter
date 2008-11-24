@@ -7,8 +7,14 @@
 
 #include <cstdio>
 
-#include "ALSASource.h"
-#include "Normalise.h"
+#include "config.h"
+
+#ifdef HAVE_RTAUDIO
+# include "RtAudioSource.h"
+#else
+# include "ALSASource.h"
+# include "Normalise.h"
+#endif
 #include "FileSink.h"
 
 using namespace Tracter;
@@ -22,9 +28,14 @@ int main(int argc, char** argv)
         return 1;
     }
 
+#ifdef HAVE_RTAUDIO
+    RtAudioSource* source = new RtAudioSource();
+    FileSink sink(source);
+#else
     ALSASource* source = new ALSASource();
     Normalise* n = new Normalise(source);
     FileSink sink(n);
+#endif
     source->Open(argv[1]);
     sink.Reset();
     sink.Open("alsa.raw");

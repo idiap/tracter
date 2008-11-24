@@ -33,6 +33,17 @@ AC_SUBST(ALSA_CFLAGS)
 AC_SUBST(ALSA_LIBS)
 
 
+# libsndfile
+PKG_CHECK_MODULES(SNDFILE, sndfile >= 1.0.17, ac_cv_sndfile=1, ac_cv_sndfile=0)
+AS_IF(
+  [test "$ac_cv_sndfile" = 1],
+  [AC_DEFINE([HAVE_SNDFILE], [1], [Define if you have SNDFILE.])]
+)
+AM_CONDITIONAL([WITH_SNDFILE], [test "$ac_cv_sndfile" = 1])
+AC_SUBST(SNDFILE_CFLAGS)
+AC_SUBST(SNDFILE_LIBS)
+
+
 # Check for Torch3 first using an explicit --with-torch3
 AC_MSG_CHECKING([whether to use Torch3])
 AC_ARG_WITH(torch3,
@@ -186,6 +197,31 @@ AS_IF(
 )
 AM_CONDITIONAL([WITH_KISS_FFT], [test "$with_kiss_fft" != no])
 AC_SUBST([KISS_FFT_DIR], [$with_kiss_fft])
+
+
+# RtAudio
+# Although it comes as a package it's easier to compile it here
+AC_ARG_WITH(rtaudio,
+  [AS_HELP_STRING(
+    [--with-rtaudio=DIR],
+    [Use RtAudio to connect to sound card]
+  )],
+  [],
+  [with_rtaudio=no]
+)
+AC_MSG_CHECKING([whether to use RtAudio])
+AS_IF(
+  [test "x$with_rtaudio" != xno],
+  [AS_IF(
+    [test -d "$with_rtaudio"],
+    [AC_MSG_RESULT([$with_rtaudio])
+     AC_DEFINE([HAVE_RTAUDIO], [1], [Define if you have RtAudio.])],
+    [AC_MSG_ERROR([Can't find directory $with_rtaudio])]
+  )],
+  [AC_MSG_RESULT([no])]
+)
+AM_CONDITIONAL([WITH_RTAUDIO], [test "$with_rtaudio" != no])
+AC_SUBST([RTAUDIO_DIR], [$with_rtaudio])
 
 
 # Checks for header files.

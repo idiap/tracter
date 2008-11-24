@@ -107,6 +107,12 @@ TRACTER_SOURCES += ALSASource.cpp
 noinst_PROGRAMS += alsafile
 endif
 
+if WITH_SNDFILE
+TRACTER_SOURCES += SndFileSource.cpp
+libtracter_la_CPPFLAGS += @SNDFILE_CFLAGS@
+noinst_PROGRAMS += snddump
+endif
+
 if WITH_HTK
 TRACTER_SOURCES += HCopyWrapper.cpp
 libtracter_la_CPPFLAGS += @HTK_INCLUDES@
@@ -122,8 +128,16 @@ nodist_libtracter_la_SOURCES += \
 libtracter_la_CPPFLAGS += -I@KISS_FFT_DIR@ -I@KISS_FFT_DIR@/tools
 endif
 
+if WITH_RTAUDIO
+TRACTER_SOURCES += RtAudioSource.cpp
+nodist_libtracter_la_SOURCES += \
+	@RTAUDIO_DIR@/RtAudio.cpp
+libtracter_la_CPPFLAGS += -I@RTAUDIO_DIR@ -D__LINUX_ALSA__
+endif
+
 libtracter_la_LIBADD = \
 	@ALSA_LIBS@ \
+	@SNDFILE_LIBS@ \
 	@HTK_LIBS@ \
 	@LIBRESAMPLE_LIBS@ \
 	@BSAPI_LIBS@ \
@@ -152,6 +166,7 @@ socketserver_LDADD = libtracter.la
 
 alsafile_SOURCES = alsafile.cpp
 alsafile_LDADD = libtracter.la
+alsafile_CPPFLAGS = -I@RTAUDIO_DIR@ -D__LINUX_ALSA__
 
 htktopixmap_SOURCES = htktopixmap.cpp
 htktopixmap_LDADD = libtracter.la
@@ -162,3 +177,7 @@ hcopytester_LDADD = libtracter.la
 
 resample_SOURCES = resample.cpp
 resample_LDADD = libtracter.la
+
+snddump_SOURCES = snddump.cpp
+snddump_CPPFLAGS = @SNDFILE_CFLAGS@
+snddump_LDADD = libtracter.la
