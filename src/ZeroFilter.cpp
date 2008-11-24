@@ -32,7 +32,7 @@ int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     assert(iIndex >= 0);
     CacheArea inputArea;
     float store = 0.0f;
-    float* input = mInput->GetPointer();
+    float* input = 0;
 
     // Do a single read behind the window to initialise the store
     // This makes the code afterwards identical for iIndex == 0 too.
@@ -41,6 +41,7 @@ int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         int one = mInput->Read(inputArea, iIndex-1);
         if (one == 0)
             return 0;
+        input = mInput->GetPointer();
         store = input[inputArea.offset];
     }
 
@@ -48,6 +49,7 @@ int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     int lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
     int rOffset = inputArea.offset;
     int wOffset = iOutputArea.offset;
+    input = mInput->GetPointer();
 
     // For the edge effect, duplicate the first sample
     if (iIndex == 0)
