@@ -76,7 +76,11 @@ bool Tracter::Mean::UnaryFetch(IndexType iIndex, int iOffset)
     {
     case MEAN_STATIC:
         if (!mValid)
+        {
+            Verbose(1, "Reading whole stream at %ld\n", iIndex);
             processAll();
+            Verbose(1, "Read.\n");
+        }
         break;
 
     case MEAN_ADAPTIVE:

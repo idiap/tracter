@@ -252,37 +252,35 @@ Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
 {
     Plugin<float>* p  = iPlugin;
 
-#ifdef HAVE_TORCH3
-    // Nonsense for now...
-    //p = new MLP(p);
-    //MLPVAD* m = new MLPVAD(p);
-    //p = new VADGate(p, m);
+    // Framed version of the input for BSAPI
+    Plugin<float>* f = new Frame(p);
+
+#if 0 //def HAVE_TORCH3
+    // MLP based VAD
+    p = new BSAPIFrontEnd(f);
+    p = new MLP(p);
+    MLPVAD* m = new MLPVAD(p);
+    p = new VADGate(f, m);
+#else
+    // Energy based VAD (Energy will do the framing)
+    p = new Energy(p);
+    ModulationVAD* m = new ModulationVAD(p);
+    p = new VADGate(f, m);
 #endif
 
-    p = new Frame(p);
-
-    // PLP or whatever
-    p = new BSAPIFrontEnd(p);
-
-
     // VTLN PLP
+    Plugin<float>* wf = new BSAPIFastVTLN(p);
+    p = new BSAPIFrontEnd(p,wf);
 
-    /*
-      Plugin<float>* wf = iPlugin;
-      wf = new BSAPIFastVTLN(p);
-      p = new BSAPIFrontEnd(p,wf);
-    */
+    // MVN
+    p = normaliseMean(p);
+    //p = normaliseVariance(p);
 
-    // NN features
+    // CMLLR
+    if (GetEnv("CMLLR", 0))
+        p = new BSAPITransform(p);
 
-    /*
-      p = new BSAPIFilterBank(p);
-      p = new BSAPITransform(p);
-    */
-
-
-    //  p = normaliseMean(p);
-    //  p = normaliseVariance(p);
+    // Done
     return p;
 }
 #endif

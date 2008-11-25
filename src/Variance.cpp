@@ -148,6 +148,8 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
         for (int j=0; j<mArraySize; j++)
             mVariance[j] /= mBurnIn;
         mValid = true;
+        Verbose(1, "Burn in gives %e %e %e %e ...\n",
+                mVariance[0], mVariance[1], mVariance[2], mVariance[3]);
     }
 
     if (iIndex >= mAdaptStart)
