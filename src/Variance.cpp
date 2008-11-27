@@ -17,6 +17,7 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     mArraySize = iInput->GetArraySize();
     assert(mArraySize >= 0);
 
+    mAdaptStart = 0;
     mVarianceType = VARIANCE_ADAPTIVE;
 
     mBurnIn = GetEnv("BurnIn", 20);
@@ -35,18 +36,24 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
         break;
 
     case VARIANCE_ADAPTIVE:
-        PluginObject::MinSize(mInput, mBurnIn);
+        PluginObject::MinSize(mInput, std::max(mBurnIn,1));
         break;
 
     default:
         assert(0);
     }
 
-    mVariance.resize(mArraySize);
-    for (int i=0; i<mArraySize; i++)
-        mVariance[i] = 0.0;
+    // Initialise a target variance either from a file or to unity
+    const char* tgtFile = GetEnv("TargetFile", (const char*)0);
+    if (tgtFile)
+        Load(tgtFile);
+    else
+        mTarget.assign(mArraySize, 1.0);
+
+    // Our running variance is initialised to the target
+    mVariance.assign(mTarget.begin(), mTarget.end());
     mValid = false;
-    SetTimeConstant(GetEnv("TimeConstant", 0.5f));
+    SetTimeConstant(GetEnv("TimeConstant", 1.0f));
 }
 
 void Tracter::Variance::SetTimeConstant(float iSeconds)
@@ -63,9 +70,8 @@ void Tracter::Variance::SetTimeConstant(float iSeconds)
 
 void Tracter::Variance::Reset(bool iPropagate)
 {
-    // Zero the variance
-    for (int i=0; i<mArraySize; i++)
-        mVariance[i] = 0.0;
+    // Reset the variance to the target
+    mVariance.assign(mTarget.begin(), mTarget.end());
     mValid = false;
 
     // Call the base class
@@ -91,13 +97,11 @@ bool Tracter::Variance::UnaryFetch(IndexType iIndex, int iOffset)
         assert(0);
     }
 
-    // Copy to output, which is a bit of a waste if the output is only
-    // size 1 and there's only one variance.  Maybe there's an
-    // optimisation possible.
     float* output = GetPointer(iOffset);
     for (int i=0; i<mArraySize; i++)
-        output[i] = sqrtf(mVariance[i]); // Wasteful for static!
+        output[i] = sqrtf(mVariance[i] / mTarget[i]);
 
+    printf("v0: %f\n", mVariance[0]);
     return true;
 }
 
@@ -132,10 +136,11 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
 
     CacheArea inputArea;
 
-    if (!mValid)
+    if (mBurnIn && !mValid)
     {
         // Set the variance using the first mBurnIn frames
         mAdaptStart = iIndex+mBurnIn;
+        mVariance.assign(mArraySize, 0.0f);
         for (int i=iIndex; i<iIndex+mBurnIn; i++)
         {
             if (mInput->Read(inputArea, i) == 0)
@@ -160,9 +165,30 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
         float* p = mInput->GetPointer(inputArea.offset);
 
         // Combine the new observation into the variance
+        printf("%f %f\n", mPole * mVariance[0], mElop * p[0] * p[0]);
         for (int i=0; i<mArraySize; i++)
             mVariance[i] = mPole * mVariance[i] + mElop * p[i] * p[i];
     }
 
     return true;
+}
+
+void Tracter::Variance::Load(const char* iFileName)
+{
+    FILE* fp = fopen(iFileName, "r");
+    if (!fp)
+        throw Exception("Failed to open file %s", iFileName);
+
+    char tmpStr[20];
+    int tmpInt = 0;
+    if (fscanf(fp, "%s %d", tmpStr, &tmpInt) != 2)
+        throw Exception("Failed to read <VARSCALE> and size tokens");
+    if (tmpInt != mArraySize)
+        throw Exception("Vector size != array size");
+    mTarget.resize(mArraySize);
+    for (int i=0; i<mArraySize; i++)
+        if (fscanf(fp, "%f", &mTarget[i]) != 1)
+            throw Exception("failed to read element %d", i);
+    for (int i=0; i<mArraySize; i++)
+        printf("%f\n", mTarget[i]);
 }

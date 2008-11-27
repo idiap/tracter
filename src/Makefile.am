@@ -15,7 +15,6 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
-	BlasLinear.cpp \
 	Frame.cpp \
 	SocketTee.cpp \
 	ScreenSink.cpp \
@@ -80,6 +79,7 @@ libtracter_la_CFLAGS=
 
 if WITH_TORCH3
 TRACTER_SOURCES += \
+	BlasLinear.cpp \
 	SKMLP.cpp \
 	MLP.cpp \
 	MLPVAD.cpp

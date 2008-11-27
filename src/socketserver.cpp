@@ -22,8 +22,8 @@ int main(int argc, char** argv)
     struct timeval tv;
     if (gettimeofday(&tv, 0))
         exit(1);
-    TimeType time = (TimeType)tv.tv_sec * 1e9;
-    time += (TimeType)tv.tv_usec * 1e3;
+    TimeType time = (TimeType)tv.tv_sec * ONEe9;
+    time += (TimeType)tv.tv_usec * ONEe3;
     printf("Time is %lld\n", time);
 
     /* Processing chain */

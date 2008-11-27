@@ -28,6 +28,12 @@ namespace Tracter
     protected:
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
+        /** Diverts basic time stamp requests to the Source base class */
+        virtual TimeType TimeStamp(IndexType iIndex)
+        {
+             return Source::TimeStamp(iIndex);
+        }
+
     private:
         snd_output_t* mOutput;
         snd_pcm_t* mHandle;

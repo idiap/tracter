@@ -23,6 +23,16 @@ namespace Tracter
         VADGate(Plugin<float>* iInput, VADStateMachine* iVADInput,
                 const char* iObjectName = "VADGate");
 
+        /**
+         * Intercept TimeStamp
+         *
+         * We need to adjust for the segmenting effect
+         */
+        TimeType TimeStamp(IndexType iIndex)
+        {
+            return PluginObject::TimeStamp(iIndex + mIndexZero);
+        }
+
     protected:
         PluginObject* GetInput(int iInput);
         bool UnaryFetch(IndexType iIndex, int iOffset);

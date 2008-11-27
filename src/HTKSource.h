@@ -25,6 +25,13 @@ namespace Tracter
         virtual ~HTKSource() throw() {}
         void Open(const char* iFileName);
 
+    protected:
+        /** Diverts basic time stamp requests to the Source base class */
+        virtual TimeType TimeStamp(IndexType iIndex)
+        {
+             return Source::TimeStamp(iIndex);
+        }
+
     private:
         ByteOrder mByteOrder;
         MMap mMap;

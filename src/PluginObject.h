@@ -39,6 +39,9 @@ namespace Tracter
 
     typedef long IndexType;
     typedef long long TimeType;  ///< 64 bit type like ASIOTimeStamp
+    const TimeType ONEe3 = 1000;
+    const TimeType ONEe6 = 1000000;
+    const TimeType ONEe9 = 1000000000;
 
     /** Index / Offset pair for internal cache management */
     struct CachePointer

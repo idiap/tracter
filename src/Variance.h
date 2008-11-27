@@ -38,6 +38,7 @@ namespace Tracter
         bool mValid;
         VarianceType mVarianceType;
         std::vector<float> mVariance;
+        std::vector<float> mTarget;
 
         int mBurnIn;
         int mAdaptStart;
@@ -46,6 +47,8 @@ namespace Tracter
 
         void processAll();
         bool adaptFrame(IndexType iIndex);
+
+        void Load(const char* iFileName);
     };
 }
 
