@@ -6,7 +6,9 @@
  */
 
 #include <algorithm>
+
 #include <time.h>
+#include <sys/time.h>
 
 #include "ALSASource.h"
 
@@ -126,6 +128,14 @@ void Tracter::ALSASource::Open(const char* iDeviceName)
     /* Start the PCM */
     ALSACheck( snd_pcm_start(mHandle) );
     assert(snd_pcm_state(mHandle) == SND_PCM_STATE_RUNNING);
+
+    /* Set time */
+    struct timeval tv;
+    if (gettimeofday(&tv, 0))
+        throw Exception("gettimeofday failed");
+    mTime  = (TimeType)tv.tv_sec * ONEe9;
+    mTime += (TimeType)tv.tv_usec * ONEe3;
+    Verbose(1, "Time is %lld\n", mTime);
 
     if (sVerbose > 1)
         snd_pcm_dump(mHandle, mOutput);

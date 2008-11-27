@@ -23,6 +23,8 @@ namespace Tracter
     class Source
     {
     public:
+        Source() { mTime = 0; }
+
         /** Open a source with the given name */
         virtual void Open(const char* iName) = 0;
         virtual ~Source() {}
@@ -42,7 +44,6 @@ namespace Tracter
             return time;
         }
 
-        //virtual TimeType TimeStamp(IndexType iIndex) = 0;
         TimeType mTime;
     };
 }
