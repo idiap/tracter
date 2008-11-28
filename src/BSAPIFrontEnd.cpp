@@ -73,18 +73,6 @@ void Tracter::BSAPIFrontEnd::InitFrontEnd(void){
  
   const char* Config = GetEnv("Config","./configs/bsrec.plp.cfg");
 
-  
-  WaveformScaleUp = GetEnv("WaveformScaleUp",32768);
-  MaxBufferedFrames  = GetEnv("MaxBufferedFrames",5);
-
-  // If scaling is needed, the memory is allocated
-  if ( WaveformScaleUp != 1 ) 
-    mpInputWaveform = new float[inputdim*MaxBufferedFrames];
-  
-  
-  PluginObject::MinSize(mInput,  MaxBufferedFrames , MaxBufferedFrames);
-  //PluginObject::MinSize(mInput,  5 , 5);
-
   mpPLP = static_cast<SSpeechRecI *>(BSAPICreateInstance(SIID_SPEECHREC));
   if(!mpPLP)
     {
@@ -106,6 +94,23 @@ void Tracter::BSAPIFrontEnd::InitFrontEnd(void){
     mArraySize = mpPLP->GetFeatureExtraction()->GetNOutputs();
     mpPLP->GetFeatureExtraction()->SetTarget(&mTarget);
   }
+
+  
+  WaveformScaleUp = GetEnv("WaveformScaleUp",32768);
+  //MaxBufferedFrames  = GetEnv("MaxBufferedFrames",5);
+  
+  MaxBufferedFrames = GetMelTarget(mpPLP)->GetEndFrameRepetition() + 1;
+  // printf ("MaxBufferedFrames %i\n",MaxBufferedFrames);
+
+  // If scaling is needed, the memory is allocated
+  if ( WaveformScaleUp != 1 ) 
+    mpInputWaveform = new float[inputdim*MaxBufferedFrames];
+  
+  
+  PluginObject::MinSize(mInput,  MaxBufferedFrames , MaxBufferedFrames);
+  //PluginObject::MinSize(mInput,  5 , 5);
+
+
 
   assert(mArraySize > 0);
 }
@@ -170,7 +175,7 @@ bool Tracter::BSAPIFrontEnd::UnaryFetch(IndexType iIndex, int iOffset)
       if (numReadWF)
 	{
 	  wf = *mInputWF->GetPointer(inputArea.offset);
-	  printf("wf: %f\n",wf);
+	  // printf("wf: %f\n",wf);
 	  GetMelTarget(mpPLP)->SetWarpAlpha(wf);
 	}
     }

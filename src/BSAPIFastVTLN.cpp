@@ -7,7 +7,8 @@
  *                    karafiat@fit.vutbr.cz                *
  ***********************************************************/
 
-// /mnt/matylda3/ciprtom/BSAPI-TMP
+/** See the file COPYING for the licence associated with this software.
+ */
 
 #include "BSAPIFastVTLN.h"
 
@@ -30,7 +31,7 @@ Tracter::BSAPIFastVTLN::BSAPIFastVTLN(Plugin<float>* iInput, const char* iObject
 
     PluginObject::MinSize(mInput,  MaxBufferedFrames , MaxBufferedFrames);
  
-    mpFastVTLN = static_cast<SFastVtlnI *>(BSAPICreateInstance(SIID_FASTVTLN));
+    mpFastVTLN = static_cast<SGMMBasedEstimatorI *>(BSAPICreateInstance(SIID_GMMESTIMATOR));
     if(!mpFastVTLN)
       {
         fprintf(stderr, "No memory!");
@@ -102,7 +103,7 @@ bool Tracter::BSAPIFastVTLN::UnaryFetch(IndexType iIndex, int iOffset)
     if ( numRead )
     mpFastVTLN->OnWaveform( SWaveformSourceCallbackI::wfFloat , SamplingFreq, 1, mpInputWaveform,  numRead * inputdim * sizeof(float), 0);
 
-    wf = mpFastVTLN->GetWarpingFactor();
+    wf = mpFastVTLN->GetFactor();
     printf("wf: %f\n",wf);
 
     //GetMelTarget(mpPLP)->SetWarpAlpha(wf);
@@ -111,10 +112,5 @@ bool Tracter::BSAPIFastVTLN::UnaryFetch(IndexType iIndex, int iOffset)
 
     cache[0] = wf;
 
- if (numRead) 
-    return true;
- else
-   return false;
+    return numRead>0;
 }
-
-

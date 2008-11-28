@@ -1,8 +1,13 @@
-/*
- * Copyright 2007 by IDIAP Research Institute
- *                   http://www.idiap.ch
- *
- * See the file COPYING for the licence associated with this software.
+/***********************************************************
+ *  Copyright 2008 by Brno University of Technology        *
+ *                    www.vutbr.cz                         *
+ *                                                         *
+ *  Author:           Martin Karafiat                      *
+ *                    UPGM,FIT,VUT,Brno                    *
+ *                    karafiat@fit.vutbr.cz                *
+ ***********************************************************/
+
+/** See the file COPYING for the licence associated with this software.
  */
 
 #ifndef BSAPIFastVTLN_H
@@ -34,7 +39,7 @@ namespace Tracter
 
 	float wf;
 	
-	SFastVtlnI  *mpFastVTLN;
+	SGMMBasedEstimatorI *mpFastVTLN;
 
 	int SamplingFreq;
 	int MaxBufferedFrames;
