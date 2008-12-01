@@ -17,14 +17,14 @@
 
 
 Tracter::SocketSource::SocketSource(void* iAuxiliary, const char* iObjectName)
-    : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
     mAuxiliary = iAuxiliary;
-    mArraySize = GetEnv("ArraySize", 39);
-    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
-    mSamplePeriod = GetEnv("SamplePeriod", 80);
+    mArraySize = GetEnv("ArraySize", 1);
+    mSampleFreq = GetEnv("SampleFreq", 48000.0f);
+    mSamplePeriod = GetEnv("SamplePeriod", 1);
     mPort = GetEnv("Port", 30000);
+    mBufferSize = GetEnv("BufferSize", 0);
     mFD = 0;
 }
 
@@ -79,7 +79,23 @@ void Tracter::SocketSource::Open(const char* iHostName)
         throw Exception("%s: connect() failed for %s:%hu\n",
                         mObjectName, iHostName, mPort);
     }
+
+    int bufSize = 0;
+    socklen_t len = sizeof(int);
+    if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &bufSize, &len))
+        throw Exception("getsockopt failed");
+    Verbose(1, "recvbuf is size %d\n", bufSize);
+
+    if (mBufferSize > 0)
+    {
+        if (setsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &mBufferSize, len))
+            throw Exception("setsockopt failed");
+        if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &bufSize, &len))
+            throw Exception("getsockopt failed");
+        Verbose(1, "resize: requested %d granted %d\n", mBufferSize, bufSize);
+    }
 }
+
 
 /**
  * Receive data from socket.  Calls recv() until either iNBytes have

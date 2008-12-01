@@ -89,7 +89,9 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     {
         Verbose(1, "gate() returned at index %ld, silConf %ld\n",
                 iIndex, mSilenceConfirmed);
-        if (mSegmenting && (mSilenceConfirmed <= iIndex))
+        if ( mSegmenting &&
+             (mSilenceConfirmed >= 0) &&
+             (mSilenceConfirmed <= iIndex) )
             throw Exception("iIndex ahead of silence");
         assert(
             (mSilenceConfirmed < 0) ||   /* Failed to find silence */
