@@ -11,9 +11,28 @@ it has developed into a wrapper for libraries of basic algorithms.
 
 The components generally run serially, not in parallel; tracter does
 not do concurrent data-flow in the sense of Kahn process networks
-\citep{Lee1995}.
+\citep{Lee1995}.  It is not a language either.  However, the
+components do have some things in common with process networks.  For
+instance, reads are blocking but writes are not.
 
 Tracter distinguishes sources and sinks.
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[node distance=2cm]
+    \node[state] (source) {};
+    \node[below] at (source.south) {Source};
+    \node[state] (component) [right of=source] {};
+    \node[below] at (component.south) {Component};
+    \node[state] (sink) [right of=component] {};
+    \node[below] at (sink.south) {Sink};
+    \path[->]
+      (source) edge (component)
+      (component) edge (sink);
+  \end{tikzpicture}
+  \caption{A minimal tracter graph.}
+  \label{fig:Graph}
+\end{figure}
 
 %\begin{tikzpicture}[start chain]
 %  \node [draw,on chain] {A};
@@ -42,11 +61,11 @@ really succeeds, but the idea is to have about 4 or 5 layers:
 \begin{description}
 \item[Executables] are the top layer.  Generally speaking it's
   possible to write an executable that has just one tracter component
-  and does something useful.
-\item[Factories] are the same level as some other APIs.  They define a
-  graph of components that constitute some useful block.  A factory is
-  actually a very thin layer; it just instantiates a graph of
-  components, so the overhead afer calling the factory is zero.
+  other than a source and sink and does something useful.
+\item[Factories] define a graph of components that constitute some
+  useful block.  A factory is actually a very thin layer; it just
+  instantiates a graph of components, so the overhead after calling
+  the factory is zero.
 \item[Components] are the main level.  A component is a node in a
   directed graph of processing elements.  Components necessarily have
   inputs and outputs.  To use them you have to buy into the data-flow
@@ -99,7 +118,7 @@ idea that you should implement only as much as you need.\footnote{In
 EP in tracter is to first write a technique as a component.  If the
 component is useful, expand it into one or more objects that are
 contained by a component.  If the core algorithms are useful, they can
-be abstracted out as a fundamental functions.
+be abstracted out as fundamental functions.
 
 That said, most of the fundamental functions are already written and
 exist in other libraries.  In this sense, tracter reduces to an
