@@ -26,17 +26,42 @@ void Usage()
     );
 }
 
+#if 0
+#include <signal.h>
+
+void handler(int iSomething)
+{
+    printf("Caught signal %d\n", iSomething);
+    exit(1);
+}
+#endif
+
 /**
  * Tracter executable.
  */
 int main(int argc, char** argv)
 {
+#if 0
+    struct sigaction sa;
+    sa.sa_handler = handler;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    if (sigaction(SIGFPE, &sa, 0))
+        printf("Error setting sigaction\n");
+#endif
+
     const char* fileList = 0;
     const char* file[2] = {0, 0};
     int fileCount = 0;
     bool loop = false;
     for (int i=1; i<argc; i++)
     {
+#if 0
+        float x = 9.0 / (i-1); // FPE!
+        printf("x=%f\n", x);
+        x += 2;
+#endif
+
         /* Unqualified arguments are the input and output files */
         if (argv[i][0] != '-')
         {

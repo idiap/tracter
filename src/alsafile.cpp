@@ -15,6 +15,7 @@
 # include "ALSASource.h"
 # include "Normalise.h"
 #endif
+#include "Resample.h"
 #include "FileSink.h"
 
 using namespace Tracter;
@@ -34,7 +35,8 @@ int main(int argc, char** argv)
 #else
     ALSASource* source = new ALSASource();
     Normalise* n = new Normalise(source);
-    FileSink sink(n);
+    Resample* r = new Resample(n);
+    FileSink sink(r);
 #endif
     source->Open(argv[1]);
     sink.Reset();
