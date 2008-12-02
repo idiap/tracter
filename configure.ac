@@ -9,7 +9,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([Tracter], [0.3.0rc1])
+AC_INIT([Tracter], [0.3.0rc2])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/PluginObject.cpp])
 AC_CONFIG_HEADER([config.h])
