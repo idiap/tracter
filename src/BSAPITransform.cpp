@@ -36,7 +36,8 @@ Tracter::BSAPITransform::BSAPITransform(Plugin<float>* iInput, const char* iObje
 
     Connect(iInput);
     mInput   = iInput;
-    
+    mInputID   = NULL;
+
     InitTransform();
 
     InitOutBuffer();
@@ -128,6 +129,7 @@ Tracter::BSAPITransform::~BSAPITransform() throw ()
 {
   mpFeaCat->Release();
   mpInput->Release();
+  delete[]mTarget.mpOutBuff;
 }
 
 /*

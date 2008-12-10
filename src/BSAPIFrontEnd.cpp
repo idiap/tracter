@@ -36,6 +36,7 @@ Tracter::BSAPIFrontEnd::BSAPIFrontEnd(Plugin<float>* iInput, const char* iObject
  
     Connect(iInput);
     mInput   = iInput;
+    mInputWF = NULL;
  
     InitFrontEnd();
 
@@ -125,6 +126,9 @@ void Tracter::BSAPIFrontEnd::InitOutBuffer(void){
 Tracter::BSAPIFrontEnd::~BSAPIFrontEnd() throw ()
 {
   mpPLP->Release();
+  delete[]mTarget.mpOutBuff;
+  if ( WaveformScaleUp != 1 )
+    delete[]mpInputWaveform;
 }
 
 /*
@@ -155,7 +159,7 @@ bool Tracter::BSAPIFrontEnd::UnaryFetch(IndexType iIndex, int iOffset)
     float *pframe  = mInput->GetPointer(inputArea.offset);
 
 
-    // Memory scaling. If it is not needed, just pointer is copied 
+    // Memory scaling. If it is not needed, no memry is allocated in contructor, so just pointer is copied 
     if ( WaveformScaleUp != 1 ) 
       for (int j=0; j<inputdim*extend; j++) 
       	mpInputWaveform[j] = pframe[j] * WaveformScaleUp;

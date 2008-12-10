@@ -23,29 +23,41 @@ namespace Tracter
     /**
      * Plugin to calculate delta features
      */
-    class BSAPIFilterBank : public UnaryPlugin<float, float>
+  class BSAPIFilterBank : public CachedPlugin<float>
     {
     public:
         BSAPIFilterBank(Plugin<float>* iInput, const char* iObjectName = "BSAPIFilterBank");
+	BSAPIFilterBank(Plugin<float>* iInput, Plugin<float>* iInputWF, const char* iObjectName = "BSAPIFilterBank");
         virtual ~BSAPIFilterBank() throw();
 
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
+	PluginObject* GetInput(int iInput);
 
     private:
 	SMelBanksI *mpMelBanks;
 	int SampleFreq;
 	
-	float WaveFromScaleUp;
+	float WaveformScaleUp;
+	float *mpInputWaveform;
 	int   inputdim; 
 
-        class STarget : public SFeatureExtractionCallbackI
+	float wf;
+
+	void InitFrontEnd(void);
+	void InitOutBuffer(void);
+	Plugin<float>* mInputWF; 
+	Plugin<float>* mInput; 
+
+	class STarget : public SFeatureExtractionCallbackI
         {  
-	public:    
-	  STarget() : mpNnout(NULL) {}
-	  float *mpNnout;
+	public:   
+	  float *mpOutBuff;
+	  int nbuffsize;
+	  // STarget() : mpNnout(NULL) {}
+	  // float *mpNnout;
 	  bool BSAPI_METHOD OnFeatureMatrix(SFloatMatrixI *pMatrix, int nFrames, unsigned int flags);
-	  } mTarget;
+	} mTarget;
     };
 }
 

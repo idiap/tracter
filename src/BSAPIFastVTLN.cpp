@@ -18,7 +18,7 @@ Tracter::BSAPIFastVTLN::BSAPIFastVTLN(Plugin<float>* iInput, const char* iObject
     mObjectName = iObjectName;
     inputdim    = iInput->GetArraySize(); 
 
-    const char* VTLNFrontEndConfig = GetEnv("VTLNFrontEndConfig","./configs/bsapi.VTLN.cfg");
+    const char* VTLNFrontEndConfig = GetEnv("Config","./configs/bsapi.VTLN.cfg");
     
     MaxBufferedFrames  = GetEnv("MaxBufferedFrames",5);
     SamplingFreq = GetEnv("SamplingFreq",16000);
@@ -55,6 +55,9 @@ Tracter::BSAPIFastVTLN::BSAPIFastVTLN(Plugin<float>* iInput, const char* iObject
 Tracter::BSAPIFastVTLN::~BSAPIFastVTLN() throw ()
 {
   mpFastVTLN->Release();
+
+  if ( WaveformScaleUp != 1 )
+    delete[]mpInputWaveform;
 }
 
 /*
@@ -101,10 +104,10 @@ bool Tracter::BSAPIFastVTLN::UnaryFetch(IndexType iIndex, int iOffset)
 
     //wf=1.0;
     if ( numRead )
-    mpFastVTLN->OnWaveform( SWaveformSourceCallbackI::wfFloat , SamplingFreq, 1, mpInputWaveform,  numRead * inputdim * sizeof(float), 0);
-
+      mpFastVTLN->OnWaveform( SWaveformSourceCallbackI::wfFloat , SamplingFreq, 1, mpInputWaveform,  numRead * inputdim * sizeof(float), 0);
+    
     wf = mpFastVTLN->GetFactor();
-    printf("wf: %f\n",wf);
+    // printf("wf: %f\n",wf);
 
     //GetMelTarget(mpPLP)->SetWarpAlpha(wf);
     
