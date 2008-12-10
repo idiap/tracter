@@ -14,6 +14,7 @@
 #include "TracterObject.h"
 #include "Plugin.h"
 #include "Source.h"
+#include "SpeakerIDSocketSource.h"
 
 namespace Tracter
 {
@@ -36,6 +37,8 @@ namespace Tracter
         Plugin<float>* CreateFrontend(Plugin<float>* iPlugin);
         Plugin<float>* CreateSource(Source*& iSource);
 
+        Plugin<float>* GetSpeakerIDSource();
+
     protected:
         std::map<std::string, source_t> mSource;
         std::map<std::string, frontend_t> mFrontend;
@@ -53,7 +56,11 @@ namespace Tracter
         Plugin<float>* plpFrontend(Plugin<float>* iPlugin);
         Plugin<float>* htkFrontend(Plugin<float>* iPlugin);
         Plugin<float>* posteriorFrontend(Plugin<float>* iPlugin);
+
+    private:
+        SpeakerIDSocketSource* mSpeakerIDSource;
     };
+
 }
 
 #endif /* ASRFACTORY_H */

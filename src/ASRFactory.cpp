@@ -78,6 +78,15 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #ifdef HAVE_BSAPI
     mFrontend["Poster"] = &Tracter::ASRFactory::posteriorFrontend;
 #endif
+
+    // THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW
+    mSpeakerIDSource = 0;
+    const char* sidHost = GetEnv("SpeakerIDHost", (char*)0);
+    if (sidHost)
+    {
+        mSpeakerIDSource = new SpeakerIDSocketSource();
+        mSpeakerIDSource->Open(sidHost);
+    }
 }
 
 Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
@@ -284,3 +293,14 @@ Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
     return p;
 }
 #endif
+
+
+// THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW.
+Tracter::Plugin<float>*
+Tracter::ASRFactory::GetSpeakerIDSource()
+{
+    if (mSpeakerIDSource)
+        return mSpeakerIDSource;
+
+    return 0;
+}

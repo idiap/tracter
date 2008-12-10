@@ -23,6 +23,8 @@ namespace Tracter
         );
     protected:
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+    private:
+        int mTimeOffset;
     };
 }
 
