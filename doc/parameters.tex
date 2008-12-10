@@ -1,31 +1,4 @@
-/**
-
-\page design Design of tracter
-
-\section audio Audio cache notes
-
-Assuming the application runs faster than real time, the source will
-typically have to wait for new data and can do so in a way that does
-not use system resources, e.g., using unix wait().
-
-So long as the application runs faster than real time, there is no
-problem with the audio cache.  However, if the application runs slower
-than real time, there is an issue about how to buffer audio data.
-
-- ALSA buffers tend to be quite small - about 4 or 8 kilobytes.  The
-  large sizes tend to be associated with USB audio cards with a cache
-  of 64 kB.  11 kHz monophonic data with 2 bytes per sample will fill
-  such a buffer in under 3 seconds.
-
-- ALSA plugins do not keep their own buffers if they can help it.
-  Ones that do include dsnoop.  It may be possible to use dsnoop to do
-  audio buffering for tracter.
-
-- Otherwise ALSASource has to take care of the buffering.  In this
-  case, it should receive new dta asynchronously via a callback.
-  Semaphores are likely needed to make this work properly.
-
-\section parameters Parameter setting
+\section{Parameter setting}
 
 The two generally accepted ways to get parameters into a program are
 via command line arguments and via a config file.  Both these would be
@@ -34,54 +7,47 @@ that need to know about parameters.  Rather, tracter uses environment
 variables to set parameters.  The advantage is that the wrapper
 program does not need to care about passing large numbers of
 parameters to the right module.  The disadvantages are, well, none
-that I've found.  It does require a slightly different programming
-mentality.  For instance, to set a single parameter, rather than
-writing
-
-\code
+that I've found.  Danil doesn't like it, and pointed out that multiple
+threads wouldn't be able to distinguish parameters.  It does require a
+slightly different programming mentality.  For instance, to set a
+single parameter, rather than writing
+\begin{verbatim}
 tracter variable1=value1
-\endcode
-
+\end{verbatim}
 you can write
-
-\code
+\begin{verbatim}
 variable1=value1 tracter
-\endcode
-
+\end{verbatim}
 which isn't so different.
 In the case of a whole configuration file, rather than writing
-
-\code
+\begin{verbatim}
 tracter -C config.txt
-\endcode
-
+\end{verbatim}
 you write
-
-\code
+\begin{verbatim}
 source config.sh
 tracter
-\endcode
+\end{verbatim}
 
 What this tends to amount to is that it's convenient to call tracter
 executables from scripts.  Typically, one might write
-
-\code
+\begin{verbatim}
 # Configuration
 export Normalise_Endian=BIG
 export Cepstrum_NCepstra=12
 
 # Call the executable
 tracter
-\endcode
+\end{verbatim}
 
 To aid this process, the tracter framework will dump every environment
 variable requested in the form of a script.  This is currently done
 with a command line argument
-\code
+\begin{verbatim}
 tracter -c
-\endcode
+\end{verbatim}
 producing something like
-\code
+\begin{verbatim}
 export FileSource_SampleFreq=8000.000000          # Default
 export Normalise_Endian=BIG                       # Environment
 export ZeroFilter_Zero=0.970000                   # Default
@@ -99,7 +65,7 @@ export MelFilter_Alpha=1.000000                   # Default
 export Cepstrum_C0=1                              # Default
 export Cepstrum_NCepstra=12                       # Environment
 export Mean_Type=ADAPTIVE                         # Default
-\endcode
+\end{verbatim}
 
 Notice the comment.  It indicates whether the value came from a
 compiled in default or from an environment variable.
@@ -112,18 +78,18 @@ name is supplied to the constructor it will be used.  This is useful
 when the same module is used for two different purposes.  For
 instance, to use a different window size for delta and acceleration
 features, the code could read
-
-\code
+\begin{verbatim}
 Delta* d  = new Delta(x, "Delta1");
 Delta* dd = new Delta(d, "Delta2");
-\endcode
-
+\end{verbatim}
 with window size set using
-
-\code
+\begin{verbatim}
 export Delta1_Theta=2  # Delta window 5
 export Delta2_Theta=3  # Acceleration window 7
-\endcode
+\end{verbatim}
 
 
- */
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "tracter"
+%%% End: 
