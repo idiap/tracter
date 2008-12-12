@@ -6,10 +6,21 @@
  */
 
 #include <cassert>
+#include <vector>
 
 #include <libresample.h>
 
 #include "Resample.h"
+
+/**
+ * The class specific data for ResampleLRS
+ */
+struct Tracter::ResampleData
+{
+    void *handle;
+    double ratio;
+    std::vector<float> resample;
+};
 
 /**
  * libresample (LRS) based resampler.  Depends on libresample, which
@@ -26,9 +37,12 @@ Tracter::Resample::Resample(
     mObjectName = iObjectName;
     mSampleFreq = GetEnv("TargetFreq", 16000);
 
-    mRatio = (double)mSampleFreq / mInput->GetSampleFreq();
-    mHandle = resample_open(1, mRatio, mRatio);
-    assert(mHandle);
+    mResampleData = new ResampleData;
+    ResampleData& r = *mResampleData;
+
+    r.ratio = (double)mSampleFreq / mInput->GetSampleFreq();
+    r.handle = resample_open(1, r.ratio, r.ratio);
+    assert(r.handle);
 }
 
 /**
@@ -36,8 +50,10 @@ Tracter::Resample::Resample(
  */
 Tracter::Resample::~Resample() throw()
 {
-    resample_close(mHandle);
-    mHandle = 0;
+    ResampleData& r = *mResampleData;
+    resample_close(r.handle);
+    delete mResampleData;
+    mResampleData = 0;
 }
 
 /**
@@ -51,18 +67,20 @@ void Tracter::Resample::MinSize(int iSize, int iReadBack, int iReadAhead)
 
     // Set the input buffer big enough to service largest output requests
     assert(mInput);
-    int minSize = (int)((double)iSize / mRatio + 0.5);
+    ResampleData& r = *mResampleData;
+    int minSize = (int)((double)iSize / r.ratio + 0.5);
     PluginObject::MinSize(mInput, minSize, 0, 0);
 
     /* It's too complicated without an intermediate array */
-    mResample.resize(iSize);
+    r.resample.resize(iSize);
 }
 
 void Tracter::Resample::Reset(bool iPropagate)
 {
     // Do a reset as a close then open
-    resample_close(mHandle);
-    mHandle = resample_open(0, mRatio, mRatio);
+    ResampleData& r = *mResampleData;
+    resample_close(r.handle);
+    r.handle = resample_open(0, r.ratio, r.ratio);
     UnaryPlugin<float, float>::Reset(iPropagate);
 }
 
@@ -72,10 +90,11 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     assert(iIndex >= 0);
     CacheArea inputArea;
 
-    IndexType index = (IndexType)((double)iIndex / mRatio);
-    int nGet = (int)((double)iOutputArea.Length() / mRatio);
+    ResampleData& r = *mResampleData;
+    IndexType index = (IndexType)((double)iIndex / r.ratio);
+    int nGet = (int)((double)iOutputArea.Length() / r.ratio);
     int nGot = mInput->Read(inputArea, index, nGet);
-    int nOut = (int)((double)nGot * mRatio + 0.5);
+    int nOut = (int)((double)nGot * r.ratio + 0.5);
     Verbose(2, "i=%ld Get=%d Got=%d Out=%d len0=%d len1=%d\n",
             index, nGet, nGot, nOut, inputArea.len[0], inputArea.len[1]);
 
@@ -95,13 +114,13 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     while ((inCount < inputArea.len[0]) && (outCount < nOut) && (i++ < 10))
     {
         outCount += resample_process(
-            mHandle,
-            mRatio,
+            r.handle,
+            r.ratio,
             mInput->GetPointer(inputArea.offset) + inCount,
             inputArea.len[0] - inCount,
             ((nGot < nGet) && (inputArea.len[1] == 0)),
             &inCount,
-            &mResample.at(outCount),
+            &r.resample.at(outCount),
             nOut - outCount
         );
         Verbose(2, " Block 1: inCount %d  outCount %d\n", inCount, outCount);
@@ -113,13 +132,13 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         inCount = 0;
         while (outCount < nOut)
             outCount += resample_process(
-                mHandle,
-                mRatio,
+                r.handle,
+                r.ratio,
                 mInput->GetPointer() + inCount,
                 inputArea.len[1] - inCount,
                 (nGot < nGet),
                 &inCount,
-                &mResample.at(outCount),
+                &r.resample.at(outCount),
                 nOut - outCount
             );
         Verbose(2, " Block 2: inCount %d  outCount %d\n", inCount, outCount);
@@ -128,13 +147,13 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     {
         while (outCount < nOut)
             outCount += resample_process(
-                mHandle,
-                mRatio,
+                r.handle,
+                r.ratio,
                 mInput->GetPointer(inputArea.offset) + inCount,
                 inputArea.len[0] - inCount,
                 (nGot < nGet),
                 &inCount,
-                &mResample.at(outCount),
+                &r.resample.at(outCount),
                 nOut - outCount
             );
         Verbose(2, " Block 3: inCount %d  outCount %d\n", inCount, outCount);
@@ -143,10 +162,10 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     /* Copy the resampled data to the output */
     float* output = GetPointer(iOutputArea.offset);
     for (int i=0; i<iOutputArea.len[0]; i++)
-        output[i] = mResample[i];
+        output[i] = r.resample[i];
     output = GetPointer();
     for (int i=0; i<iOutputArea.len[1]; i++)
-        output[i] = mResample[iOutputArea.len[0] + i];
+        output[i] = r.resample[iOutputArea.len[0] + i];
 
     return nOut;
 }

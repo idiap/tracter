@@ -8,12 +8,15 @@
 #ifndef RESAMPLE_H
 #define RESAMPLE_H
 
-#include <vector>
-
 #include "UnaryPlugin.h"
 
 namespace Tracter
 {
+    /**
+     * Implementation specific data
+     */
+    struct ResampleData;
+
     /**
      * Resample or convert sample rate.
      * Currently tied to libresample
@@ -31,9 +34,8 @@ namespace Tracter
         int Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
-        void *mHandle;
-        double mRatio;
-        std::vector<float> mResample;
+        ResampleData *mResampleData;
+
     };
 }
 
