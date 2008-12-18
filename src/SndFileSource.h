@@ -29,6 +29,7 @@ namespace Tracter
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
         SNDFILE* mSndFile;
         IndexType mNFrames;
+        bool mSoxHack;
     };
 }
 

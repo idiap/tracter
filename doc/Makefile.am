@@ -7,6 +7,9 @@
 
 EXTRA_DIST = \
 	index.doc \
-	design.doc \
-	programming.doc \
-	stl.doc
+	framing.tex \
+	introduction.tex \
+	parameters.tex \
+	programming.tex \
+	segmenter.tex \
+	tracter.tex

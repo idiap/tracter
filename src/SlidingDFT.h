@@ -11,6 +11,11 @@
 #include <complex>
 typedef std::complex<float> complex;
 
+/**
+ * Sliding DFT
+ *
+ * An efficient way of calculating a single bin of a DFT.
+ */
 class SlidingDFT
 {
 public:

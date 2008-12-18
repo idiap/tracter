@@ -12,8 +12,8 @@
 
 namespace Torch {
 
-/** BlasLinear layer for #GradientMachine#.
-    Formally speaking, $ouputs[i] = \sum_j w_{ij} inputs[i] + b_i$.\\
+/** BlasLinear layer for GradientMachine.
+    Formally speaking, $outputs[i] = \sum_j w_{ij} inputs[i] + b_i$.\\
     $w_{ij}$ and $b_j$ are in #params#, with the following structure:\\
     $w_00... w_0n, b_0, w_10... w_1n, b_1, ...$\\
 
@@ -24,8 +24,6 @@ namespace Torch {
     \begin{tabular}{lcll}
       "weight decay"  &  real  &  the weight decay & [0]
     \end{tabular}
-
-    @author Ronan Collobert (collober@idiap.ch)
 */
 class BlasLinear : public GradientMachine
 {

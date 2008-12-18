@@ -44,6 +44,7 @@ namespace Tracter
         std::map<std::string, frontend_t> mFrontend;
 
         Plugin<float>* fileSource(Source*& iSource);
+        Plugin<float>* sndFileSource(Source*& iSource);
         Plugin<float>* alsaSource(Source*& iSource);
         Plugin<float>* socketSource(Source*& iSource);
 

@@ -16,6 +16,10 @@
 # include "ALSASource.h"
 #endif
 
+#ifdef HAVE_SNDFILE
+# include "SndFileSource.h"
+#endif
+
 #include "Normalise.h"
 #include "Mean.h"
 #include "Subtract.h"
@@ -64,6 +68,9 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     mSource["Socket"] = &Tracter::ASRFactory::socketSource;
 #ifdef HAVE_ALSA
     mSource["ALSA"] = &Tracter::ASRFactory::alsaSource;
+#endif
+#ifdef HAVE_SNDFILE
+    mSource["SndFile"] = &Tracter::ASRFactory::sndFileSource;
 #endif
 
     // List all available front-ends
@@ -130,6 +137,15 @@ Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
     iSource = s;
     return n;
 }
+
+#ifdef HAVE_SNDFILE
+Tracter::Plugin<float>* Tracter::ASRFactory::sndFileSource(Source*& iSource)
+{
+    SndFileSource* s = new SndFileSource();
+    iSource = s;
+    return s;
+}
+#endif
 
 #ifdef HAVE_ALSA
 Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)

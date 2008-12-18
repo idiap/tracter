@@ -29,8 +29,21 @@ Tracter::HTKSink::HTKSink(
     mNSamples = 0;
     mSampPeriod = (int)(period * 1e7f + 0.5);
     mSampSize = mArraySize * sizeof(float);
-    mParmKind  = 6;      // MFCC
-    mParmKind |= 000100; // _E
+
+    /* Default parameter type is USER; others set by environment */
+    mParmKind = 9;
+    if (GetEnv("LPC",       0)) mParmKind = 1;
+    if (GetEnv("LPCEPSTRA", 0)) mParmKind = 3;
+    if (GetEnv("MFCC",      0)) mParmKind = 6;
+    if (GetEnv("FBANK",     0)) mParmKind = 7;
+    if (GetEnv("MELSPEC",   0)) mParmKind = 8;
+
+    if (GetEnv("E", 0)) mParmKind |= 000100;
+    if (GetEnv("N", 0)) mParmKind |= 000200;
+    if (GetEnv("D", 0)) mParmKind |= 000400;
+    if (GetEnv("A", 0)) mParmKind |= 001000;
+    if (GetEnv("Z", 0)) mParmKind |= 004000;
+    if (GetEnv("0", 0)) mParmKind |= 020000;
 }
 
 void Tracter::HTKSink::WriteHeader(FILE* iFile)
@@ -68,6 +81,7 @@ void Tracter::HTKSink::Open(const char* iFile)
     assert(iFile);
     assert(!mFile);
 
+    Verbose(1, "%s\n", iFile);
     mFile = fopen(iFile, "w");
     if (!mFile)
         throw Exception("HTKSink: Failed to open file %s", iFile);

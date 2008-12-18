@@ -9,6 +9,7 @@
 
 #include "Resample.h"
 #include "Normalise.h"
+#include "SndFileSource.h"
 #include "FileSource.h"
 #include "FileSink.h"
 #include "Frame.h"
@@ -24,9 +25,14 @@ int main(int argc, char** argv)
         return 1;
     }
 
+#if 0
     FileSource<short>* source = new FileSource<short>();
     Normalise* n = new Normalise(source);
     Resample* r = new Resample(n);
+#else
+    SndFileSource* source = new SndFileSource();
+    Resample* r = new Resample(source);
+#endif
     Frame* f = new Frame(r);
     FileSink sink(f);
 

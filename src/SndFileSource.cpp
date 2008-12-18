@@ -15,6 +15,7 @@ Tracter::SndFileSource::SndFileSource(const char* iObjectName)
     mSamplePeriod = 1;
     mSndFile = 0;
     mNFrames = 0;
+    mSoxHack = GetEnv("SoxHack", 0);
 }
 
 Tracter::SndFileSource::~SndFileSource() throw ()
@@ -37,6 +38,16 @@ void Tracter::SndFileSource::Open(const char* iFileName)
     mSndFile = 0;
     mNFrames = 0;
 
+    Verbose(1, "%s\n", iFileName);
+    if (mSoxHack)
+    {
+        // Run the file through sox first
+        char tmp[1024];
+        snprintf(tmp, 1024, "sox %s /tmp/soxfile.wav", iFileName);
+        Verbose(1, "%s\n", tmp);
+        system(tmp);
+        iFileName = "/tmp/soxfile.wav";
+    }
     SF_INFO sfInfo;
     sfInfo.format = 0;
     mSndFile = sf_open(iFileName, SFM_READ, &sfInfo);
