@@ -107,7 +107,7 @@ using namespace Tracter;
 void Usage()
 {
     puts(
-        "Usage: tracter [options] [infile outfile | -f file-list]\n"
+        "Usage: extracter [options] [infile outfile | -f file-list]\n"
         "Options:\n"
         "-f list Read input and output files from list\n"
         "-l loop indefinitly if not in list mode\n"
@@ -117,7 +117,7 @@ void Usage()
 }
 
 /**
- * Tracter executable.
+ * Extracter executable.
  */
 int main(int argc, char** argv)
 {

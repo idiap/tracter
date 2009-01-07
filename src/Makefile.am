@@ -6,7 +6,7 @@
 #
 
 bin_PROGRAMS = \
-	tracter htktopixmap
+	extracter htktopixmap
 
 noinst_PROGRAMS = \
 	socketserver socketclient \
@@ -153,8 +153,8 @@ fft_LDADD = libtracter.la
 
 testfile_SOURCES = testfile.c
 
-tracter_SOURCES = tracter.cpp
-tracter_LDADD = libtracter.la
+extracter_SOURCES = extracter.cpp
+extracter_LDADD = libtracter.la
 
 creature_SOURCES = creature.cpp
 creature_LDADD = libtracter.la
