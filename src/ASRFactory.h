@@ -24,10 +24,14 @@ namespace Tracter
     typedef Plugin<float>* (ASRFactory::* source_t)(Source*&);
 
     /**
-     * ASR Factory.  Allocates graphs of plugins to do things related
-     * to Automatic Speech Recognition.  The factory is itself a
-     * Tracter::Object, so it can use environment variables to
-     * customise its behaviour.
+     * Factory class for Automatic Speech Recognition.
+     *
+     * Allows predefined graphs to be instantiated based on run-time
+     * configuration variables.  The same configuration can (should!)
+     * be used by both the feature extraction tool and the recogniser.
+     *
+     * Distingushes between source and front-end.  To get just a
+     * source, specify the "Null" front-end.
      */
     class ASRFactory : public Tracter::Object
     {
@@ -47,13 +51,17 @@ namespace Tracter
         Plugin<float>* sndFileSource(Source*& iSource);
         Plugin<float>* alsaSource(Source*& iSource);
         Plugin<float>* socketSource(Source*& iSource);
+        Plugin<float>* htkSource(Source*& iSource);
 
         Plugin<float>* deltas(Plugin<float>* iPlugin);
         Plugin<float>* normaliseMean(Plugin<float>* iPlugin);
         Plugin<float>* normaliseVariance(Plugin<float>* iPlugin);
 
+        Plugin<float>* nullFrontend(Plugin<float>* iPlugin);
         Plugin<float>* basicFrontend(Plugin<float>* iPlugin);
         Plugin<float>* basicVADFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* basicMLPVADFrontend(Plugin<float>* iPlugin);
+        Plugin<float>* mlpvadFrontend(Plugin<float>* iPlugin);
         Plugin<float>* plpFrontend(Plugin<float>* iPlugin);
         Plugin<float>* htkFrontend(Plugin<float>* iPlugin);
         Plugin<float>* posteriorFrontend(Plugin<float>* iPlugin);

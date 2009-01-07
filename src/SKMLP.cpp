@@ -14,6 +14,8 @@
 // and send me a better version.
 // Then let me take all the credit!!!
 
+#include "TracterObject.h"
+
 namespace Torch {
 
   static const char *machine_map[] = {"LINEAR", "SHAREDLINEAR", "SIGMOID", "LOGSOFTMAX", 
@@ -56,31 +58,44 @@ namespace Torch {
       beta = machines[0][0]->machine->beta;
 
     // Params...
-    printf("# SKMLP: Building machine\n");
-    for(int l = 0; l < n_layers; l++){
-      printf("#   Layer %i\n",l);
-      for(int m = 0; m < n_machines_on_layer[l]; m++){
-	ConnectedNode *node = machines[l][m];
+    if (Tracter::sVerbose > 0)
+        printf("# SKMLP: Building machine\n");
+    for(int l = 0; l < n_layers; l++)
+    {
+        if (Tracter::sVerbose > 0)
+            printf("#   Layer %i\n",l);
+        for(int m = 0; m < n_machines_on_layer[l]; m++)
+        {
+            ConnectedNode *node = machines[l][m];
+            if (Tracter::sVerbose > 0)
+                if (machine_infos[l][m]->desc == LINEAR ||
+                    machine_infos[l][m]->desc == SHAREDLINEAR ||
+                    machine_infos[l][m]->desc == CONNECTED ||
+                    machine_infos[l][m]->desc == BLASLINEAR )
+                    printf("#     Machine %s with %i inputs and %i outputs\n",
+                           machine_map[machine_infos[l][m]->desc],
+                           node->machine->n_inputs,
+                           node->machine->n_outputs);
+                else
+                    printf("#     Machine %s with %i units\n",
+                           machine_map[machine_infos[l][m]->desc],
+                           node->machine->n_inputs);
 
-	if (machine_infos[l][m]->desc == LINEAR || machine_infos[l][m]->desc == SHAREDLINEAR || machine_infos[l][m]->desc == CONNECTED || machine_infos[l][m]->desc == BLASLINEAR )
-	  printf("#     Machine %s with %i inputs and %i outputs\n",machine_map[machine_infos[l][m]->desc],node->machine->n_inputs,node->machine->n_outputs);
-    else
-	  printf("#     Machine %s with %i units\n",machine_map[machine_infos[l][m]->desc],node->machine->n_inputs);
-
-	if(l > 0){
-	  if(node->n_input_links == 1)
-	    node->inputs = node->input_links[0];
-	  else
-	    node->inputs = new(allocator) Sequence(0, node->machine->n_inputs);
-	}
+            if(l > 0){
+                if(node->n_input_links == 1)
+                    node->inputs = node->input_links[0];
+                else
+                    node->inputs = new(allocator) Sequence(0, node->machine->n_inputs);
+            }
 	
-	node->alpha = new(allocator) Sequence(0, node->machine->n_outputs);
-	params->add(node->machine->params);
-	der_params->add(node->machine->der_params);
-      }
+            node->alpha = new(allocator) Sequence(0, node->machine->n_outputs);
+            params->add(node->machine->params);
+            der_params->add(node->machine->der_params);
+        }
     }
 
-    message("  Total number of parameters: %d", params->n_params);
+    if (Tracter::sVerbose > 0)
+        message("  Total number of parameters: %d", params->n_params);
   }
   
   void SKMLP::addFCL(GradientMachine *machine_, SKMachineType desc_){

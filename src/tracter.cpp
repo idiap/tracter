@@ -8,9 +8,99 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "Signal.h"
 #include "HTKSink.h"
 #include "FilePath.h"
 #include "ASRFactory.h"
+
+namespace Tracter
+{
+    /**
+     * Feature extractor
+     *
+     * Uses ASRFactory to construct a feature extractor with a source
+     * and sink.  The sink is to HTK format files via HTKSink.
+     */
+    class Extracter : public Object
+    {
+    public:
+        Extracter();
+        virtual ~Extracter() throw ();
+        void Extract(const char* iFile1, const char* iFile2, bool iLoop=false);
+        void ExtractList(const char* iFileList);
+
+    private:
+        Source* mSource;
+        HTKSink* mSink;
+    };
+}
+
+Tracter::Extracter::Extracter()
+{
+    mObjectName = "Extracter";
+
+    /* Use the ASR factory for the source and front-end */
+    ASRFactory factory;
+    Plugin<float>* s = factory.CreateSource(mSource);
+    Plugin<float>* f = factory.CreateFrontend(s);
+
+    /* An HTK file sink */
+    mSink = new HTKSink(f);
+}
+
+Tracter::Extracter::~Extracter() throw ()
+{
+    delete mSink;
+}
+
+/**
+ * Extract from one file to another.  If the loop parameter is true,
+ * the sink is continually reset and cycled.
+ */
+void Tracter::Extracter::Extract(
+    const char* iFile1, const char* iFile2, bool iLoop
+)
+{
+    mSource->Open(iFile1);
+    FilePath path;
+    path.SetName(iFile2);
+    path.MakePath();
+    do
+    {
+        mSink->Open(iFile2);
+        mSink->Reset();
+    }
+    while (iLoop);
+}
+
+/**
+ * Extract a file list.  The file list format is pairs of input and
+ * output files.
+ */
+void Tracter::Extracter::ExtractList(const char* iFileList)
+{
+    assert(iFileList);
+    Verbose(1, "filelist %s\n", iFileList);
+    FILE* list = fopen(iFileList, "r");
+    if (!list)
+        throw Exception("Failed to open %s\n", iFileList);
+
+
+    char file1[1024];
+    char file2[1024];
+    FilePath path;
+    while (fscanf(list, "%s %s", file1, file2) == 2)
+    {
+        Verbose(1, "raw: %s\n", file1);
+        Verbose(1, "htk: %s\n", file2);
+        mSink->Reset();
+        mSource->Open(file1);
+        path.SetName(file2);
+        path.MakePath();
+        mSink->Open(file2);
+    }
+    fclose(list);
+}
 
 using namespace Tracter;
 
@@ -26,42 +116,21 @@ void Usage()
     );
 }
 
-#if 0
-#include <signal.h>
-
-void handler(int iSomething)
-{
-    printf("Caught signal %d\n", iSomething);
-    exit(1);
-}
-#endif
-
 /**
  * Tracter executable.
  */
 int main(int argc, char** argv)
 {
-#if 0
-    struct sigaction sa;
-    sa.sa_handler = handler;
-    sa.sa_flags = 0;
-    sigemptyset(&sa.sa_mask);
-    if (sigaction(SIGFPE, &sa, 0))
-        printf("Error setting sigaction\n");
-#endif
+    /* Trap floating point exceptions */
+    TrapFPE();
 
+    /* Read command line */
     const char* fileList = 0;
     const char* file[2] = {0, 0};
     int fileCount = 0;
     bool loop = false;
     for (int i=1; i<argc; i++)
     {
-#if 0
-        float x = 9.0 / (i-1); // FPE!
-        printf("x=%f\n", x);
-        x += 2;
-#endif
-
         /* Unqualified arguments are the input and output files */
         if (argv[i][0] != '-')
         {
@@ -70,7 +139,7 @@ int main(int argc, char** argv)
             else
             {
                 printf("Too many unqualified arguments\n");
-                exit(EXIT_FAILURE);
+                return 1;
             }
             continue;
         }
@@ -89,79 +158,43 @@ int main(int argc, char** argv)
         default:
             printf("Unrecognised argument %s\n", argv[i]);
             Usage();
-            exit(EXIT_FAILURE);
+            return 1;
         }
     }
 
-    ASRFactory factory;
-    Source* source;
-
-    /* Use the ASR factory for the source and front-end */
-    Plugin<float>* s = factory.CreateSource(source);
-    Plugin<float>* f = factory.CreateFrontend(s);
-
-    /* An HTK file sink */
-    HTKSink sink(f);
-    fflush(0);
-
-    FilePath path;
-    if (!fileList)
+    /*
+     * It's debatable whether it's even worth catching these
+     * exceptions.  If not caught, the same error messages appear via
+     * the terminate call.  An example of how to do it perhaps?
+     */
+    try
     {
-        /* If there's no file list we need 2 files */
-        if (fileCount < 2)
+        Extracter extracter;
+        if (fileList)
         {
-            printf("Not enough files defined\n");
-            exit(EXIT_FAILURE);
+            assert(fileList);
+            extracter.ExtractList(fileList);
         }
-        try
+        else
         {
-            source->Open(file[0]);
-            path.SetName(file[1]);
-            path.MakePath();
-            do
+            /* If there's no file list we need 2 files */
+            if (fileCount < 2)
             {
-                sink.Open(file[1]);
-                sink.Reset();
+                printf("Not enough files defined\n");
+                return 1;
             }
-            while (loop);
-        }
-        catch(std::exception& e)
-        {
-            fprintf(stderr, "Caught exception: %s\n", e.what());
-            return 1;
-        }
-        catch(...)
-        {
-            fprintf(stderr, "Caught unknown exception\n");
-            return 1;
+            extracter.Extract(file[0], file[1], loop);
         }
     }
-    else
+    catch(std::exception& e)
     {
-        /* Extract a whole file list */
-        assert(fileList);
-        if (Tracter::sVerbose > 0)
-            printf("filelist %s\n", fileList);
-        FILE* list = fopen(fileList, "r");
-        if (!list)
-        {
-            printf("Failed to open %s\n", fileList);
-            exit(EXIT_FAILURE);
-        }
-
-        char file1[1024];
-        char file2[1024];
-        while (fscanf(list, "%s %s", file1, file2) == 2)
-        {
-            if (Tracter::sVerbose > 1)
-                printf("raw: %s\nhtk: %s\n", file1, file2);
-            sink.Reset();
-            source->Open(file1);
-            path.SetName(file2);
-            path.MakePath();
-            sink.Open(file2);
-        }
-        fclose(list);
+        fprintf(stderr, "Caught exception: %s\n", e.what());
+        return 1;
+    }
+    catch(...)
+    {
+        fprintf(stderr, "Caught unknown exception\n");
+        return 1;
     }
 
     return 0;

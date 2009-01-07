@@ -102,7 +102,6 @@ bool Tracter::Variance::UnaryFetch(IndexType iIndex, int iOffset)
     for (int i=0; i<mArraySize; i++)
         output[i] = sqrtf(mVariance[i] / mTarget[i]);
 
-    printf("v0: %f\n", mVariance[0]);
     return true;
 }
 

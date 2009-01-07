@@ -15,6 +15,7 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	Signal.cpp \
 	Frame.cpp \
 	SocketTee.cpp \
 	ScreenSink.cpp \

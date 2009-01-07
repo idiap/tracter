@@ -526,7 +526,7 @@ int Tracter::PluginObject::FetchWrapper(
     if (len < iOutputArea.Length())
     {
         mEndOfData = iIndex + len;
-        Verbose(1, "EOD at index %ld\n", mEndOfData);
+        Verbose(2, "EOD at index %ld\n", mEndOfData);
     }
     return len;
 }

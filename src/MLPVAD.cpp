@@ -32,7 +32,7 @@ Tracter::MLPVAD::MLPVAD(Plugin<float>* iInput, const char* iObjectName)
     mLookAhead = mConfirmSilenceTime;
 
     int max = std::max(mConfirmSpeechTime, mConfirmSilenceTime);
-    MinSize(mInput, mLookAhead,  mLookAhead+max);
+    MinSize(mInput, mLookAhead+1,  mLookAhead+max);
     mIndex = -1;
 
     Verbose(1, "%s: LookAhead=%d ConfirmSpeech=%d ConfirmSilence=%d\n",

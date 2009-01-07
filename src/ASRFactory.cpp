@@ -9,6 +9,7 @@
 
 #include "ASRFactory.h"
 
+#include "HTKSource.h"
 #include "FileSource.h"
 #include "StreamSocketSource.h"
 
@@ -66,6 +67,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     // List all sources
     mSource["File"] = &Tracter::ASRFactory::fileSource;
     mSource["Socket"] = &Tracter::ASRFactory::socketSource;
+    mSource["HTK"] = &Tracter::ASRFactory::htkSource;
 #ifdef HAVE_ALSA
     mSource["ALSA"] = &Tracter::ASRFactory::alsaSource;
 #endif
@@ -74,9 +76,15 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #endif
 
     // List all available front-ends
+    mFrontend["Null"] = &Tracter::ASRFactory::nullFrontend;
     mFrontend["Basic"] = &Tracter::ASRFactory::basicFrontend;
     mFrontend["BasicVAD"] = &Tracter::ASRFactory::basicVADFrontend;
     mFrontend["PLP"] = &Tracter::ASRFactory::plpFrontend;
+
+#ifdef HAVE_TORCH3
+    mFrontend["BasicMLPVAD"] = &Tracter::ASRFactory::basicMLPVADFrontend;
+    mFrontend["MLPVAD"] = &Tracter::ASRFactory::mlpvadFrontend;
+#endif
 
 #ifdef HAVE_HTKLIB
     mFrontend["HTK"] = &Tracter::ASRFactory::htkFrontend;
@@ -96,7 +104,13 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     }
 }
 
-Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
+/**
+ * Instantiates a Source based on the ASRFactory_Source configuration
+ * variable.
+ */
+Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(
+    Source*& iSource //< Returns the actual source component
+)
 {
     Plugin<float> *plugin = 0;
 
@@ -115,6 +129,10 @@ Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(Source*& iSource)
     return plugin;
 }
 
+/**
+ * Instantiates a front-end based on the ASRFactory_Frontend
+ * configuration variable.
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
 {
@@ -129,7 +147,9 @@ Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
     return plugin;
 }
 
-
+/**
+ * Instantiates a FileSource<short> followed by a Normalise component
+ */
 Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
 {
     FileSource<short>* s = new FileSource<short>();
@@ -139,6 +159,9 @@ Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
 }
 
 #ifdef HAVE_SNDFILE
+/**
+ * Instantiates a SndFileSource component
+ */
 Tracter::Plugin<float>* Tracter::ASRFactory::sndFileSource(Source*& iSource)
 {
     SndFileSource* s = new SndFileSource();
@@ -148,6 +171,9 @@ Tracter::Plugin<float>* Tracter::ASRFactory::sndFileSource(Source*& iSource)
 #endif
 
 #ifdef HAVE_ALSA
+/**
+ * Instantiates an ALSASource followed by a Normalise component
+ */
 Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
 {
     ALSASource* s = new ALSASource();
@@ -157,6 +183,9 @@ Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
 }
 #endif
 
+/**
+ * Instantiates a StreamSocketSource component
+ */
 Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
 {
     StreamSocketSource* s = new StreamSocketSource();
@@ -164,6 +193,19 @@ Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
     return s;
 }
 
+/**
+ * Instantiates an HTKSource component
+ */
+Tracter::Plugin<float>* Tracter::ASRFactory::htkSource(Source*& iSource)
+{
+    HTKSource* s = new HTKSource();
+    iSource = s;
+    return s;
+}
+
+/**
+ * Instantiates an arbitrary graph of Delta components
+ */
 Tracter::Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)
 {
     Plugin<float>* plugin = iPlugin;
@@ -183,6 +225,9 @@ Tracter::Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)
     return plugin;
 }
 
+/**
+ * Instantiates a Mean component with associated Subtract
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::normaliseMean(Plugin<float>* iPlugin)
 {
@@ -197,6 +242,9 @@ Tracter::ASRFactory::normaliseMean(Plugin<float>* iPlugin)
     return plugin;
 }
 
+/**
+ * Instantiates a Variance component with associated Divide
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
 {
@@ -211,6 +259,19 @@ Tracter::ASRFactory::normaliseVariance(Plugin<float>* iPlugin)
     return plugin;
 }
 
+/**
+ * Does nothing, but allows a "null" frontend, effectively allowing a
+ * direct connection to the source.
+ */
+Tracter::Plugin<float>*
+Tracter::ASRFactory::nullFrontend(Plugin<float>* iPlugin)
+{
+    return iPlugin;
+}
+
+/**
+ * Instantiates a basic MFCC frontend.
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
 {
@@ -225,6 +286,10 @@ Tracter::ASRFactory::basicFrontend(Plugin<float>* iPlugin)
     return p;
 }
 
+/**
+ * Instantiates a basic MFCC frontend with ModulationVAD and VADGate
+ * components.
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)
 {
@@ -247,6 +312,52 @@ Tracter::ASRFactory::basicVADFrontend(Plugin<float>* iPlugin)
     return v;
 }
 
+#ifdef HAVE_TORCH3
+/**
+ * Instantiates a basic MFCC frontend with MLPVAD and VADGate
+ * components.
+ */
+Tracter::Plugin<float>*
+Tracter::ASRFactory::basicMLPVADFrontend(Plugin<float>* iPlugin)
+{
+    /* Basic signal processing chain */
+    Plugin<float>* p = iPlugin;
+    p = new ZeroFilter(p);
+    p = new Periodogram(p);
+    p = new MelFilter(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+
+    /* VAD - works on the "basic" features */
+    Plugin<float>* v = new MLP(p);
+    MLPVAD* mv = new MLPVAD(v);
+    p = new VADGate(p, mv);
+
+    return p;
+}
+
+/**
+ * Instantiates MLPVAD and VADGate components on the assumption that
+ * the source is providing suitable features directly.
+ */
+Tracter::Plugin<float>*
+Tracter::ASRFactory::mlpvadFrontend(Plugin<float>* iPlugin)
+{
+    /* VAD working on features */
+    Plugin<float>* p = iPlugin;
+    Plugin<float>* v = new MLP(p);
+    MLPVAD* mv = new MLPVAD(v);
+    p = new VADGate(p, mv);
+
+    return p;
+}
+#endif
+
+/**
+ * Instantiates a PLP frontend.
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
 {
@@ -262,6 +373,9 @@ Tracter::ASRFactory::plpFrontend(Plugin<float>* iPlugin)
 }
 
 #ifdef HAVE_HTKLIB
+/**
+ * Instantiates an HCopyWrapper component
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
 {
@@ -272,6 +386,10 @@ Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
 #endif
 
 #ifdef HAVE_BSAPI
+/**
+ * Instantiates BSAPI components with both standard and posterior based
+ * features.
+ */
 Tracter::Plugin<float>*
 Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
 {
