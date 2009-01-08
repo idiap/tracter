@@ -36,6 +36,7 @@ namespace Tracter
 
     private:
         bool mValid;
+        bool mPersistent;
         MeanType mMeanType;
         std::vector<float> mMean;
 

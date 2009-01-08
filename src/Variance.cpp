@@ -22,6 +22,7 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     mVarianceType = VARIANCE_ADAPTIVE;
 
     mBurnIn = GetEnv("BurnIn", 20);
+    mPersistent = GetEnv("Persistent", 0);
 
     if (const char* env = GetEnv("Type", "ADAPTIVE"))
     {
@@ -57,6 +58,12 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     SetTimeConstant(GetEnv("TimeConstant", 1.0f));
 }
 
+/**
+ * Convert a time in seconds to a time constant.  This is a pole in a
+ * single pole filter (sometime called a forgetting factor) with value
+ * (n-1)/n, where n is in frames.  I've seen it written as (n-1)/(n+1)
+ * too, but can't find a persuasive derivation.
+ */
 void Tracter::Variance::SetTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
@@ -72,8 +79,11 @@ void Tracter::Variance::SetTimeConstant(float iSeconds)
 void Tracter::Variance::Reset(bool iPropagate)
 {
     // Reset the variance to the target
-    mVariance.assign(mTarget.begin(), mTarget.end());
-    mValid = false;
+    if (!mPersistent || (mVarianceType != VARIANCE_ADAPTIVE))
+    {
+        mVariance.assign(mTarget.begin(), mTarget.end());
+        mValid = false;
+    }
 
     // Call the base class
     UnaryPlugin<float, float>::Reset(iPropagate);
@@ -165,7 +175,6 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
         float* p = mInput->GetPointer(inputArea.offset);
 
         // Combine the new observation into the variance
-        printf("%f %f\n", mPole * mVariance[0], mElop * p[0] * p[0]);
         for (int i=0; i<mArraySize; i++)
             mVariance[i] = mPole * mVariance[i] + mElop * p[i] * p[i];
     }
@@ -189,6 +198,8 @@ void Tracter::Variance::Load(const char* iFileName)
     for (int i=0; i<mArraySize; i++)
         if (fscanf(fp, "%f", &mTarget[i]) != 1)
             throw Exception("failed to read element %d", i);
+#if 0
     for (int i=0; i<mArraySize; i++)
         printf("%f\n", mTarget[i]);
+#endif
 }

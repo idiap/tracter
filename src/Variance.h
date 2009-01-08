@@ -36,6 +36,7 @@ namespace Tracter
 
     private:
         bool mValid;
+        bool mPersistent;
         VarianceType mVarianceType;
         std::vector<float> mVariance;
         std::vector<float> mTarget;

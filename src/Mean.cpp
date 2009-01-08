@@ -24,6 +24,8 @@ Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
             mMeanType = MEAN_STATIC;
     }
 
+    mPersistent = GetEnv("Persistent", 0);
+
     switch (mMeanType)
     {
     case MEAN_STATIC:
@@ -61,9 +63,12 @@ void Tracter::Mean::SetTimeConstant(float iSeconds)
 void Tracter::Mean::Reset(bool iPropagate)
 {
     // Zero the mean
-    for (int i=0; i<mArraySize; i++)
-        mMean[i] = 0.0;
-    mValid = false;
+    if (!mPersistent || (mMeanType != MEAN_ADAPTIVE))
+    {
+        for (int i=0; i<mArraySize; i++)
+            mMean[i] = 0.0;
+        mValid = false;
+    }
 
     // Call the base class
     UnaryPlugin<float, float>::Reset(iPropagate);
