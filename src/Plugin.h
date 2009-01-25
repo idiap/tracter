@@ -34,6 +34,52 @@ namespace Tracter
          */
         virtual T* GetPointer(int iIndex = 0) = 0;
 
+        /**
+         * Unary read
+         *
+         * If we only want to read one item, the syntax can be rather
+         * more simple.
+         */
+        const T* UnaryRead(int iIndex)
+        {
+            assert(iIndex >= 0);
+
+            // Convert to a full Read(), return null pointer on failure
+            CacheArea inputArea;
+            int got = Read(inputArea, iIndex);
+            if (!got)
+                return 0;
+
+            // If successful, return the pointer
+            return GetPointer();
+        }
+
+        /**
+         * Contiguous read
+         *
+         * Many components can work well by breaking down a Read()
+         * into a pair of contiguous reads.  In this case, we can
+         * return a pointer straight away as with the UnaryRead().  It
+         * must be called twice.
+         */
+        int ContiguousRead(const T** iPointer, int iIndex, int iLength)
+        {
+            assert(iIndex >= 0);
+
+            // Convert to a full Read(), return null pointer on failure
+            CacheArea inputArea;
+            int got = Read(inputArea, iIndex, iLength);
+            if (!got)
+            {
+                *iPointer = 0;
+                return 0;
+            }
+
+            // If successful, return the pointer and the length
+            *iPointer = GetPointer(inputArea.offset);
+            return inputArea.len[0];
+        }
+
     protected:
 
     };

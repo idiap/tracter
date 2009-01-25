@@ -68,6 +68,7 @@ namespace Torch {
         {
             ConnectedNode *node = machines[l][m];
             if (Tracter::sVerbose > 0)
+            {
                 if (machine_infos[l][m]->desc == LINEAR ||
                     machine_infos[l][m]->desc == SHAREDLINEAR ||
                     machine_infos[l][m]->desc == CONNECTED ||
@@ -80,6 +81,7 @@ namespace Torch {
                     printf("#     Machine %s with %i units\n",
                            machine_map[machine_infos[l][m]->desc],
                            node->machine->n_inputs);
+            }
 
             if(l > 0){
                 if(node->n_input_links == 1)
