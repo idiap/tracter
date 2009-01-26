@@ -12,14 +12,14 @@
 
 #include "PluginObject.h" // For TimeType
 
-/**
- * Interface for a source plugin.  As a source plugin has basically
- * the same interface as any other plugin, this is designed to be
- * multiply inherited.  i.e., a source plugin should inherit this
- * *and* a typed plugin.
- */
 namespace Tracter
 {
+    /**
+     * Interface for a source plugin.  As a source plugin has basically
+     * the same interface as any other plugin, this is designed to be
+     * multiply inherited.  i.e., a source plugin should inherit this
+     * *and* a typed plugin.
+     */
     class Source
     {
     public:

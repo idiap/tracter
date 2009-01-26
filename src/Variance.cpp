@@ -38,7 +38,7 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
         break;
 
     case VARIANCE_ADAPTIVE:
-        PluginObject::MinSize(mInput, std::max(mBurnIn,1));
+        PluginObject::MinSize(mInput, std::max(mBurnIn, 1));
         break;
 
     default:
@@ -193,7 +193,7 @@ void Tracter::Variance::Load(const char* iFileName)
     if (fscanf(fp, "%s %d", tmpStr, &tmpInt) != 2)
         throw Exception("Failed to read <VARSCALE> and size tokens");
     if (tmpInt != mArraySize)
-        throw Exception("Vector size != array size");
+        throw Exception("Vector size %d != array size %d", tmpInt, mArraySize);
     mTarget.resize(mArraySize);
     for (int i=0; i<mArraySize; i++)
         if (fscanf(fp, "%f", &mTarget[i]) != 1)

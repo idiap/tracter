@@ -4,20 +4,21 @@
 \section intro Introduction
 
 Tracter is a data flow framework.  It was written initially for doing
-speech signal processing in the context of the <a
-href="juicer.html">Juicer ASR engine</a>.  It has developed into more
-of a wrapper for other packages.  For instance, it can generate HTK
-features by linking with HTK's library.  Written and maintained at
-Idiap, tracter contains contributions from other <a
+speech signal processing in the context of <a
+href="http://www.idiap.ch/software/juicer">Juicer</a>.  It has
+developed into more of a wrapper for other packages.  For instance, it
+can generate HTK features by linking with HTK's library.  Written and
+maintained at Idiap, tracter contains contributions from other <a
 href="http://www.amiproject.org/">AMIDA</a> partners at the
 universities of <a href="http://www.sheffield.ac.uk">Sheffield</a> and
 <a href="http://www.fit.vutbr.cz/">Brno</a>.
 
 \section download Obtaining the source code
 
-Tracter is available <strong>here</strong>.  It is released under a
-BSD license, which is quite permissive.  Further information is in the
-README in the distribution.
+Tracter is available <a
+href="http://www.idiap.ch/software/tracter/sources">here</a>.  It is
+released under a BSD license, which is quite permissive.  Further
+information is in the README in the distribution.
 
 Tracter has one compulsory external dependency:
  - <a href="http://kissfft.sourceforge.net/">Kiss FFT</a> is a
@@ -48,23 +49,18 @@ used to read (and soon write) standard audio file formats.
 
 Tracter is BSD licenced.  In this sense it does not contain any GPL
 licenced components.  Some (two) are available, however, in a separate
-<a href="tracter-gpl">tracter-gpl</a> distribution.
+<a href="http://www.idiap.ch/software/tracter-gpl">tracter-gpl</a>
+distribution.
 
 \section authors Authors
 
 <a href="http://www.idiap.ch/~pgarner">Phil Garner</a> wrote the
 framework and most of the components.
 
-<a href="http://www.idiap.ch/~dkorch">Danil Korchagin</a> contributed
-some of the VAD and socket functionality.
-
-<a href="http://www.idiap.ch/~dines">John Dines</a> did the MLP based
-VAD.
-
-<a href="http://www.dcs.shef.ac.uk/~vinny">Vinny Wan</a> contributed
-the HCopy wrapper and speaker ID source.
-
-<a href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a> did
-the BSAPI wrappers.
+Other significant contributions have been made by <a
+href="http://www.idiap.ch/~dines">John Dines</a>, <a
+href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a>, <a
+href="http://www.idiap.ch/~dkorch">Danil Korchagin</a> and <a
+href="http://www.dcs.shef.ac.uk/~vinny">Vinny Wan</a>
 
 */

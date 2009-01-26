@@ -204,7 +204,7 @@ void* Tracter::PluginObject::Initialise(
         mDownStream = iDownStream;
 
     // Set to indefinite if necessary
-    if ((mNOutputs > 1) && (iReadAhead < 0))
+    if (!mIndefinite && (mNOutputs > 1) && (iReadAhead < 0))
     {
         mIndefinite = true;
         Verbose(1, "PluginObject::Initialise: cache set to indefinite size\n");

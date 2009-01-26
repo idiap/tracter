@@ -1,12 +1,11 @@
-0.2.1
-	Add HCopyWrapper, knit into ASRFactory
+0.3.0	First public release.
+
+0.2.1	Add HCopyWrapper, knit into ASRFactory
 	Tracter namespace throughout
 
-0.2.0
-	In some sense the first stable release version.  Changes actually
+0.2.0	In some sense the first stable release version.  Changes actually
 	are to do with cache sizing, VAD and factory classes.  This is the
 	version that was current right after the Sheffield real-time
 	workshop.
 
-0.1.0
-	First release, albeit beta.
+0.1.0	First release, albeit beta.

@@ -35,8 +35,8 @@ int main(int argc, char** argv)
 #else
     ALSASource* source = new ALSASource();
     Normalise* n = new Normalise(source);
-    Resample* r = new Resample(n);
-    FileSink sink(r);
+    //Resample* r = new Resample(n);
+    FileSink sink(n);
 #endif
     source->Open(argv[1]);
     sink.Reset();

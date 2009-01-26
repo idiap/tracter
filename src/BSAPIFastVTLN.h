@@ -7,8 +7,7 @@
  *                    karafiat@fit.vutbr.cz                *
  ***********************************************************/
 
-/** See the file COPYING for the licence associated with this software.
- */
+/* See the file COPYING for the licence associated with this software. */
 
 #ifndef BSAPIFastVTLN_H
 #define BSAPIFastVTLN_H

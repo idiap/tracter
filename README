@@ -18,7 +18,8 @@ several parallel builds that don't mess up the source directory:
 
  mkdir build
  cd build
- ../configure CXXFLAGS='-Wall -Werror -Os -g'
+ ../configure CXXFLAGS='-Wall -Werror -Os -g' \
+   --with-kiss-fft=/path/to/kiss_fft_v1_2_8
  make
 
 The executables will appear in build/src
@@ -32,3 +33,4 @@ You can then point a browser at html/index.html
 
 Phil Garner
 December 2007
+January 2009

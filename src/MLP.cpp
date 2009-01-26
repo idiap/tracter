@@ -35,7 +35,9 @@ Tracter::MLP::MLP(Plugin<float>* iInput, const char* iObjectName)
 
     mWindow = mTheta*2 + 1;
     mFeature.resize(mMLP.n_inputs);
-    assert(mMLP.n_inputs == mWindow*mInputs);
+    if (mMLP.n_inputs != mWindow*mInputs)
+        throw Exception("MLP: Dimension mismatch: %d != %d",
+                        mMLP.n_inputs, mWindow*mInputs);
     PluginObject::MinSize(mInput, mWindow, mTheta);
 
     mArraySize = mMLP.n_outputs;

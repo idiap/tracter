@@ -7,8 +7,7 @@
  *                    karafiat@fit.vutbr.cz                *
  ***********************************************************/
 
-/** See the file COPYING for the licence associated with this software.
- */
+/* See the file COPYING for the licence associated with this software. */
 
 #include "BSAPIFrontEnd.h"
 
@@ -236,7 +235,8 @@ bool Tracter::BSAPIFrontEnd::STarget::OnFeatureMatrix(SFloatMatrixI *pMatrix, in
       //  return true;
       
       if ( nbuffsize+NCol > (MaxBuffSize) ){
-	printf("Trying to write out of range of output FrontEnd buffer...\n");
+          printf("BSAPIFrontEnd: out of range of output FrontEnd buffer"
+                 " (%d + %d > %d)\n", nbuffsize, NCol, MaxBuffSize);
 	exit(1);
       }
       

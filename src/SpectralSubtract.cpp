@@ -68,7 +68,7 @@ bool Tracter::SpectralSubtract::UnaryFetch(IndexType iIndex, int iOffset)
     for (int i=0; i<mArraySize; i++)
     {
         float weighted = p1[i] - mAlpha * p2[i];
-        float floored  = p1[i] * mBeta;
+        float floored  = p2[i] * mBeta;
         cache[i] = (weighted > floored) ? weighted : floored;
     }
 

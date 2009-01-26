@@ -109,8 +109,8 @@ void Usage()
     puts(
         "Usage: extracter [options] [infile outfile | -f file-list]\n"
         "Options:\n"
-        "-f list Read input and output files from list\n"
-        "-l loop indefinitly if not in list mode\n"
+        "-f list  Read input and output files from list\n"
+        "-l       Loop indefinitely if not in list mode\n"
         "Anything else prints this information\n"
         "Set environment variable Tracter_shConfig to 1 for more options\n"
     );

@@ -7,8 +7,7 @@
  *                    karafiat@fit.vutbr.cz                *
  ***********************************************************/
 
-/** See the file COPYING for the licence associated with this software.
- */
+/* See the file COPYING for the licence associated with this software. */
 
 #include "BSAPITransform.h"
 
@@ -74,7 +73,7 @@ Tracter::BSAPITransform::BSAPITransform(Plugin<float>* iInput, Plugin<float>* iI
 
 void Tracter::BSAPITransform::InitTransform(void){
   mContext    = GetEnv("Context", 15);
-  assert(mContext > 0);
+  assert(mContext >= 0);
   
   MaxBufferedFrames  = GetEnv("MaxBufferedFrames",mContext+1);
   
@@ -244,7 +243,8 @@ bool Tracter::BSAPITransform::STarget::OnFeatureMatrix(SFloatMatrixI *pMatrix, i
       // return true;
   
       if ( nbuffsize+NCol > (MaxBuffSize) ){
-	printf("Trying to write out of range of output FrontEnd buffer...\n");
+          printf("BSAPITransform: out of range of output FrontEnd buffer"
+                 " (%d + %d > %d)\n", nbuffsize, NCol, MaxBuffSize);
 	exit(1);
       }
   

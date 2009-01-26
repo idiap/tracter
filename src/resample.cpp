@@ -9,7 +9,9 @@
 
 #include "Resample.h"
 #include "Normalise.h"
-#include "SndFileSource.h"
+#ifdef HAVE_SNDFILE
+# include "SndFileSource.h"
+#endif
 #include "FileSource.h"
 #include "FileSink.h"
 #include "Frame.h"
@@ -21,17 +23,17 @@ int main(int argc, char** argv)
     printf("Resample to file\n");
     if (argc != 3)
     {
-        printf("Usage: %s infile.raw outfile.raw\n", argv[0]);
+        printf("Usage: %s infile outfile.raw\n", argv[0]);
         return 1;
     }
 
-#if 0
+#ifdef HAVE_SNDFILE
+    SndFileSource* source = new SndFileSource();
+    Resample* r = new Resample(source);
+#else
     FileSource<short>* source = new FileSource<short>();
     Normalise* n = new Normalise(source);
     Resample* r = new Resample(n);
-#else
-    SndFileSource* source = new SndFileSource();
-    Resample* r = new Resample(source);
 #endif
     Frame* f = new Frame(r);
     FileSink sink(f);

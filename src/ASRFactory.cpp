@@ -91,7 +91,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #endif
 
 #ifdef HAVE_BSAPI
-    mFrontend["Poster"] = &Tracter::ASRFactory::posteriorFrontend;
+    mFrontend["PLPPosterior"] = &Tracter::ASRFactory::plpPosteriorFrontend;
 #endif
 
     // THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW
@@ -391,7 +391,7 @@ Tracter::ASRFactory::htkFrontend(Plugin<float>* iPlugin)
  * features.
  */
 Tracter::Plugin<float>*
-Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
+Tracter::ASRFactory::plpPosteriorFrontend(Plugin<float>* iPlugin)
 {
     Plugin<float>* p  = iPlugin;
 
@@ -400,7 +400,11 @@ Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
 
 #if 0 //def HAVE_TORCH3
     // MLP based VAD
-    p = new BSAPIFrontEnd(f);
+    p = new BSAPIFrontEnd(f, "PLPFrontEnd");
+    Mean* mlpm = new Mean(p);
+    p = new Subtract(p, mlpm);
+    Variance* mlpv = new Variance(p);
+    p = new Divide(p, mlpv);
     p = new MLP(p);
     MLPVAD* m = new MLPVAD(p);
     p = new VADGate(f, m);
@@ -413,15 +417,34 @@ Tracter::ASRFactory::posteriorFrontend(Plugin<float>* iPlugin)
 
     // VTLN PLP
     Plugin<float>* wf = new BSAPIFastVTLN(p);
-    p = new BSAPIFrontEnd(p,wf);
 
-    // MVN
-    p = normaliseMean(p);
-    //p = normaliseVariance(p);
+    // NN Front End
+    Plugin<float>* nn;
+    nn = new BSAPIFilterBank(p, wf);
+    Mean* nnm = new Mean(nn);
+    nn = new Subtract(nn, nnm);
+    Variance* nnv = new Variance(nn);
+    nn = new Divide(nn, nnv);
+    nn = new BSAPITransform(nn, "NNTransform");
 
-    // CMLLR
-    if (GetEnv("CMLLR", 0))
-        p = new BSAPITransform(p);
+    // PLP HLDA FrontEnd
+    Plugin<float>* plp;
+    plp = new BSAPIFrontEnd(p, wf, "PLPHLDAFrontEnd");
+    Mean* plpm = new Mean(plp);
+    plp = new Subtract(plp, plpm);
+    plp = new BSAPITransform(plp, "DATTransform");
+    Variance* plpv = new Variance(plp, "PLPVariance");
+    plp = new Divide(plp, plpv);
+    plp = new BSAPITransform(plp, "HLDATransform");
+
+    // Concatenation
+    Concatenate* c = new Concatenate();
+    c->Add(plp);
+    c->Add(nn);
+    Mean* cm = new Mean(c);
+    p = new Subtract(c, cm);
+    Variance* cv = new Variance(p, "CatVariance");
+    p = new Divide(p, cv);
 
     // Done
     return p;
