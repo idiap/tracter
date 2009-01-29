@@ -216,6 +216,11 @@ Tracter::Plugin<float>* Tracter::ASRFactory::deltas(Plugin<float>* iPlugin)
         c->Add(plugin);
         for (int i=0; i<deltaOrder; i++)
         {
+            // For the moment, there is a bug where the plugins don't
+            // copy this string, so the pointer becomes invalid.
+            //char str[10];
+            //sprintf(str, "Delta%d", i+1);
+            //Delta* d = new Delta(plugin, str); 
             Delta* d = new Delta(plugin);
             c->Add(d);
             plugin = d;
@@ -398,7 +403,7 @@ Tracter::ASRFactory::plpPosteriorFrontend(Plugin<float>* iPlugin)
     // Framed version of the input for BSAPI
     Plugin<float>* f = new Frame(p);
 
-#if 0 //def HAVE_TORCH3
+#ifdef HAVE_TORCH3
     // MLP based VAD
     p = new BSAPIFrontEnd(f, "PLPFrontEnd");
     Mean* mlpm = new Mean(p);

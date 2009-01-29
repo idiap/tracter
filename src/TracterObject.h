@@ -55,7 +55,7 @@ namespace Tracter
         const char* getEnv(const char* iSuffix, const char* iDefault);
     };
 
-    const int STRING_SIZE = 80;
+    const int STRING_SIZE = 512;
     class Exception: public std::exception
     {
     public:

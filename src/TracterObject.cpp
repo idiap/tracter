@@ -22,11 +22,12 @@ int Tracter::sVerbose = 0;
  */
 Tracter::Object::Object()
 {
+    mObjectName = "Tracter";
+
     if (Tracter::sInitialised)
         return;
 
-    mObjectName = "Tracter";
-
+    // else...
     sShowConfig = GetEnv("shConfig", 0);
     if (Tracter::sShowConfig)
         GetEnv("shConfig", 0); // Do it again to get the output :-)
