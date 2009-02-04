@@ -61,6 +61,7 @@ TRACTER_SOURCES = \
 	Pixmap.cpp
 
 pkginclude_HEADERS = $(TRACTER_SOURCES:.cpp=.h) \
+	Resample.h \
 	Fourier.h \
 	ArraySink.h \
 	CachedPlugin.h \
@@ -100,7 +101,6 @@ if WITH_LIBRESAMPLE
 libtracter_la_SOURCES += ResampleLRS.cpp
 libtracter_la_CPPFLAGS += @LIBRESAMPLE_INCLUDES@
 noinst_PROGRAMS += resample
-pkginclude_HEADERS += Resample.h
 endif
 
 if WITH_ALSA
