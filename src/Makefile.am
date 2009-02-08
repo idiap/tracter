@@ -96,13 +96,6 @@ TRACTER_SOURCES += \
 libtracter_la_CPPFLAGS += @BSAPI_INCLUDES@
 endif
 
-if WITH_LIBRESAMPLE
-libtracter_la_SOURCES += ResampleLRS.cpp
-libtracter_la_CPPFLAGS += @LIBRESAMPLE_INCLUDES@
-noinst_PROGRAMS += resample
-pkginclude_HEADERS += Resample.h
-endif
-
 if WITH_ALSA
 TRACTER_SOURCES += ALSASource.cpp
 noinst_PROGRAMS += alsafile
@@ -127,6 +120,19 @@ nodist_libtracter_la_SOURCES += \
 	@KISS_FFT_DIR@/tools/kiss_fftr.c \
 	@KISS_FFT_DIR@/kiss_fft.c
 libtracter_la_CPPFLAGS += -I@KISS_FFT_DIR@ -I@KISS_FFT_DIR@/tools
+endif
+
+if WITH_LIBRESAMPLE
+libtracter_la_SOURCES += ResampleLRS.cpp
+nodist_libtracter_la_SOURCES += \
+	@LIBRESAMPLE_DIR@/src/resample.c \
+	@LIBRESAMPLE_DIR@/src/resamplesubs.c \
+	@LIBRESAMPLE_DIR@/src/filterkit.c
+libtracter_la_CPPFLAGS += \
+	-I@LIBRESAMPLE_DIR@/src \
+	-I@LIBRESAMPLE_DIR@/include
+noinst_PROGRAMS += resample
+pkginclude_HEADERS += Resample.h
 endif
 
 if WITH_RTAUDIO
