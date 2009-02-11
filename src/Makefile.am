@@ -147,7 +147,6 @@ libtracter_la_LIBADD = \
 	@ALSA_LIBS@ \
 	@SNDFILE_LIBS@ \
 	@HTK_LIBS@ \
-	@LIBRESAMPLE_LIBS@ \
 	@BSAPI_LIBS@ \
 	@TORCH3_LIBS@ \
 	-lpthread
