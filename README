@@ -22,6 +22,7 @@ several parallel builds that don't mess up the source directory:
    --with-kiss-fft=/path/to/kiss_fft_v1_2_8
  make
 
+(Note that kiss-fft is compulsory)
 The executables will appear in build/src
 
 Documentation is provided in doxygen form.  Go to the build directory

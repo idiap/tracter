@@ -171,6 +171,11 @@ AS_IF(
 AM_CONDITIONAL([WITH_KISS_FFT], [test "$with_kiss_fft" != no])
 AC_SUBST([KISS_FFT_DIR], [$with_kiss_fft])
 
+AS_IF(
+  [test "$with_kiss_fft" = "no"],
+  [AC_ERROR([Required library Kiss FFT not found])]
+)
+
 
 # libresample
 # As above, doesn't come as a proper package so we need a directory name
