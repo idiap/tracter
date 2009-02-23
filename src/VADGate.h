@@ -8,6 +8,8 @@
 #ifndef VADGATE_H
 #define VADGATE_H
 
+#include <algorithm>
+
 #include "CachedPlugin.h"
 #include "VADStateMachine.h"
 
@@ -30,7 +32,9 @@ namespace Tracter
          */
         TimeType TimeStamp(IndexType iIndex)
         {
-            return PluginObject::TimeStamp(iIndex + mIndexZero);
+            return PluginObject::TimeStamp(
+                iIndex + std::max<IndexType>(mSpeechTriggered, (IndexType)0)
+            );
         }
 
     protected:
@@ -48,11 +52,11 @@ namespace Tracter
         bool mUpstreamEndOfData;
 
         VADState mState;
-        IndexType mSpeechTriggered;
-        IndexType mSpeechConfirmed;
-        IndexType mSilenceConfirmed;
-        IndexType mIndexZero;
-        IndexType mSpeechRemoved;
+        IndexType mSpeechTriggered;  ///< Last speech trigger frame
+        IndexType mSpeechConfirmed;  ///< Last speech confirm frame
+        IndexType mSilenceConfirmed; ///< Last silence confirm frame
+        IndexType mIndexZero;        ///< Zero'th frame from upstream POV
+        IndexType mSpeechRemoved;    ///< Number of silence frames removed
 
         bool gate(IndexType& iIndex);
         bool readVADState(IndexType iIndex);

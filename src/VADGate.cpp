@@ -63,15 +63,17 @@ Tracter::VADGate::VADGate(
  */
 void Tracter::VADGate::Reset(bool iPropagate)
 {
+    Verbose(2, "Resetting\n");
+    if (mSegmenting)
+        if (mSilenceConfirmed >= 0)
+            mIndexZero = mSilenceConfirmed;
+    else
+        mIndexZero = 0;
     mState = SILENCE_CONFIRMED;
     mSpeechTriggered = -1;
     mSpeechConfirmed = -1;
     mSilenceConfirmed = -1;
     mSpeechRemoved = 0;
-    if (!mSegmenting)
-    {
-        mIndexZero = 0;
-    }
 
     // Propagate if not segmenting.  Always propagate after EOD.
     CachedPlugin<float>::Reset(mUpstreamEndOfData || !mSegmenting);
@@ -87,7 +89,7 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
     // upstream point of view.
     if (mEnabled && !gate(iIndex))
     {
-        Verbose(1, "gate() returned at index %ld, silConf %ld\n",
+        Verbose(2, "gate() returned at index %ld, silConf %ld\n",
                 iIndex, mSilenceConfirmed);
         if ( mSegmenting &&
              (mSilenceConfirmed >= 0) &&
@@ -97,9 +99,12 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
             (mSilenceConfirmed < 0) ||   /* Failed to find silence */
             (mSilenceConfirmed > iIndex) /* Succeeded */
         );
-        mIndexZero = mSilenceConfirmed;
-        mSpeechTriggered = -1;
-        mSpeechConfirmed = -1;
+
+        // Must leave mIndexZero alone until reset so the downstream
+        // components can query time properly
+        //mIndexZero = mSilenceConfirmed;
+        //mSpeechTriggered = -1;
+        //mSpeechConfirmed = -1;
 
         return false;
     }
@@ -127,6 +132,11 @@ bool Tracter::VADGate::gate(IndexType& iIndex)
 {
     assert(iIndex >= 0);
     assert(mIndexZero >= 0);
+
+    // If the VAD has found an utterance, it must be reset before
+    // looking for another
+    if (mSilenceConfirmed >= 0)
+        return false;
 
     // iIndex is from the downstream point of view.  Reality could be ahead.
     iIndex += mIndexZero;
@@ -176,7 +186,7 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
     CacheArea vadArea;
     if (mVADInput->Read(vadArea, iIndex) == 0)
     {
-        Verbose(1, "readVADState: End Of Data at %ld\n", iIndex);
+        Verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
         mUpstreamEndOfData = true;
         return false;
     }
@@ -193,7 +203,7 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
  */
 bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 {
-    Verbose(1, "Attempting to confirm speech\n");
+    Verbose(2, "Attempting to confirm speech\n");
     assert(iIndex >= 0);
     assert(mState == SILENCE_CONFIRMED);
 
@@ -210,7 +220,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
         while (mState == SILENCE_CONFIRMED);
         assert(mState == SPEECH_TRIGGERED);
         mSpeechTriggered = index;
-        Verbose(1, "confirmSpeech: triggered at %ld\n", mSpeechTriggered);
+        Verbose(2, "confirmSpeech: triggered at %ld\n", mSpeechTriggered);
 
         do
         {
@@ -222,7 +232,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
     while (mState != SPEECH_CONFIRMED);
     mSpeechConfirmed = index;
 
-    Verbose(1, "confirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
+    Verbose(2, "confirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
     return true;
 }
 
@@ -233,7 +243,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
  */
 bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
 {
-    Verbose(1, "Attempting to reconfirm speech\n");
+    Verbose(2, "Attempting to reconfirm speech\n");
     assert(iIndex >= 0);
     assert(mState == SILENCE_TRIGGERED);
     do
@@ -249,13 +259,13 @@ bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
     if (mState == SPEECH_CONFIRMED)
     {
         mSpeechConfirmed = iIndex;
-        Verbose(1, "reconfirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
+        Verbose(2, "reconfirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
         return true;
     }
 
     assert(mState == SILENCE_CONFIRMED);
     mSilenceConfirmed = iIndex;
-    Verbose(1, "reconfirmSpeech: Silence confirmed at %ld\n",
+    Verbose(2, "reconfirmSpeech: Silence confirmed at %ld\n",
             mSilenceConfirmed);
 
     return false;
