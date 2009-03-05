@@ -95,29 +95,6 @@ Tracter::HCopyWrapper::HCopyWrapper(
      */
     int sampSize = 2;
     /*
-     * Initialise HTK (Straight cut and paste from HCopy)
-     */
-    char hcopy_version[] = "!HVER!HCopy:   3.4 [CUED 25/04/06]";
-    char hcopy_vc_id[] = "$Id: HCopy.c,v 1.1.1.1 2006/10/11 09:54:59 jal58 Exp $";
-    char* htkargv[4];
-    htkargv[0] = (char*)"Tracter::HCopyWrapper";
-    htkargv[1] = (char*)"-C";
-    htkargv[2] = (char*)GetEnv("ConfigFile", "hcopywrapper.cfg" );
-    htkargv[3] = (char*)"-D";
-    int htkargc = 4;
-    if(InitShell(htkargc,htkargv,hcopy_version,hcopy_vc_id)<SUCCESS)
-        HError(1000, (char*)"HCopyWrapper: InitShell failed");
-    InitMem();
-    InitLabel();
-    InitMath();
-    InitSigP();
-    InitWave();
-    InitAudio();
-    InitVQ();
-    InitModel();
-    if(InitParm()<SUCCESS)
-        HError(1000,(char*)"HCopyWrapper: InitParm failed");
-    /*
      * Get some of the config parameters for use immediately
      */
     ConfParam *cParm[MAXGLOBS];

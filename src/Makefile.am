@@ -110,6 +110,7 @@ endif
 
 if WITH_HTK
 TRACTER_SOURCES += HCopyWrapper.cpp
+TRACTER_SOURCES += HTKLibSource.cpp
 libtracter_la_CPPFLAGS += @HTK_INCLUDES@
 noinst_PROGRAMS += hcopytester
 endif

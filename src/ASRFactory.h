@@ -51,6 +51,7 @@ namespace Tracter
         Plugin<float>* sndFileSource(Source*& iSource);
         Plugin<float>* alsaSource(Source*& iSource);
         Plugin<float>* socketSource(Source*& iSource);
+        Plugin<float>* htkLibSource(Source*& iSource);
         Plugin<float>* htkSource(Source*& iSource);
 
         Plugin<float>* deltas(Plugin<float>* iPlugin);

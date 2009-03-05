@@ -41,6 +41,7 @@
 
 #ifdef HAVE_HTKLIB
 # include "HCopyWrapper.h"
+# include "HTKLibSource.h"
 #endif
 
 #ifdef HAVE_BSAPI
@@ -66,6 +67,9 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
     // List all sources
     mSource["File"] = &Tracter::ASRFactory::fileSource;
+#ifdef HAVE_HTKLIB
+    mSource["HTKLib"] = &Tracter::ASRFactory::htkLibSource;
+#endif
     mSource["Socket"] = &Tracter::ASRFactory::socketSource;
     mSource["HTK"] = &Tracter::ASRFactory::htkSource;
 #ifdef HAVE_ALSA
@@ -192,6 +196,18 @@ Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
     iSource = s;
     return s;
 }
+
+#ifdef HAVE_HTKLIB
+/**
+ * Instantiates an HTKLibSource component
+ */
+Tracter::Plugin<float>* Tracter::ASRFactory::htkLibSource(Source*& iSource)
+{
+    HTKLibSource * s = new HTKLibSource();
+    iSource = s;
+    return s;
+}
+#endif
 
 /**
  * Instantiates an HTKSource component
