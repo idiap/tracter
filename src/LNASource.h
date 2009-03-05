@@ -24,6 +24,13 @@ namespace Tracter
         virtual ~LNASource() throw() {}
         void Open(const char* iFileName);
 
+    protected:
+        /** Diverts basic time stamp requests to the Source base class */
+        virtual TimeType TimeStamp(IndexType iIndex)
+        {
+             return Source::TimeStamp(iIndex);
+        }
+
     private:
         MMap mMap;
         void* mMapData;

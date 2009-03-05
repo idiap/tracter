@@ -65,8 +65,10 @@ void Tracter::VADGate::Reset(bool iPropagate)
 {
     Verbose(2, "Resetting\n");
     if (mSegmenting)
+    {
         if (mSilenceConfirmed >= 0)
             mIndexZero = mSilenceConfirmed;
+    }
     else
         mIndexZero = 0;
     mState = SILENCE_CONFIRMED;
