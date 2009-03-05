@@ -115,6 +115,15 @@ const char* Tracter::Object::GetEnv(
  * Verbose output.  Prints output to stdout depending on the verbosity
  * level.  Written using cstdarg such that printf like parameter lists
  * can be passed.
+ *
+ * Although the level is somewhat arbitrary, the following seems a
+ * reasonable policy:
+ *  - 0 Completely Quiet
+ *  - 1 Once per invocation (construct, initialise...)
+ *  - 2 One per segment (file, utterance...)
+ *  - 3 Several times per segment
+ *  - 4 Once per frame (but not audio frequency)
+ *  - 5 Per frame, unlimited frequency
  */
 void Tracter::Object::Verbose(int iLevel, const char* iString, ...)
 {
