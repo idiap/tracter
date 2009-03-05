@@ -75,7 +75,7 @@ void Tracter::HTKLibSource::Open(const char* iFileName)
     FileFormat dfmt=UNDEFF;    /* Data input file format */
 
     if((pbuf = OpenBuffer(&iStack,(char*)iFileName,50,dfmt,TRI_UNDEF,TRI_UNDEF))==NULL)
-        HError(3250,(char*)"ProcessFile: Config parameters invalid");   
+        HError(3250,(char*)"ProcessFile: OpenBuffer failed in Tracter::HTKLibSource::Open");   
 
     /*
      * Make the Observation structure for storing feature vectors. 
