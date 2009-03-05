@@ -10,10 +10,12 @@
 /*
  * HTKLibSource.cpp - Use HTKLib as the source in a tracter plugin.
  *
- * This version reads files using HTKLib. The resulting features are specified by the HTK config file.
+ * This version reads files using HTKLib. The resulting features are
+ * specified by the HTK config file.
  *
- * Note that the setting of mArraySize must be set correctly. There is no access to any model files
- * here so there is no easy way of getting it automatically.
+ * Note that the setting of mArraySize must be set correctly. There is
+ * no access to any model files here so there is no easy way of
+ * getting it automatically.
  *
  *  Created on: 04-Mar-2009
  *      Author: Vincent Wan, University of Sheffield, UK.
@@ -41,7 +43,8 @@
 #define STACKSIZE 100000        /* assume ~100K wave files */
 
 /**
- * HTK initialisation should happen only once so we don't do it here. Initialise HTK elsewhere.
+ * HTK initialisation should happen only once so we don't do it
+ * here. Initialise HTK elsewhere.
  */
 Tracter::HTKLibSource::HTKLibSource(const char* iObjectName)
     : CachedPlugin<float>()
@@ -72,7 +75,7 @@ void Tracter::HTKLibSource::Open(const char* iFileName)
     FileFormat dfmt=UNDEFF;    /* Data input file format */
 
     if((pbuf = OpenBuffer(&iStack,(char*)iFileName,50,dfmt,TRI_UNDEF,TRI_UNDEF))==NULL)
-        HError(3250,"ProcessFile: Config parameters invalid");   
+        HError(3250,(char*)"ProcessFile: Config parameters invalid");   
 
     /*
      * Make the Observation structure for storing feature vectors. 

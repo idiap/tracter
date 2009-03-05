@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "TracterObject.h"
+#include "config.h"
 
 bool Tracter::sInitialised = false;
 bool Tracter::sShowConfig = false;
@@ -33,6 +34,8 @@ Tracter::Object::Object()
         GetEnv("shConfig", 0); // Do it again to get the output :-)
     sVerbose = GetEnv("Verbose", 0);
     sInitialised = true;
+
+    Verbose(1, "version %s\n", PACKAGE_VERSION);
 }
 
 
