@@ -49,6 +49,7 @@ namespace Tracter
         }
 
     private:
+        bool pbufIsOpen;        ///< Remember whether a buffer is open
         MemHeap iStack;         ///< HTK MSTAK memory heap
         ParmBuf pbuf;           ///< HTK buffer where HParm does all its work
         Observation data;       ///< The place where HTK writes the

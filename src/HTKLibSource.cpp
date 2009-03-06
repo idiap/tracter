@@ -63,7 +63,8 @@ Tracter::HTKLibSource::HTKLibSource(const char* iObjectName)
     /*
      * Allocate an HTK heap iStack
      */
-    CreateHeap(&iStack, (char*)"InBuf", MSTAK, 1, 0.0, STACKSIZE, LONG_MAX);
+    CreateHeap(&iStack, (char*)"InBuf", MSTAK, 1, 0.0, STACKSIZE, STACKSIZE);
+    pbufIsOpen = false;
 }
 
 
@@ -73,6 +74,12 @@ Tracter::HTKLibSource::HTKLibSource(const char* iObjectName)
 void Tracter::HTKLibSource::Open(const char* iFileName)
 {
     FileFormat dfmt=UNDEFF;    /* Data input file format */
+
+    if ( pbufIsOpen )
+    {
+        CloseBuffer(pbuf);
+        pbufIsOpen = false;
+    }
 
     ResetHeap( &iStack );
     if((pbuf = OpenBuffer(&iStack,(char*)iFileName,50,dfmt,TRI_UNDEF,TRI_UNDEF))==NULL)
@@ -93,6 +100,7 @@ void Tracter::HTKLibSource::Open(const char* iFileName)
     data=MakeObservation(&iStack,swidth,pbinfo.tgtPK,saveAsVQ, eSep);
 
     StartBuffer(pbuf);
+    pbufIsOpen = true;
 }
 
 /*
