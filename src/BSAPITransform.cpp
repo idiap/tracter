@@ -131,6 +131,13 @@ Tracter::BSAPITransform::~BSAPITransform() throw ()
   delete[]mTarget.mpOutBuff;
 }
 
+void Tracter::BSAPITransform::Reset(bool iPropagate)
+{
+  Verbose(2, "Reset\n");
+  mpFeaCat->Reset();
+  CachedPlugin<float>::Reset(iPropagate);
+}
+
 /*
  * This is the calculation for one frame.  Pretty trivial, but the
  * edge effects make the code quite long.

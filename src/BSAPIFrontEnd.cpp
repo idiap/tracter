@@ -107,7 +107,7 @@ void Tracter::BSAPIFrontEnd::InitFrontEnd(void){
     mpInputWaveform = new float[inputdim*MaxBufferedFrames];
   
   
-  PluginObject::MinSize(mInput,  MaxBufferedFrames , MaxBufferedFrames);
+  PluginObject::MinSize(mInput,  MaxBufferedFrames, MaxBufferedFrames);
   //PluginObject::MinSize(mInput,  5 , 5);
 
 
@@ -128,6 +128,13 @@ Tracter::BSAPIFrontEnd::~BSAPIFrontEnd() throw ()
   delete[]mTarget.mpOutBuff;
   if ( WaveformScaleUp != 1 )
     delete[]mpInputWaveform;
+}
+
+void Tracter::BSAPIFrontEnd::Reset(bool iPropagate)
+{
+  Verbose(2, "Reset\n");
+  GetMelTarget(mpPLP)->Reset();
+  CachedPlugin<float>::Reset(iPropagate);
 }
 
 /*
@@ -185,13 +192,13 @@ bool Tracter::BSAPIFrontEnd::UnaryFetch(IndexType iIndex, int iOffset)
  
     
     if ( numRead == 0 ) {
-      if (!LastFrameProcess)
-      mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, mpInputWaveform, numRead * inputdim * sizeof(float), PF_LASTFRAME);
-      LastFrameProcess=1;
+        if (!LastFrameProcess)
+            mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, mpInputWaveform, numRead * inputdim * sizeof(float), PF_LASTFRAME);
+        LastFrameProcess=1;
     }
     else {
-      mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, mpInputWaveform, numRead * inputdim * sizeof(float), 0);
-      LastFrameProcess=0;
+        mpPLP->GetFeatureExtraction()->OnWaveform( SWaveformSourceCallbackI::wfFloat , WF_UNK_SAMPLEFREQ, 1, mpInputWaveform, numRead * inputdim * sizeof(float), 0);
+        LastFrameProcess=0;
     }
 
     if (!numRead && !mTarget.nbuffsize)
@@ -229,7 +236,7 @@ bool Tracter::BSAPIFrontEnd::STarget::OnFeatureMatrix(SFloatMatrixI *pMatrix, in
       float *pframe = pMatrix->GetMem();
       int NCol      = pMatrix->GetNColumns();
   
-      // printf("NCol: %i nbuffsize: %i\n", NCol,nbuffsize);
+      //printf("NCol: %i nbuffsize: %i\n", NCol,nbuffsize);
   
       //  if ( flags == PF_LASTFRAME )
       //  return true;
