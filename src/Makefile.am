@@ -31,7 +31,6 @@ TRACTER_SOURCES = \
 	LowEnergyEnvelope.cpp \
 	Tokenise.cpp \
 	Histogram.cpp \
-	Laguerre.cpp \
 	Variance.cpp \
 	Divide.cpp \
 	FilePath.cpp \
