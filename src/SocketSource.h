@@ -8,8 +8,6 @@
 #ifndef SOCKETSOURCE_H
 #define SOCKETSOURCE_H
 
-#include <netdb.h>
-
 #include "CachedPlugin.h"
 #include "Source.h"
 
@@ -70,7 +68,7 @@ namespace Tracter
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
             int arraySize = Source< CachedPlugin<T> >::mArraySize;
-            arraySize = ((arraySize == 0) ? 1 : arraySize) * sizeof(float);
+            arraySize = ((arraySize == 0) ? 1 : arraySize) * sizeof(T);
 
             // First chunk of circular array
             char* cache = (char*)Source< CachedPlugin<T> >::GetPointer(
