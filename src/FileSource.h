@@ -21,7 +21,7 @@ namespace Tracter
      * Reads raw files as file maps.
      */
     template <class T>
-    class FileSource : public Plugin<T>, public Tracter::Source
+    class FileSource : public Source< Plugin<T> >
     {
     public:
 
@@ -54,15 +54,6 @@ namespace Tracter
         {
             // Don't call the base class, don't reset the pointers
             return;
-        }
-
-    protected:
-        /** Diverts basic time stamp requests to the Source base class */
-        virtual TimeType TimeStamp(IndexType iIndex)
-        {
-            TimeType time = Source::TimeStamp(iIndex);
-            Plugin<T>::Verbose(1, "time %lld\n", time);
-            return time;
         }
 
     private:

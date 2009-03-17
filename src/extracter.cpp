@@ -30,7 +30,7 @@ namespace Tracter
         void ExtractList(const char* iFileList);
 
     private:
-        Source* mSource;
+        ISource* mSource;
         HTKSink* mSink;
     };
 }

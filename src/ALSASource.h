@@ -17,7 +17,7 @@ namespace Tracter
     /**
      * Source plugin that reads data from an ALSA device.
      */
-    class ALSASource : public CachedPlugin<short>, public Source
+    class ALSASource : public Source< CachedPlugin<short> >
     {
     public:
         ALSASource(const char* iObjectName = "ALSASource");
@@ -27,12 +27,6 @@ namespace Tracter
 
     protected:
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
-
-        /** Diverts basic time stamp requests to the Source base class */
-        virtual TimeType TimeStamp(IndexType iIndex)
-        {
-             return Source::TimeStamp(iIndex);
-        }
 
     private:
         snd_output_t* mOutput;

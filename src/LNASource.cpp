@@ -12,7 +12,6 @@
 
 /** Constructor */
 Tracter::LNASource::LNASource(const char* iObjectName)
-    : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
     mArraySize = GetEnv("ArraySize", 27);

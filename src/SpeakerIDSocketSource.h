@@ -21,8 +21,10 @@ namespace Tracter
             void* iAuxiliary = 0,
             const char* iObjectName = "SpeakerIDSocketSource"
         );
+
     protected:
-        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        bool UnaryFetch(IndexType iIndex, int iOffset);
+
     private:
         int mTimeOffset;
     };

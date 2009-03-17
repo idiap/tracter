@@ -47,7 +47,6 @@
  * here. Initialise HTK elsewhere.
  */
 Tracter::HTKLibSource::HTKLibSource(const char* iObjectName)
-    : CachedPlugin<float>()
 {
     /***********************************************
      * First sort out tracter specific/non-HTK stuff

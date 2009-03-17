@@ -18,19 +18,12 @@ namespace Tracter
     /**
      * Plugin to deal with audio files via libsndfile
      */
-    class SndFileSource : public CachedPlugin<float>, public Source
+    class SndFileSource : public Source< CachedPlugin<float> >
     {
     public:
         SndFileSource(const char* iObjectName = "SndFileSource");
         virtual ~SndFileSource() throw();
         void Open(const char* iFileName);
-
-    protected:
-        /** Diverts basic time stamp requests to the Source base class */
-        virtual TimeType TimeStamp(IndexType iIndex)
-        {
-             return Source::TimeStamp(iIndex);
-        }
 
     private:
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);

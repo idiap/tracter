@@ -34,19 +34,12 @@ namespace Tracter
     /**
      * Plugin to deal with source files using HTK
      */
-    class HTKLibSource : public CachedPlugin<float> , public Source
+    class HTKLibSource : public Source< CachedPlugin<float> >
     {
     public:
         HTKLibSource(const char* iObjectName = "HTKLibSource");
         ~HTKLibSource() throw();
         void Open(const char* iFileName);
-
-    protected:
-        /** Diverts basic time stamp requests to the Source base class */
-        virtual TimeType TimeStamp(IndexType iIndex)
-        {
-             return Source::TimeStamp(iIndex);
-        }
 
     private:
         bool pbufIsOpen;        ///< Remember whether a buffer is open

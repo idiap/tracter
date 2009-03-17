@@ -113,7 +113,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
  * variable.
  */
 Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(
-    Source*& iSource //< Returns the actual source component
+    ISource*& iSource //< Returns the actual source component
 )
 {
     Plugin<float> *plugin = 0;
@@ -154,7 +154,7 @@ Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
 /**
  * Instantiates a FileSource<short> followed by a Normalise component
  */
-Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(ISource*& iSource)
 {
     FileSource<short>* s = new FileSource<short>();
     Normalise* n = new Normalise(s);
@@ -166,7 +166,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::fileSource(Source*& iSource)
 /**
  * Instantiates a SndFileSource component
  */
-Tracter::Plugin<float>* Tracter::ASRFactory::sndFileSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::sndFileSource(ISource*& iSource)
 {
     SndFileSource* s = new SndFileSource();
     iSource = s;
@@ -178,7 +178,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::sndFileSource(Source*& iSource)
 /**
  * Instantiates an ALSASource followed by a Normalise component
  */
-Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(ISource*& iSource)
 {
     ALSASource* s = new ALSASource();
     Normalise* n = new Normalise(s);
@@ -190,7 +190,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::alsaSource(Source*& iSource)
 /**
  * Instantiates a StreamSocketSource component
  */
-Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(ISource*& iSource)
 {
     StreamSocketSource* s = new StreamSocketSource();
     iSource = s;
@@ -201,7 +201,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::socketSource(Source*& iSource)
 /**
  * Instantiates an HTKLibSource component
  */
-Tracter::Plugin<float>* Tracter::ASRFactory::htkLibSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::htkLibSource(ISource*& iSource)
 {
     HTKLibSource * s = new HTKLibSource();
     iSource = s;
@@ -212,7 +212,7 @@ Tracter::Plugin<float>* Tracter::ASRFactory::htkLibSource(Source*& iSource)
 /**
  * Instantiates an HTKSource component
  */
-Tracter::Plugin<float>* Tracter::ASRFactory::htkSource(Source*& iSource)
+Tracter::Plugin<float>* Tracter::ASRFactory::htkSource(ISource*& iSource)
 {
     HTKSource* s = new HTKSource();
     iSource = s;

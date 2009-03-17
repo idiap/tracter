@@ -12,13 +12,14 @@
 
 namespace Tracter
 {
-    class StreamSocketSource : public SocketSource
+    class StreamSocketSource : public SocketSource<float>
     {
     public:
         StreamSocketSource(
             void* iAuxiliary = 0,
             const char* iObjectName = "StreamSocketSource"
-        );
+        )
+            : SocketSource<float>(iAuxiliary, iObjectName) {}
         virtual void Open(const char* iHostName);
     };
 }

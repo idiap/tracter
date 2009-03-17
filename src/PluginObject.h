@@ -81,8 +81,6 @@ namespace Tracter
      */
     class PluginObject : public Tracter::Object
     {
-        friend class Source;
-
     public:
         PluginObject(void);
         virtual ~PluginObject(void) throw () {};

@@ -15,19 +15,35 @@
 namespace Tracter
 {
     /**
-     * Interface for a source plugin.  As a source plugin has basically
-     * the same interface as any other plugin, this is designed to be
-     * multiply inherited.  i.e., a source plugin should inherit this
-     * *and* a typed plugin.
+     * Type independent interface for a source plugin.
      */
-    class Source
+    class ISource
     {
     public:
-        Source() { mTime = 0; }
+        virtual ~ISource() {}
 
         /** Open a source with the given name */
         virtual void Open(const char* iName) = 0;
-        virtual ~Source() {}
+        virtual void SetTime(TimeType iTime) = 0;
+
+    protected:
+        virtual TimeType TimeStamp(IndexType iIndex) = 0;
+    };
+
+    /**
+     * Type dependent Source implementation
+     *
+     * The template type should be a typed plugin type.
+     */
+    template <class T>
+    class Source : public ISource, public T
+    {
+        // Template type is not used after here, so maybe it should be
+        // moved to a type independent class.
+    public:
+        Source() { mTime = 0; }
+        virtual ~Source() throw () {}
+
         virtual void SetTime(TimeType iTime)
         {
             assert(iTime >= 0);
@@ -40,7 +56,7 @@ namespace Tracter
         {
             TimeType time = mTime;
             if (iIndex)
-                time += ((PluginObject*)this)->TimeOffset(iIndex);
+                time += PluginObject::TimeOffset(iIndex);
             return time;
         }
 

@@ -16,19 +16,15 @@
 #include "SocketSource.h"
 
 
-Tracter::SocketSource::SocketSource(void* iAuxiliary, const char* iObjectName)
+Tracter::socketSource::socketSource(const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mAuxiliary = iAuxiliary;
-    mArraySize = GetEnv("ArraySize", 1);
-    mSampleFreq = GetEnv("SampleFreq", 48000.0f);
-    mSamplePeriod = GetEnv("SamplePeriod", 1);
     mPort = GetEnv("Port", 30000);
     mBufferSize = GetEnv("BufferSize", 0);
     mFD = 0;
 }
 
-Tracter::SocketSource::~SocketSource() throw()
+Tracter::socketSource::~socketSource() throw()
 {
     close(mFD);
     mFD = 0;
@@ -38,7 +34,7 @@ Tracter::SocketSource::~SocketSource() throw()
 /**
  * Connects to a socket.
  */
-void Tracter::SocketSource::Open(const char* iHostName)
+void Tracter::socketSource::Open(const char* iHostName)
 {
     assert(iHostName);
 
@@ -103,7 +99,7 @@ void Tracter::SocketSource::Open(const char* iHostName)
  *
  * @returns the number of bytes actually received.
  */
-int Tracter::SocketSource::Receive(int iNBytes, char* iBuffer)
+int Tracter::socketSource::Receive(int iNBytes, char* iBuffer)
 {
     assert(iNBytes >= 0);
     assert(iBuffer);
@@ -129,29 +125,9 @@ int Tracter::SocketSource::Receive(int iNBytes, char* iBuffer)
 }
 
 /**
- * A simple fetch call.  Implemented as two calls to Receive().
+ * Send data to a socket
  */
-int Tracter::SocketSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+void Tracter::socketSource::Send(int iNBytes, char* iBuffer)
 {
-    int arraySize = ((mArraySize == 0) ? 1 : mArraySize) * sizeof(float);
-
-    // First chunk of circular array
-    char* cache = (char*)GetPointer(iOutputArea.offset);
-    int nGet = arraySize * iOutputArea.len[0];
-    int nGot0 = Receive(nGet, cache);
-    if (nGot0 < nGet)
-        return nGot0 / arraySize;
-
-    if (iOutputArea.len[1])
-    {
-        // Second chunk of circular array
-        cache = (char*)GetPointer();
-        nGet = arraySize * iOutputArea.len[1];
-        int nGot1 = Receive(nGet, cache);
-        if (nGot1 < nGet)
-            return (nGot0 + nGot1) / arraySize;
-    }
-
-    // If we get here, all was well
-    return iOutputArea.Length();
+    send(mFD, iBuffer, iNBytes, 0);
 }

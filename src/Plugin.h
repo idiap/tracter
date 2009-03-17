@@ -19,7 +19,7 @@ namespace Tracter
      * The implementation could be a cache or memory map.
      */
     template <class T>
-    class Plugin : public Tracter::PluginObject
+    class Plugin : public PluginObject
     {
     public:
         virtual ~Plugin<T>() throw ()

@@ -17,19 +17,12 @@ namespace Tracter
     /**
      * Uses an LNA file as a source
      */
-    class LNASource : public CachedPlugin<float>, public Tracter::Source
+    class LNASource : public Source< CachedPlugin<float> >
     {
     public:
         LNASource(const char* iObjectName = "LNASource");
         virtual ~LNASource() throw() {}
         void Open(const char* iFileName);
-
-    protected:
-        /** Diverts basic time stamp requests to the Source base class */
-        virtual TimeType TimeStamp(IndexType iIndex)
-        {
-             return Source::TimeStamp(iIndex);
-        }
 
     private:
         MMap mMap;

@@ -7,76 +7,53 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <cstdio>
-#include <cstring>
-#include <unistd.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
 #include "SpeakerIDSocketSource.h"
 
 
 Tracter::SpeakerIDSocketSource::SpeakerIDSocketSource(
     void* iAuxiliary, const char* iObjectName
 )
-  : StreamSocketSource(iAuxiliary, iObjectName)
+    : StreamSocketSource(iAuxiliary, iObjectName)
 {
-    mObjectName = iObjectName;
-    mAuxiliary = iAuxiliary;
-    mArraySize = GetEnv("ArraySize", 1);
-    mSampleFreq = GetEnv("SampleFreq", 1.0f);
-    mSamplePeriod = GetEnv("SamplePeriod", 1);
-    mPort = GetEnv("Port", 4002);
-    mFD = 0;
     mTimeOffset = GetEnv("TimeOffset", 0);
 }
 
 /**
- * The Fetch call.
+ * Fetch speaker ID.  This is done by sending a timestamp to the
+ * server.  It should respond immediately with a speaker ID, otherwise
+ * everything will grind to a halt.
  */
-int Tracter::SpeakerIDSocketSource::Fetch(
-    IndexType iIndex, CacheArea& iOutputArea
-)
+bool Tracter::SpeakerIDSocketSource::UnaryFetch(IndexType iIndex, int iOffset)
 {
-    Verbose(1, "Fetching SpeakerID for index %ld\n", iIndex);
-    int i;
-    int offset = iOutputArea.offset;
-    int arraySize = mArraySize == 0 ? 1 : mArraySize;
-    for (i=0; i<iOutputArea.Length(); i++)
-    {
-        if (i == iOutputArea.len[0])
-            offset = 0;
-        char* cache = (char*)GetPointer(offset);
+    assert(mArraySize == 1);
 
-        // Send time stamp to the socket: converting from nanoseconds
-        // to milliseconds
-        //TimeType timestamp = ( TimeStamp(0)+TimeOffset(iIndex) ) / 1000000;
-        //TimeType timestamp = TimeStamp(iIndex) / 1000000;  ///<--- This doesn't seem to work!
-        // PNG: Incoming index is absoute time in seconds
-        TimeType timestamp = (TimeType)iIndex * 1000 + mTimeOffset;
-        Verbose(1, "Sending time %lld ms\n", timestamp);
+    Verbose(2, "Fetching SpeakerID for index %ld\n", iIndex);
+    char* cache = (char*)GetPointer(iOffset);
+
+    // Send time stamp to the socket: converting from nanoseconds
+    // to milliseconds
+    //TimeType timestamp = ( TimeStamp(0)+TimeOffset(iIndex) ) / 1000000;
+    //TimeType timestamp = TimeStamp(iIndex) / 1000000;  ///<--- This doesn't seem to work!
+    // PNG: Incoming index is absoute time in seconds
+    TimeType timestamp = (TimeType)iIndex * ONEe3 + mTimeOffset;
+    Verbose(2, "Sending time %lld ms\n", timestamp);
 #if 1
-        send( mFD, (char*)&timestamp , sizeof(TimeType) , 0 );
+    mSocket.Send(sizeof(TimeType), (char*)&timestamp);
 
-        // Read the data from the socket
-        Verbose(1, "Waiting for response\n");
-        int nGet = arraySize * sizeof(float);
-        int nGot = Receive(nGet, cache);
-        Verbose(1, "Got %d bytes\n", (int)nGot);
-        if (nGot < nGet)
-            break;
+    // Read the data from the socket
+    Verbose(2, "Waiting for response\n");
+    int nGet = sizeof(float);
+    int nGot = mSocket.Receive(nGet, cache);
+    Verbose(2, "Got %d bytes\n", (int)nGot);
+    if (nGot < nGet)
+        return false;
 #else
-        arraySize += 1; //dummy
-        cache[0] = 'a';
-        cache[1] = 'b';
-        cache[2] = 'c';
-        cache[3] = 0;
+    arraySize += 1; //dummy
+    cache[0] = 'a';
+    cache[1] = 'b';
+    cache[2] = 'c';
+    cache[3] = 0;
 #endif
-        iIndex++;
-        offset++;
-    }
 
-    return i;
+    return true;
 }

@@ -10,7 +10,6 @@
 #include "HTKSource.h"
 
 Tracter::HTKSource::HTKSource(const char* iObjectName)
-    : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
     mArraySize = GetEnv("ArraySize", 39);
