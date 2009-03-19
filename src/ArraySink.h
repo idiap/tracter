@@ -29,7 +29,7 @@ namespace Tracter
         {
             UnarySink<T>::mObjectName = iObjectName;
             UnarySink<T>::mArraySize = iInput->GetArraySize();
-            MinSize(iInput, 1);
+            MinSize(iInput, 11);
             UnarySink<T>::Initialise();
             UnarySink<T>::Reset();
         }
