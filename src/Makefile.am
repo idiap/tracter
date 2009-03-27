@@ -60,6 +60,7 @@ TRACTER_SOURCES = \
 	Pixmap.cpp
 
 pkginclude_HEADERS = $(TRACTER_SOURCES:.cpp=.h) \
+	GeometricNoise.h \
 	Resample.h \
 	Fourier.h \
 	ArraySink.h \
