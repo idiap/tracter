@@ -22,7 +22,7 @@ namespace Tracter
      * that's an issue then use the ALSA source.  Or RtAudio via jack
      * maybe.
      */
-    class RtAudioSource : public CachedPlugin<float>, public Source
+    class RtAudioSource : public Source< CachedPlugin<float> >
     {
     public:
         RtAudioSource(const char* iObjectName = "RtAudioSource");
