@@ -28,7 +28,8 @@ namespace Tracter
         bool UnaryFetch(IndexType iIndex, int iOffset);
 
     private:
-        void write();
+        void writeMode();
+        void writeHistogram();
 
         float mMin;
         float mMax;
@@ -39,6 +40,8 @@ namespace Tracter
         std::vector< std::vector<float> > mBin;
         bool mPDF;
         float mPower;
+        bool mUnPower;
+        bool mMode;
     };
 }
 
