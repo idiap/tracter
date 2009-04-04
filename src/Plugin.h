@@ -51,7 +51,7 @@ namespace Tracter
                 return 0;
 
             // If successful, return the pointer
-            return GetPointer();
+            return GetPointer(inputArea.offset);
         }
 
         /**
@@ -62,22 +62,19 @@ namespace Tracter
          * return a pointer straight away as with the UnaryRead().  It
          * must be called twice.
          */
-        int ContiguousRead(const T** iPointer, int iIndex, int iLength)
+        const T* ContiguousRead(int iIndex, int& ioLength)
         {
             assert(iIndex >= 0);
 
             // Convert to a full Read(), return null pointer on failure
             CacheArea inputArea;
-            int got = Read(inputArea, iIndex, iLength);
+            int got = Read(inputArea, iIndex, ioLength);
             if (!got)
-            {
-                *iPointer = 0;
                 return 0;
-            }
 
             // If successful, return the pointer and the length
-            *iPointer = GetPointer(inputArea.offset);
-            return inputArea.len[0];
+            ioLength = inputArea.len[0];
+            return GetPointer(inputArea.offset);
         }
 
     protected:
@@ -88,7 +85,10 @@ namespace Tracter
     /**
      * An iterator-like thing for caches.  This has the functionality of
      * an iterator, if not the standard interface.  It handles the
-     * wrap-around nature of circular buffers
+     * wrap-around nature of circular buffers.
+     *
+     * The implementation is rather ugly; favour the Unary/Contiguous
+     * read methods if at all possible.
      */
     template <class T>
     class CacheIterator
