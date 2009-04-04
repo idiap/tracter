@@ -41,6 +41,7 @@ namespace Tracter
     public:
         Object();
         virtual ~Object() throw () {} // Stops destructors throwing exceptions
+        const char* ObjectName() const { return mObjectName; }
 
     protected:
         const char* mObjectName; ///< Name of this object
