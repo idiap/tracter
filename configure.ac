@@ -9,7 +9,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([Tracter], [0.3.1])
+AC_INIT([Tracter], [0.3.2])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/TracterObject.cpp])
 AC_CONFIG_HEADER([config.h])
@@ -146,6 +146,34 @@ AS_IF(
 AC_SUBST([HTK_INCLUDES], [$with_htk_includes])
 AC_SUBST([HTK_LIBS], [$with_htk_libs])
 AM_CONDITIONAL([WITH_HTK], [test "$with_htk_includes" != ""])
+
+# SPTK
+AC_ARG_WITH(sptk-includes,
+  [AS_HELP_STRING(
+    [--with-sptk-includes=DIR],
+    [Directory containing SPTK headers]
+  )],
+  [],
+  [with_sptk_includes=""]
+)
+AC_ARG_WITH(sptk-libs,
+  [AS_HELP_STRING(
+    [--with-sptk-libs=DIR],
+    [List of SPTK libraries]
+  )],
+  [],
+  [with_sptk_libs=""]
+)
+AC_MSG_CHECKING([whether to use SPTK])
+AS_IF(
+  [test "$with_sptk_includes" != ""],
+  [AC_DEFINE([HAVE_SPTK], [1], [Define if you have SPTK.])
+   AC_MSG_RESULT(yes)],
+  [AC_MSG_RESULT(no)]
+)
+AC_SUBST([SPTK_INCLUDES], [$with_sptk_includes])
+AC_SUBST([SPTK_LIBS], [$with_sptk_libs])
+AM_CONDITIONAL([WITH_SPTK], [test "$with_sptk_includes" != ""])
 
 # Kiss FFT
 # Doesn't come as a proper package so we need a directory name

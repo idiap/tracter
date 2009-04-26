@@ -57,6 +57,10 @@
 # undef real
 #endif
 
+#ifdef HAVE_SPTK
+# include "MCep.h"
+#endif
+
 #include "Energy.h"
 #include "ModulationVAD.h"
 #include "VADGate.h"
@@ -96,6 +100,10 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
 #ifdef HAVE_BSAPI
     RegisterFrontend(new PLPPosteriorGraphFactory);
+#endif
+
+#ifdef HAVE_SPTK
+    RegisterFrontend(new MCepGraphFactory);
 #endif
 
     // THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW
@@ -494,6 +502,22 @@ Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
 }
 #endif
 
+#ifdef HAVE_SPTK
+/**
+ * Instantiates a SPTK based mcep frontend.
+ */
+Tracter::Plugin<float>*
+Tracter::MCepGraphFactory::Create(Plugin<float>* iPlugin)
+{
+    Plugin<float>* p = iPlugin;
+    p = new Periodogram(p);
+    p = new MCep(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
+}
+#endif
 
 // THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW.
 Tracter::Plugin<float>*

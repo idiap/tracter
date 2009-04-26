@@ -82,6 +82,7 @@ namespace Tracter
     DECLARE_GRAPH_FACTORY(PLP)
     DECLARE_GRAPH_FACTORY(HTK)
     DECLARE_GRAPH_FACTORY(PLPPosterior)
+    DECLARE_GRAPH_FACTORY(MCep)
 
     /**
      * Factory class for Automatic Speech Recognition.

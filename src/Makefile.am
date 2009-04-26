@@ -115,6 +115,11 @@ libtracter_la_CPPFLAGS += @HTK_INCLUDES@
 noinst_PROGRAMS += hcopytester
 endif
 
+if WITH_SPTK
+TRACTER_SOURCES += MCep.cpp
+libtracter_la_CPPFLAGS += @SPTK_INCLUDES@
+endif
+
 if WITH_KISS_FFT
 libtracter_la_SOURCES += \
 	FourierKiss.cpp
@@ -148,6 +153,7 @@ libtracter_la_LIBADD = \
 	@ALSA_LIBS@ \
 	@SNDFILE_LIBS@ \
 	@HTK_LIBS@ \
+	@SPTK_LIBS@ \
 	@BSAPI_LIBS@ \
 	@TORCH3_LIBS@ \
 	-lpthread
