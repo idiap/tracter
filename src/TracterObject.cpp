@@ -138,6 +138,7 @@ void Tracter::Object::Verbose(int iLevel, const char* iString, ...)
     va_start(ap, iString);
     vprintf(iString, ap);
     va_end(ap);
+    fflush(stdout); // Feedback immediately
 }
 
 /**
