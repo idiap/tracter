@@ -14,34 +14,22 @@ Tracter::Energy::Energy(
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    mFrameSize = GetEnv("FrameSize", 256);
-    mFramePeriod = GetEnv("FramePeriod", 80);
-    mSamplePeriod *= mFramePeriod;
-    assert(mFrameSize > 0);
-    assert(mFramePeriod > 0);
-
-    // Framers look ahead, not back
-    PluginObject::MinSize(mInput, mFrameSize, mFrameSize-1);
+    PluginObject::MinSize(mInput, 1);
 }
 
 bool Tracter::Energy::UnaryFetch(IndexType iIndex, int iOffset)
 {
     assert(iIndex >= 0);
-    CacheArea inputArea;
 
     // Read the input frame
-    int readIndex = iIndex * mFramePeriod;
-    int got = mInput->Read(inputArea, readIndex, mFrameSize);
-    if (got < mFrameSize)
+    const float* p = mInput->UnaryRead(iIndex);
+    if (!p)
         return false;
 
     // Calculate energy
-    float* p = mInput->GetPointer();
     float* energy = GetPointer(iOffset);
     *energy = 0.0f;
-    for (int i=0; i<inputArea.len[0]; i++)
-        *energy += p[inputArea.offset+i] * p[inputArea.offset+i];
-    for (int i=0; i<inputArea.len[1]; i++)
+    for (int i=0; i<mInput->GetArraySize(); i++)
         *energy += p[i] * p[i];
 
     // Done

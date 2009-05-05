@@ -328,6 +328,7 @@ Tracter::BasicGraphFactory::Create(Plugin<float>* iPlugin)
 {
     Plugin<float>* p = iPlugin;
     p = new ZeroFilter(p);
+    p = new Frame(p);
     p = new Periodogram(p);
     p = new MelFilter(p);
     p = new Cepstrum(p);
@@ -347,6 +348,7 @@ Tracter::BasicVADGraphFactory::Create(Plugin<float>* iPlugin)
     /* Basic signal processing chain */
     Plugin<float>* p = iPlugin;
     p = new ZeroFilter(p);
+    p = new Frame(p);
     p = new Periodogram(p);
     p = new MelFilter(p);
     p = new Cepstrum(p);
@@ -356,6 +358,7 @@ Tracter::BasicVADGraphFactory::Create(Plugin<float>* iPlugin)
 
     /* VAD */
     Plugin<float>* v = iPlugin;
+    v = new Frame(v);
     v = new Energy(v);
     ModulationVAD* mv = new ModulationVAD(v);
     v = new VADGate(p, mv);
@@ -374,6 +377,7 @@ Tracter::BasicMLPVADGraphFactory::Create(Plugin<float>* iPlugin)
     /* Basic signal processing chain */
     Plugin<float>* p = iPlugin;
     p = new ZeroFilter(p);
+    p = new Frame(p);
     p = new Periodogram(p);
     p = new MelFilter(p);
     p = new Cepstrum(p);
@@ -414,6 +418,7 @@ Tracter::PLPGraphFactory::Create(Plugin<float>* iPlugin)
 {
     Plugin<float>* p = iPlugin;
     p = new ZeroFilter(p);
+    p = new Frame(p);
     p = new Periodogram(p);
     p = new MelFilter(p);
     p = new LPCepstrum(p);
@@ -461,6 +466,7 @@ Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
     p = new VADGate(f, m);
 #else
     // Energy based VAD (Energy will do the framing)
+    p = new Frame(p);
     p = new Energy(p);
     ModulationVAD* m = new ModulationVAD(p);
     p = new VADGate(f, m);
@@ -510,6 +516,7 @@ Tracter::Plugin<float>*
 Tracter::MCepGraphFactory::Create(Plugin<float>* iPlugin)
 {
     Plugin<float>* p = iPlugin;
+    p = new Frame(p);
     p = new Periodogram(p);
     p = new MCep(p);
     p = normaliseMean(p);

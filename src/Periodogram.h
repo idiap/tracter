@@ -33,8 +33,6 @@ namespace Tracter
         bool UnaryFetch(IndexType iIndex, int iOffset);
 
     private:
-        int mFrameSize;
-        int mFramePeriod;
         float* mRealData;
         complex* mComplexData;
         std::vector<float> mWindow;

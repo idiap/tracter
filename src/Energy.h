@@ -20,10 +20,6 @@ namespace Tracter
 
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
-
-    private:
-        int mFrameSize;
-        int mFramePeriod;
     };
 }
 

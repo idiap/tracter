@@ -14,9 +14,9 @@ Tracter::Frame::Frame(
     : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    mFrameSize = GetEnv("FrameSize", 256);
+    mFrameSize = GetEnv("Size", 256);
     mArraySize = mFrameSize;
-    mFramePeriod = GetEnv("FramePeriod", 80);
+    mFramePeriod = GetEnv("Period", 80);
     mSamplePeriod *= mFramePeriod;
     assert(mFrameSize > 0);
     assert(mFramePeriod > 0);
