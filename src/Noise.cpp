@@ -18,18 +18,39 @@ Tracter::Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
     mValid = false;
     mNInit = GetEnv("NInit", 10);
     mEnd = GetEnv("End", 0);
+    mSoftReset = GetEnv("SoftReset", 0);
+    mWrite = GetEnv("Write", 0);
     if (mEnd)
         // Store everything - we'll read the end first
         MinSize(iInput, -1);
     else
         // Store enough for the initialisation
         MinSize(iInput, 1, mNInit-1);
+
+    mAccumulator.resize(mArraySize, 0.0f);
+    mNAccumulated = 0;
+}
+
+Tracter::Noise::~Noise() throw ()
+{
+    if (mWrite)
+    {
+        Calculate(&mAccumulator.front());  // Overwrite!
+        for (int i=0; i<mArraySize; i++)
+            printf("%e\n", mAccumulator[i]);
+    }
 }
 
 void Tracter::Noise::Reset(bool iPropagate)
 {
     // Invalidate the estimate
     mValid = false;
+
+    if (!mSoftReset)
+    {
+        mNAccumulated = 0;
+        mAccumulator.assign(mArraySize, 0.0f);
+    }
 
     // Call the base class
     UnaryPlugin<float, float>::Reset(iPropagate);
@@ -42,11 +63,6 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
 
     if (!mValid)
     {
-        // Get and zero the noise estimate
-        float* output = GetPointer(iOffset);
-        for (int i=0; i<mArraySize; i++)
-            output[i] = 0.0f;
-
         // Accumulate over some initial number of samples
         CacheArea ca;
         for (int j=0; j<mNInit; j++)
@@ -55,8 +71,7 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
                 return false;
 
             float* input = mInput->GetPointer(ca.offset);
-            for (int i=0; i<mArraySize; i++)
-                output[i] += input[i];
+            Accumulate(input);
         }
 
         if (mEnd)
@@ -64,15 +79,12 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
             // Read to the end
             int frameCount = mNInit;
             while (mInput->Read(ca, frameCount++)) {
-                //printf("frame: %d\n", frameCount);
+                // No operation
             }
-
-            //printf("frameCount is %d", frameCount);
 
             // Accumulate over the final samples
             for (int j=frameCount-mNInit; j<frameCount-1; j++)
             {
-                //printf("j: %d\n", j);
                 if (!mInput->Read(ca, j))
                 {
                     Verbose(1, "out of data\n");
@@ -80,14 +92,13 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
                 }
 
                 float* input = mInput->GetPointer(ca.offset);
-                for (int i=0; i<mArraySize; i++)
-                    output[i] = Accumulate(input[i], output[i]);
+                Accumulate(input);
             }
         }
 
         // Divide through to finalise the estimate
-        for (int i=0; i<mArraySize; i++)
-            output[i] = Calculate(output[i], mEnd ? mNInit*2 : mNInit);
+        float* output = GetPointer(iOffset);
+        Calculate(output);
         mValid = true;
 
         // Print out the noise estimate

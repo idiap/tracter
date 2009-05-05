@@ -8,6 +8,8 @@
 #ifndef NOISE_H
 #define NOISE_H
 
+#include <vector>
+
 #include "UnaryPlugin.h"
 
 namespace Tracter
@@ -22,9 +24,13 @@ namespace Tracter
     {
     public:
         Noise(Plugin<float>* iInput, const char* iObjectName = "Noise");
+        virtual ~Noise() throw ();
         virtual void Reset(bool iPropagate);
 
     protected:
+        std::vector<float> mAccumulator;
+        int mNAccumulated;
+
         bool UnaryFetch(IndexType iIndex, int iOffset);
 
         /**
@@ -32,27 +38,34 @@ namespace Tracter
          * derived class to implement accumulation of a function of the
          * input.
          */
-        virtual float Accumulate(float iAccumulator, float iInput)
+        virtual void Accumulate(float* iInput)
         {
-            float ret = iAccumulator + iInput;
-            return ret;
+            assert(mArraySize);
+            assert(iInput);
+            for (int i=0; i<mArraySize; i++)
+                mAccumulator[i] += iInput[i];
+            mNAccumulated++;
         }
 
         /**
-         * Calculate the mean of accumulated samples.  Just a division,
-         * but can be overridden by a derived class to implement, say, a
-         * geometric mean.
+         * Calculate a noise estimate by dividing the accumulator by
+         * the number of samples.  Can be overridden by a derived
+         * class to implement geometric mean or similar.
          */
-        virtual float Calculate(float iAccumulator, int iN)
+        virtual void Calculate(float* oOutput)
         {
-            float ret = iAccumulator / iN;
-            return ret;
+            assert(mArraySize);
+            assert(oOutput);
+            for (int i=0; i<mArraySize; i++)
+                oOutput[i] = mAccumulator[i] / mNAccumulated;
         }
 
     private:
         bool mValid;
         bool mEnd;
         int mNInit;
+        bool mSoftReset;
+        bool mWrite;
     };
 }
 

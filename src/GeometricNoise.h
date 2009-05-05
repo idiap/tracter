@@ -39,19 +39,24 @@ namespace Tracter
         /**
          * Accumulator.  Overridden for geometric mean
          */
-        virtual float Accumulate(float iAccumulator, float iInput)
+        virtual void Accumulate(float* iInput)
         {
-            float ret = iAccumulator + logf(iInput);
-            return ret;
+            assert(mArraySize);
+            assert(iInput);
+            for (int i=0; i<mArraySize; i++)
+                mAccumulator[i] += logf(iInput[i]);
+            mNAccumulated++;
         }
 
         /**
          * Mean Calculator.  Overridden for geometric mean
          */
-        virtual float Calculate(float iAccumulator, int iN)
+        virtual void Calculate(float* oOutput)
         {
-            float ret = expf(iAccumulator / iN);
-            return ret;
+            assert(mArraySize);
+            assert(oOutput);
+            for (int i=0; i<mArraySize; i++)
+                oOutput[i] = expf(mAccumulator[i] / mNAccumulated);
         }
     };
 }
