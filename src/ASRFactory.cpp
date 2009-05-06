@@ -85,6 +85,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
     // List all available front-ends
     RegisterFrontend(new NullGraphFactory);
+    RegisterFrontend(new CMVNGraphFactory);
     RegisterFrontend(new BasicGraphFactory);
     RegisterFrontend(new BasicVADGraphFactory);
     RegisterFrontend(new PLPGraphFactory);
@@ -318,6 +319,20 @@ Tracter::Plugin<float>*
 Tracter::NullGraphFactory::Create(Plugin<float>* iPlugin)
 {
     return iPlugin;
+}
+
+/**
+ * Does nothing other than add CMVN and deltas if necessary.  Requires
+ * a feature level source.
+ */
+Tracter::Plugin<float>*
+Tracter::CMVNGraphFactory::Create(Plugin<float>* iPlugin)
+{
+    Plugin<float>* p = iPlugin;
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
 }
 
 /**
