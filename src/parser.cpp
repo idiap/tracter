@@ -5,6 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cstdio>
+
 #include "FileSource.h"
 #include "Tokenise.h"
 #include "ArraySink.h"

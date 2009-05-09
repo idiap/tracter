@@ -6,6 +6,7 @@
  */
 
 #include <cassert>
+#include <cstdio>
 
 #include <errno.h>
 #include <sys/stat.h>

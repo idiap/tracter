@@ -92,7 +92,7 @@ void Tracter::RtAudioSource::Open(const char* iDeviceName)
     for (int i=0; i<nDevices; i++)
     {
         RtAudio::DeviceInfo di = mRtAudio.getDeviceInfo(i);
-        printf("Device: %s\n", di.name.c_str());
+        Verbose(1, "Device: %s\n", di.name.c_str());
         if (di.name == iDeviceName)
         {
             device = i;
