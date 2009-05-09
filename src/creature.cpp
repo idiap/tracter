@@ -25,6 +25,7 @@
 #include "ComplexSample.h"
 #include "ComplexPeriodogram.h"
 #include "FilePath.h"
+#include "Frame.h"
 
 #include "config.h"
 
@@ -87,8 +88,8 @@ int main(int argc, char** argv)
     printf("Feature creature\n");
 
     setenv("FileSource_SampleFreq", "2000", 1);
-    setenv("Periodogram_FrameSize", "64", 1);
-    setenv("Periodogram_FramePeriod", "32", 1);
+    setenv("Frame_Size", "64", 1);
+    setenv("Frame_Period", "32", 1);
     setenv("Cepstrum_NCepstra", "8", 1);
     setenv("Cepstrum_C0", "0", 1);
     setenv("MelFilter_NBins", "10", 1);
@@ -106,7 +107,8 @@ int main(int argc, char** argv)
 
     Normalise* n = new Normalise(a);
     ZeroFilter* zf = new ZeroFilter(n);
-    Periodogram* p = new Periodogram(zf);
+    Frame* fr = new Frame(zf);
+    Periodogram* p = new Periodogram(fr);
     MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
     SinkSucker s(c);
