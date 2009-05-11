@@ -65,6 +65,8 @@
 #include "ModulationVAD.h"
 #include "VADGate.h"
 
+#include "LinearTransform.h"
+
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -332,6 +334,7 @@ Tracter::CMVNGraphFactory::Create(Plugin<float>* iPlugin)
     p = normaliseMean(p);
     p = deltas(p);
     p = normaliseVariance(p);
+    p = new LinearTransform(p);
     return p;
 }
 
