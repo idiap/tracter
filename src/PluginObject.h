@@ -98,13 +98,13 @@ namespace Tracter
         };
 
         /** Returns the array size of the cache. */
-        int GetArraySize()
+        int GetArraySize() const
         {
             return mArraySize;
         }
 
         /** Get the sample frequency of this plugin */
-        float GetSampleFreq()
+        float GetSampleFreq() const
         {
             return mSampleFreq;
         }
@@ -127,7 +127,7 @@ namespace Tracter
         virtual bool UnaryFetch(IndexType iIndex, int iOffset);
         virtual PluginObject* GetInput(int iInput) { return 0; }
 
-        TimeType TimeOffset(IndexType iIndex);
+        TimeType TimeOffset(IndexType iIndex) const;
 
         int mSize;          ///< Size of the cache counted in frames
         int mArraySize;     ///< Size of each cache frame

@@ -22,12 +22,6 @@ namespace Tracter
     class Plugin : public PluginObject
     {
     public:
-        virtual ~Plugin<T>() throw ()
-        {
-            // A kind of post-hoc check that the next plugin called Connect()
-            assert(mNOutputs > 0);
-        }
-
         /**
          * Get a pointer to the storage
          * returns a reference.

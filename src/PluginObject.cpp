@@ -599,7 +599,7 @@ Tracter::TimeType Tracter::PluginObject::TimeStamp(IndexType iIndex)
 /**
  * Calculate a time offset
  */
-Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex)
+Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex) const
 {
     // There is undoubtedly a right way to do this.  This may not be
     // it.
