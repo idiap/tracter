@@ -35,11 +35,12 @@ bool Tracter::LinearTransform::UnaryFetch(IndexType iIndex, int iOffset)
     float* cache = GetPointer(iOffset);
 
     /* Multiply, with due disregard to cache and BLAS */
+    int nCols = mInput->GetArraySize();
     for (int r=0; r<mArraySize; r++)
     {
         cache[r] = 0.0f;
-        for (int c=0; c<mInput->GetArraySize(); c++)
-            cache[r] += mMatrix[r*mArraySize + c] * p[c];
+        for (int c=0; c<nCols; c++)
+            cache[r] += mMatrix[r*nCols + c] * p[c];
     }
 
     return true;
