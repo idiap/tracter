@@ -73,6 +73,7 @@ void Tracter::FilePath::MakePath()
     // Copy to temp storage so we can mess with it
     mTmp.resize(mPath.size()+1);
     mPath.copy(&mTmp[0], mTmp.size());
+    mTmp[mPath.size()] = '\0';
 
     // Replace separators with nulls
     // Ignore the first character
