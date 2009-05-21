@@ -4,6 +4,9 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cstdio>
+#include <cstring>
+
 #include "LinearTransform.h"
 
 Tracter::LinearTransform::LinearTransform(
