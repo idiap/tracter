@@ -254,6 +254,28 @@ AS_IF(
 AM_CONDITIONAL([WITH_RTAUDIO], [test "$with_rtaudio" != no])
 AC_SUBST([RTAUDIO_DIR], [$with_rtaudio])
 
+# Boost
+# Just a flag to turn it on and off.
+# ...and it actually does nothing now.  Maybe it will when 1.35 goes into
+# Ubuntu with asio and hence sockets.
+AC_ARG_ENABLE(boost,
+  [AS_HELP_STRING(
+    [--enable-boost],
+    [Enable Boost]
+  )],
+  [],
+  [enable_boost=yes]
+)
+AC_MSG_CHECKING([whether to enable Boost])
+AS_IF(
+  [test "x$enable_boost" != xno],
+  [AC_MSG_RESULT([yes])
+   AC_DEFINE([HAVE_BOOST], [1], [Define if you have Boost.])
+  ],
+  [AC_MSG_RESULT([no])]
+)
+AM_CONDITIONAL([WITH_BOOST], [test "$enable_boost" != no])
+
 
 # Checks for header files.
 AC_HEADER_STDC
