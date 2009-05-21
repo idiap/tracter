@@ -24,12 +24,16 @@ Tracter::Periodogram::Periodogram(
     mComplexData = 0;
     mFourier.Init(frameSize, &mRealData, &mComplexData);
 
-    // Hardwire a Hamming window.  Could be generalised much better.
-    // This one is asymmetric.  Should it be symmetric?
-    const float PI = 3.14159265358979323846;
-    mWindow.resize(frameSize);
-    for (int i=0; i<frameSize; i++)
-        mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (frameSize - 1));
+    if (GetEnv("Window", 1))
+        mWindow = new Window(mObjectName, frameSize);
+    else
+        mWindow = 0;
+}
+
+Tracter::Periodogram::~Periodogram() throw ()
+{
+    delete mWindow;
+    mWindow = 0;
 }
 
 bool Tracter::Periodogram::UnaryFetch(IndexType iIndex, int iOffset)
@@ -41,9 +45,13 @@ bool Tracter::Periodogram::UnaryFetch(IndexType iIndex, int iOffset)
     if (!p)
         return false;
 
-    // Copy the frame via the window
-    for (size_t i=0; i<mWindow.size(); i++)
-        mRealData[i] = p[i] * mWindow[i];
+    if (mWindow)
+        // Copy the frame via the window
+        mWindow->Apply(p, mRealData);
+    else
+        // Raw copy
+        for (int i=0; i<mInput->GetArraySize(); i++)
+            mRealData[i] = p[i];
 
     // Do the DFT
     mFourier.Transform();

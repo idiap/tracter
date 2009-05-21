@@ -15,6 +15,7 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	Window.cpp \
 	Extract.cpp \
 	LinearTransform.cpp \
 	Signal.cpp \

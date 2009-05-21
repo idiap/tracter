@@ -8,8 +8,7 @@
 #ifndef PERIODOGRAM_H
 #define PERIODOGRAM_H
 
-#include <vector>
-
+#include "Window.h"
 #include "Fourier.h"
 #include "UnaryPlugin.h"
 
@@ -27,7 +26,7 @@ namespace Tracter
     public:
         Periodogram(Plugin<float>* iInput,
                     const char* iObjectName = "Periodogram");
-        virtual ~Periodogram() throw() {}
+        virtual ~Periodogram() throw();
 
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
@@ -35,7 +34,7 @@ namespace Tracter
     private:
         float* mRealData;
         complex* mComplexData;
-        std::vector<float> mWindow;
+        Window* mWindow;
         Fourier mFourier;
     };
 }
