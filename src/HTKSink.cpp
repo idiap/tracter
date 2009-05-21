@@ -37,6 +37,7 @@ Tracter::HTKSink::HTKSink(
     if (GetEnv("MFCC",      0)) mParmKind = 6;
     if (GetEnv("FBANK",     0)) mParmKind = 7;
     if (GetEnv("MELSPEC",   0)) mParmKind = 8;
+    if (GetEnv("PLP",       0)) mParmKind = 11;
 
     if (GetEnv("E", 0)) mParmKind |= 000100;
     if (GetEnv("N", 0)) mParmKind |= 000200;
@@ -44,6 +45,7 @@ Tracter::HTKSink::HTKSink(
     if (GetEnv("A", 0)) mParmKind |= 001000;
     if (GetEnv("Z", 0)) mParmKind |= 004000;
     if (GetEnv("0", 0)) mParmKind |= 020000;
+    if (GetEnv("T", 0)) mParmKind |= 100000;
 }
 
 void Tracter::HTKSink::WriteHeader(FILE* iFile)
