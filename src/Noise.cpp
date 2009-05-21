@@ -33,6 +33,8 @@ Tracter::Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
 
 Tracter::Noise::~Noise() throw ()
 {
+    if (mSoftReset)
+        Verbose(1, "accumulated %d samples\n", mNAccumulated);
     if (mWrite)
     {
         Calculate(&mAccumulator.front());  // Overwrite!
