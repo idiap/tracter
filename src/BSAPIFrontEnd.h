@@ -20,7 +20,7 @@
 namespace Tracter
 {
     /**
-     * Plugin to calculate delta features
+     * BSAPI based ASR front-end
      */
     class BSAPIFrontEnd : public CachedPlugin<float>
     {

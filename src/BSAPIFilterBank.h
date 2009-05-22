@@ -20,7 +20,7 @@
 namespace Tracter
 {
     /**
-     * Plugin to calculate delta features
+     * Calculate filter-bank features
      */
   class BSAPIFilterBank : public CachedPlugin<float>
     {

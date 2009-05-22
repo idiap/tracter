@@ -45,6 +45,9 @@ API) can be used to generate features, notably those used in the NIST
 RT evalutions.
  - <a href="http://www.mega-nerd.com/libsndfile/">libsndfile</a> is
 used to read (and soon write) standard audio file formats.
+ - <a href="http://sp-tk.sourceforge.net/">SPTK</a> tools (e.g., Mel
+   generalised cepstral analysis) can be wrapped as tracter
+   components.
  .
 
 Tracter is BSD licenced.  In this sense it does not contain any GPL
@@ -55,11 +58,9 @@ distribution.
 \section authors Authors
 
 <a href="http://www.idiap.ch/~pgarner">Phil Garner</a> wrote the
-framework and most of the components.
-
-Other significant contributions have been made by <a
-href="http://www.idiap.ch/~dines">John Dines</a>, <a
-href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a>, <a
+framework and most of the components.  Other significant contributions
+have been made by <a href="http://www.idiap.ch/~dines">John Dines</a>,
+<a href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a>, <a
 href="http://www.idiap.ch/~dkorch">Danil Korchagin</a> and <a
 href="http://www.dcs.shef.ac.uk/~vinny">Vinny Wan</a>
 

@@ -39,7 +39,7 @@ namespace Tracter
     /**
      * A feature based on modulation.
      *
-     * The input is filtered with a slidfing DFT giving a feature that
+     * The input is filtered with a sliding DFT giving a feature that
      * is similar in principle to RASTA.
      */
     class Modulation : public CachedPlugin<float>

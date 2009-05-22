@@ -16,7 +16,7 @@
 namespace Tracter
 {
     /**
-     * Plugin to calculate delta features
+     * Torch based MLP
      */
     class MLP : public UnaryPlugin<float, float>
     {
@@ -36,4 +36,4 @@ namespace Tracter
     };
 }
 
-#endif /* DELTA_H */
+#endif /* MLP_H */

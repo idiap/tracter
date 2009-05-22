@@ -20,7 +20,7 @@
 namespace Tracter
 {
     /**
-     * Plugin to calculate delta features
+     * Calculate fast Vocal Tract Length Normalisation parameter
      */
     class BSAPIFastVTLN : public UnaryPlugin<float, float>
     {

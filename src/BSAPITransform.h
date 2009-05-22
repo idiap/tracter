@@ -20,7 +20,7 @@
 namespace Tracter
 {
     /**
-     * Plugin to calculate delta features
+     * Apply BSAPI transform
      */
     class BSAPITransform : public CachedPlugin<float>
     {
