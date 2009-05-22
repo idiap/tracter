@@ -92,18 +92,10 @@ bool Tracter::ModulationVAD::UnaryFetch(IndexType iIndex, int iOffset)
         mNoise = 0.0;
         for (int i=0; i<mLookAhead+1; i++)
         {
-            complex tmp = mDFT.Transform(p[i], 0.0f);
-            filter = sqrt(tmp.real() * tmp.real() +
-                          tmp.imag() * tmp.imag());
-            filter /= mNBins;
+            mDFT.Transform(p[i], 0.0f);
             mNoise += log10f(p[i]);
         }
         mNoise /= mLookAhead + 1;
-        //if (mShowGuts)
-        //    printf("%ld %e %e %e %e\n",
-        //           iIndex, log10f(energy), log10f(filter),
-        //           mNoise, mNoise*mThreshold);
-        //return true;
     }
 
     /* Read the old value - the one just behind the DFT window */
