@@ -15,6 +15,8 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	NoiseVAD.cpp \
+	Modulation.cpp \
 	Window.cpp \
 	Extract.cpp \
 	LinearTransform.cpp \
@@ -26,9 +28,7 @@ TRACTER_SOURCES = \
 	FileSink.cpp \
 	VADGate.cpp \
 	VADStateMachine.cpp \
-	ModulationVAD.cpp \
 	Energy.cpp \
-	SlidingDFT.cpp \
 	TracterObject.cpp \
 	ASRFactory.cpp \
 	LowEnergyEnvelope.cpp \

@@ -330,7 +330,17 @@ bool Tracter::PluginObject::Delete(PluginObject* iDownStream)
     {
         PluginObject* input = GetInput(i);
         assert(input);
-        if(input->Delete(this))
+
+        // Check if this input is a duplicate
+        int dup = false;
+        for (int d=i+1; d<mNInputs; d++)
+            if (GetInput(d) == input)
+            {
+                dup = true;
+                break;
+            }
+
+        if(!dup && input->Delete(this))
             delete input;
     }
 

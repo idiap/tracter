@@ -62,8 +62,9 @@
 #endif
 
 #include "Energy.h"
-#include "ModulationVAD.h"
 #include "VADGate.h"
+#include "Modulation.h"
+#include "NoiseVAD.h"
 
 #include "LinearTransform.h"
 
@@ -357,8 +358,8 @@ Tracter::BasicGraphFactory::Create(Plugin<float>* iPlugin)
 }
 
 /**
- * Instantiates a basic MFCC frontend with ModulationVAD and VADGate
- * components.
+ * Instantiates a basic MFCC frontend with energy based VAD and
+ * VADGate components.
  */
 Tracter::Plugin<float>*
 Tracter::BasicVADGraphFactory::Create(Plugin<float>* iPlugin)
@@ -378,7 +379,8 @@ Tracter::BasicVADGraphFactory::Create(Plugin<float>* iPlugin)
     Plugin<float>* v = iPlugin;
     v = new Frame(v);
     v = new Energy(v);
-    ModulationVAD* mv = new ModulationVAD(v);
+    Modulation* m = new Modulation(v);
+    NoiseVAD* mv = new NoiseVAD(m, v);
     v = new VADGate(p, mv);
 
     return v;
@@ -483,11 +485,12 @@ Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
     MLPVAD* m = new MLPVAD(p);
     p = new VADGate(f, m);
 #else
-    // Energy based VAD (Energy will do the framing)
+    // Energy based VAD
     p = new Frame(p);
     p = new Energy(p);
-    ModulationVAD* m = new ModulationVAD(p);
-    p = new VADGate(f, m);
+    Modulation* m = new Modulation(p);
+    NoiseVAD* mv = new NoiseVAD(m, p)
+    p = new VADGate(f, mv);
 #endif
 
     // VTLN PLP
