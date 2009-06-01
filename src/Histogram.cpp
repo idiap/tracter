@@ -60,9 +60,13 @@ bool Tracter::Histogram::UnaryFetch(IndexType iIndex, int iOffset)
     for (int i=0; i<mArraySize; i++)
     {
         // Update histogram. Round down to closest bin
-        int bin = mPower == 0.0f
-            ? (int)((logf(input[i]) - mMin) * mScale)
-            : (int)((powf(input[i], mPower) - mMin) * mScale);
+        int bin = -1;
+        if (mPower == 0.0f)
+            bin = input[i] > FLT_MIN
+                ? (int)((logf(input[i]) - mMin) * mScale)
+                : -1;
+        else
+            bin = (int)((powf(input[i], mPower) - mMin) * mScale);
         if ((bin >= 0) && (bin < mNBins))
             mBin[i][bin] += 1.0f;
 
