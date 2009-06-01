@@ -415,13 +415,16 @@ int Tracter::PluginObject::Read(
             CacheArea area;
             area.Set(fetch, mHead.offset, mSize);
             len = FetchWrapper(mHead.index, area);
-            if (len > 0)
-            {
+
+            // Ugh, why was this if() here?  It causes the component
+            // to stop short when the cache is indefinite.
+            //if (len > 0)
+            //{
                 mHead.index += len;
                 mHead.offset += len;
                 len = iLength - fetch + len;
                 assert(len >= 0);
-            }
+            //}
         }
         else
         {
