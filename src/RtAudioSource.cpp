@@ -82,7 +82,9 @@ int Tracter::RtAudioSource::Callback(
 /**
  * Open an RtAudio device.
  */
-void Tracter::RtAudioSource::Open(const char* iDeviceName)
+void Tracter::RtAudioSource::Open(
+    const char* iDeviceName, TimeType iBeginTime, TimeType iEndTime
+)
 {
     assert(iDeviceName);
 

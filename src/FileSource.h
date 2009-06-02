@@ -33,7 +33,11 @@ namespace Tracter
         }
         virtual ~FileSource() throw() {}
 
-        virtual void Open(const char* iFileName)
+        virtual void Open(
+            const char* iFileName,
+            TimeType iBeginTime = -1,
+            TimeType iEndTime = -1
+        )
         {
             // The file map *is* the cache
             assert(iFileName);

@@ -55,7 +55,11 @@ namespace Tracter
                 Source< CachedPlugin<T> >::GetEnv("SamplePeriod", 1);
         }
         virtual ~SocketSource() throw () {}
-        virtual void Open(const char* iHostName)
+        virtual void Open(
+            const char* iHostName,
+            TimeType iBeginTime = -1,
+            TimeType iEndTime = -1
+        )
         {
             mSocket.Open(iHostName);
         }

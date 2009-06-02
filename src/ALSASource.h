@@ -22,7 +22,11 @@ namespace Tracter
     public:
         ALSASource(const char* iObjectName = "ALSASource");
         ~ALSASource() throw();
-        void Open(const char* iDeviceName);
+        void Open(
+            const char* iDeviceName,
+            TimeType iBeginTime = -1,
+            TimeType iEndTime = -1
+        );
         void asyncCallback();
 
     protected:

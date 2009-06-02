@@ -105,7 +105,9 @@ void Tracter::ALSASource::asyncCallback()
  * http://mailman.alsa-project.org/pipermail/alsa-devel/2008-May/008030.html
  * says that poll() would be better.  One day maybe...
  */
-void Tracter::ALSASource::Open(const char* iDeviceName)
+void Tracter::ALSASource::Open(
+    const char* iDeviceName, TimeType iBeginTime, TimeType iEndTime
+)
 {
     assert(iDeviceName);
 

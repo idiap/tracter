@@ -25,7 +25,9 @@ Tracter::HTKSource::HTKSource(const char* iObjectName)
 /**
  * Maps the HTK parameter file and reads the header
  */
-void Tracter::HTKSource::Open(const char* iFileName)
+void Tracter::HTKSource::Open(
+    const char* iFileName, TimeType iBeginTime, TimeType iEndTime
+)
 {
     assert(iFileName);
     mMapData = (float*)mMap.Map(iFileName);

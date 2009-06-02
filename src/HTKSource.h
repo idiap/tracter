@@ -23,7 +23,11 @@ namespace Tracter
     public:
         HTKSource(const char* iObjectName = "HTKSource");
         virtual ~HTKSource() throw() {}
-        void Open(const char* iFileName);
+        void Open(
+            const char* iFileName,
+            TimeType iBeginTime = -1,
+            TimeType iEndTime = -1
+        );
 
     private:
         ByteOrder mByteOrder;

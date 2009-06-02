@@ -22,7 +22,11 @@ namespace Tracter
     public:
         LNASource(const char* iObjectName = "LNASource");
         virtual ~LNASource() throw() {}
-        void Open(const char* iFileName);
+        void Open(
+            const char* iFileName,
+            TimeType iBeginTime = -1,
+            TimeType iEndTime = -1
+        );
 
     private:
         MMap mMap;

@@ -31,7 +31,9 @@ Tracter::LNASource::LNASource(const char* iObjectName)
 /**
  * Maps the LNA file
  */
-void Tracter::LNASource::Open(const char* iFileName)
+void Tracter::LNASource::Open(
+    const char* iFileName, TimeType iBeginTime, TimeType iEndTime
+)
 {
     assert(iFileName);
     mMapData = mMap.Map(iFileName);

@@ -23,7 +23,11 @@ namespace Tracter
         virtual ~ISource() {}
 
         /** Open a source with the given name */
-        virtual void Open(const char* iName) = 0;
+        virtual void Open(
+            const char* iName,        ///< Name of file or device
+            TimeType iBeginTime = -1, ///< Time for 0'th frame
+            TimeType iEndTime = -1    ///< Time for last frame
+        ) = 0;
         virtual void SetTime(TimeType iTime) = 0;
 
     protected:

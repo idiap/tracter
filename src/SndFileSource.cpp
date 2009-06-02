@@ -29,7 +29,9 @@ Tracter::SndFileSource::~SndFileSource() throw ()
 /**
  * Open a SndFile source
  */
-void Tracter::SndFileSource::Open(const char* iFileName)
+void Tracter::SndFileSource::Open(
+    const char* iFileName, TimeType iBeginTime, TimeType iEndTime
+)
 {
     assert(iFileName);
 
