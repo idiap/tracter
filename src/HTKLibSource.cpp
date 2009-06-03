@@ -70,7 +70,9 @@ Tracter::HTKLibSource::HTKLibSource(const char* iObjectName)
 /**
  * Maps the HTK parameter file and reads the header
  */
-void Tracter::HTKLibSource::Open(const char* iFileName)
+void Tracter::HTKLibSource::Open(
+    const char* iFileName, TimeType iBeginTime, TimeType iEndTime
+)
 {
     FileFormat dfmt=UNDEFF;    /* Data input file format */
 

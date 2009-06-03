@@ -35,23 +35,32 @@ namespace Tracter
 
         virtual void Open(
             const char* iFileName,
-            TimeType iBeginTime = -1,
-            TimeType iEndTime = -1
+            TimeType iBeginTime = 0,
+            TimeType iEndTime = 0
         )
         {
             // The file map *is* the cache
             assert(iFileName);
             mCache = (T*)mMap.Map(iFileName);
-            Plugin<T>::mSize = mMap.GetSize() / sizeof(T);
+
+            // Convert times to frames
+            IndexType begin = Plugin<T>::FrameIndex(iBeginTime);
+            IndexType end = Plugin<T>::FrameIndex(iEndTime);
+            Plugin<T>::Verbose(1, "Begin: %ld  end: %ld\n", begin, end);
+
+            // Fix the cache pointers to the given range
+            int size = mMap.GetSize() / sizeof(T);
+            Plugin<T>::mSize = size;
             Plugin<T>::mTail.index = 0;
-            Plugin<T>::mTail.offset = 0;
-            Plugin<T>::mHead.index = Plugin<T>::mSize;
+            Plugin<T>::mTail.offset = begin;
+            Plugin<T>::mHead.index =
+                end ? std::min(size, (int)(end-begin+1)) : size;
             Plugin<T>::mHead.offset = 0;
         }
 
-        T* GetPointer(int iIndex = 0)
+        T* GetPointer(int iOffset = 0)
         {
-            return &mCache[iIndex];
+            return &mCache[iOffset];
         }
 
         virtual void Reset(bool iPropagate)

@@ -39,7 +39,11 @@ namespace Tracter
     public:
         HTKLibSource(const char* iObjectName = "HTKLibSource");
         ~HTKLibSource() throw();
-        void Open(const char* iFileName);
+        void Open(
+            const char* iFileName,
+            TimeType iBeginTime,
+            TimeType iEndTime
+        );
 
     private:
         bool pbufIsOpen;        ///< Remember whether a buffer is open

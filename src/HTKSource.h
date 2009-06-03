@@ -25,8 +25,8 @@ namespace Tracter
         virtual ~HTKSource() throw() {}
         void Open(
             const char* iFileName,
-            TimeType iBeginTime = -1,
-            TimeType iEndTime = -1
+            TimeType iBeginTime = 0,
+            TimeType iEndTime = 0
         );
 
     private:
@@ -35,6 +35,9 @@ namespace Tracter
         float* mMapData;
         IndexType mNSamples;
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+
+        IndexType mBeginFrame;
+        IndexType mEndFrame;
     };
 }
 

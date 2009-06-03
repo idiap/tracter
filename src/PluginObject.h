@@ -97,6 +97,12 @@ namespace Tracter
             return (double)TimeStamp(iIndex) * 1.0e-9;
         };
 
+        /** Frame index from time */
+        IndexType FrameIndex(TimeType iTime)
+        {
+            return iTime * mSampleFreq / mSamplePeriod / ONEe9;
+        }
+
         /** Returns the array size of the cache. */
         int GetArraySize() const
         {

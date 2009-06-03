@@ -24,10 +24,12 @@ namespace Tracter
 
         /** Open a source with the given name */
         virtual void Open(
-            const char* iName,        ///< Name of file or device
-            TimeType iBeginTime = -1, ///< Time for 0'th frame
-            TimeType iEndTime = -1    ///< Time for last frame
+            const char* iName,       ///< Name of file or device
+            TimeType iBeginTime = 0, ///< Time for 0'th frame
+            TimeType iEndTime = 0    ///< Time for last frame
         ) = 0;
+
+        /** Associate a time with index 0 of the source */
         virtual void SetTime(TimeType iTime) = 0;
 
     protected:
