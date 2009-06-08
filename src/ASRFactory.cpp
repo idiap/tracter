@@ -104,6 +104,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
 #ifdef HAVE_BSAPI
     RegisterFrontend(new PLPPosteriorGraphFactory);
+    RegisterFrontend(new PLPvtlnGraphFactory);
 #endif
 
 #ifdef HAVE_SPTK
@@ -525,7 +526,55 @@ Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
     p = new Divide(p, cv);
 
     // Done
-    return p;
+    return p;    // Returns the concatenated VPLP , posterior features
+}
+
+/**
+ * Instantiates BSAPI components with both standard VTLN PLP
+ * features.
+ */
+Tracter::Plugin<float>*
+Tracter::PLPvtlnGraphFactory::Create(Plugin<float>* iPlugin)
+{
+    Plugin<float>* p  = iPlugin;
+
+    // Framed version of the input for BSAPI
+    Plugin<float>* f = new Frame(p);
+
+#ifdef HAVE_TORCH3
+    // MLP based VAD
+    p = new BSAPIFrontEnd(f, "PLPFrontEnd");
+    Mean* mlpm = new Mean(p);
+    p = new Subtract(p, mlpm);
+    Variance* mlpv = new Variance(p);
+    p = new Divide(p, mlpv);
+    p = new MLP(p);
+    MLPVAD* m = new MLPVAD(p);
+    p = new VADGate(f, m);
+#else
+    // Energy based VAD
+    p = new Frame(p);
+    p = new Energy(p);
+    Modulation* m = new Modulation(p);
+    NoiseVAD* mv = new NoiseVAD(m, p)
+    p = new VADGate(f, mv);
+#endif
+
+    // VTLN PLP
+    Plugin<float>* wf = new BSAPIFastVTLN(p);
+
+    // PLP HLDA FrontEnd
+    Plugin<float>* plp;
+    plp = new BSAPIFrontEnd(p, wf, "PLPHLDAFrontEnd");
+    Mean* plpm = new Mean(plp);
+    plp = new Subtract(plp, plpm);
+    plp = new BSAPITransform(plp, "DATTransform");
+//  Variance* plpv = new Variance(plp, "PLPVariance");
+//  plp = new Divide(plp, plpv);
+    plp = new BSAPITransform(plp, "HLDATransform");
+
+    // Done
+    return plp;  // Returns only the VTLN PLPs
 }
 #endif
 
