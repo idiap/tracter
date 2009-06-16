@@ -77,8 +77,12 @@ void Tracter::VADGate::Reset(bool iPropagate)
     mSilenceConfirmed = -1;
     mSpeechRemoved = 0;
 
-    // Propagate if not segmenting.  Always propagate after EOD.
-    CachedPlugin<float>::Reset(mUpstreamEndOfData || !mSegmenting);
+    // Propagate reset upstream under these conditions
+    CachedPlugin<float>::Reset(
+        mUpstreamEndOfData ||  // Always after EOD
+        !mSegmenting ||        // If not segmenting
+        !mEnabled              // If disabled
+    );
     mUpstreamEndOfData = false;
 }
 
