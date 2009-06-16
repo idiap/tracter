@@ -37,6 +37,8 @@ Tracter::BSAPITransform::BSAPITransform(Plugin<float>* iInput, const char* iObje
     mInput   = iInput;
     mInputID   = NULL;
 
+    MinSize(mInput, 1);
+
     InitTransform();
 
     InitOutBuffer();
@@ -55,7 +57,8 @@ Tracter::BSAPITransform::BSAPITransform(Plugin<float>* iInput, Plugin<float>* iI
     mInput     = iInput;
     mInputID   = iInputID;
     
-    PluginObject::MinSize(mInputID, 1, 1);
+    MinSize(mInput, 1);
+    MinSize(mInputID, 1);
  
     const char* xformdir = GetEnv("MACRODIR", "");
     

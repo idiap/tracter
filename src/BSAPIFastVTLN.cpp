@@ -28,7 +28,7 @@ Tracter::BSAPIFastVTLN::BSAPIFastVTLN(Plugin<float>* iInput, const char* iObject
       mpInputWaveform = new float[inputdim*MaxBufferedFrames];
     
 
-    PluginObject::MinSize(mInput,  MaxBufferedFrames , MaxBufferedFrames);
+    MinSize(mInput,  MaxBufferedFrames);
  
     mpFastVTLN = static_cast<SGMMBasedEstimatorI *>(BSAPICreateInstance(SIID_GMMESTIMATOR));
     if(!mpFastVTLN)

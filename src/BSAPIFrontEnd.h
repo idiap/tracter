@@ -36,7 +36,7 @@ namespace Tracter
     protected:
         bool UnaryFetch(IndexType iIndex, int iOffset);
         PluginObject* GetInput(int iInput);
-	void Reset(bool iPropagate);
+        void Reset(bool iPropagate);
 
     private:
         int   inputdim;

@@ -592,10 +592,14 @@ bool Tracter::PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
 }
 
 /**
- * Get a time stamp for the given index.
+ * Get an absolute time stamp for the given index.
  *
  * A time stamp is a 64 bit signed integer counting nanoseconds.  This
  * is based on the type used in ASIO.
+ *
+ * This call is recursive; it calls itself on the first input until a
+ * source returns a time for index 0.  It then calls TimeOffset() to
+ * get a time for the given frame and adds them.
  */
 Tracter::TimeType Tracter::PluginObject::TimeStamp(IndexType iIndex)
 {
@@ -611,7 +615,11 @@ Tracter::TimeType Tracter::PluginObject::TimeStamp(IndexType iIndex)
 }
 
 /**
- * Calculate a time offset
+ * Calculate a relative time offset
+ *
+ * Given a frame index, uses the frame period and frequency to return
+ * the time of that index from the point of view of index 0 being time
+ * 0.
  */
 Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex) const
 {

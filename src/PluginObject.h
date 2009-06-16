@@ -91,13 +91,21 @@ namespace Tracter
 
         virtual TimeType TimeStamp(IndexType iIndex = 0);
 
-        /** Time in seconds */
+        /**
+         * Time in seconds
+         *
+         * Calls TimeStamp(), which will return an absolute time.
+         */
         double Seconds(IndexType iIndex)
         {
             return (double)TimeStamp(iIndex) * 1.0e-9;
         };
 
-        /** Frame index from time */
+        /**
+         * Convert time to Frame index
+         *
+         * This is a relative call; time zero is frame zero.
+         */
         IndexType FrameIndex(TimeType iTime)
         {
             return iTime * mSampleFreq / mSamplePeriod / ONEe9;

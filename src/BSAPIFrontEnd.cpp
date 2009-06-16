@@ -37,6 +37,8 @@ Tracter::BSAPIFrontEnd::BSAPIFrontEnd(Plugin<float>* iInput, const char* iObject
     mInput   = iInput;
     mInputWF = NULL;
  
+    MinSize(mInput, 1);
+
     InitFrontEnd();
 
     InitOutBuffer();
@@ -57,7 +59,8 @@ Tracter::BSAPIFrontEnd::BSAPIFrontEnd(Plugin<float>* iInput, Plugin<float>* iInp
     mInput   = iInput;
     mInputWF = iInputWF;
 
-    PluginObject::MinSize(mInputWF, 1, 1);
+    MinSize(mInput, 1);
+    MinSize(mInputWF, 1);
    
     InitFrontEnd();
 

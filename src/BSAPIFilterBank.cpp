@@ -39,6 +39,8 @@ Tracter::BSAPIFilterBank::BSAPIFilterBank(Plugin<float>* iInput, const char* iOb
   mInput   = iInput;
   mInputWF = NULL;
   
+  MinSize(mInput, 1);
+
   InitFrontEnd();
 
   InitOutBuffer();
@@ -57,7 +59,8 @@ Tracter::BSAPIFilterBank::BSAPIFilterBank(Plugin<float>* iInput,  Plugin<float>*
   mInput   = iInput;
   mInputWF = iInputWF;
     
-  PluginObject::MinSize(mInputWF, 1, 1);
+  MinSize(mInput, 1);
+  MinSize(mInputWF, 1);
     
   InitFrontEnd();
 
