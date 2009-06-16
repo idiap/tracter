@@ -123,6 +123,9 @@ namespace Tracter
             return mSampleFreq;
         }
 
+        /** Call a recursive chain that outputs a dot graph */
+        void Dot();
+
     protected:
         void MinSize(PluginObject* iObject, int iMinSize, int iReadAhead = 0);
         void MinSize(
@@ -176,11 +179,22 @@ namespace Tracter
         void* mAuxiliary; ///< Common object for each component chain
         IndexType mEndOfData;
 
+        virtual void DotHook() {}
+        void DotRecord(int iVerbose, const char* iString, ...);
+
     private:
         int FetchWrapper(IndexType iIndex, CacheArea& iOutputArea);
         void Reset(PluginObject* iDownStream);
         bool Delete(PluginObject* iDownStream);
         const PluginObject* mDownStream;
+
+        int mDot;      ///< Dot index of this component
+        struct DotInfo
+        {
+            int index; ///< Index of this component
+            int max;   ///< Maximum upstream index
+        };
+        DotInfo Dot(int iDot);
     };
 }
 #endif /* PLUGINOBJECT_H */

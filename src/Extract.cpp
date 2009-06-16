@@ -47,6 +47,10 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
             mLoop = true;
             break;
 
+        case 'd':
+            mSink->Dot();
+            break;
+
         default:
             Usage(iArgv[0]);
             throw Exception("Unrecognised argument %s", iArgv[i]);
@@ -79,6 +83,7 @@ void Tracter::Extract::Usage(const char* iName)
         "Options:\n"
         "-f list  Read input and output files from list\n"
         "-l       Loop indefinitely if not in list mode\n"
+        "-d       Generate dot format graph\n"
         "Anything else prints this information\n"
         "Set environment variable Tracter_shConfig to 1 for more options\n",
         iName

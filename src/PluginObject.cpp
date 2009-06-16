@@ -57,6 +57,8 @@ Tracter::PluginObject::PluginObject()
     mAsync = false;
     mAuxiliary = 0;
     mEndOfData = -1;
+
+    mDot = -1;
 }
 
 /**
@@ -627,4 +629,65 @@ Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex) const
     // it.
     TimeType t = (TimeType)((double)iIndex * mSamplePeriod * 1e9 / mSampleFreq);
     return t;
+}
+
+
+/**
+ * Generate a dot graph
+ */
+void Tracter::PluginObject::Dot()
+{
+    printf("digraph tracter {\n");
+    //printf("rankdir=LR;\n");
+    Dot(0);
+    printf("}\n");
+}
+
+/**
+ * Generate a dot graph
+ *
+ * Recursive part of the call that takes an initial node index,
+ * returning it's own node index and the maximum index on that branch.
+ */
+Tracter::PluginObject::DotInfo
+Tracter::PluginObject::Dot(int iDot)
+{
+    if (mDot >= 0)
+    {
+        DotInfo d = {mDot, mDot};
+        return d;
+    }
+
+    mDot = iDot;
+    printf("%d [shape=record, label=\"{%s", mDot, mObjectName);
+    if (-sVerbose > 0)
+        printf("}|{");
+    DotRecord(2, "frame.size=%d", mArraySize);
+    DotRecord(2, "frame.period=%d", mSamplePeriod);
+    DotHook();
+    printf("}\"];\n");
+    int max = mDot;
+    for (int i=0; i<mNInputs; i++)
+    {
+        PluginObject* p = GetInput(i);
+        DotInfo d = p->Dot(max+1);
+        max = std::max(d.max, max);
+        printf("  %d -> %d", d.index, mDot);
+        if (mNInputs > 1)
+            printf(" [headlabel=\"%d\"]", i);
+        printf(";\n");
+    }
+    DotInfo d = {mDot, max};
+    return d;
+}
+
+void Tracter::PluginObject::DotRecord(int iVerbose, const char* iString, ...)
+{
+    if (iVerbose > -sVerbose)
+        return;
+    va_list ap;
+    va_start(ap, iString);
+    vprintf(iString, ap);
+    va_end(ap);
+    printf("\\l");
 }

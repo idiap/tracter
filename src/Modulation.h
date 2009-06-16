@@ -60,6 +60,14 @@ namespace Tracter
         bool UnaryFetch(IndexType iIndex, int iOffset);
         virtual void Reset(bool iPropagate);
 
+        void DotHook()
+        {
+            CachedPlugin<float>::DotHook();
+            DotRecord(1, "nBins=%d", mNBins);
+            DotRecord(1, "ahead=%d", mLookAhead);
+            DotRecord(1, "behind=%d", mLookBehind);
+        }
+
     private:
         Plugin<float>* mInput;
         IndexType mIndex;

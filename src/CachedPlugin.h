@@ -57,6 +57,12 @@ namespace Tracter
                     Plugin<T>::mSize, iSize);
         }
 
+        virtual void DotHook()
+        {
+            Plugin<T>::DotHook();
+            DotRecord(2, "cache.size=%d", Plugin<T>::mSize);
+        }
+
     private:
         std::vector<T> mCache;
     };

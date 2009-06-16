@@ -44,6 +44,13 @@ namespace Tracter
         bool UnaryFetch(IndexType iIndex, int iOffset);
         virtual void Reset(bool iPropagate);
 
+        void DotHook()
+        {
+            VADStateMachine::DotHook();
+            DotRecord(1, "pole=%.2f", mNoisePole);
+            DotRecord(1, "thres=%.2f", mThreshold);
+        }
+
     private:
         Plugin<float>* mInput;
         Plugin<float>* mNoiseInput;
