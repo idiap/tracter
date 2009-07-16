@@ -28,6 +28,8 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     {
         if (strcmp(env, "STATIC") == 0)
             mVarianceType = VARIANCE_STATIC;
+        else if (strcmp(env, "FIXED") == 0)
+            mVarianceType = VARIANCE_FIXED;
     }
 
     switch (mVarianceType)
@@ -35,26 +37,44 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     case VARIANCE_STATIC:
         // Set the input buffer to store everything
         PluginObject::MinSize(mInput, -1);
+        mValid = false;
         break;
 
     case VARIANCE_ADAPTIVE:
         PluginObject::MinSize(mInput, std::max(mBurnIn, 1));
+        mValid = false;
+        break;
+
+    case VARIANCE_FIXED:
+        // In fact, the input will never be read
+        PluginObject::MinSize(mInput, 1);
+        mValid = true;
         break;
 
     default:
         assert(0);
     }
 
+    // Possibly initialise a prior variance
+    const char* priFile = GetEnv("PriorFile", (const char*)0);
+    if (priFile)
+        Load(mPrior, "<VARIANCE>", priFile);
+
     // Initialise a target variance either from a file or to unity
     const char* tgtFile = GetEnv("TargetFile", (const char*)0);
     if (tgtFile)
-        Load(tgtFile);
+        Load(mTarget, "<VARSCALE>", tgtFile);
     else
         mTarget.assign(mArraySize, 1.0);
 
-    // Our running variance is initialised to the target
-    mVariance.assign(mTarget.begin(), mTarget.end());
-    mValid = false;
+    // Our running variance is initialised to the prior if there,
+    // otherwise the target
+    if (mPrior.size())
+        mVariance.assign(mPrior.begin(), mPrior.end());
+    else
+        mVariance.assign(mTarget.begin(), mTarget.end());
+
+    // Time constant
     SetTimeConstant(GetEnv("TimeConstant", 1.0f));
 }
 
@@ -73,7 +93,7 @@ void Tracter::Variance::SetTimeConstant(float iSeconds)
 
     assert(mPole > 0.0f);
     assert(mPole < 1.0f);
-    Verbose(1, "Variance: pole is %f\n", mPole);
+    Verbose(1, "Pole is %f\n", mPole);
 }
 
 void Tracter::Variance::Reset(bool iPropagate)
@@ -81,8 +101,12 @@ void Tracter::Variance::Reset(bool iPropagate)
     // Reset the variance to the target
     if (!mPersistent || (mVarianceType != VARIANCE_ADAPTIVE))
     {
-        mVariance.assign(mTarget.begin(), mTarget.end());
-        mValid = false;
+        if (mPrior.size())
+            mVariance.assign(mPrior.begin(), mPrior.end());
+        else
+            mVariance.assign(mTarget.begin(), mTarget.end());
+        if (mVarianceType != VARIANCE_FIXED)
+            mValid = false;
     }
 
     // Call the base class
@@ -102,6 +126,10 @@ bool Tracter::Variance::UnaryFetch(IndexType iIndex, int iOffset)
     case VARIANCE_ADAPTIVE:
         if (!adaptFrame(iIndex))
             return false;
+        break;
+
+    case VARIANCE_FIXED:
+        // Do nothing
         break;
 
     default:
@@ -182,24 +210,34 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
     return true;
 }
 
-void Tracter::Variance::Load(const char* iFileName)
+void Tracter::Variance::Load(
+    std::vector<float>& iVariance, const char* iToken, const char* iFileName
+)
 {
+    Verbose(1, "Loading %s from %s\n", iToken, iFileName);
     FILE* fp = fopen(iFileName, "r");
     if (!fp)
         throw Exception("Failed to open file %s", iFileName);
 
     char tmpStr[20];
     int tmpInt = 0;
-    if (fscanf(fp, "%s %d", tmpStr, &tmpInt) != 2)
-        throw Exception("Failed to read <VARSCALE> and size tokens");
+    while (!tmpInt)
+    {
+        if (feof(fp))
+            throw Exception("Failed to find %s in %s", iToken, iFileName);
+        if (fscanf(fp, "%s", tmpStr) == 1)
+            if (strncmp(iToken, tmpStr, 20) == 0)
+                if (fscanf(fp, "%d", &tmpInt) != 1)
+                    throw Exception("Failed to read vector size");
+    }
     if (tmpInt != mArraySize)
         throw Exception("Vector size %d != array size %d", tmpInt, mArraySize);
-    mTarget.resize(mArraySize);
+    iVariance.resize(mArraySize);
     for (int i=0; i<mArraySize; i++)
-        if (fscanf(fp, "%f", &mTarget[i]) != 1)
+        if (fscanf(fp, "%f", &iVariance[i]) != 1)
             throw Exception("failed to read element %d", i);
 #if 0
     for (int i=0; i<mArraySize; i++)
-        printf("%f\n", mTarget[i]);
+        printf("%f\n", iVariance[i]);
 #endif
 }

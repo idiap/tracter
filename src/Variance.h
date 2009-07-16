@@ -15,6 +15,7 @@ namespace Tracter
 {
     enum VarianceType
     {
+        VARIANCE_FIXED,
         VARIANCE_STATIC,
         VARIANCE_ADAPTIVE
     };
@@ -38,6 +39,7 @@ namespace Tracter
         bool mValid;
         bool mPersistent;
         VarianceType mVarianceType;
+        std::vector<float> mPrior;
         std::vector<float> mVariance;
         std::vector<float> mTarget;
 
@@ -49,7 +51,11 @@ namespace Tracter
         void processAll();
         bool adaptFrame(IndexType iIndex);
 
-        void Load(const char* iFileName);
+        void Load(
+            std::vector<float>& iVariance,
+            const char* iToken,
+            const char* iFileName
+        );
     };
 }
 

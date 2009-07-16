@@ -22,6 +22,8 @@ Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
     {
         if (strcmp(env, "STATIC") == 0)
             mMeanType = MEAN_STATIC;
+        else if (strcmp(env, "FIXED") == 0)
+            mMeanType = MEAN_FIXED;
     }
 
     mPersistent = GetEnv("Persistent", 0);
@@ -31,20 +33,35 @@ Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
     case MEAN_STATIC:
         // Set the input buffer to store everything
         PluginObject::MinSize(mInput, -1);
+        mValid = false;
         break;
 
     case MEAN_ADAPTIVE:
         PluginObject::MinSize(mInput, 1);
+        mValid = false;
+        break;
+
+    case MEAN_FIXED:
+        // In fact, the input will never be read
+        PluginObject::MinSize(mInput, 1);
+        mValid = true;
         break;
 
     default:
         assert(0);
     }
 
-    mMean.resize(mArraySize);
-    for (int i=0; i<mArraySize; i++)
-        mMean[i] = 0.0;
-    mValid = false;
+    // Initialise a prior variance from file or to zero
+    const char* priFile = GetEnv("PriorFile", (const char*)0);
+    if (priFile)
+        Load(mPrior, "<MEAN>", priFile);
+    else
+        mPrior.assign(mArraySize, 0.0f);
+
+    // Initialise the mean to the prior
+    mMean.assign(mPrior.begin(), mPrior.end());
+
+    // Time constant
     SetTimeConstant(GetEnv("TimeConstant", 0.5f));
 }
 
@@ -65,9 +82,9 @@ void Tracter::Mean::Reset(bool iPropagate)
     // Zero the mean
     if (!mPersistent || (mMeanType != MEAN_ADAPTIVE))
     {
-        for (int i=0; i<mArraySize; i++)
-            mMean[i] = 0.0;
-        mValid = false;
+        mMean.assign(mPrior.begin(), mPrior.end());
+        if (mMeanType != MEAN_FIXED)
+            mValid = false;
     }
 
     // Call the base class
@@ -91,6 +108,10 @@ bool Tracter::Mean::UnaryFetch(IndexType iIndex, int iOffset)
     case MEAN_ADAPTIVE:
         if (!adaptFrame(iIndex))
             return false;
+        break;
+
+    case MEAN_FIXED:
+        // Do nothing
         break;
 
     default:
@@ -161,3 +182,36 @@ bool Tracter::Mean::adaptFrame(IndexType iIndex)
 
     return true;
 }
+
+void Tracter::Mean::Load(
+    std::vector<float>& iVector, const char* iToken, const char* iFileName
+)
+{
+    Verbose(1, "Loading %s from %s\n", iToken, iFileName);
+    FILE* fp = fopen(iFileName, "r");
+    if (!fp)
+        throw Exception("Failed to open file %s", iFileName);
+
+    char tmpStr[20];
+    int tmpInt = 0;
+    while (!tmpInt)
+    {
+        if (feof(fp))
+            throw Exception("Failed to find %s in %s", iToken, iFileName);
+        if (fscanf(fp, "%s", tmpStr) == 1)
+            if (strncmp(iToken, tmpStr, 20) == 0)
+                if (fscanf(fp, "%d", &tmpInt) != 1)
+                    throw Exception("Failed to read vector size");
+    }
+    if (tmpInt != mArraySize)
+        throw Exception("Vector size %d != array size %d", tmpInt, mArraySize);
+    iVector.resize(mArraySize);
+    for (int i=0; i<mArraySize; i++)
+        if (fscanf(fp, "%f", &iVector[i]) != 1)
+            throw Exception("failed to read element %d", i);
+#if 0
+    for (int i=0; i<mArraySize; i++)
+        printf("%f\n", iVector[i]);
+#endif
+}
+

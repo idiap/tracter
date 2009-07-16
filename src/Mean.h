@@ -15,6 +15,7 @@ namespace Tracter
 {
     enum MeanType
     {
+        MEAN_FIXED,
         MEAN_STATIC,
         MEAN_ADAPTIVE
     };
@@ -38,6 +39,7 @@ namespace Tracter
         bool mValid;
         bool mPersistent;
         MeanType mMeanType;
+        std::vector<float> mPrior;
         std::vector<float> mMean;
 
         float mPole;
@@ -45,6 +47,12 @@ namespace Tracter
 
         void processAll();
         bool adaptFrame(IndexType iIndex);
+
+        void Load(
+            std::vector<float>& iVector,
+            const char* iToken,
+            const char* iFileName
+        );
     };
 }
 
