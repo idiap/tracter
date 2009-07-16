@@ -10,6 +10,7 @@
 #include "ASRFactory.h"
 
 #include "HTKSource.h"
+#include "LNASource.h"
 #include "FileSource.h"
 #include "StreamSocketSource.h"
 
@@ -79,6 +80,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #endif
     RegisterSource(new StreamSocketSourceFactory);
     RegisterSource(new HTKSourceFactory);
+    RegisterSource(new LNASourceFactory);
 #ifdef HAVE_ALSA
     RegisterSource(new ALSASourceFactory);
 #endif
@@ -249,6 +251,17 @@ Tracter::Plugin<float>*
 Tracter::HTKSourceFactory::Create(ISource*& iSource)
 {
     HTKSource* s = new HTKSource();
+    iSource = s;
+    return s;
+}
+
+/**
+ * Instantiates an LNASource component
+ */
+Tracter::Plugin<float>*
+Tracter::LNASourceFactory::Create(ISource*& iSource)
+{
+    LNASource* s = new LNASource();
     iSource = s;
     return s;
 }
