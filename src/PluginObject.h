@@ -108,7 +108,7 @@ namespace Tracter
          */
         IndexType FrameIndex(TimeType iTime)
         {
-            return iTime * mSampleFreq / mSamplePeriod / ONEe9;
+            return (IndexType)(iTime * mSampleFreq / mSamplePeriod / ONEe9);
         }
 
         /** Returns the array size of the cache. */

@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <climits>
+#include <cstdarg>
 #include "PluginObject.h"
 
 /**
