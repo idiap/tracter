@@ -30,6 +30,7 @@ namespace Tracter
         int mHiIndex;
         float mMin;
         float mMax;
+        float mRange;
         bool mLog;
     };
 }

@@ -27,6 +27,7 @@ Tracter::Pixmap::Pixmap(Plugin<float>* iInput, const char* iObjectName)
     mMax = -FLT_MAX;
 
     mLog = GetEnv("Log", 1);
+    mRange = GetEnv("Range", 90);
 }
 
 bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, int iOffset)
@@ -75,18 +76,28 @@ void Tracter::Pixmap::write()
         throw Exception("%s: Minimum value is < 0, can't use log scaling\n",
                         mObjectName);
 
+    // Scale the available range to 0-255.  Can be floored.
     float min;
+    float max;
     float scale;
+    float range;
     if (mLog)
     {
-        min = logf(mMin);
-        scale = 255.0f / (logf(mMax) - logf(mMin));
+        min = log10f(mMin);
+        max = log10f(mMax);
+        range = std::min(max - min, mRange/10.0f);
+        Verbose(1, "Range: %.2f dB raw\n", 10.0*(max-min));
+        Verbose(1, "Range: %.2f dB floored\n", 10.0*(range));
     }
     else
     {
         min = mMin;
-        scale = 255.0f / (mMax - mMin);
+        max = mMax;
+        range = std::max(max - min, exp10f(mRange/10.0f));
     }
+    scale = 255.0f / range;
+    min = max - range;
+
     CacheArea inputArea;
     for (int f=mLoIndex; f<=mHiIndex; f++)
     {
@@ -94,7 +105,13 @@ void Tracter::Pixmap::write()
         assert(inputArea.Length() == 1);
         float* p = mInput->GetPointer(inputArea.offset);
         for (int i=0; i<mArraySize; i++)
-            printf(" %d", (int)(((mLog ? logf(p[i]) : p[i]) - min) * scale));
+        {
+            int val = (int)std::max(
+                ((mLog ? log10f(p[i]) : p[i]) - min) * scale,
+                0.0f
+            );
+            printf(" %d", val);
+        }
         printf("\n");
     }
 }
