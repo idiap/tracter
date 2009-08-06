@@ -98,10 +98,10 @@ void Tracter::HTKSource::Open(
     mMapData = (float*)data;
 
     mBeginFrame = 0;
-    mEndFrame = 0;
-    if (iBeginTime)
+    mEndFrame = -1;
+    if (iBeginTime >= 0)
         mBeginFrame = FrameIndex(iBeginTime);
-    if (iEndTime)
+    if (iEndTime >= 0)
         mEndFrame = FrameIndex(iEndTime);
     Verbose(1, "Begin frame %ld  End frame %ld\n", mBeginFrame, mEndFrame);
 }
@@ -119,7 +119,7 @@ int Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     {
         if (iIndex >= mNSamples)
             break;
-        if (mEndFrame && (iIndex > mEndFrame)) // EndFrame is inclusive
+        if ((mEndFrame >= 0) && (iIndex > mEndFrame)) // EndFrame is inclusive
             break;
         if (i == iOutputArea.len[0])
             offset = 0;

@@ -25,8 +25,8 @@ namespace Tracter
         virtual ~HTKSource() throw() {}
         void Open(
             const char* iFileName,
-            TimeType iBeginTime = 0,
-            TimeType iEndTime = 0
+            TimeType iBeginTime = -1,
+            TimeType iEndTime = -1
         );
 
     private:
