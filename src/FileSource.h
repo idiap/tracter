@@ -1,6 +1,5 @@
 /*
- * Copyright 2007 by IDIAP Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2007 by IDIAP Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -28,6 +27,7 @@ namespace Tracter
         FileSource(const char* iObjectName = "FileSource")
         {
             Plugin<T>::mObjectName = iObjectName;
+            Plugin<T>::mArraySize = Plugin<T>::GetEnv("FrameSize", 1);
             Plugin<T>::mSampleFreq = Plugin<T>::GetEnv("SampleFreq", 8000.0f);
             Plugin<T>::mSamplePeriod = 1;
         }
@@ -35,8 +35,8 @@ namespace Tracter
 
         virtual void Open(
             const char* iFileName,
-            TimeType iBeginTime = 0,
-            TimeType iEndTime = 0
+            TimeType iBeginTime = -1,
+            TimeType iEndTime = -1
         )
         {
             // The file map *is* the cache
@@ -44,17 +44,20 @@ namespace Tracter
             mCache = (T*)mMap.Map(iFileName);
 
             // Convert times to frames
-            IndexType begin = Plugin<T>::FrameIndex(iBeginTime);
-            IndexType end = Plugin<T>::FrameIndex(iEndTime);
+            IndexType begin =
+                (iBeginTime >= 0) ? Plugin<T>::FrameIndex(iBeginTime) : 0;
+            IndexType end =
+                (iEndTime   >= 0) ? Plugin<T>::FrameIndex(iEndTime) : -1;
             Plugin<T>::Verbose(1, "Begin: %ld  end: %ld\n", begin, end);
 
             // Fix the cache pointers to the given range
-            int size = mMap.GetSize() / sizeof(T);
+            assert(Plugin<T>::mArraySize);
+            int size = mMap.GetSize() / (Plugin<T>::mArraySize * sizeof(T));
             Plugin<T>::mSize = size;
             Plugin<T>::mTail.index = 0;
             Plugin<T>::mTail.offset = begin;
             Plugin<T>::mHead.index =
-                end ? std::min(size, (int)(end-begin+1)) : size;
+                (end >= 0) ? std::min(size, (int)(end-begin+1)) : size;
             Plugin<T>::mHead.offset = 0;
         }
 
