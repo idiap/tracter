@@ -1,6 +1,5 @@
 /*
- * Copyright 2007 by IDIAP Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2007 by IDIAP Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -25,9 +24,16 @@ static int alsaErr;
                         __FILE__, __LINE__, snd_strerror(alsaErr)); \
     }
 
+/**
+ * ALSA Source
+ *
+ * The variable FrameSize is the ALSA frame size and the tracter frame
+ * size.  It is effectively the number of channels.
+ */
 Tracter::ALSASource::ALSASource(const char* iObjectName)
 {
     mObjectName = iObjectName;
+    mArraySize = GetEnv("FrameSize", 1);
     mSampleFreq = GetEnv("SampleFreq", 8000.0f);
     mSamplePeriod = 1;
     mHandle = 0;
@@ -148,9 +154,11 @@ void Tracter::ALSASource::Open(
 
 snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
 {
-    /* Default values for parameters */
+    /* Default values for parameters.  ALSA likes unsigned types, but
+     * tracter avoids them. */
     int dir;
     unsigned int sampleRate = (unsigned int)mSampleFreq;
+    unsigned int nChannels = (unsigned int)mArraySize;
     snd_pcm_uframes_t bufferSize;
     snd_pcm_uframes_t periodSize = 160;
 
@@ -164,7 +172,7 @@ snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
                                             SND_PCM_ACCESS_RW_INTERLEAVED) );
     ALSACheck( snd_pcm_hw_params_set_format(mHandle, hwparams,
                                             SND_PCM_FORMAT_S16_LE) );
-    ALSACheck( snd_pcm_hw_params_set_channels(mHandle, hwparams, 1) );
+    ALSACheck( snd_pcm_hw_params_set_channels(mHandle, hwparams, nChannels) );
     ALSACheck( snd_pcm_hw_params_set_rate_near(mHandle, hwparams,
                                                &sampleRate, 0) );
     ALSACheck( snd_pcm_hw_params_get_buffer_size_max(hwparams, &bufferSize) );
