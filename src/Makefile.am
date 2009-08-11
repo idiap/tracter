@@ -15,6 +15,7 @@ noinst_PROGRAMS = \
 lib_LTLIBRARIES = libtracter.la
 
 TRACTER_SOURCES = \
+	Select.cpp \
 	NoiseVAD.cpp \
 	Modulation.cpp \
 	Window.cpp \
