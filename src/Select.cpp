@@ -18,17 +18,18 @@ Tracter::Select::Select(Plugin<float>* iInput, const char* iObjectName)
     mLoIndex = GetEnv("Lo", 0);
     mHiIndex = GetEnv("Hi", -1);
 
-    if (mHiIndex < 0){
-      mHiIndex = iInput->GetArraySize();
+    if (mHiIndex < 0)
+    {
+    	mHiIndex = iInput->GetArraySize() - 1;
     }
 
     mArraySize = mHiIndex - mLoIndex + 1;
     assert(mArraySize >= 0);
-    assert(mHiIndex <= iInput->GetArraySize());
+    assert(mHiIndex <= iInput->GetArraySize() - 1);
     assert(mLoIndex >= 0);
 
     // Keep all the input
-    PluginObject::MinSize(iInput, -1);
+    PluginObject::MinSize(iInput, 1);
 }
 
 bool Tracter::Select::UnaryFetch(IndexType iIndex, int iOffset)
