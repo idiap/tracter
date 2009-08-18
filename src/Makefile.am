@@ -6,7 +6,7 @@
 #
 
 bin_PROGRAMS = \
-	extracter htktopixmap
+	extracter htktopixmap recorder
 
 noinst_PROGRAMS = \
 	socketserver socketclient \
@@ -172,6 +172,10 @@ testfile_SOURCES = testfile.c
 
 extracter_SOURCES = extracter.cpp
 extracter_LDADD = libtracter.la
+
+recorder_CPPFLAGS = @BSAPI_INCLUDES@ @TORCH3_INCLUDES@
+recorder_SOURCES = recorder.cpp
+recorder_LDADD = libtracter.la
 
 creature_SOURCES = creature.cpp
 creature_LDADD = libtracter.la
