@@ -33,12 +33,16 @@ Tracter::Modulation::Modulation(
     mInput = iInput;
     Connect(iInput);
 
+    mArraySize = 1;
+    assert(iInput->GetArraySize() == 1);
+
     /* For a 100Hz frame rate and bin 1 = 4Hz, we have nBins = 100/4 =
      * 25 */
     float freq = GetEnv("Freq", 4.0f);
+    int bin = GetEnv("Bin", 1);
     float sampleFreq = mSampleFreq / mSamplePeriod;
     mNBins = (int)(sampleFreq / freq + 0.5f);
-    mDFT.SetRotation(1, mNBins);
+    mDFT.SetRotation(bin, mNBins);
     mLookAhead = mNBins / 2; // Round down
     mLookBehind = mNBins - mLookAhead - 1;
     MinSize(mInput, mNBins, mLookAhead);

@@ -13,14 +13,21 @@
 #include <NoiseVAD.h>
 #include <VADGate.h>
 
-#include <BSAPIFrontEnd.h>
 #include <Mean.h>
 #include <Variance.h>
 #include <Subtract.h>
 #include <Divide.h>
-#include <MLP.h>
-#include <MLPVAD.h>
 #include <Select.h>
+
+#include <config.h>
+
+#ifdef HAVE_BSAPI
+#ifdef HAVE_TORCH3
+# include <BSAPIFrontEnd.h>
+# include <MLP.h>
+# include <MLPVAD.h>
+#endif
+#endif
 
 using namespace Tracter;
 
@@ -47,6 +54,8 @@ public:
             sm = new NoiseVAD(m, v);
         }
 
+#ifdef HAVE_BSAPI
+#ifdef HAVE_TORCH3
         // MLP VAD
         else if (GetEnv("MLP", 0))
         {
@@ -76,6 +85,8 @@ public:
             v = new Modulation(v);
             sm = new MLPVAD(v);
         }
+#endif
+#endif
 
         // Gate
         p = new Frame(p);

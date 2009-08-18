@@ -15,11 +15,14 @@ Tracter::Select::Select(Plugin<float>* iInput, const char* iObjectName)
     mHiIndex = GetEnv("Hi", iInput->GetArraySize()-1);
 
     mArraySize = mHiIndex - mLoIndex + 1;
-    assert(mArraySize >= 0);
+    assert(mArraySize > 0);
     assert(mHiIndex < iInput->GetArraySize());
     assert(mLoIndex >= 0);
 
     MinSize(iInput, 1);
+
+    Verbose(1, "passing indexes %d-%d of %d",
+            mLoIndex, mHiIndex, iInput->GetArraySize());
 }
 
 bool Tracter::Select::UnaryFetch(IndexType iIndex, int iOffset)

@@ -93,7 +93,7 @@ void Tracter::Pixmap::write()
     {
         min = mMin;
         max = mMax;
-        range = std::max(max - min, exp10f(mRange/10.0f));
+        range = std::min(max - min, exp10f(mRange/10.0f));
     }
     scale = 255.0f / range;
     min = max - range;

@@ -22,7 +22,7 @@ Tracter::MLPVAD::MLPVAD(Plugin<float>* iInput, const char* iObjectName)
     mSilIndex  = GetEnv("SilenceIndex", 0);
 
     assert(mSilThresh >= 0.0f && mSilThresh <= 1.0f);
-    assert(mSilIndex >= 0 && mSilIndex <=  iInput->GetArraySize());
+    assert(mSilIndex >= 0 && mSilIndex < iInput->GetArraySize());
 
     // The state machine
     float confirmSpeechTime = GetEnv("ConfirmSpeechTime", 0.02f);
