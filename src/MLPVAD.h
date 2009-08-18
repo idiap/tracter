@@ -34,8 +34,9 @@ namespace Tracter
     private:
         Plugin<float>* mInput;
         IndexType mIndex;
-        int mSilIndex;
-        float mSilThresh;
+        int mInputIndex;
+        float mThreshold;
+        bool mSpeech;
 
         int mLookAhead;
         bool mShowGuts;

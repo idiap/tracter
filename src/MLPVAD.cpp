@@ -18,11 +18,12 @@ Tracter::MLPVAD::MLPVAD(Plugin<float>* iInput, const char* iObjectName)
     mShowGuts = GetEnv("ShowGuts", 0);
 
     // Threshold
-    mSilThresh = GetEnv("Threshold", 0.5f);
-    mSilIndex  = GetEnv("SilenceIndex", 0);
+    mThreshold = GetEnv("Threshold", 0.5f);
+    mInputIndex = GetEnv("Index", 0);
+    mSpeech = GetEnv("Speech", 0);
 
-    assert(mSilThresh >= 0.0f && mSilThresh <= 1.0f);
-    assert(mSilIndex >= 0 && mSilIndex < iInput->GetArraySize());
+    assert(mThreshold >= 0.0f && mThreshold <= 1.0f);
+    assert(mInputIndex >= 0 && mInputIndex < iInput->GetArraySize());
 
     // The state machine
     float confirmSpeechTime = GetEnv("ConfirmSpeechTime", 0.02f);
@@ -63,15 +64,17 @@ bool Tracter::MLPVAD::UnaryFetch(IndexType iIndex, int iOffset)
 //    	return true;
 //    }
     if (ret_val == 0) return false;
-    float sil_prob = mInput->GetPointer(inputArea.offset)[mSilIndex];
+    float prob = mInput->GetPointer(inputArea.offset)[mInputIndex];
 
     /* Update the state machine */
-    Update(sil_prob <  mSilThresh);
+    Update( mSpeech
+            ? prob >  mThreshold
+            : prob <  mThreshold );
     VADState* output = GetPointer(iOffset);
     *output = mState;
 
     if (mShowGuts)
         printf("%ld %e\n",
-               iIndex, sil_prob);
+               iIndex, prob);
     return true;
 }
