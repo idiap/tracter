@@ -33,7 +33,7 @@ namespace Tracter
         virtual void SetTime(TimeType iTime) = 0;
 
     protected:
-        virtual TimeType TimeStamp(IndexType iIndex) = 0;
+        virtual TimeType TimeStamp(IndexType iIndex = 0) const = 0;
     };
 
     /**
@@ -58,7 +58,7 @@ namespace Tracter
 
     protected:
 
-        virtual TimeType TimeStamp(IndexType iIndex)
+        virtual TimeType TimeStamp(IndexType iIndex) const
         {
             TimeType time = mTime;
             if (iIndex)
