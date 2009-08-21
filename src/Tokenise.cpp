@@ -10,28 +10,29 @@
 /* Rather arbitrary, but should stop too many cache fetches */
 const int BLOCK_SIZE = 16;
 
-Tracter::Tokenise::Tokenise(Plugin<char>* iInput, const char* iObjectName)
-    : UnaryPlugin<std::string, char>(iInput)
+Tracter::Tokenise::Tokenise(Component<char>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
+    mInput = iInput;
+    Connect(mInput, BLOCK_SIZE);
+
     mWhite = " \n\t";
     mQuote = "\"\'";
     mSpecial = "+-={}[]";
     mComment = "#;";
-    MinSize(iInput, BLOCK_SIZE);
 
     mIndex = 0;
     mLine = 0;
 }
 
-bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, std::string* oData)
 {
     assert(iIndex >= 0);
 
     bool inToken = false;
     bool inComment = false;
     char quote = 0;
-    std::string& token = *GetPointer(iOffset);
+    std::string& token = *oData;
     token.clear();
 
     // Read the input

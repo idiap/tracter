@@ -7,7 +7,7 @@
 
 #include <cstdio>
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 #include "FileSource.h"
 #include "Normalise.h"
 #include "HTKSource.h"
@@ -18,8 +18,7 @@
 #include "MelFilter.h"
 #include "Cepstrum.h"
 #include "Mean.h"
-#include "UnarySink.h"
-#include "ArraySink.h"
+#include "FrameSink.h"
 #include "LNASource.h"
 #include "ByteOrder.h"
 #include "ComplexSample.h"
@@ -33,18 +32,23 @@
 # include "ALSASource.h"
 #endif
 
+#ifdef _WIN32
+# include <windows.h>
+# define setenv(a, b, c) SetEnvironmentVariable(a, b)
+#endif
+
 using namespace Tracter;
 
-class SinkSucker : public UnarySink<float>
+class SinkSucker : public Sink
 {
 public:
 
-    SinkSucker(Plugin<float>* iInput, const char* iObjectName = "SinkSucker")
-        : UnarySink<float>(iInput)
+    SinkSucker(Component<float>* iInput, const char* iObjectName = "SinkSucker")
     {
         mObjectName = iObjectName;
-        mArraySize = iInput->GetArraySize();
-        MinSize(iInput, 10);
+        mInput = iInput;
+        Connect(mInput, 10);
+        mFrame.size = iInput->Frame().size;
         Initialise();
         Reset();
     }
@@ -68,18 +72,20 @@ public:
             }
             printf("%2u", iIndex+i);
             for (int j=0; j<5; j++)
-                printf(" %.3f", f[j]); // * 1.1327);
+                printf(" %e", f[j]); // * 1.1327);
             printf("...\n");
             printf("  ");
 
             // 39 is actually a bit stupid, but...
             for (int j=39; j<44; j++)
-                printf(" %.3f", f[j]);
+                printf(" %e", f[j]);
             printf("...\n");
             offset++;
         }
     }
 
+private:
+    Component<float>* mInput;
 };
 
 
@@ -87,11 +93,12 @@ int main(int argc, char** argv)
 {
     printf("Feature creature\n");
 
-    setenv("FileSource_SampleFreq", "2000", 1);
+    setenv("FileSource_FrameRate", "2000", 1);
     setenv("Frame_Size", "64", 1);
     setenv("Frame_Period", "32", 1);
     setenv("Cepstrum_NCepstra", "8", 1);
     setenv("Cepstrum_C0", "0", 1);
+    setenv("MelFilter_MaxHertz", "1000", 1);
     setenv("MelFilter_NBins", "10", 1);
     setenv("MelFilter_LoHertz", "0", 1);
     setenv("MelFilter_HiHertz", "1000", 1);
@@ -139,28 +146,31 @@ int main(int argc, char** argv)
     h->Open("data/4k0a0102.plp");
     as.Pull(0, 10);
 
-    printf("ArraySink...\n");
+    printf("FrameSink...\n");
     FileSource<short>* hh = new FileSource<short>();
     Normalise* nn = new Normalise(hh);
-    ArraySink<float> fs(nn);
+    FrameSink<float> fs(nn);
     hh->Open("testfile.dat");
     fs.Reset();
-    float* frame;
     int index = 0;
-    while(fs.GetArray(frame, index++) && index < 10)
+    while(const float* frame = fs.Read(index++))
     {
         printf("%.3f\n", frame[0] * 32768);
+        if (index >= 9)
+            break;
     }
 
     printf("LNA...\n");
     LNASource* lna = new LNASource();
-    ArraySink<float> ls(lna);
+    FrameSink<float> ls(lna);
     lna->Open("data/NU-1004.zipcode.lna");
     ls.Reset();
     index=0;
-    while(ls.GetArray(frame, index++) && index < 10)
+    while(const float* frame = ls.Read(index++))
     {
         printf("%f\n", frame[4]);
+        if (index >= 9)
+            break;
     }
 
     printf("ComplexSample...\n");
@@ -168,14 +178,15 @@ int main(int argc, char** argv)
     Normalise* cn = new Normalise(cs);
     ComplexSample* ccs = new ComplexSample(cn);
     //ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
-    ArraySink<complex> csink(ccs);
+    FrameSink<complex> csink(ccs);
     cs->Open("testfile.dat");
     csink.Reset();
-    complex* cframe;
     index = 0;
-    while(csink.GetArray(cframe, index++) && index < 10)
+    while(const complex* cframe = csink.Read(index++))
     {
         printf("%f %f\n", cframe[0].real() * 32768, cframe[0].imag() * 32768);
+        if (index >= 9)
+            break;
     }
 
     FilePath path;

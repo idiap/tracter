@@ -8,16 +8,16 @@
 #include "ScreenSink.h"
 
 Tracter::ScreenSink::ScreenSink(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnarySink<float>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = mInput->GetArraySize();
-    if (mArraySize == 0)
-        mArraySize = 1;
-    MinSize(iInput, 1);
+    mInput = iInput;
+    Connect(mInput);
+    mFrame.size = mInput->Frame().size;
+    if (mFrame.size == 0)
+        mFrame.size = 1;
     Initialise();
     Reset();
 
@@ -37,7 +37,7 @@ void Tracter::ScreenSink::Open()
     {
         float* f = mInput->GetPointer(cache.offset);
         printf("%d: ", index++ );
-        for (int i = 0 ; i < mArraySize ; i++ ){
+        for (int i = 0 ; i < mFrame.size ; i++ ){
             printf( "%.3f ",f[i]);
         }
         printf("\n");

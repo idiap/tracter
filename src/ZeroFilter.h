@@ -8,25 +8,26 @@
 #ifndef ZEROFILTER_H
 #define ZEROFILTER_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Implements a filter consisting of a single zero.
      */
-    class ZeroFilter : public UnaryPlugin<float, float>
+    class ZeroFilter : public CachedComponent<float>
     {
     public:
         ZeroFilter(
-            Plugin<float>* iInput, const char* iObjectName = "ZeroFilter"
+            Component<float>* iInput, const char* iObjectName = "ZeroFilter"
         );
-        void MinSize(int iSize, int iReadBack, int iReadAhead);
+        void MinSize(int iSize, int iReadBehind, int iReadAhead);
 
     protected:
         int Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
+        Component<float>* mInput;
         float mZero;
     };
 }

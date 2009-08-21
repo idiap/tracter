@@ -6,37 +6,35 @@
 
 #include "Select.h"
 
-Tracter::Select::Select(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Select::Select(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
+    mInput = iInput;
 
     mLoIndex = GetEnv("Lo", 0);
-    mHiIndex = GetEnv("Hi", iInput->GetArraySize()-1);
+    mHiIndex = GetEnv("Hi", iInput->Frame().size-1);
 
-    mArraySize = mHiIndex - mLoIndex + 1;
-    assert(mArraySize > 0);
-    assert(mHiIndex < iInput->GetArraySize());
+    mFrame.size = mHiIndex - mLoIndex + 1;
+    assert(mFrame.size >= 0);
+    assert(mHiIndex < iInput->Frame().size);
     assert(mLoIndex >= 0);
-
-    MinSize(iInput, 1);
-
     Verbose(1, "passing indexes %d-%d of %d",
-            mLoIndex, mHiIndex, iInput->GetArraySize());
+            mLoIndex, mHiIndex, iInput->Frame().size);
+
+    Connect(iInput, 1);
 }
 
-bool Tracter::Select::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Select::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
-    float* output = GetPointer(iOffset);
     const float* input = mInput->UnaryRead(iIndex);
     if (!input)
         return false;
 
     // Copy input to output
     for (int i=mLoIndex; i<=mHiIndex; i++){
-        output[i-mLoIndex] = input[i];
+        oData[i-mLoIndex] = input[i];
     }
 
     return true;

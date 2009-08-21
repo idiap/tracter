@@ -62,6 +62,8 @@
 # include "MCep.h"
 #endif
 
+#include "Pixmap.h"
+
 #include "Energy.h"
 #include "VADGate.h"
 #include "Modulation.h"
@@ -142,49 +144,49 @@ Tracter::ASRFactory::~ASRFactory() throw ()
  * Instantiates a Source based on the ASRFactory_Source configuration
  * variable.
  */
-Tracter::Plugin<float>* Tracter::ASRFactory::CreateSource(
+Tracter::Component<float>* Tracter::ASRFactory::CreateSource(
     ISource*& iSource //< Returns the actual source component
 )
 {
-    Plugin<float> *plugin = 0;
+    Component<float> *component = 0;
 
     const char* source = GetEnv("Source", "File");
     if (mSource[source])
-        plugin = mSource[source]->Create(iSource);
+        component = mSource[source]->Create(iSource);
     else
         throw Exception("ASRFactory: Unknown source %s\n", source);
 
 #ifdef HAVE_LIBRESAMPLE
     // Not sure if here is the right place...
     if (GetEnv("Resample", 0))
-        plugin = new Resample(plugin);
+        component = new Resample(component);
 #endif
 
-    return plugin;
+    return component;
 }
 
 /**
  * Instantiates a front-end based on the ASRFactory_Frontend
  * configuration variable.
  */
-Tracter::Plugin<float>*
-Tracter::ASRFactory::CreateFrontend(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::ASRFactory::CreateFrontend(Component<float>* iComponent)
 {
-    Plugin<float> *plugin = 0;
+    Component<float> *component = 0;
 
     const char* frontend = GetEnv("Frontend", "Basic");
     if (mFrontend[frontend])
-        plugin = mFrontend[frontend]->Create(iPlugin);
+        component = mFrontend[frontend]->Create(iComponent);
     else
         throw Exception("ASRFactory: Unknown frontend %s\n", frontend);
 
-    return plugin;
+    return component;
 }
 
 /**
  * Instantiates a FileSource<short> followed by a Normalise component
  */
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::FileSourceFactory::Create(ISource*& iSource)
 {
     FileSource<short>* s = new FileSource<short>();
@@ -197,7 +199,7 @@ Tracter::FileSourceFactory::Create(ISource*& iSource)
 /**
  * Instantiates a SndFileSource component
  */
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::SndFileSourceFactory::Create(ISource*& iSource)
 {
     SndFileSource* s = new SndFileSource();
@@ -210,7 +212,7 @@ Tracter::SndFileSourceFactory::Create(ISource*& iSource)
 /**
  * Instantiates an ALSASource followed by a Normalise component
  */
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::ALSASourceFactory::Create(ISource*& iSource)
 {
     ALSASource* s = new ALSASource();
@@ -223,7 +225,7 @@ Tracter::ALSASourceFactory::Create(ISource*& iSource)
 /**
  * Instantiates a StreamSocketSource component
  */
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::StreamSocketSourceFactory::Create(ISource*& iSource)
 {
     StreamSocketSource* s = new StreamSocketSource();
@@ -235,7 +237,7 @@ Tracter::StreamSocketSourceFactory::Create(ISource*& iSource)
 /**
  * Instantiates an HTKLibSource component
  */
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::HTKLibSourceFactory::Create(ISource*& iSource)
 {
     HTKLibSource * s = new HTKLibSource();
@@ -247,7 +249,7 @@ Tracter::HTKLibSourceFactory::Create(ISource*& iSource)
 /**
  * Instantiates an HTKSource component
  */
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::HTKSourceFactory::Create(ISource*& iSource)
 {
     HTKSource* s = new HTKSource();
@@ -258,7 +260,7 @@ Tracter::HTKSourceFactory::Create(ISource*& iSource)
 /**
  * Instantiates an LNASource component
  */
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::LNASourceFactory::Create(ISource*& iSource)
 {
     LNASource* s = new LNASource();
@@ -269,83 +271,83 @@ Tracter::LNASourceFactory::Create(ISource*& iSource)
 /**
  * Instantiates an arbitrary graph of Delta components
  */
-Tracter::Plugin<float>*
-Tracter::GraphFactory::deltas(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::GraphFactory::deltas(Component<float>* iComponent)
 {
-    Plugin<float>* plugin = iPlugin;
+    Component<float>* component = iComponent;
     int deltaOrder = GetEnv("DeltaOrder", 0);
     if (deltaOrder > 0)
     {
         Concatenate* c = new Concatenate();
-        c->Add(plugin);
+        c->Add(component);
         for (int i=0; i<deltaOrder; i++)
         {
-            // For the moment, there is a bug where the plugins don't
+            // For the moment, there is a bug where the components don't
             // copy this string, so the pointer becomes invalid.
             //char str[10];
             //sprintf(str, "Delta%d", i+1);
-            //Delta* d = new Delta(plugin, str); 
-            Delta* d = new Delta(plugin);
+            //Delta* d = new Delta(component, str); 
+            Delta* d = new Delta(component);
             c->Add(d);
-            plugin = d;
+            component = d;
         }
-        plugin = c;
+        component = c;
     }
-    return plugin;
+    return component;
 }
 
 /**
  * Instantiates a Mean component with associated Subtract
  */
-Tracter::Plugin<float>*
-Tracter::GraphFactory::normaliseMean(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::GraphFactory::normaliseMean(Component<float>* iComponent)
 {
-    Plugin<float>* plugin = iPlugin;
+    Component<float>* component = iComponent;
     bool cmn = GetEnv("NormaliseMean", 1);
     if (cmn)
     {
-        Mean* m = new Mean(iPlugin);
-        Subtract* s = new Subtract(iPlugin, m);
-        plugin = s;
+        Mean* m = new Mean(iComponent);
+        Subtract* s = new Subtract(iComponent, m);
+        component = s;
     }
-    return plugin;
+    return component;
 }
 
 /**
  * Instantiates a Variance component with associated Divide
  */
-Tracter::Plugin<float>*
-Tracter::GraphFactory::normaliseVariance(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::GraphFactory::normaliseVariance(Component<float>* iComponent)
 {
-    Plugin<float>* plugin = iPlugin;
+    Component<float>* component = iComponent;
     bool cvn = GetEnv("NormaliseVariance", 0);
     if (cvn)
     {
-        Variance* v = new Variance(iPlugin);
-        Divide* d = new Divide(iPlugin, v);
-        plugin = d;
+        Variance* v = new Variance(iComponent);
+        Divide* d = new Divide(iComponent, v);
+        component = d;
     }
-    return plugin;
+    return component;
 }
 
 /**
  * Does nothing, but allows a "null" frontend, effectively allowing a
  * direct connection to the source.
  */
-Tracter::Plugin<float>*
-Tracter::NullGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::NullGraphFactory::Create(Component<float>* iComponent)
 {
-    return iPlugin;
+    return iComponent;
 }
 
 /**
  * Does nothing other than add CMVN and deltas if necessary.  Requires
  * a feature level source.
  */
-Tracter::Plugin<float>*
-Tracter::CMVNGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::CMVNGraphFactory::Create(Component<float>* iComponent)
 {
-    Plugin<float>* p = iPlugin;
+    Component<float>* p = iComponent;
     p = normaliseMean(p);
     p = deltas(p);
     p = normaliseVariance(p);
@@ -356,10 +358,10 @@ Tracter::CMVNGraphFactory::Create(Plugin<float>* iPlugin)
 /**
  * Instantiates a basic MFCC frontend.
  */
-Tracter::Plugin<float>*
-Tracter::BasicGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::BasicGraphFactory::Create(Component<float>* iComponent)
 {
-    Plugin<float>* p = iPlugin;
+    Component<float>* p = iComponent;
     p = new ZeroFilter(p);
     p = new Frame(p);
     p = new Periodogram(p);
@@ -375,11 +377,11 @@ Tracter::BasicGraphFactory::Create(Plugin<float>* iPlugin)
  * Instantiates a basic MFCC frontend with energy based VAD and
  * VADGate components.
  */
-Tracter::Plugin<float>*
-Tracter::BasicVADGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::BasicVADGraphFactory::Create(Component<float>* iComponent)
 {
     /* Basic signal processing chain */
-    Plugin<float>* p = iPlugin;
+    Component<float>* p = iComponent;
     p = new ZeroFilter(p);
     p = new Frame(p);
     p = new Periodogram(p);
@@ -390,7 +392,7 @@ Tracter::BasicVADGraphFactory::Create(Plugin<float>* iPlugin)
     p = normaliseVariance(p);
 
     /* VAD */
-    Plugin<float>* v = iPlugin;
+    Component<float>* v = iComponent;
     v = new Frame(v);
     v = new Energy(v);
     Modulation* m = new Modulation(v);
@@ -405,11 +407,11 @@ Tracter::BasicVADGraphFactory::Create(Plugin<float>* iPlugin)
  * Instantiates a basic MFCC frontend with MLPVAD and VADGate
  * components.
  */
-Tracter::Plugin<float>*
-Tracter::BasicMLPVADGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::BasicMLPVADGraphFactory::Create(Component<float>* iComponent)
 {
     /* Basic signal processing chain */
-    Plugin<float>* p = iPlugin;
+    Component<float>* p = iComponent;
     p = new ZeroFilter(p);
     p = new Frame(p);
     p = new Periodogram(p);
@@ -420,7 +422,7 @@ Tracter::BasicMLPVADGraphFactory::Create(Plugin<float>* iPlugin)
     p = normaliseVariance(p);
 
     /* VAD - works on the "basic" features */
-    Plugin<float>* v = new MLP(p);
+    Component<float>* v = new MLP(p);
     MLPVAD* mv = new MLPVAD(v);
     p = new VADGate(p, mv);
 
@@ -431,12 +433,12 @@ Tracter::BasicMLPVADGraphFactory::Create(Plugin<float>* iPlugin)
  * Instantiates MLPVAD and VADGate components on the assumption that
  * the source is providing suitable features directly.
  */
-Tracter::Plugin<float>*
-Tracter::MLPVADGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::MLPVADGraphFactory::Create(Component<float>* iComponent)
 {
     /* VAD working on features */
-    Plugin<float>* p = iPlugin;
-    Plugin<float>* v = new MLP(p);
+    Component<float>* p = iComponent;
+    Component<float>* v = new MLP(p);
     MLPVAD* mv = new MLPVAD(v);
     p = new VADGate(p, mv);
 
@@ -447,10 +449,10 @@ Tracter::MLPVADGraphFactory::Create(Plugin<float>* iPlugin)
 /**
  * Instantiates a PLP frontend.
  */
-Tracter::Plugin<float>*
-Tracter::PLPGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::PLPGraphFactory::Create(Component<float>* iComponent)
 {
-    Plugin<float>* p = iPlugin;
+    Component<float>* p = iComponent;
     p = new ZeroFilter(p);
     p = new Frame(p);
     p = new Periodogram(p);
@@ -466,10 +468,10 @@ Tracter::PLPGraphFactory::Create(Plugin<float>* iPlugin)
 /**
  * Instantiates an HCopyWrapper component
  */
-Tracter::Plugin<float>*
-Tracter::HTKGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::HTKGraphFactory::Create(Component<float>* iComponent)
 {
-    Plugin<float>* p = iPlugin;
+    Component<float>* p = iComponent;
     p = new HCopyWrapper(p);
     return p;
 }
@@ -480,13 +482,13 @@ Tracter::HTKGraphFactory::Create(Plugin<float>* iPlugin)
  * Instantiates BSAPI components with both standard and posterior based
  * features.
  */
-Tracter::Plugin<float>*
-Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::PLPPosteriorGraphFactory::Create(Component<float>* iComponent)
 {
-    Plugin<float>* p  = iPlugin;
+    Component<float>* p  = iComponent;
 
     // Framed version of the input for BSAPI
-    Plugin<float>* f = new Frame(p);
+    Component<float>* f = new Frame(p);
 
 #ifdef HAVE_TORCH3
     // MLP based VAD
@@ -508,10 +510,10 @@ Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
 #endif
 
     // VTLN PLP
-    Plugin<float>* wf = new BSAPIFastVTLN(p);
+    Component<float>* wf = new BSAPIFastVTLN(p);
 
     // NN Front End
-    Plugin<float>* nn;
+    Component<float>* nn;
     nn = new BSAPIFilterBank(p, wf);
     Mean* nnm = new Mean(nn);
     nn = new Subtract(nn, nnm);
@@ -520,7 +522,7 @@ Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
     nn = new BSAPITransform(nn, "NNTransform");
 
     // PLP HLDA FrontEnd
-    Plugin<float>* plp;
+    Component<float>* plp;
     plp = new BSAPIFrontEnd(p, wf, "PLPHLDAFrontEnd");
     Mean* plpm = new Mean(plp);
     plp = new Subtract(plp, plpm);
@@ -546,13 +548,13 @@ Tracter::PLPPosteriorGraphFactory::Create(Plugin<float>* iPlugin)
  * Instantiates BSAPI components with both standard VTLN PLP
  * features.
  */
-Tracter::Plugin<float>*
-Tracter::PLPvtlnGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::PLPvtlnGraphFactory::Create(Component<float>* iComponent)
 {
-    Plugin<float>* p  = iPlugin;
+    Component<float>* p  = iComponent;
 
     // Framed version of the input for BSAPI
-    Plugin<float>* f = new Frame(p);
+    Component<float>* f = new Frame(p);
 
 #ifdef HAVE_TORCH3
     // MLP based VAD
@@ -574,10 +576,10 @@ Tracter::PLPvtlnGraphFactory::Create(Plugin<float>* iPlugin)
 #endif
 
     // VTLN PLP
-    Plugin<float>* wf = new BSAPIFastVTLN(p);
+    Component<float>* wf = new BSAPIFastVTLN(p);
 
     // PLP HLDA FrontEnd
-    Plugin<float>* plp;
+    Component<float>* plp;
     plp = new BSAPIFrontEnd(p, wf, "PLPHLDAFrontEnd");
     Mean* plpm = new Mean(plp);
     plp = new Subtract(plp, plpm);
@@ -595,10 +597,10 @@ Tracter::PLPvtlnGraphFactory::Create(Plugin<float>* iPlugin)
 /**
  * Instantiates a SPTK based mcep frontend.
  */
-Tracter::Plugin<float>*
-Tracter::MCepGraphFactory::Create(Plugin<float>* iPlugin)
+Tracter::Component<float>*
+Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
 {
-    Plugin<float>* p = iPlugin;
+    Component<float>* p = iComponent;
     p = new Frame(p);
     p = new Periodogram(p);
     p = new MCep(p);
@@ -610,7 +612,7 @@ Tracter::MCepGraphFactory::Create(Plugin<float>* iPlugin)
 #endif
 
 // THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW.
-Tracter::Plugin<float>*
+Tracter::Component<float>*
 Tracter::ASRFactory::GetSpeakerIDSource()
 {
     if (mSpeakerIDSource)

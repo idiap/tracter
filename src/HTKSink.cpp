@@ -8,27 +8,27 @@
 #include "HTKSink.h"
 
 Tracter::HTKSink::HTKSink(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnarySink<float>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = mInput->GetArraySize();
-    MinSize(iInput, 1);
+    mInput = iInput;
+    Connect(mInput);
+    mFrame.size = mInput->Frame().size;
     Initialise();
     Reset();
 
     mFile = 0;
     mByteOrder.SetTarget(ENDIAN_BIG);
     if (mByteOrder.WrongEndian())
-        mTemp.resize(mArraySize);
+        mTemp.resize(mFrame.size);
 
     /* Initial header values */
-    float period = mSamplePeriod / mSampleFreq;
+    float period = 1.0f / FrameRate();
     mNSamples = 0;
     mSampPeriod = (int)(period * 1e7f + 0.5);
-    mSampSize = mArraySize * sizeof(float);
+    mSampSize = mFrame.size * sizeof(float);
 
     /* Default parameter type is USER; others set by environment */
     mParmKind = 9;
@@ -98,12 +98,12 @@ void Tracter::HTKSink::Open(const char* iFile)
         float* f = mInput->GetPointer(cache.offset);
         if (mByteOrder.WrongEndian())
         {
-            for (int i=0; i<mArraySize; i++)
+            for (int i=0; i<mFrame.size; i++)
                 mTemp[i] = f[i];
             f = &mTemp[0];
-            mByteOrder.Swap(f, sizeof(float), mArraySize);
+            mByteOrder.Swap(f, sizeof(float), mFrame.size);
         }
-        if (fwrite(f, sizeof(float), mArraySize, mFile) != (size_t)mArraySize)
+        if (fwrite(f, sizeof(float), mFrame.size, mFile) != (size_t)mFrame.size)
             throw Exception("HTKSink: Failed to write to file %s", iFile);
     }
     mNSamples = index - 1;

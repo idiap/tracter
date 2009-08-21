@@ -8,23 +8,24 @@
 #include "ComplexSample.h"
 
 Tracter::ComplexSample::ComplexSample(
-    Plugin<float>* iInput, const char* iObjectName
+    Component<float>* iInput, const char* iObjectName
 )
-    : UnaryPlugin<complex, float>(iInput)
 {
     mObjectName = iObjectName;
-    mSampleFreq /= 4;
+    mInput = iInput;
+    mFrame.period = 4;
+    Connect(mInput);
 }
 
-void Tracter::ComplexSample::MinSize(int iSize, int iReadBack, int iReadAhead)
+void Tracter::ComplexSample::MinSize(int iSize, int iReadBehind, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize, iReadBack, iReadAhead);
+    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize * 4 - 2, 0, 0);
+    ComponentBase::MinSize(mInput, iSize * 4 - 2, 0, 0);
 }
 
 int Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)

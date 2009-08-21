@@ -9,11 +9,11 @@
 
 #include "Noise.h"
 
-Tracter::Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Noise::Noise(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
+    mInput = iInput;
+    mFrame.size = iInput->Frame().size;
 
     mValid = false;
     mNInit = GetEnv("NInit", 10);
@@ -22,12 +22,12 @@ Tracter::Noise::Noise(Plugin<float>* iInput, const char* iObjectName)
     mWrite = GetEnv("Write", 0);
     if (mEnd)
         // Store everything - we'll read the end first
-        MinSize(iInput, -1);
+        Connect(iInput, ReadRange::INFINITE);
     else
         // Store enough for the initialisation
-        MinSize(iInput, 1, mNInit-1);
+        Connect(iInput, 1, mNInit-1);
 
-    mAccumulator.resize(mArraySize, 0.0f);
+    mAccumulator.resize(mFrame.size, 0.0f);
     mNAccumulated = 0;
 }
 
@@ -38,7 +38,7 @@ Tracter::Noise::~Noise() throw ()
     if (mWrite)
     {
         Calculate(&mAccumulator.front());  // Overwrite!
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             printf("%e\n", mAccumulator[i]);
     }
 }
@@ -51,14 +51,14 @@ void Tracter::Noise::Reset(bool iPropagate)
     if (!mSoftReset)
     {
         mNAccumulated = 0;
-        mAccumulator.assign(mArraySize, 0.0f);
+        mAccumulator.assign(mFrame.size, 0.0f);
     }
 
     // Call the base class
-    UnaryPlugin<float, float>::Reset(iPropagate);
+    CachedComponent<float>::Reset(iPropagate);
 }
 
-bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Noise::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(mSize == 1);
@@ -99,14 +99,13 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, int iOffset)
         }
 
         // Divide through to finalise the estimate
-        float* output = GetPointer(iOffset);
-        Calculate(output);
+        Calculate(oData);
         mValid = true;
 
         // Print out the noise estimate
         if (sVerbose > 2)
-            for (int i=0; i<mArraySize; i++)
-                printf("%e\n", output[i]);
+            for (int i=0; i<mFrame.size; i++)
+                printf("%e\n", oData[i]);
     }
 
     // After the initialisation, there is nothing to do.

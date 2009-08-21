@@ -9,29 +9,29 @@
 #include "LowEnergyEnvelope.h"
 
 Tracter::LowEnergyEnvelope::LowEnergyEnvelope(
-    Plugin<float>* iInput, const char* iObjectName
+    Component<float>* iInput, const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
+    mInput = iInput;
+    mFrame.size = iInput->Frame().size;
 
     float gamma = GetEnv("Gamma", 0.2f);
     float timeWindow = GetEnv("TimeWindow", 1.0f);
-    mNWindow = (int)(timeWindow * mSampleFreq / mSamplePeriod);
+    mNWindow = (int)(timeWindow * FrameRate());
     mNGamma  = (int)(gamma * mNWindow);
     mCorrection = GetEnv("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
 
     // Set up the sorting arrays
-    mTmp.resize(mArraySize);
-    for (int i=0; i<mArraySize; i++)
+    mTmp.resize(mFrame.size);
+    for (int i=0; i<mFrame.size; i++)
         mTmp[i].resize(mNWindow);
 
     // Store enough for the initialisation
-    MinSize(iInput, mNWindow, mNGamma-1);
+    Connect(mInput, mNWindow, mNGamma-1);
 }
 
-bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -69,12 +69,11 @@ bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, int iOffset)
     // Read the input window into local vectors
     CacheIterator<float> iter(mInput, inputArea);
     for (int i=0; i<inputArea.Length(); i++, ++iter)
-        for (int j=0; j<mArraySize; j++)
+        for (int j=0; j<mFrame.size; j++)
             mTmp[j][i] = iter[j];
 
     // Sort to get the smallest elements first, average and write out
-    float* output = GetPointer(iOffset);
-    for (int j=0; j<mArraySize; j++)
+    for (int j=0; j<mFrame.size; j++)
     {
         std::partial_sort(
             mTmp[j].begin(),
@@ -84,7 +83,7 @@ bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, int iOffset)
         float sum = 0.0f;
         for (int g=0; g<mNGamma; g++)
             sum += mTmp[j][g];
-        output[j] = sum / mNGamma * mCorrection;
+        oData[j] = sum / mNGamma * mCorrection;
     }
 
     // If we get here it was successful

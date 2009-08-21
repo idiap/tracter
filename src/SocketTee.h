@@ -8,7 +8,7 @@
 #ifndef SOCKETTEE_H
 #define SOCKETTEE_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 #include <pthread.h>
 
@@ -78,18 +78,19 @@ namespace Tracter
      * Socket tee piece.  Passes input to output unchanged, but also
      * passes it into a socket connection.
      */
-    class SocketTee : public UnaryPlugin<float, float>
+    class SocketTee : public CachedComponent<float>
     {
     public:
         SocketTee(
-            Plugin<float>* iInput, const char* iObjectName = "SocketTee"
+            Component<float>* iInput, const char* iObjectName = "SocketTee"
         );
         virtual ~SocketTee() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         int mFD;
         Socket mSocket;
         Mutex* mAcceptMutex;

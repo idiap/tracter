@@ -12,7 +12,7 @@
 #include <string>
 
 #include "TracterObject.h"
-#include "Plugin.h"
+#include "Component.h"
 #include "Source.h"
 #include "SpeakerIDSocketSource.h"
 
@@ -24,7 +24,7 @@
         { \
             mObjectName = iObjectName; \
         } \
-        Plugin<float>* Create(Plugin<float>* iPlugin); \
+        Component<float>* Create(Component<float>* iComponent); \
     };
 
 #define DECLARE_SOURCE_FACTORY(name) \
@@ -35,7 +35,7 @@
         { \
             mObjectName = iObjectName; \
         } \
-        Plugin<float>* Create(ISource*& iSource); \
+        Component<float>* Create(ISource*& iSource); \
     };
 
 namespace Tracter
@@ -48,7 +48,7 @@ namespace Tracter
     {
     public:
         virtual ~SourceFactory() throw () {}
-        virtual Plugin<float>* Create(ISource*& iSource) = 0;
+        virtual Component<float>* Create(ISource*& iSource) = 0;
     };
 
     /**
@@ -59,12 +59,12 @@ namespace Tracter
     {
     public:
         virtual ~GraphFactory() throw () {}
-        virtual Plugin<float>* Create(Plugin<float>* iPlugin) = 0;
+        virtual Component<float>* Create(Component<float>* iComponent) = 0;
 
     protected:
-        Plugin<float>* deltas(Plugin<float>* iPlugin);
-        Plugin<float>* normaliseMean(Plugin<float>* iPlugin);
-        Plugin<float>* normaliseVariance(Plugin<float>* iPlugin);
+        Component<float>* deltas(Component<float>* iComponent);
+        Component<float>* normaliseMean(Component<float>* iComponent);
+        Component<float>* normaliseVariance(Component<float>* iComponent);
     };
 
     DECLARE_SOURCE_FACTORY(File)
@@ -107,8 +107,8 @@ namespace Tracter
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
         virtual ~ASRFactory() throw ();
-        Plugin<float>* CreateFrontend(Plugin<float>* iPlugin);
-        Plugin<float>* CreateSource(ISource*& iSource);
+        Component<float>* CreateFrontend(Component<float>* iComponent);
+        Component<float>* CreateSource(ISource*& iSource);
 
         /** Register a source factory in the builder */
         void RegisterSource(SourceFactory* iSource)
@@ -122,7 +122,7 @@ namespace Tracter
             mFrontend[iFrontend->ObjectName()] = iFrontend;
         }
 
-        Plugin<float>* GetSpeakerIDSource();
+        Component<float>* GetSpeakerIDSource();
 
     protected:
         std::map<std::string, SourceFactory*> mSource;

@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "Fourier.h"
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 #include "ComplexSample.h" // for the complex definitions
 
 namespace Tracter
@@ -20,19 +20,18 @@ namespace Tracter
      * Calculate a periodogram (aka power spectral density).  The inputs
      * are complex numbers from, e.g., quadrature sampling.
      */
-    class ComplexPeriodogram : public UnaryPlugin<float, complex>
+    class ComplexPeriodogram : public CachedComponent<float>
     {
     public:
-        ComplexPeriodogram(Plugin<complex>* iInput,
+        ComplexPeriodogram(Component<complex>* iInput,
                            const char* iObjectName = "ComplexPeriodogram");
         virtual ~ComplexPeriodogram() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-        int mFrameSize;
-        int mFramePeriod;
+        Component<complex>* mInput;
         complex* mInputData;
         complex* mOutputData;
         Fourier mFourier;

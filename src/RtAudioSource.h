@@ -10,19 +10,19 @@
 
 #include "RtAudio.h"
 #include "Source.h"
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
-     * Source plugin that reads data from an RtAudio stream.
+     * Source component that reads data from an RtAudio stream.
      *
      * Should work for ASIO etc.  One drawback is that under ALSA it
      * uses the hardware directly rather than the pcm or plug.  If
      * that's an issue then use the ALSA source.  Or RtAudio via jack
      * maybe.
      */
-    class RtAudioSource : public Source< CachedPlugin<float> >
+    class RtAudioSource : public Source< CachedComponent<float> >
     {
     public:
         RtAudioSource(const char* iObjectName = "RtAudioSource");

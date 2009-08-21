@@ -8,22 +8,21 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
-    class Frame : public UnaryPlugin<float, float>
+    class Frame : public CachedComponent<float>
     {
     public:
-        Frame(Plugin<float>* iInput,
+        Frame(Component<float>* iInput,
                const char* iObjectName = "Frame");
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-        int mFrameSize;
-        int mFramePeriod;
+        Component<float>* mInput;
     };
 }
 

@@ -8,7 +8,7 @@
 #ifndef VADSTATEMACHINE_H
 #define VADSTATEMACHINE_H
 
-#include <CachedPlugin.h>
+#include <CachedComponent.h>
 
 namespace Tracter
 {
@@ -29,7 +29,7 @@ namespace Tracter
      * minimum number of speech or silence frames before confirming speech
      * or silence.
      */
-    class VADStateMachine : public CachedPlugin<VADState>
+    class VADStateMachine : public CachedComponent<VADState>
     {
     public:
         VADStateMachine();

@@ -11,12 +11,12 @@
 
 #include "Variance.h"
 
-Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
-    assert(mArraySize >= 0);
+    mInput = iInput;
+    mFrame.size = iInput->Frame().size;
+    assert(mFrame.size >= 0);
 
     mAdaptStart = 0;
     mVarianceType = VARIANCE_ADAPTIVE;
@@ -36,18 +36,18 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     {
     case VARIANCE_STATIC:
         // Set the input buffer to store everything
-        PluginObject::MinSize(mInput, -1);
+        Connect(mInput, ReadRange::INFINITE);
         mValid = false;
         break;
 
     case VARIANCE_ADAPTIVE:
-        PluginObject::MinSize(mInput, std::max(mBurnIn, 1));
+        Connect(mInput, std::max(mBurnIn, 1));
         mValid = false;
         break;
 
     case VARIANCE_FIXED:
         // In fact, the input will never be read
-        PluginObject::MinSize(mInput, 1);
+        Connect(mInput, 1);
         mValid = true;
         break;
 
@@ -65,7 +65,7 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
     if (tgtFile)
         Load(mTarget, "<VARSCALE>", tgtFile);
     else
-        mTarget.assign(mArraySize, 1.0);
+        mTarget.assign(mFrame.size, 1.0);
 
     // Our running variance is initialised to the prior if there,
     // otherwise the target
@@ -87,7 +87,7 @@ Tracter::Variance::Variance(Plugin<float>* iInput, const char* iObjectName)
 void Tracter::Variance::SetTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
-    float n = iSeconds * mSampleFreq / mSamplePeriod;
+    float n = SecondsToFrames(iSeconds);
     mPole = (n-1.0f) / n;
     mElop = 1.0f - mPole;
 
@@ -110,10 +110,10 @@ void Tracter::Variance::Reset(bool iPropagate)
     }
 
     // Call the base class
-    UnaryPlugin<float, float>::Reset(iPropagate);
+    CachedComponent<float>::Reset(iPropagate);
 }
 
-bool Tracter::Variance::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Variance::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     switch (mVarianceType)
@@ -136,9 +136,8 @@ bool Tracter::Variance::UnaryFetch(IndexType iIndex, int iOffset)
         assert(0);
     }
 
-    float* output = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
-        output[i] = sqrtf(mVariance[i] / mTarget[i]);
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] = sqrtf(mVariance[i] / mTarget[i]);
 
     return true;
 }
@@ -152,12 +151,12 @@ void Tracter::Variance::processAll()
     {
         assert(inputArea.Length() == 1);
         float* p = mInput->GetPointer(inputArea.offset);
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             mVariance[i] += p[i] * p[i];
         frame++;
     }
     if (frame > 0)
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             mVariance[i] /= frame;
     mValid = true;
 
@@ -178,17 +177,17 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
     {
         // Set the variance using the first mBurnIn frames
         mAdaptStart = iIndex+mBurnIn;
-        mVariance.assign(mArraySize, 0.0f);
+        mVariance.assign(mFrame.size, 0.0f);
         for (int i=iIndex; i<iIndex+mBurnIn; i++)
         {
             if (mInput->Read(inputArea, i) == 0)
                 return false;
             assert(inputArea.Length() == 1);
             float* p = mInput->GetPointer(inputArea.offset);
-            for (int j=0; j<mArraySize; j++)
+            for (int j=0; j<mFrame.size; j++)
                 mVariance[j] += p[j] * p[j];
         }
-        for (int j=0; j<mArraySize; j++)
+        for (int j=0; j<mFrame.size; j++)
             mVariance[j] /= mBurnIn;
         mValid = true;
         Verbose(1, "Burn in gives %e %e %e %e ...\n",
@@ -203,7 +202,7 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
         float* p = mInput->GetPointer(inputArea.offset);
 
         // Combine the new observation into the variance
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             mVariance[i] = mPole * mVariance[i] + mElop * p[i] * p[i];
     }
 
@@ -230,14 +229,15 @@ void Tracter::Variance::Load(
                 if (fscanf(fp, "%d", &tmpInt) != 1)
                     throw Exception("Failed to read vector size");
     }
-    if (tmpInt != mArraySize)
-        throw Exception("Vector size %d != array size %d", tmpInt, mArraySize);
-    iVariance.resize(mArraySize);
-    for (int i=0; i<mArraySize; i++)
+    if (tmpInt != mFrame.size)
+        throw Exception("Vector size %d != array size %d", tmpInt, mFrame.size);
+    iVariance.resize(mFrame.size);
+    for (int i=0; i<mFrame.size; i++)
         if (fscanf(fp, "%f", &iVariance[i]) != 1)
             throw Exception("failed to read element %d", i);
+
 #if 0
-    for (int i=0; i<mArraySize; i++)
-        printf("%f\n", iVariance[i]);
+    for (int i=0; i<mFrame.size; i++)
+        printf("%f\n", mTarget[i]);
 #endif
 }

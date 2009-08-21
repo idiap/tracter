@@ -7,10 +7,14 @@
 
 #include <cassert>
 #include <cstdio>
-
 #include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+
+#ifdef _WIN32
+# include <direct.h>
+#else
+# include <sys/stat.h>
+# include <sys/types.h>
+#endif
 
 #include "TracterObject.h"
 #include "FilePath.h"
@@ -82,7 +86,14 @@ void Tracter::FilePath::MakePath()
         if ((mTmp[i] == '/') || (mTmp[i] == '\0'))
         {
             mTmp[i] = '\0';
-            if (mkdir(&mTmp[0], 0777) && (errno != EEXIST))
+            if (
+#ifdef _WIN32
+                mkdir(&mTmp[0]) &&
+#else
+                mkdir(&mTmp[0], 0777) &&
+#endif
+                (errno != EEXIST)
+            )
             {
                 perror("mkdir");
                 Dump();

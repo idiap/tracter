@@ -10,26 +10,28 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Mel scaled filter bank.
      */
-    class MelFilter : public UnaryPlugin<float, float>
+    class MelFilter : public CachedComponent<float>
     {
     public:
         MelFilter(
-            Plugin<float>* iInput, const char* iObjectName = "MelFilter"
+            Component<float>* iInput, const char* iObjectName = "MelFilter"
         );
         virtual ~MelFilter() throw() {}
         void DumpBins();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
+
         std::vector<int> mBin;   // Mel 'centers' in terms of DFT bins
         std::vector< std::vector<float> > mWeight; // The actual filters
 
@@ -43,6 +45,7 @@ namespace Tracter
         void normaliseBins();
         float warpHertz(float iHertz, float iAlpha);
 
+        float mMaxHertz;
         float mLoHertz;
         float mHiHertz;
         float mLoWarp;

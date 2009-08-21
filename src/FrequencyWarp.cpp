@@ -5,85 +5,52 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <cstdio>
 #include <cmath>
+#include <cstdlib>
+#include <cstdio>
 
-#include "MelFilter.h"
+#include "FrequencyWarp.h"
 
-/** Convert a value in Hertz to the mel scale. */
-float Tracter::MelFilter::hertzToMel(float iHertz)
+/** Convert a value in Hertz to the warp scale. */
+float Tracter::FrequencyWarp::hertzToWarp(float iHertz)
 {
     return 2595.0f * log10f(1.0f + iHertz / 700.0f);
 }
 
-/** Convert a value from the mel scale to Hertz. */
-float Tracter::MelFilter::melToHertz(float iMel)
+/** Convert a value from the warp scale to Hertz. */
+float Tracter::FrequencyWarp::warpToHertz(float iWarp)
 {
-    return 700.0 * (powf(10, iMel / 2595.0f) - 1.0f);
+    return 700.0 * (powf(10, iWarp / 2595.0f) - 1.0f);
 }
 
 /** Convert a value in Hertz to its closest periodogram bin. */
-int Tracter::MelFilter::hertzToBin(float iHertz, int iNBins)
+int Tracter::FrequencyWarp::hertzToBin(float iHertz)
 {
-    return (int)(iHertz / mMaxHertz * (iNBins-1) + 0.5);
+    return (int)(iHertz / mMaxHertz * (mNPSD-1) + 0.5);
 }
 
 /** Convert a periodogram bin to its center frequency. */
-float Tracter::MelFilter::binToHertz(int iBin, int iNBins)
+float Tracter::FrequencyWarp::binToHertz(int iBin)
 {
-    return (float)iBin * mMaxHertz / (float)(iNBins-1);
+    return (float)iBin * mMaxHertz / (float)(mNPSD-1);
 }
 
-Tracter::MelFilter::MelFilter(
-    Component<float>* iInput,
-    const char* iObjectName
-)
+
+Tracter::FrequencyWarp::FrequencyWarp(const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mInput = iInput;
-    Connect(mInput);
 
     mMaxHertz = GetEnv("MaxHertz", 4000.0f);
-    mFrame.size = GetEnv("NBins", 23);
+    mNBins = GetEnv("NBins", 23);
     mLoHertz = GetEnv("LoHertz", 64.0f);
     mHiHertz = GetEnv("HiHertz", mMaxHertz);
     mLoWarp = GetEnv("LoWarp", 0.0f);
     mHiWarp = GetEnv("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
     mAlpha = GetEnv("Alpha", 1.0f);
+}
 
-    // Initialise the transform
-    mWeight.resize(mFrame.size);
+
 #ifdef ALIGNED_BINS
-    initAlignedBins();
-#else
-    initSmoothBins();
-#endif
-
-    if (GetEnv("Normalise", 0))
-        normaliseBins();
-}
-
-bool Tracter::MelFilter::UnaryFetch(IndexType iIndex, float* oData)
-{
-    assert(iIndex >= 0);
-    assert(oData);
-
-    CacheArea inputArea;
-    int one = mInput->Read(inputArea, iIndex);
-    if (!one)
-        return false;
-
-    float* p = mInput->GetPointer(inputArea.offset);
-    for (int i=0; i<mFrame.size; i++)
-    {
-        //assert(mBin[i+2]-mBin[i]+1 == mWeight[i].size());
-        oData[i] = 0.0f;
-        for (size_t j=0; j<mWeight[i].size(); j++)
-            oData[i] += mWeight[i][j] * p[mBin[i]+j];
-    }
-
-    return true;
-}
 
 /**
  * Bins where each bin center is aligned with a periodogram bin, so
@@ -94,25 +61,26 @@ bool Tracter::MelFilter::UnaryFetch(IndexType iIndex, float* oData)
  * DSR frontend, and the bins seem to be a little wide in that the
  * triangles overlap a little at the bottom.
  */
-void Tracter::MelFilter::initAlignedBins()
+void Tracter::FrequencyWarp::Initialise(int iNPSD)
 {
-    assert(mFrame.size > 0);
+    assert(iNPSD > 0);
+    mNPSD = iNPSD;
+    mWeight.resize(mNBins);
 
     // Triangles aligned with bins
-    float loMel = hertzToMel(mLoHertz);
-    float hiMel = hertzToMel(mHiHertz);
-    int nPSD = mInput->Frame().size;
-    mBin.resize(mFrame.size+2);
-    for (int i=0; i<mFrame.size+2; i++)
+    float loWarp = hertzToWarp(mLoHertz);
+    float hiWarp = hertzToWarp(mHiHertz);
+    mBin.resize(mNBins+2);
+    for (int i=0; i<mNBins+2; i++)
     {
         float hertz =
-            melToHertz(loMel + (hiMel - loMel) / (mFrame.size + 1) * i);
+            warpToHertz(loWarp + (hiWarp - loWarp) / (mNBins + 1) * i);
         if (mAlpha != 1.0)
             hertz = warpHertz(hertz, mAlpha);
-        mBin[i] = hertzToBin(hertz, nPSD);
+        mBin[i] = hertzToBin(hertz);
     }
 
-    for (int i=1; i<=mFrame.size; i++)
+    for (int i=1; i<=mNBins; i++)
     {
         mWeight[i-1].resize(mBin[i+1] - mBin[i-1] + 1);
 
@@ -127,38 +95,43 @@ void Tracter::MelFilter::initAlignedBins()
     }
 }
 
+#else
+
 /**
- * Bins that are smoothly spaced in the mel domain, but do not
+ * Bins that are smoothly spaced in the warp domain, but do not
  * necessarily align with periodogram bins.  This gives bins that are
  * not obviously triangular, but are properly spaced and probably
  * respond better to VTLN.  This is similar to the way HTK does it.
  */
-void Tracter::MelFilter::initSmoothBins()
+void Tracter::FrequencyWarp::Initialise(int iNPSD)
 {
-    assert(mFrame.size > 0);
+    assert(iNPSD > 0);
+    mNPSD = iNPSD;
+    mWeight.resize(mNBins);
 
     std::vector<float> hertz;
-    hertz.resize(mFrame.size+2);
-    mBin.resize(mFrame.size);
-    float loMel = hertzToMel(mLoHertz);
-    float hiMel = hertzToMel(mHiHertz);
-    int nPSD = mInput->Frame().size;
+    hertz.resize(mNBins+2);
+    mBin.resize(mNBins);
+    float loWarp = hertzToWarp(mLoHertz);
+    float hiWarp = hertzToWarp(mHiHertz);
 
-    // Get a list of mel bin centers in hertz
-    for (int i=0; i<mFrame.size+2; i++)
+    // Get a list of warp bin centers in hertz
+    for (int i=0; i<mNBins+2; i++)
     {
-        hertz[i] = melToHertz(loMel + (hiMel - loMel) / (mFrame.size + 1) * i);
+        hertz[i] = warpToHertz(
+            loWarp + (hiWarp - loWarp) / (mNBins + 1) * i
+        );
         if (mAlpha != 1.0)
             hertz[i] = warpHertz(hertz[i], mAlpha);
     }
 
-    for (int p=0; p<nPSD; p++)
+    for (int p=0; p<iNPSD; p++)
     {
-        float centre = binToHertz(p, nPSD);
+        float centre = binToHertz(p);
         if (centre < hertz[0])
             continue;
 
-        for (int m=0; m<mFrame.size; m++)
+        for (int m=0; m<mNBins; m++)
         {
             // Lower triangle
             if ((centre > hertz[m]) &&
@@ -185,6 +158,8 @@ void Tracter::MelFilter::initSmoothBins()
     }
 }
 
+#endif
+
 /**
  * Normalise the bins to have unity power.  It's not clear that this
  * is necessary at all; it breaks the triangular thing where each DFT
@@ -192,12 +167,12 @@ void Tracter::MelFilter::initSmoothBins()
  * not) just appears as a constant offset in cepstral space.  Cepstral
  * mean normalisation will remove it.
  */
-void Tracter::MelFilter::normaliseBins()
+void Tracter::FrequencyWarp::normaliseBins()
 {
-    assert(mFrame.size > 0);
+    assert(mNBins > 0);
 
     // Normalise filters
-    for (int m=0; m<mFrame.size; m++)
+    for (int m=0; m<mNBins; m++)
     {
         float sum = 0.0f;
         for (size_t w=0; w<mWeight[m].size(); w++)
@@ -208,10 +183,21 @@ void Tracter::MelFilter::normaliseBins()
 }
 
 /**
+ * Calculate and return the weight associated with each bin.
+ */
+float Tracter::FrequencyWarp::Weight(int iBin)
+{
+    float sum = 0.0f;
+    for (size_t w=0; w<mWeight[iBin].size(); w++)
+        sum += mWeight[iBin][w];
+    return sum;
+}
+
+/**
  * Warp a value in Hertz by wavelength scale alpha.  This is based on
  * the HTK 'kite' picture for VTLN.
  */
-float Tracter::MelFilter::warpHertz(
+float Tracter::FrequencyWarp::warpHertz(
     float iHertz,   ///< Value to warp
     float iAlpha    ///< Warp factor
 )
@@ -237,14 +223,17 @@ float Tracter::MelFilter::warpHertz(
     else
         warp = scale*iHertz;
 
-    if (warp < mLoHertz)
-        // ...which is very unlikely
-        throw Exception("MelFilter: warp (%f) < mLoHertz (%f)\n",
-                        warp, mLoHertz);
+    if (warp < mLoHertz) // ...which is very unlikely
+    {
+        printf("FrequencyWarp: warp (%f) < mLoHertz (%f)\n", warp, mLoHertz);
+        exit(EXIT_FAILURE);
+    }
     if (warp > mHiHertz * 1.00001) // to allow for accumulated errors
+    {
         // Over-zealous alpha?
-        throw Exception("MelFilter: warp (%f) > mHiHertz (%f)\n",
-                        warp, mHiHertz);
+        printf("FrequencyWarp: warp (%f) > mHiHertz (%f)\n", warp, mHiHertz);
+        exit(EXIT_FAILURE);
+    }
 
     return warp;
 }
@@ -253,30 +242,29 @@ float Tracter::MelFilter::warpHertz(
  * Dumps the bin weights to gnuplot's (trivial) data format so they
  * can be plotted.
  */
-void Tracter::MelFilter::DumpBins()
+void Tracter::FrequencyWarp::DumpBins()
 {
     // Build a fully expanded array
     std::vector< std::vector<float> > output;
-    int psdSize = mInput->Frame().size;
-    output.resize(psdSize);
-    for (int i=0; i<psdSize; i++)
+    output.resize(mNPSD);
+    for (int i=0; i<mNPSD; i++)
     {
-        output[i].resize(mFrame.size);
-        for (int j=0; j<mFrame.size; j++)
+        output[i].resize(mNBins);
+        for (int j=0; j<mNBins; j++)
             output[i][j] = 0.0f;
     }
-    for (int j=0; j<mFrame.size; j++)
+    for (int j=0; j<mNBins; j++)
         for (size_t k=0; k<mWeight[j].size(); k++)
         {
-            assert((int)k<psdSize);
+            assert((int)k<mNPSD);
             output[mBin[j]+k][j] = mWeight[j][k];
         }
 
     // Dump it
-    for (int i=0; i<psdSize; i++)
+    for (int i=0; i<mNPSD; i++)
     {
         printf("%d", i);
-        for (int j=0; j<mFrame.size; j++)
+        for (int j=0; j<mNBins; j++)
             printf(" %f", output[i][j]);
         printf("\n");
     }

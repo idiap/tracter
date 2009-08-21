@@ -6,9 +6,11 @@
  */
 
 #include <cassert>
+#include <cstdio>
+#include <cstdarg>
 #include <climits>
 #include <cstdarg>
-#include "PluginObject.h"
+#include "Component.h"
 
 /**
  * Set a CacheArea to represent a particular range at a particular
@@ -31,72 +33,80 @@ void Tracter::CacheArea::Set(int iLength, int iOffset, int iSize)
     }
 }
 
-Tracter::PluginObject::PluginObject()
+Tracter::ComponentBase::ComponentBase()
 {
     mObjectName = 0;
     mSize = 0;
-    mArraySize = 0;
-    mNInputs = 0;
+    
+    mFrame.period = 1.0f;
+    mFrame.size = 1;
+
     mNOutputs = 0;
-    mHead.index = 0;
-    mHead.offset = 0;
-    mTail.index = 0;
-    mTail.offset = 0;
     mDownStream = 0;
     mIndefinite = false;
     mMinSize = 0;
     mNInitialised = 0;
     mMinReadAhead = INT_MAX;
     mMaxReadAhead = 0;
-    mMinReadBack = INT_MAX;
-    mMaxReadBack = 0;
+    mMinReadBehind = INT_MAX;
+    mMaxReadBehind = 0;
     mTotalReadAhead = 0;
-    mTotalReadBack = 0;
+    mTotalReadBehind = 0;
 
-    mSampleFreq = 0.0f;
-    mSamplePeriod = 0;
     mAsync = false;
     mAuxiliary = 0;
     mEndOfData = -1;
-
     mDot = -1;
+    SetClusterSize(1);
 }
+
+void Tracter::ComponentBase::SetClusterSize(int iSize)
+{
+    assert(iSize > 0);
+    mCluster.resize(iSize, ZEROPAIR);
+}
+
 
 /**
  * In fact, this doesn't connect anything as such.  It updates
  * input and output reference counts so that:
  *
- * 1. Inputs can be requested by GetInput()
- * 2. Plugins with multiple outputs can respond to read-aheads by
+ * 1. Inputs can be accessed as mInput[n]
+ * 2. Components with multiple outputs can respond to read-aheads by
  * increasing buffer sizes.
- *
- * It also duplicates the sample frequency and period of the first
- * input plugin connected.
  *
  * @returns iInput
  */
-Tracter::PluginObject* Tracter::PluginObject::Connect(PluginObject* iInput)
+Tracter::ComponentBase*
+Tracter::ComponentBase::Connect(ComponentBase* iInput, int iSize)
 {
     assert(iInput);
-    mNInputs++;
+    mInput.push_back(iInput);
     iInput->mNOutputs++;
-    if (mSamplePeriod == 0)
-    {
-        mSampleFreq = iInput->mSampleFreq;
-        mSamplePeriod = iInput->mSamplePeriod;
-        assert(mSamplePeriod);
-    }
+    ReadRange rr(iSize);
+    SetReadRange(iInput, rr);
+    return iInput;
+}
+
+Tracter::ComponentBase*
+Tracter::ComponentBase::Connect(ComponentBase* iInput, int iSize, int iReadAhead)
+{
+    assert(iInput);
+    mInput.push_back(iInput);
+    iInput->mNOutputs++;
+    ReadRange rr(iSize, iReadAhead);
+    SetReadRange(iInput, rr);
     return iInput;
 }
 
 
 /**
- * Pass back a minimum size instruction to an input plugin.  This
+ * Pass back a minimum size instruction to an input component.  This
  * should be called by the derived class, which doesn't have
- * permission to call the input plugin directly.
+ * permission to call the input component directly.
  */
-void Tracter::PluginObject::MinSize(
-    PluginObject* iInput, int iMinSize, int iReadAhead
+void Tracter::ComponentBase::MinSize(
+    ComponentBase* iInput, int iMinSize, int iReadAhead
 )
 {
     assert(iInput);
@@ -110,25 +120,25 @@ void Tracter::PluginObject::MinSize(
 }
 
 /**
- * Allows minsize to be set with specify read ahead and back that
+ * Allows minsize to be set with specific read ahead and back that
  * don't necessarily add up properly.
  */
-void Tracter::PluginObject::MinSize(
-    PluginObject* iInput, int iMinSize, int iReadBack, int iReadAhead
+void Tracter::ComponentBase::MinSize(
+    ComponentBase* iInput, int iMinSize, int iReadBehind, int iReadAhead
 )
 {
     assert(iInput);
-    iInput->MinSize(iMinSize, iReadBack, iReadAhead);
+    iInput->MinSize(iMinSize, iReadBehind, iReadAhead);
 }
 
 
 /**
  * Set the minimum size of this cache.  Called by each downstream
- * plugin.  A negative size means that the cache should grow
+ * component.  A negative size means that the cache should grow
  * indefinitely
  */
-void Tracter::PluginObject::MinSize(
-    int iMinSize, int iReadBack, int iReadAhead
+void Tracter::ComponentBase::MinSize(
+    int iMinSize, int iReadBehind, int iReadAhead
 )
 {
     // Keep track of the maximum read-ahead
@@ -137,16 +147,16 @@ void Tracter::PluginObject::MinSize(
     if (mMinReadAhead > iReadAhead)
         mMinReadAhead = iReadAhead;
 
-    if (mMaxReadBack < iReadBack)
-        mMaxReadBack = iReadBack;
-    if (mMinReadBack > iReadBack)
-        mMinReadBack = iReadBack;
+    if (mMaxReadBehind < iReadBehind)
+        mMaxReadBehind = iReadBehind;
+    if (mMinReadBehind > iReadBehind)
+        mMinReadBehind = iReadBehind;
 
     // Only continue if it's not already set to grow indefinitely
     if (mIndefinite)
         return;
 
-    if (iMinSize < 0)
+    if (iMinSize == ReadRange::INFINITE)
     {
         // It's an indefinitely resizing cache
         mIndefinite = true;
@@ -166,7 +176,7 @@ void Tracter::PluginObject::MinSize(
 
 /**
  * Initialises read-ahead and read-back by passing back accumulated
- * values.  If a plugin has more than one output, it sizes the cache
+ * values.  If a component has more than one output, it sizes the cache
  * to deal with the read-back and read-ahead.  This means that if one
  * branch reads ahead, the data is still around for the other branch
  * to fetch.
@@ -174,35 +184,35 @@ void Tracter::PluginObject::MinSize(
  * The algorithm is roughly as follows:
  *
  * There is a local read associated with the immediate downstream
- * plugin(s) and and a global read associated with further downstream
- * plugins.  Plugins with only one output (immediate downstream
- * plugin) only need concern themselves with the local read.  Those
+ * component(s) and and a global read associated with further downstream
+ * components.  Components with only one output (immediate downstream
+ * component) only need concern themselves with the local read.  Those
  * with more than one output need to take into account the global
  * read.
  *
- * Reads are accumulated as they are passed back through plugins.
+ * Reads are accumulated as they are passed back through components.
  * This is the global read.
  *
- * Local reads are stored in the preceding (upstream) plugin.  This
- * means that a plugin with multiple inputs does not need to store
+ * Local reads are stored in the preceding (upstream) component.  This
+ * means that a component with multiple inputs does not need to store
  * distinct reads for each input outside the constructor.  The
- * down-side is that the upstream plugin cannot distinguish different
- * reads for different immediate downstream plugins.
+ * down-side is that the upstream component cannot distinguish different
+ * reads for different immediate downstream components.
  *
- * Plugins know how many outputs are connected, but not what they are.
- * Each plugin waits for initialisation from each output until
+ * Components know how many outputs are connected, but not what they are.
+ * Each component waits for initialisation from each output until
  * propagating the initialisation to inputs.
  *
  * Aside, this is still a mess.  Some caches are too big.
  */
-void* Tracter::PluginObject::Initialise(
-    const PluginObject* iDownStream, int iReadBack, int iReadAhead
+void* Tracter::ComponentBase::Initialise(
+    const ComponentBase* iDownStream, int iReadBehind, int iReadAhead
 )
 {
     assert((mNOutputs == 0) /* Sink */ ||
-           (mNInitialised < mNOutputs) /* Plugin */);
+           (mNInitialised < mNOutputs) /* Component */);
 
-    // First time: Set the favoured downstream plugin to the caller
+    // First time: Set the favoured downstream component to the caller
     if (!mDownStream)
         mDownStream = iDownStream;
 
@@ -210,23 +220,23 @@ void* Tracter::PluginObject::Initialise(
     if (!mIndefinite && (mNOutputs > 1) && (iReadAhead < 0))
     {
         mIndefinite = true;
-        Verbose(1, "PluginObject::Initialise: cache set to indefinite size\n");
+        Verbose(1, "ComponentBase::Initialise: cache set to indefinite size\n");
     }
 
     // Accumulate readahead and readback from all outputs
     mTotalReadAhead += iReadAhead;
-    mTotalReadBack += iReadBack;
+    mTotalReadBehind += iReadBehind;
 
     mGlobalReadAhead.Update(iReadAhead);
-    mGlobalReadBack.Update(iReadBack);
+    mGlobalReadBehind.Update(iReadBehind);
 
-    Verbose(2, "PluginObject::Initialise:"
+    Verbose(2, "ComponentBase::Initialise:"
             " i [%d:%d] m [%d,%d:%d,%d] tot [%d:%d]\n",
-            iReadBack, iReadAhead,
-            mMinReadBack, mMaxReadBack, mMinReadAhead, mMaxReadAhead,
-            mTotalReadBack, mTotalReadAhead);
+            iReadBehind, iReadAhead,
+            mMinReadBehind, mMaxReadBehind, mMinReadAhead, mMaxReadAhead,
+            mTotalReadBehind, mTotalReadAhead);
     Verbose(2, " grb: [%d,%d]  gra [%d,%d]\n",
-            mGlobalReadBack.min, mGlobalReadBack.max,
+            mGlobalReadBehind.min, mGlobalReadBehind.max,
             mGlobalReadAhead.min, mGlobalReadAhead.max);
 
     // If the accumulation is complete, then recurse the call
@@ -235,9 +245,9 @@ void* Tracter::PluginObject::Initialise(
         // Resize if necessary
         if (!mIndefinite)
         {
-            // Add in the sizes of the previous plugins
+            // Add in the sizes of the previous components
             int readAhead = mTotalReadAhead + mMaxReadAhead;
-            int readBack = mTotalReadBack + mMaxReadBack;
+            int readBack = mTotalReadBehind + mMaxReadBehind;
             int newSize = (mNOutputs > 1)
                 ? readBack + 1 + readAhead
                 : mMinSize;
@@ -249,21 +259,20 @@ void* Tracter::PluginObject::Initialise(
         }
 
         // Recurse over *all* inputs
-        for (int i=0; i<mNInputs; i++)
+        for (int i=0; i<(int)mInput.size(); i++)
         {
-            PluginObject* input = GetInput(i);
-            assert(input);
-            int scale = mSamplePeriod / input->mSamplePeriod;
+            assert(mInput[i]);
             int readAhead = (mIndefinite || (iReadAhead < 0))
                 ? -1
-                : (mMaxReadAhead+iReadAhead) * scale;
-            int readBack  = (mMaxReadBack+iReadBack) * scale;
-            void* aux = input->Initialise(this, readBack, readAhead);
+                : (mMaxReadAhead+iReadAhead) * mFrame.period;
+            int readBack  = (mMaxReadBehind+iReadBehind) * mFrame.period;
+            void* aux = mInput[i]->Initialise(this, readBack, readAhead);
             if (i == 0)
                 mAuxiliary = aux;
             else
                 if (mAuxiliary != aux)
                     throw Exception("Initialise: Mismatched aux. pointers");
+
         }
     }
 
@@ -273,15 +282,15 @@ void* Tracter::PluginObject::Initialise(
 
 /**
  * Private reset that is only allowed to propagate back from a single
- * downstream plugin.  This means that when several plugins use this
+ * downstream component.  This means that when several components use this
  * one as an input, it only gets reset once.  Calls the public method,
  * which can be hooked.
  */
-void Tracter::PluginObject::Reset(
-    PluginObject* iDownStream ///< this pointer of calling class
+void Tracter::ComponentBase::Reset(
+    ComponentBase* iDownStream ///< this pointer of calling class
 )
 {
-    // Only proceed if the calling plugin is the favoured one
+    // Only proceed if the calling component is the favoured one
     if (mDownStream == iDownStream)
         Reset(true);
 }
@@ -289,62 +298,55 @@ void Tracter::PluginObject::Reset(
 /**
  * Public reset method that actually resets the class.  This should be
  * called whenever necessary to reset the caches to index zero.  Each
- * plugin is only reset once in a recursive reset - the graph is not
+ * component is only reset once in a recursive reset - the graph is not
  * expanded to a tree.
  */
-void Tracter::PluginObject::Reset(
-    bool iPropagate ///< If true, recursively resets all input plugins
+void Tracter::ComponentBase::Reset(
+    bool iPropagate ///< If true, recursively resets all input components
 )
 {
     mEndOfData = -1;
-    mHead.index = 0;
-    mHead.offset = 0;
-    mTail.index = 0;
-    mTail.offset = 0;
+    mCluster.assign(mCluster.size(), ZEROPAIR);
     if (iPropagate)
-        for (int i=0; i<mNInputs; i++)
+        for (int i=0; i<(int)mInput.size(); i++)
         {
-            PluginObject* input = GetInput(i);
-            assert(input);
-            input->Reset(this);
+            assert(mInput[i]);
+            mInput[i]->Reset(this);
         }
 }
 
 /**
- * Recursive delete.  Deletes all input plugins recursively, except
+ * Recursive delete.  Deletes all input components recursively, except
  * the first one, which is most likely a Sink.
  *
  * @returns true if the caller can delete the object
  */
-bool Tracter::PluginObject::Delete(PluginObject* iDownStream)
+bool Tracter::ComponentBase::Delete(ComponentBase* iDownStream)
 {
     // Initialise must have occured for this to work
     if (!mDownStream)
         assert(0);
 
-    // Return immediately if the caller is not the favoured plugin
+    // Return immediately if the caller is not the favoured component
     if (iDownStream != mDownStream)
         return false;
 
     // Loop backwards!
-    // This causes non-favoured plugins to be deleted first so the method
+    // This causes non-favoured components to be deleted first so the method
     // doesn't get called on already deleted objects.
-    for (int i=mNInputs-1; i>=0; i--)
+    for (int i=mInput.size()-1; i>=0; i--)
     {
-        PluginObject* input = GetInput(i);
-        assert(input);
-
         // Check if this input is a duplicate
         bool dup = false;
-        for (int d=i+1; d<mNInputs; d++)
-            if (GetInput(d) == input)
+        for (size_t d=i+1; d<mInput.size(); d++)
+            if (mInput[d] == mInput[i])
             {
                 dup = true;
                 break;
             }
 
-        if(!dup && input->Delete(this))
-            delete input;
+        if(!dup && mInput[i]->Delete(this))
+            delete mInput[i];
     }
 
     // Tell the caller that it can delete this object
@@ -353,14 +355,14 @@ bool Tracter::PluginObject::Delete(PluginObject* iDownStream)
 
 /**
  * Public interface to recursive delete.  This can only be called by a
- * Sink plugin (one that has no outputs).  The sink plugin itself is
+ * Sink component (one that has no outputs).  The sink component itself is
  * not actually deleted (it would have to delete itself).  Do not use
  * this call either directly or via a Sink that does so if
- * intermediate plugins are allocated on the stack.
+ * intermediate components are allocated on the stack.
  */
-void Tracter::PluginObject::Delete()
+void Tracter::ComponentBase::Delete()
 {
-    // The sink plugin should have no downstream favoured plugin
+    // The sink component should have no downstream favoured component
     assert(!mDownStream);
     mDownStream = this;
     Delete(this);
@@ -370,7 +372,7 @@ void Tracter::PluginObject::Delete()
  * Update a cachepointer.
  * Handles wraparound too.
  */
-void Tracter::PluginObject::MovePointer(CachePointer& iPointer, int iLen)
+void Tracter::ComponentBase::MovePointer(CachePointer& iPointer, int iLen)
 {
     iPointer.index += iLen;
     iPointer.offset += iLen;
@@ -380,15 +382,15 @@ void Tracter::PluginObject::MovePointer(CachePointer& iPointer, int iLen)
 
 
 /**
- * Read data from an input Plugin.  This is the core of the cached
- * plugin concept.  If data already exists it just returns the cache
+ * Read data from an input Component.  This is the core of the cached
+ * component concept.  If data already exists it just returns the cache
  * location.  Otherwise it calls the Fetch() method to actually
  * calculate new data.
  *
  * @returns the number of data actually available.  It may be less
  * than the number requested.
  */
-int Tracter::PluginObject::Read(
+int Tracter::ComponentBase::Read(
     CacheArea& oRange, IndexType iIndex, int iLength
 )
 {
@@ -400,7 +402,9 @@ int Tracter::PluginObject::Read(
 
     // Remember:
     //
-    // mHead is the next location to write to (free space)
+    // head is the next location to write to (free space)
+    CachePointer& head = mCluster[0].head;
+    CachePointer& tail = mCluster[0].tail;
 
     // Case 0: For an indefinitely resizing cache, we just calculate
     // everything between the end of the cache and the end of the
@@ -408,23 +412,23 @@ int Tracter::PluginObject::Read(
     if (mIndefinite)
     {
         IndexType finalIndex = iIndex + iLength - 1;
-        if (finalIndex >= mHead.index)
+        if (finalIndex >= head.index)
         {
             // Number of new samples required
-            int fetch = iIndex + iLength - mHead.index;
+            int fetch = iIndex + iLength - head.index;
             assert(fetch > 0);
             if (mSize < iIndex + iLength)
                 Resize(iIndex + iLength);
             CacheArea area;
-            area.Set(fetch, mHead.offset, mSize);
-            len = FetchWrapper(mHead.index, area);
+            area.Set(fetch, head.offset, mSize);
+            len = FetchWrapper(head.index, area);
 
             // Ugh, why was this if() here?  It causes the component
             // to stop short when the cache is indefinite.
             //if (len > 0)
             //{
-                mHead.index += len;
-                mHead.offset += len;
+                head.index += len;
+                head.offset += len;
                 len = iLength - fetch + len;
                 assert(len >= 0);
             //}
@@ -442,7 +446,7 @@ int Tracter::PluginObject::Read(
 
     // Case 1: Cache empty, or there is some discontinuity after the
     // end of the cache.  Start again from the start of the cache
-    if ((mHead.index == mTail.index) || (iIndex > mHead.index))
+    if ((head.index == tail.index) || (iIndex > head.index))
     {
         oRange.Set(iLength, 0, mSize);
         len = FetchWrapper(iIndex, oRange);
@@ -453,41 +457,41 @@ int Tracter::PluginObject::Read(
             oRange.Set(len, 0, mSize);
         if (!mAsync)
         {
-            mHead.index = iIndex + len;
-            mHead.offset = len;
-            if (mHead.offset >= mSize)
-                mHead.offset -= mSize;
-            mTail.index = iIndex;
-            mTail.offset = 0;
+            head.index = iIndex + len;
+            head.offset = len;
+            if (head.offset >= mSize)
+                head.offset -= mSize;
+            tail.index = iIndex;
+            tail.offset = 0;
         }
         return len;
     }
 
     // iIndex is either contiguous, or inside the cache range
-    else if ((iIndex >= mTail.index) && (iIndex <= mHead.index))
+    else if ((iIndex >= tail.index) && (iIndex <= head.index))
     {
         IndexType finalIndex = iIndex + iLength - 1;
-        if (finalIndex >= mHead.index)
+        if (finalIndex >= head.index)
         {
             // Case 2: It's an extension of the current range
-            int fetch = iIndex + iLength - mHead.index;
+            int fetch = iIndex + iLength - head.index;
             assert(fetch > 0);
             CacheArea area;
-            area.Set(fetch, mHead.offset, mSize);
-            len = FetchWrapper(mHead.index, area);
+            area.Set(fetch, head.offset, mSize);
+            len = FetchWrapper(head.index, area);
             if (!mAsync)
             {
-                mHead.index += len;
-                mHead.offset += len;
-                if (mHead.offset >= mSize)
-                    mHead.offset -= mSize;
-                if (mHead.index - mTail.index > mSize)
+                head.index += len;
+                head.offset += len;
+                if (head.offset >= mSize)
+                    head.offset -= mSize;
+                if (head.index - tail.index > mSize)
                 {
-                    int diff = mHead.index - mTail.index - mSize;
-                    mTail.index += diff;
-                    mTail.offset += diff;
-                    if (mTail.offset >= mSize)
-                        mTail.offset -= mSize;
+                    int diff = head.index - tail.index - mSize;
+                    tail.index += diff;
+                    tail.offset += diff;
+                    if (tail.offset >= mSize)
+                        tail.offset -= mSize;
                 }
             }
             len = iLength - fetch + len;
@@ -503,7 +507,7 @@ int Tracter::PluginObject::Read(
 
         // Whichever of cases 2 and 3, we need to fix up the output
         // range
-        int offset = mTail.offset + (iIndex - mTail.index);
+        int offset = tail.offset + (iIndex - tail.index);
         if (offset >= mSize)
             offset -= mSize;
         oRange.Set(len, offset, mSize);
@@ -511,9 +515,9 @@ int Tracter::PluginObject::Read(
     }
 
     // Otherwise (case 4) the request was for lost data
-    throw Exception("%s: PluginObject: Backwards cache access, data lost\n"
+    throw Exception("%s: ComponentBase: Backwards cache access, data lost\n"
                     "Head = %ld  Tail = %ld  Request index = %ld\n",
-                    mObjectName, mHead.index, mTail.index, iIndex);
+                    mObjectName, head.index, tail.index, iIndex);
 
     return 0;
 }
@@ -529,7 +533,7 @@ int Tracter::PluginObject::Read(
  * deal with that with a flag later).  So, if EOD is set, all requests
  * here will be after it.
  */
-int Tracter::PluginObject::FetchWrapper(
+int Tracter::ComponentBase::FetchWrapper(
     IndexType iIndex, CacheArea& iOutputArea
 )
 {
@@ -549,50 +553,44 @@ int Tracter::PluginObject::FetchWrapper(
 }
 
 /**
- * Fetch() is called when a downstream plugin requests data via
+ * Fetch() is called when a downstream component requests data via
  * Read(), and the requested data is not cached.
  *
- * If not overridden by a derived class, PluginObject supplies a
- * Fetch() that that breaks down a single call for contiguous data
- * into N distinct calls to UnaryFetch().  Each plugin has the choice
- * about whether to override Fetch() or implement UnaryFetch().  It is
- * generally easier to implement UnaryFetch(), but it may be quite
- * inefficient for high frequency samples.
+ * If not overridden by a derived class, ComponentBase supplies a
+ * Fetch() that that breaks down a single call for contiguous data in
+ * data space into two distinct calls to ContiguousFetch() (contiguous
+ * in memory).  Each component has the choice about whether to override
+ * Fetch() or implement ContiguousFetch() or UnaryFetch().  It is
+ * generally easier to implement one of the latter two, but it may be
+ * quite inefficient for high frequency samples.
  *
  * @returns the number of data actually available.  It may be less
- * than the number requested.
+ * than the number requested, implying end of data (EOD).
  */
-int Tracter::PluginObject::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+int Tracter::ComponentBase::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
 
-    // Split it into N *contiguous* calls.
-    int offset = iOutputArea.offset;
-    for (int i=0; i<iOutputArea.Length(); i++)
-    {
-        if (i == iOutputArea.len[0])
-            offset = 0;
-        if (!UnaryFetch(iIndex++, offset++))
-            return i;
-    }
-    return iOutputArea.Length();
+    // Split it into two contiguous calls.
+    int len = 0;
+    len += ContiguousFetch(iIndex, iOutputArea.len[0], iOutputArea.offset);
+    if (len < iOutputArea.len[0])
+        return len;
+    len += ContiguousFetch(iIndex+len, iOutputArea.len[1], 0);
+
+    return len;
 }
 
 /**
- * UnaryFetch() is called by PluginObject's implementation of Fetch().
- * If a plugin does not implement Fetch() then it must implement
- * UnaryFetch().  A UnaryFetch() is only required to return a single
- * datum, but it may need to Read() several input data to do so.
- *
- * @returns true if the fetch was successful, false otherwise,
- * implying that the chain is out of data.
+ * ContiguousFetch in this class should never be called
  */
-bool Tracter::PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
+int Tracter::ComponentBase::ContiguousFetch(
+    IndexType iIndex, int iLength, int iOffset
+)
 {
-    throw Exception("%s: PluginObject: UnaryFetch called."
-                    "  This should not happen.", mObjectName);
-    return false;
+    throw Exception("%s: ComponentBase::ContiguousFetch called", mObjectName);
 }
+
 
 /**
  * Get an absolute time stamp for the given index.
@@ -604,14 +602,12 @@ bool Tracter::PluginObject::UnaryFetch(IndexType iIndex, int iOffset)
  * source returns a time for index 0.  It then calls TimeOffset() to
  * get a time for the given frame and adds them.
  */
-Tracter::TimeType Tracter::PluginObject::TimeStamp(IndexType iIndex)
+Tracter::TimeType Tracter::ComponentBase::TimeStamp(IndexType iIndex) const
 {
-    if (mNInputs == 0)
+    if (mInput.size() == 0)
         throw Exception("TimeStamp: No inputs."
                         "  %s probably missing TimeStamp()", mObjectName);
-    PluginObject* input = GetInput(0);
-    assert(input);
-    TimeType time = input->TimeStamp();
+    TimeType time = mInput[0]->TimeStamp();
     if (iIndex)
         time += TimeOffset(iIndex);
     return time;
@@ -624,11 +620,11 @@ Tracter::TimeType Tracter::PluginObject::TimeStamp(IndexType iIndex)
  * the time of that index from the point of view of index 0 being time
  * 0.
  */
-Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex) const
+Tracter::TimeType Tracter::ComponentBase::TimeOffset(IndexType iIndex) const
 {
     // There is undoubtedly a right way to do this.  This may not be
     // it.
-    TimeType t = (TimeType)((double)iIndex * mSamplePeriod * 1e9 / mSampleFreq);
+    TimeType t = (TimeType)((double)iIndex * mFrame.period * 1e9 / FrameRate());
     return t;
 }
 
@@ -636,7 +632,7 @@ Tracter::TimeType Tracter::PluginObject::TimeOffset(IndexType iIndex) const
 /**
  * Generate a dot graph
  */
-void Tracter::PluginObject::Dot()
+void Tracter::ComponentBase::Dot()
 {
     printf("digraph tracter {\n");
     //printf("rankdir=LR;\n");
@@ -650,8 +646,8 @@ void Tracter::PluginObject::Dot()
  * Recursive part of the call that takes an initial node index,
  * returning it's own node index and the maximum index on that branch.
  */
-Tracter::PluginObject::DotInfo
-Tracter::PluginObject::Dot(int iDot)
+Tracter::ComponentBase::DotInfo
+Tracter::ComponentBase::Dot(int iDot)
 {
     if (mDot >= 0)
     {
@@ -663,18 +659,18 @@ Tracter::PluginObject::Dot(int iDot)
     printf("%d [shape=record, label=\"{%s", mDot, mObjectName);
     if (-sVerbose > 0)
         printf("}|{");
-    DotRecord(2, "frame.size=%d", mArraySize);
-    DotRecord(2, "frame.period=%d", mSamplePeriod);
+    DotRecord(2, "frame.size=%d", mFrame.size);
+    DotRecord(2, "frame.period=%d", mFrame.period);
     DotHook();
     printf("}\"];\n");
     int max = mDot;
-    for (int i=0; i<mNInputs; i++)
+    for (int i=0; i<(int)mInput.size(); i++)
     {
-        PluginObject* p = GetInput(i);
+        ComponentBase* p = mInput[i];
         DotInfo d = p->Dot(max+1);
         max = std::max(d.max, max);
         printf("  %d -> %d", d.index, mDot);
-        if (mNInputs > 1)
+        if (mInput.size() > 1)
             printf(" [headlabel=\"%d\"]", i);
         printf(";\n");
     }
@@ -682,7 +678,7 @@ Tracter::PluginObject::Dot(int iDot)
     return d;
 }
 
-void Tracter::PluginObject::DotRecord(int iVerbose, const char* iString, ...)
+void Tracter::ComponentBase::DotRecord(int iVerbose, const char* iString, ...)
 {
     if (iVerbose > -sVerbose)
         return;

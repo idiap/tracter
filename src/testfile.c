@@ -9,7 +9,7 @@
 
 /**
  * Writes a fake audio-like file of short ints with values identical to
- * their index in the file.  Allows checking that the plugins read the right data.
+ * their index in the file.  Allows checking that the components read the right data.
  */
 int main(int argc, char** argv)
 {

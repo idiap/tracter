@@ -9,28 +9,29 @@
 #define HISTOGRAM_H
 
 #include <vector>
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Writes a Histogram representing the input
      */
-    class Histogram : public UnaryPlugin<float, float>
+    class Histogram : public CachedComponent<float>
     {
     public:
         Histogram(
-            Plugin<float>* iInput, const char* iObjectName = "Histogram"
+            Component<float>* iInput, const char* iObjectName = "Histogram"
         );
         virtual ~Histogram() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
         void writeMode();
         void writeHistogram();
 
+        Component<float>* mInput;
         float mMin;
         float mMax;
         float mScale;

@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 #include "SKMLP.h"
 
 namespace Tracter
@@ -18,16 +18,17 @@ namespace Tracter
     /**
      * Torch based MLP
      */
-    class MLP : public UnaryPlugin<float, float>
+    class MLP : public CachedComponent<float>
     {
     public:
-        MLP(Plugin<float>* iInput, const char* iObjectName = "MLP");
+        MLP(Component<float>* iInput, const char* iObjectName = "MLP");
         virtual ~MLP() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         int mTheta;
         int mWindow;
         int mInputs;

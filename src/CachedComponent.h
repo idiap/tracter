@@ -11,19 +11,19 @@
 #include <cassert>
 #include <vector>
 
-#include "Plugin.h"
+#include "Component.h"
 
 namespace Tracter
 {
     /**
-     * This is a type specific implementation of the plugin object with
+     * This is a type specific implementation of the component object with
      * cache storage.
      */
     template <class T>
-    class CachedPlugin : public Plugin<T>
+    class CachedComponent : public Component<T>
     {
     public:
-        virtual ~CachedPlugin<T>() throw()
+        virtual ~CachedComponent<T>() throw()
         {
             // Nothing to do
         }
@@ -34,13 +34,13 @@ namespace Tracter
          */
         T* GetPointer(int iIndex = 0)
         {
-            return &mCache[Plugin<T>::mArraySize
-                           ? iIndex * Plugin<T>::mArraySize
+            return &mCache[Component<T>::mFrame.size
+                           ? iIndex * Component<T>::mFrame.size
                            : iIndex];
         }
 
     protected:
-        CachedPlugin<T>()
+        CachedComponent<T>()
         {
             // Nothing to do
         }
@@ -48,19 +48,19 @@ namespace Tracter
         virtual void Resize(int iSize)
         {
             assert(iSize > 0);
-            assert(iSize > Plugin<T>::mSize);
-            mCache.resize(Plugin<T>::mArraySize
-                          ? iSize * Plugin<T>::mArraySize
+            assert(iSize > Component<T>::mSize);
+            mCache.resize(Component<T>::mFrame.size
+                          ? iSize * Component<T>::mFrame.size
                           : iSize);
-            Plugin<T>::mSize = iSize;
-            Verbose(2, "CachedPlugin::Resize: %d to %d\n",
-                    Plugin<T>::mSize, iSize);
+            Component<T>::mSize = iSize;
+            Verbose(2, "CachedComponent::Resize: %d to %d\n",
+                    Component<T>::mSize, iSize);
         }
 
         virtual void DotHook()
         {
-            Plugin<T>::DotHook();
-            DotRecord(2, "cache.size=%d", Plugin<T>::mSize);
+            Component<T>::DotHook();
+            DotRecord(2, "cache.size=%d", Component<T>::mSize);
         }
 
     private:

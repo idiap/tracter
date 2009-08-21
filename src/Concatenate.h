@@ -8,26 +8,25 @@
 #ifndef CONCATENATE_H
 #define CONCATENATE_H
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Constucts a concatenated vector from constituent inputs
      */
-    class Concatenate : public CachedPlugin<float>
+    class Concatenate : public CachedComponent<float>
     {
     public:
         Concatenate(const char* iObjectName = "Concatenate");
         virtual ~Concatenate() throw() {}
-        void Add(Plugin<float>* iInput);
+        void Add(Component<float>* iInput);
 
     protected:
-        PluginObject* GetInput(int iInput);
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-        std::vector< Plugin<float>* > mInput;
+        std::vector< Component<float>* > mInput;
         std::vector<int> mLength;
     };
 }

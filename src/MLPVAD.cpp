@@ -9,11 +9,10 @@
 
 #include "MLPVAD.h"
 
-Tracter::MLPVAD::MLPVAD(Plugin<float>* iInput, const char* iObjectName)
+Tracter::MLPVAD::MLPVAD(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
     mInput = iInput;
-    Connect(iInput);
 
     mShowGuts = GetEnv("ShowGuts", 0);
 
@@ -23,17 +22,17 @@ Tracter::MLPVAD::MLPVAD(Plugin<float>* iInput, const char* iObjectName)
     mSpeech = GetEnv("Speech", 0);
 
     assert(mThreshold >= 0.0f && mThreshold <= 1.0f);
-    assert(mInputIndex >= 0 && mInputIndex < iInput->GetArraySize());
+    assert(mInputIndex >= 0 && mInputIndex < iInput->Frame().size);
 
     // The state machine
     float confirmSpeechTime = GetEnv("ConfirmSpeechTime", 0.02f);
     float confirmSilenceTime = GetEnv("ConfirmSilenceTime", 0.02f);
-    mConfirmSpeechTime = SecondsToSamples(confirmSpeechTime);
-    mConfirmSilenceTime = SecondsToSamples(confirmSilenceTime);
+    mConfirmSpeechTime = SecondsToFrames(confirmSpeechTime);
+    mConfirmSilenceTime = SecondsToFrames(confirmSilenceTime);
     mLookAhead = mConfirmSilenceTime;
 
     int max = std::max(mConfirmSpeechTime, mConfirmSilenceTime);
-    MinSize(mInput, mLookAhead+1,  mLookAhead+max);
+    Connect(mInput, mLookAhead+1,  mLookAhead+max);
     mIndex = -1;
 
     Verbose(1, "%s: LookAhead=%d ConfirmSpeech=%d ConfirmSilence=%d\n",
@@ -48,7 +47,7 @@ void Tracter::MLPVAD::Reset(bool iPropagate)
     VADStateMachine::Reset(iPropagate);
 }
 
-bool Tracter::MLPVAD::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::MLPVAD::UnaryFetch(IndexType iIndex, VADState* oData)
 {
     Verbose(3, "iIndex %ld\n", iIndex);
     //printf("%i %i\n",iIndex, mIndex);
@@ -70,8 +69,7 @@ bool Tracter::MLPVAD::UnaryFetch(IndexType iIndex, int iOffset)
     Update( mSpeech
             ? prob >  mThreshold
             : prob <  mThreshold );
-    VADState* output = GetPointer(iOffset);
-    *output = mState;
+    *oData = mState;
 
     if (mShowGuts)
         printf("%ld %e\n",

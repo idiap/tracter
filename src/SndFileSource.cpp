@@ -10,9 +10,9 @@
 Tracter::SndFileSource::SndFileSource(const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = GetEnv("ArraySize", 1);
-    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
-    mSamplePeriod = 1;
+    mFrame.size = GetEnv("FrameSize", 1);
+    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.period = 1;
     mSndFile = 0;
     mNFrames = 0;
     mSoxHack = GetEnv("SoxHack", 0);
@@ -56,9 +56,8 @@ void Tracter::SndFileSource::Open(
     if (!mSndFile)
         throw Exception("Failed to open file %s", iFileName);
 
-    mSampleFreq = sfInfo.samplerate;
     mNFrames = sfInfo.frames;
-    Verbose(1, "samplerate = %f\n", mSampleFreq);
+    Verbose(1, "samplerate = %f\n", (double)sfInfo.samplerate);
     Verbose(1, "frames =     %d\n", mNFrames);
 }
 

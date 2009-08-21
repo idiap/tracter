@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -20,18 +20,17 @@ namespace Tracter
      * Reads the first NInit (default 10) frames and uses them to form a
      * noise estimate.  Typically, the input is a Periodogram.
      */
-    class Noise : public UnaryPlugin<float, float>
+    class Noise : public CachedComponent<float>
     {
     public:
-        Noise(Plugin<float>* iInput, const char* iObjectName = "Noise");
+        Noise(Component<float>* iInput, const char* iObjectName = "Noise");
         virtual ~Noise() throw ();
         virtual void Reset(bool iPropagate);
 
     protected:
         std::vector<float> mAccumulator;
         int mNAccumulated;
-
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
         /**
          * Really basic accumulator.  However, it can be overridden by a
@@ -40,9 +39,9 @@ namespace Tracter
          */
         virtual void Accumulate(float* iInput)
         {
-            assert(mArraySize);
+            assert(mFrame.size);
             assert(iInput);
-            for (int i=0; i<mArraySize; i++)
+            for (int i=0; i<mFrame.size; i++)
                 mAccumulator[i] += iInput[i];
             mNAccumulated++;
         }
@@ -54,13 +53,14 @@ namespace Tracter
          */
         virtual void Calculate(float* oOutput)
         {
-            assert(mArraySize);
+            assert(mFrame.size);
             assert(oOutput);
-            for (int i=0; i<mArraySize; i++)
+            for (int i=0; i<mFrame.size; i++)
                 oOutput[i] = mAccumulator[i] / mNAccumulated;
         }
 
     private:
+        Component<float>* mInput;
         bool mValid;
         bool mEnd;
         int mNInit;

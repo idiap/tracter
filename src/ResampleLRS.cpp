@@ -30,19 +30,20 @@ struct Tracter::ResampleData
  *  - TargetFreq (16000)  Target sample frequency.
  */
 Tracter::Resample::Resample(
-    Plugin<float>* iInput, const char* iObjectName
+    Component<float>* iInput, const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    mSampleFreq = GetEnv("TargetFreq", 16000);
+    mInput = iInput;
 
+    double targetRate = GetEnv("TargetRate", 16000);
     mResampleData = new ResampleData;
     ResampleData& r = *mResampleData;
-
-    r.ratio = (double)mSampleFreq / mInput->GetSampleFreq();
+    r.ratio = targetRate / mInput->FrameRate();
     r.handle = resample_open(1, r.ratio, r.ratio);
     assert(r.handle);
+
+    Connect(mInput, 1.0f / r.ratio);
 }
 
 /**
@@ -57,19 +58,19 @@ Tracter::Resample::~Resample() throw()
 }
 
 /**
- * Ensures that the input plugin has the right size given the rate conversion
+ * Ensures that the input component has the right size given the rate conversion
  */
-void Tracter::Resample::MinSize(int iSize, int iReadBack, int iReadAhead)
+void Tracter::Resample::MinSize(int iSize, int iReadBehind, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize, iReadBack, iReadAhead);
+    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
 
     // Set the input buffer big enough to service largest output requests
     assert(mInput);
     ResampleData& r = *mResampleData;
     int minSize = (int)((double)iSize / r.ratio + 0.5);
-    PluginObject::MinSize(mInput, minSize, 0, 0);
+    ComponentBase::MinSize(mInput, minSize, 0, 0);
 
     /* It's too complicated without an intermediate array */
     r.resample.resize(iSize);
@@ -81,7 +82,7 @@ void Tracter::Resample::Reset(bool iPropagate)
     ResampleData& r = *mResampleData;
     resample_close(r.handle);
     r.handle = resample_open(0, r.ratio, r.ratio);
-    UnaryPlugin<float, float>::Reset(iPropagate);
+    CachedComponent<float>::Reset(iPropagate);
 }
 
 int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)

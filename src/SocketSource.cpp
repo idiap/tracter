@@ -5,14 +5,21 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <cstdio>
+#include <cstdio>  // For perror()
 #include <cstring>
-#include <unistd.h>
-#include <netdb.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#ifdef _WIN32
+# include <winsock.h>
+#else
+# include <netdb.h>
+#endif
+
+#ifndef _WIN32
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <arpa/inet.h>
+#endif
 
 #include "SocketSource.h"
 
@@ -27,7 +34,11 @@ Tracter::socketSource::socketSource(const char* iObjectName)
 
 Tracter::socketSource::~socketSource() throw()
 {
+#ifdef _WIN32
+    closesocket(mFD);
+#else
     close(mFD);
+#endif
     mFD = 0;
 }
 
@@ -41,7 +52,11 @@ void Tracter::socketSource::Open(const char* iHostName)
 
     if (mFD)
     {
+#ifdef _WIN32
+        closesocket(mFD);
+#else
         close(mFD);
+#endif
         mFD = 0;
     }
 

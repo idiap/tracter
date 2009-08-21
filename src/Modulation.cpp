@@ -26,22 +26,21 @@ const Tracter::complex& Tracter::SlidingDFT::Transform(float iNew, float iOld)
 }
 
 Tracter::Modulation::Modulation(
-    Plugin<float>* iInput, const char* iObjectName
+    Component<float>* iInput, const char* iObjectName
 )
 {
     mObjectName = iObjectName;
     mInput = iInput;
     Connect(iInput);
 
-    mArraySize = 1;
-    assert(iInput->GetArraySize() == 1);
+    mFrame.size = 1;
+    assert(iInput->Frame().size == 1);
 
     /* For a 100Hz frame rate and bin 1 = 4Hz, we have nBins = 100/4 =
      * 25 */
     float freq = GetEnv("Freq", 4.0f);
     int bin = GetEnv("Bin", 1);
-    float sampleFreq = mSampleFreq / mSamplePeriod;
-    mNBins = (int)(sampleFreq / freq + 0.5f);
+    mNBins = (int)(FrameRate() / freq + 0.5f);
     mDFT.SetRotation(bin, mNBins);
     mLookAhead = mNBins / 2; // Round down
     mLookBehind = mNBins - mLookAhead - 1;
@@ -57,7 +56,7 @@ void Tracter::Modulation::Reset(bool iPropagate)
     mIndex = -1;
 }
 
-bool Tracter::Modulation::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
 {
     Verbose(3, "iIndex %ld\n", iIndex);
     assert(iIndex == mIndex+1);
@@ -112,7 +111,6 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, int iOffset)
     complex tmp = mDFT.Transform(newVal, oldVal);
     filter = abs(tmp);
     filter /= mNBins;
-    float* output = GetPointer(iOffset);
-    *output = filter;
+    *oData = filter;
     return true;
 }

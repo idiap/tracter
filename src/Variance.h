@@ -9,7 +9,7 @@
 #define VARIANCE_H
 
 #include <vector>
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -24,18 +24,19 @@ namespace Tracter
      * Calculates the variance (over time) of the input stream, typically for
      * Cepstral Variance Normalisation.
      */
-    class Variance : public UnaryPlugin<float, float>
+    class Variance : public CachedComponent<float>
     {
     public:
-        Variance(Plugin<float>* iInput, const char* iObjectName = "Variance");
+        Variance(Component<float>* iInput, const char* iObjectName = "Variance");
         virtual ~Variance() throw() {}
         virtual void Reset(bool iPropagate);
         void SetTimeConstant(float iSeconds);
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         bool mValid;
         bool mPersistent;
         VarianceType mVarianceType;

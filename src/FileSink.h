@@ -11,7 +11,8 @@
 #include <cstdio>
 #include <vector>
 
-#include "UnarySink.h"
+#include "Component.h"
+#include "Sink.h"
 #include "ByteOrder.h"
 
 namespace Tracter
@@ -19,14 +20,15 @@ namespace Tracter
     /**
      * Sinks to a file.
      */
-    class FileSink : public UnarySink<float>
+    class FileSink : public Sink
     {
     public:
-        FileSink(Plugin<float>* iInput, const char* iObjectName = "FileSink");
-        virtual ~FileSink() throw() {}
+        FileSink(Component<float>* iInput, const char* iObjectName = "FileSink");
+        virtual ~FileSink() throw() { Delete(); }
         void Open(const char* iFile);
 
     private:
+        Component<float>* mInput;
         FILE* mFile;
         ByteOrder mByteOrder;
         std::vector<float> mTemp;

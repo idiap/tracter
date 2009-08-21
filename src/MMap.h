@@ -8,6 +8,13 @@
 #ifndef MMAP_H
 #define MMAP_H
 
+#ifdef _WIN32
+# include <windows.h>
+typedef HANDLE FDType;
+#else
+typedef int FDType;
+#endif
+
 namespace Tracter
 {
     /**
@@ -19,10 +26,10 @@ namespace Tracter
         MMap();
         ~MMap();
         void* Map(const char* iFileName);
-        size_t GetSize();
+        int Size() { return (int)mSize; }
 
     private:
-        int mFD;    // File descriptor
+        FDType mFD; // File descriptor
         void* mMap; // Mapped memory location
         size_t mSize;
     };

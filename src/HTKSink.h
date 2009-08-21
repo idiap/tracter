@@ -11,7 +11,8 @@
 #include <cstdio>
 #include <vector>
 
-#include "UnarySink.h"
+#include "Component.h"
+#include "Sink.h"
 #include "ByteOrder.h"
 
 namespace Tracter
@@ -20,14 +21,15 @@ namespace Tracter
      * Sinks to an HTK format parameter file.  The file is always written
      * big-endian.
      */
-    class HTKSink : public UnarySink<float>
+    class HTKSink : public Sink
     {
     public:
-        HTKSink(Plugin<float>* iInput, const char* iObjectName = "HTKSink");
-        virtual ~HTKSink() throw() {}
+        HTKSink(Component<float>* iInput, const char* iObjectName = "HTKSink");
+        virtual ~HTKSink() throw() { Delete(); }
         void Open(const char* iFile);
 
     private:
+        Component<float>* mInput;
         FILE* mFile;
         ByteOrder mByteOrder;
         std::vector<float> mTemp;

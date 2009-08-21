@@ -7,39 +7,19 @@
 
 #include "VADGate.h"
 
-Tracter::PluginObject* Tracter::VADGate::GetInput(int iInput)
-{
-    // Enumerate the inputs
-    switch (iInput)
-    {
-        case 0:
-            return mInput;
-        case 1:
-            return mVADInput;
-        default:
-            assert(0);
-    }
-
-    // Should never get here
-    return 0;
-}
-
 Tracter::VADGate::VADGate(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     VADStateMachine* iVADInput,
     const char* iObjectName
 )
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
-
-    Connect(iInput);
-    Connect(iVADInput);
-    MinSize(iInput, 1);
+    mFrame.size = iInput->Frame().size;
 
     int max = std::max(iVADInput->ConfirmSpeechTime(),
                        iVADInput->ConfirmSilenceTime());
-    MinSize(iVADInput, max);
+    Connect(iInput);
+    Connect(iVADInput, max);
 
     mInput = iInput;
     mVADInput = iVADInput;
@@ -78,7 +58,7 @@ void Tracter::VADGate::Reset(bool iPropagate)
     mSpeechRemoved = 0;
 
     // Propagate reset upstream under these conditions
-    CachedPlugin<float>::Reset(
+    CachedComponent<float>::Reset(
         mUpstreamEndOfData ||  // Always after EOD
         !mSegmenting ||        // If not segmenting
         !mEnabled              // If disabled
@@ -86,10 +66,10 @@ void Tracter::VADGate::Reset(bool iPropagate)
     mUpstreamEndOfData = false;
 }
 
-bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::VADGate::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
-    assert(iOffset >= 0);
+    assert(oData);
 
     // gate() passes by reference and will update iIndex to the
     // upstream point of view.
@@ -121,9 +101,8 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, int iOffset)
         return false;
 
     float* input = mInput->GetPointer(inputArea.offset);
-    float* cache = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
-        cache[i] = input[i];
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] = input[i];
 
     return true;
 }

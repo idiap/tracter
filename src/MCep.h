@@ -7,7 +7,7 @@
 #ifndef MCEP_H
 #define MCEP_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -19,16 +19,17 @@ namespace Tracter
      * run.  In the latter case, if Gamma != 0 then mgc2mgc is also
      * run to set Gamma to 0.  The output is then always cepstrum.
      */
-    class MCep : public UnaryPlugin<float, float>
+    class MCep : public CachedComponent<float>
     {
     public:
-        MCep(Plugin<float>* iInput, const char* iObjectName = "MCep");
+        MCep(Component<float>* iInput, const char* iObjectName = "MCep");
         virtual ~MCep() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         std::vector<double> mInData;
         std::vector<double> mCepstra1;
         std::vector<double> mCepstra2;

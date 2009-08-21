@@ -8,12 +8,12 @@
 #include "MLP.h"
 #include "DiskXFile.h"
 
-Tracter::MLP::MLP(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::MLP::MLP(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mInputs = iInput->GetArraySize();
-    //mArraySize = iInput->GetArraySize();
+    mInput = iInput;
+
+    mInputs = iInput->Frame().size;
     assert(mInputs > 0);
 
     mTheta = GetEnv("Theta", 9);
@@ -38,17 +38,17 @@ Tracter::MLP::MLP(Plugin<float>* iInput, const char* iObjectName)
     if (mMLP.n_inputs != mWindow*mInputs)
         throw Exception("MLP: Dimension mismatch: %d != %d",
                         mMLP.n_inputs, mWindow*mInputs);
-    PluginObject::MinSize(mInput, mWindow, mTheta);
+    Connect(mInput, mWindow, mTheta);
 
-    mArraySize = mMLP.n_outputs;
-    assert(mArraySize > 0);
+    mFrame.size = mMLP.n_outputs;
+    assert(mFrame.size > 0);
 }
 
 /*
  * This is the calculation for one frame.  Pretty trivial, but the
  * edge effects make the code quite long.
  */
-bool Tracter::MLP::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::MLP::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -104,11 +104,8 @@ bool Tracter::MLP::UnaryFetch(IndexType iIndex, int iOffset)
     assert(feature == mWindow*mInputs);
 
     // The actual calculation
-    float* cache = GetPointer(iOffset);
-
     //printf("runnng MLP on data frame %i\n",iIndex);
-
-    mMLP.frameForward((int)iIndex,&(mFeature[0]),cache);
+    mMLP.frameForward((int)iIndex,&(mFeature[0]), oData);
 
     return true;
 }

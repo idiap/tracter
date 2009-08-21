@@ -10,7 +10,7 @@
 
 #include "Window.h"
 #include "Fourier.h"
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -21,17 +21,18 @@ namespace Tracter
      * included; the windowing is beneficial in that it is done during
      * a copy from cache memory to aligned memory.
      */
-    class Periodogram : public UnaryPlugin<float, float>
+    class Periodogram : public CachedComponent<float>
     {
     public:
-        Periodogram(Plugin<float>* iInput,
+        Periodogram(Component<float>* iInput,
                     const char* iObjectName = "Periodogram");
         virtual ~Periodogram() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         float* mRealData;
         complex* mComplexData;
         Window* mWindow;

@@ -8,7 +8,7 @@
 #ifndef RESAMPLE_H
 #define RESAMPLE_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -21,21 +21,21 @@ namespace Tracter
      * Resample or convert sample rate.
      * Currently tied to libresample
      */
-    class Resample : public UnaryPlugin<float, float>
+    class Resample : public CachedComponent<float>
     {
     public:
-        Resample(Plugin<float>* iInput,
+        Resample(Component<float>* iInput,
                  const char* iObjectName = "Resample");
         virtual ~Resample() throw();
         void Reset(bool iPropagate = true);
-        void MinSize(int iSize, int iReadBack, int iReadAhead);
+        void MinSize(int iSize, int iReadBehind, int iReadAhead);
 
     protected:
         int Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
+        Component<float>* mInput;
         ResampleData *mResampleData;
-
     };
 }
 

@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 #include "bsapi.h"
 
 namespace Tracter
@@ -22,16 +22,15 @@ namespace Tracter
     /**
      * Apply BSAPI transform
      */
-    class BSAPITransform : public CachedPlugin<float>
+    class BSAPITransform : public CachedComponent<float>
     {
     public:
-        BSAPITransform(Plugin<float>* iInput, const char* iObjectName = "BSAPITransform");
-        BSAPITransform(Plugin<float>* iInput, Plugin<float>* iInputID, const char* iObjectName = "BSAPITransform");
+        BSAPITransform(Component<float>* iInput, const char* iObjectName = "BSAPITransform");
+        BSAPITransform(Component<float>* iInput, Component<float>* iInputID, const char* iObjectName = "BSAPITransform");
 	virtual ~BSAPITransform() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
-	PluginObject* GetInput(int iInput);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 	void Reset(bool iPropagate);
 
     private:
@@ -48,8 +47,8 @@ namespace Tracter
 	void InitTransform(void);
 	void InitOutBuffer(void);
 
-	Plugin<float>* mInputID; 
-	Plugin<float>* mInput; 
+	Component<float>* mInputID; 
+	Component<float>* mInput; 
 
 	const char* xformdir;
 	char  *mInputID_macroname_full;

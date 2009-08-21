@@ -5,45 +5,46 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <math.h>
+#include <cmath>
+
 #include "ComplexPeriodogram.h"
 
 Tracter::ComplexPeriodogram::ComplexPeriodogram(
-    Plugin<complex>* iInput,
+    Component<complex>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, complex>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = GetEnv("FrameSize", 128);
-    mFramePeriod = GetEnv("FramePeriod", 40);
-    mSamplePeriod *= mFramePeriod;
-    assert(mArraySize > 0);
-    assert(mFramePeriod > 0);
+    mInput = iInput;
+    mFrame.period = GetEnv("FramePeriod", 40);
+    Connect(iInput);
+    mFrame.size = GetEnv("FrameSize", 128);
+    assert(mFrame.size > 0);
+    assert(mFrame.period > 0);
 
-    PluginObject::MinSize(mInput, mArraySize);
+    ComponentBase::MinSize(mInput, mFrame.size, mFrame.size-1);
 
     mInputData = 0;
     mOutputData = 0;
-    mFourier.Init(mArraySize, &mInputData, &mOutputData);
+    mFourier.Init(mFrame.size, &mInputData, &mOutputData);
 
     // Hardwire a Hamming window.  Could be generalised much better.
-    // This one is asymmetric.  Should it be symmetric?
+    // This one is symmetric.  Should it be asymmetric?
     const float PI = 3.14159265358979323846;
-    mWindow.resize(mArraySize);
-    for (int i=0; i<mArraySize; i++)
-        mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (mArraySize - 1));
+    mWindow.resize(mFrame.size);
+    for (int i=0; i<mFrame.size; i++)
+        mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (mFrame.size - 1));
 }
 
-bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
 
     // Read the input frame
-    int readIndex = iIndex * mFramePeriod;
-    int got = mInput->Read(inputArea, readIndex, mArraySize);
-    if (got < mArraySize)
+    int readIndex = iIndex * mFrame.period;
+    int got = mInput->Read(inputArea, readIndex, mFrame.size);
+    if (got < mFrame.size)
         return false;
 
     // Copy the frame into the contiguous array
@@ -58,9 +59,8 @@ bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, int iOffset)
     mFourier.Transform();
 
     // Compute periodogram
-    float* cache = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
-        cache[i] =
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] =
             mOutputData[i].real() * mOutputData[i].real() +
             mOutputData[i].imag() * mOutputData[i].imag();
 

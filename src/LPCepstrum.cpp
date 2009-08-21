@@ -9,17 +9,17 @@
 
 #include "LPCepstrum.h"
 
-Tracter::LPCepstrum::LPCepstrum(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::LPCepstrum::LPCepstrum(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mNCompressed = mInput->GetArraySize();
+    mInput = iInput;
+    Connect(mInput);
 
+    mNCompressed = mInput->Frame().size;
     mC0 = GetEnv("C0", 1);
     mNCepstra = GetEnv("NCepstra", 12);
-    mArraySize = mC0 ? mNCepstra+1 : mNCepstra;
-    assert(mArraySize > 0);
-    MinSize(mInput, 1);
+    mFrame.size = mC0 ? mNCepstra+1 : mNCepstra;
+    assert(mFrame.size > 0);
 
     mOrder = GetEnv("Order", 14);
     mCompressionPower = GetEnv("CompressionPower", 0.33f);
@@ -34,7 +34,7 @@ Tracter::LPCepstrum::LPCepstrum(Plugin<float>* iInput, const char* iObjectName)
     mFourier.Init(mNCompressed, &mCompressed, &mAutoCorrelation);
 }
 
-bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -83,7 +83,6 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, int iOffset)
 
 #if 0
     // Compute LP power spectrum
-    float* cache = GetPointer(iOffset);
     for (int i=0; i<mNCepstra; i++)
     {
         float omega = (float)M_PI * i/mNCepstra;
@@ -96,12 +95,11 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, int iOffset)
         }
         c = 1.0f - c;
 
-        //cache[i] = gain / (s*s + c*c);
-        cache[i] = 1.0f / (s*s + c*c);
+        //oData[i] = gain / (s*s + c*c);
+        oData[i] = 1.0f / (s*s + c*c);
     }
 #else
     // Compute LP cepstrum replacing unknown coeffs with 0
-    float* cache = GetPointer(iOffset);
     for (int i=0; i<mNCepstra; i++)
     {
         float sum = 0.0f;
@@ -109,15 +107,15 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, int iOffset)
         {
             int index = i-k-1;
             if (index < mOrder)
-                sum += a0[i-k-1] * cache[k] * (k+1);
+                sum += a0[i-k-1] * oData[k] * (k+1);
         }
-        cache[i] = sum / (i+1);
+        oData[i] = sum / (i+1);
         if (i < mOrder)
-            cache[i] += a0[i];
+            oData[i] += a0[i];
     }
 
     if (mC0)
-        cache[mNCepstra] = logf(gain);
+        oData[mNCepstra] = logf(gain);
 #endif
 
     return true;

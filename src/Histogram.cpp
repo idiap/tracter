@@ -6,9 +6,8 @@
  */
 
 #include <cstdio>
-
-#include "math.h"
-#include "float.h"
+#include <cmath>
+#include <cfloat>
 
 #include "Histogram.h"
 
@@ -17,14 +16,13 @@
  *
  * Passes data from input to output unchanged, but stores a histogram.
  */
-Tracter::Histogram::Histogram(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Histogram::Histogram(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
-    assert(mArraySize >= 0);
-
-    PluginObject::MinSize(iInput, 1);
+    mInput = iInput;
+    Connect(mInput);
+    mFrame.size = iInput->Frame().size;
+    assert(mFrame.size >= 0);
 
     mMin = GetEnv("Min", 0.0f);
     mMax = GetEnv("Max", 1.0f);
@@ -37,8 +35,8 @@ Tracter::Histogram::Histogram(Plugin<float>* iInput, const char* iObjectName)
     mMinCount = GetEnv("MinCount", 1);
     mMode = GetEnv("Mode", 0);
 
-    mBin.resize(mArraySize);
-    for (int i=0; i<mArraySize; i++)
+    mBin.resize(mFrame.size);
+    for (int i=0; i<mFrame.size; i++)
     {
         mBin[i].resize(mNBins);
         for (int j=0; j<mNBins; j++)
@@ -46,7 +44,7 @@ Tracter::Histogram::Histogram(Plugin<float>* iInput, const char* iObjectName)
     }
 }
 
-bool Tracter::Histogram::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Histogram::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -56,8 +54,7 @@ bool Tracter::Histogram::UnaryFetch(IndexType iIndex, int iOffset)
 
     // Copy input to output with limits check
     float* input  = mInput->GetPointer(inputArea.offset);
-    float* output = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
+    for (int i=0; i<mFrame.size; i++)
     {
         // Update histogram. Round down to closest bin
         int bin = -1;
@@ -71,7 +68,7 @@ bool Tracter::Histogram::UnaryFetch(IndexType iIndex, int iOffset)
             mBin[i][bin] += 1.0f;
 
         // Copy to output
-        output[i] = input[i];
+        oData[i] = input[i];
     }
     mCount++;
 
@@ -88,7 +85,7 @@ Tracter::Histogram::~Histogram() throw()
 
 void Tracter::Histogram::writeMode()
 {
-    for (int j=0; j<mArraySize; j++)
+    for (int j=0; j<mFrame.size; j++)
     {
         int maxBin = -1;
         float maxVal = -1;
@@ -123,7 +120,7 @@ void Tracter::Histogram::writeHistogram()
         if (mUnPower)
             binVal = mPower == 0.0f ? expf(binVal) : powf(binVal, 1.0f/mPower);
         printf("%e", binVal);
-        for (int j=0; j<mArraySize; j++)
+        for (int j=0; j<mFrame.size; j++)
             printf(" %e", mBin[j][i] >= mMinCount ? mBin[j][i] * scale : 0.0);
         printf("\n");
     }

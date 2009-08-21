@@ -9,7 +9,7 @@
 
 #include <complex>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -42,34 +42,27 @@ namespace Tracter
      * The input is filtered with a sliding DFT giving a feature that
      * is similar in principle to RASTA.
      */
-    class Modulation : public CachedPlugin<float>
+    class Modulation : public CachedComponent<float>
     {
     public:
-        Modulation(Plugin<float>* iInput,
+        Modulation(Component<float>* iInput,
                    const char* iObjectName = "Modulation");
 
     protected:
 
-        PluginObject* GetInput(int iInput)
-        {
-            assert(iInput == 0);
-            assert(this->mNInputs == 1);
-            return mInput;
-        }
-
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
         virtual void Reset(bool iPropagate);
 
         void DotHook()
         {
-            CachedPlugin<float>::DotHook();
+            CachedComponent<float>::DotHook();
             DotRecord(1, "nBins=%d", mNBins);
             DotRecord(1, "ahead=%d", mLookAhead);
             DotRecord(1, "behind=%d", mLookBehind);
         }
 
     private:
-        Plugin<float>* mInput;
+        Component<float>* mInput;
         IndexType mIndex;
         int mNBins;
         int mLookAhead;

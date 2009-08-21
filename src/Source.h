@@ -10,12 +10,12 @@
 
 #include <cassert>
 
-#include "PluginObject.h" // For TimeType
+#include "Component.h" // For TimeType
 
 namespace Tracter
 {
     /**
-     * Type independent interface for a source plugin.
+     * Type independent interface for a source component.
      */
     class ISource
     {
@@ -39,7 +39,7 @@ namespace Tracter
     /**
      * Type dependent Source implementation
      *
-     * The template type should be a typed plugin type.
+     * The template type should be a typed component type.
      */
     template <class T>
     class Source : public ISource, public T
@@ -47,7 +47,7 @@ namespace Tracter
         // Template type is not used after here, so maybe it should be
         // moved to a type independent class.
     public:
-        Source() { mTime = 0; }
+        Source() { mTime = 0; mFrameRate = 0.0f; }
         virtual ~Source() throw () {}
 
         virtual void SetTime(TimeType iTime)
@@ -62,11 +62,20 @@ namespace Tracter
         {
             TimeType time = mTime;
             if (iIndex)
-                time += PluginObject::TimeOffset(iIndex);
+                time += ComponentBase::TimeOffset(iIndex);
             return time;
         }
 
+        virtual ExactRateType ExactFrameRate() const
+        {
+            ExactRateType r;
+            r.rate = mFrameRate;
+            r.period = 1.0f;
+            return r;
+        }
+
         TimeType mTime;
+        float mFrameRate;
     };
 }
 

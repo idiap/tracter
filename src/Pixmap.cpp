@@ -11,15 +11,16 @@
 
 #include "Pixmap.h"
 
-Tracter::Pixmap::Pixmap(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = GetEnv("ArraySize", iInput->GetArraySize());
-    assert(mArraySize >= 0);
+    mInput = iInput;
+
+    mFrame.size = GetEnv("FrameSize", iInput->Frame().size);
+    assert(mFrame.size >= 0);
 
     // Keep all the input
-    PluginObject::MinSize(iInput, -1);
+    Connect(iInput, ReadRange::INFINITE);
 
     mLoIndex = -1;
     mHiIndex = -1;
@@ -30,7 +31,7 @@ Tracter::Pixmap::Pixmap(Plugin<float>* iInput, const char* iObjectName)
     mRange = GetEnv("Range", 90);
 }
 
-bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -46,10 +47,9 @@ bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, int iOffset)
 
     // Copy input to output with limits check
     float* input  = mInput->GetPointer(inputArea.offset);
-    float* output = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
+    for (int i=0; i<mFrame.size; i++)
     {
-        output[i] = input[i];
+        oData[i] = input[i];
         if (input[i] > mMax)
             mMax = input[i];
         if (input[i] < mMin)
@@ -68,7 +68,7 @@ void Tracter::Pixmap::write()
     assert(mHiIndex >= mLoIndex);
     assert(mMax > mMin);
     printf("P2\n");
-    printf("%d %d\n", mArraySize, mHiIndex - mLoIndex + 1);
+    printf("%d %d\n", mFrame.size, mHiIndex - mLoIndex + 1);
     printf("255\n");
 
     // Body
@@ -104,7 +104,7 @@ void Tracter::Pixmap::write()
         mInput->Read(inputArea, f);
         assert(inputArea.Length() == 1);
         float* p = mInput->GetPointer(inputArea.offset);
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
         {
             int val = (int)std::max(
                 ((mLog ? log10f(p[i]) : p[i]) - min) * scale,

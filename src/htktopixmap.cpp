@@ -9,7 +9,7 @@
 
 #include "HTKSource.h"
 #include "Pixmap.h"
-#include "ArraySink.h"
+#include "FrameSink.h"
 
 using namespace Tracter;
 
@@ -23,12 +23,11 @@ int main(int argc, char** argv)
 
     HTKSource* source = new HTKSource();
     Pixmap* pixmap = new Pixmap(source);
-    ArraySink<float> sink(pixmap);
+    FrameSink<float> sink(pixmap);
     source->Open(argv[1]);
     sink.Reset();
 
-    float* frame = 0;
     int index = 0;
-    while(sink.GetArray(frame, index++)) {}
+    while(sink.Read(index++)) {}
     return 0;
 }

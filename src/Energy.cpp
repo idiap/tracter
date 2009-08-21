@@ -8,16 +8,16 @@
 #include "Energy.h"
 
 Tracter::Energy::Energy(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    PluginObject::MinSize(mInput, 1);
+    mInput = iInput;
+    Connect(iInput);
 }
 
-bool Tracter::Energy::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Energy::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -27,10 +27,9 @@ bool Tracter::Energy::UnaryFetch(IndexType iIndex, int iOffset)
         return false;
 
     // Calculate energy
-    float* energy = GetPointer(iOffset);
-    *energy = 0.0f;
-    for (int i=0; i<mInput->GetArraySize(); i++)
-        *energy += p[i] * p[i];
+    *oData = 0.0f;
+    for (int i=0; i<mInput->Frame().size; i++)
+        *oData += p[i] * p[i];
 
     // Done
     return true;

@@ -10,15 +10,15 @@
 
 #include <sndfile.h>
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 #include "Source.h"
 
 namespace Tracter
 {
     /**
-     * Plugin to deal with audio files via libsndfile
+     * Component to deal with audio files via libsndfile
      */
-    class SndFileSource : public Source< CachedPlugin<float> >
+    class SndFileSource : public Source< CachedComponent<float> >
     {
     public:
         SndFileSource(const char* iObjectName = "SndFileSource");

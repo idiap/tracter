@@ -16,8 +16,8 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
     mLoop = false;
 
     /* Use the factory for the source and front-end */
-    Plugin<float>* s = iFactory->CreateSource(mSource);
-    Plugin<float>* f = iFactory->CreateFrontend(s);
+    Component<float>* s = iFactory->CreateSource(mSource);
+    Component<float>* f = iFactory->CreateFrontend(s);
 
     /* An HTK file sink */
     mSink = new HTKSink(f);

@@ -5,13 +5,17 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <cstdio>
+#include <cstdio>  // For perror()
 #include <cstring> // For memset()
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#ifdef _WIN32
+# include <winsock.h>
+#else
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <arpa/inet.h>
+#endif
 
 #include "SocketSink.h"
 
@@ -19,14 +23,15 @@
  * Constructor.
  */
 Tracter::SocketSink::SocketSink(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnarySink<float>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = mInput->GetArraySize();
-    MinSize(iInput, 1);
+    mInput = iInput;
+    Connect(mInput);
+
+    mFrame.size = mInput->Frame().size;
     Initialise();
     Reset();
 
@@ -41,7 +46,11 @@ Tracter::SocketSink::SocketSink(
         throw Exception("%s: socket() failed\n", mObjectName);
     }
 
+#ifdef _WIN32
+    const char yes = 1;
+#else
     int yes = 1;
+#endif
     if (setsockopt(sockFD, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
         perror(mObjectName);
@@ -70,7 +79,11 @@ Tracter::SocketSink::SocketSink(
 
     Verbose(1, "waiting for connection\n");
     struct sockaddr_in client;
+#ifdef _WIN32
+    int clientSize = sizeof(client);
+#else
     socklen_t clientSize = sizeof(client);
+#endif
     mFD = accept(sockFD, (struct sockaddr *)&client, &clientSize);
     if (mFD == -1)
     {
@@ -79,7 +92,11 @@ Tracter::SocketSink::SocketSink(
                         mObjectName, mPort);
     }
     Verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
+#ifdef _WIN32
+    closesocket(sockFD);
+#else
     close(sockFD);
+#endif
 
     if (mHeader)
     {
@@ -99,9 +116,15 @@ Tracter::SocketSink::~SocketSink() throw()
 {
     if (mFD)
     {
+#ifdef _WIN32
+        closesocket(mFD);
+#else
         close(mFD);
+#endif
         mFD = 0;
     }
+
+    Delete();
 }
 
 void Tracter::SocketSink::Pull()
@@ -109,12 +132,16 @@ void Tracter::SocketSink::Pull()
     CacheArea ca;
     int index = 0;
     int total = 0;
-    int arraySize = mArraySize == 0 ? 1 : mArraySize;
+    int arraySize = mFrame.size == 0 ? 1 : mFrame.size;
     while(mInput->Read(ca, index++))
     {
         float* data = mInput->GetPointer(ca.offset);
         ssize_t nSend = arraySize*sizeof(float);
-        ssize_t nSent = send(mFD, data, arraySize*sizeof(float), 0);
+#ifdef _WIN32
+        ssize_t nSent = send(mFD, (char*)data, nSend, 0);
+#else
+        ssize_t nSent = send(mFD, data, nSend, 0);
+#endif
         Verbose(2, "Send %d  sent %d  total %d\n",
                 (int)nSend, (int)nSent, total++);
         if (nSent == -1)
@@ -124,6 +151,10 @@ void Tracter::SocketSink::Pull()
                             mObjectName, mPort);
         }
     }
+#ifdef _WIN32
+    closesocket(mFD);
+#else
     close(mFD);
+#endif
     mFD = 0;
 }

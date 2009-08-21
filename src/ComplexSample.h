@@ -10,7 +10,7 @@
 
 #include <complex>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -19,15 +19,18 @@ namespace Tracter
     /**
      * Implements a sample consisting of a single complex.
      */
-    class ComplexSample : public UnaryPlugin<complex, float>
+    class ComplexSample : public CachedComponent<complex>
     {
     public:
-        ComplexSample(Plugin<float>* iInput,
+        ComplexSample(Component<float>* iInput,
                       const char* iObjectName = "ComplexSample");
-        void MinSize(int iSize, int iReadBack, int iReadAhead);
+        void MinSize(int iSize, int iReadBehind, int iReadAhead);
 
     protected:
         int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+
+    private:
+        Component<float>* mInput;
     };
 }
 

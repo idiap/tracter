@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 #include "bsapi.h"
 
 namespace Tracter
@@ -22,20 +22,19 @@ namespace Tracter
     /**
      * BSAPI based ASR front-end
      */
-    class BSAPIFrontEnd : public CachedPlugin<float>
+    class BSAPIFrontEnd : public CachedComponent<float>
     {
     public:
         BSAPIFrontEnd(
-            Plugin<float>* iInput, const char* iObjectName = "BSAPIFrontEnd"
+            Component<float>* iInput, const char* iObjectName = "BSAPIFrontEnd"
         );
         BSAPIFrontEnd(
-            Plugin<float>* iInput, Plugin<float>* iInputWF,
+            Component<float>* iInput, Component<float>* iInputWF,
             const char* iObjectName = "BSAPIFrontEnd"
         );
         virtual ~BSAPIFrontEnd() throw();
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
-        PluginObject* GetInput(int iInput);
+        bool UnaryFetch(IndexType iIndex, float* oData);
         void Reset(bool iPropagate);
 
     private:
@@ -49,8 +48,8 @@ namespace Tracter
 
         void InitFrontEnd(void);
         void InitOutBuffer(void);
-        Plugin<float>* mInputWF;
-        Plugin<float>* mInput;
+        Component<float>* mInputWF;
+        Component<float>* mInput;
 
         virtual SMelBanksI *BSAPI_METHOD GetMelTarget(
             SSpeechRecI *mpSpeechRec

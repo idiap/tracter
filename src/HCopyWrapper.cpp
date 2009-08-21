@@ -8,7 +8,7 @@
  */
 
 /*
- * HCopyWrapper.cpp - HCopy in a tracter plugin.
+ * HCopyWrapper.cpp - HCopy in a tracter component.
  *
  * This version supports input samples that are represented as 16 bit shorts.
  *
@@ -62,10 +62,10 @@ extern "C"
  *              and lastly start buffering.
  */
 Tracter::HCopyWrapper::HCopyWrapper(
-    Plugin<hcopy_t>* iInput,
+    Component<hcopy_t>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, hcopy_t>(iInput)
+    : UnaryComponent<float, hcopy_t>(iInput)
 {
     /***********************************************
      * First sort out tracter specific/non-HTK stuff
@@ -86,11 +86,11 @@ Tracter::HCopyWrapper::HCopyWrapper(
      *         2      means 16 bit linear
      *         0x0101 means  8 bit alaw
      *
-     * Since the template for this module is UnaryPlugin<float,short>
+     * Since the template for this module is UnaryComponent<float,short>
      * the sample size is hard coded to be 2. To use mulaw and/or alaw
      * update sampSize accordingly, update fGetData() changing short
      * to char, the class definition to: class HCopyWrapper : public
-     * UnaryPlugin<float, char>, and Plugin<short> to Plugin<char>,
+     * UnaryComponent<float, char>, and Component<short> to Component<char>,
      * etc...
      */
     int sampSize = 2;
@@ -165,9 +165,9 @@ Tracter::HCopyWrapper::~HCopyWrapper() throw() {
 
 
 /*
- * UnaryFetch as required by UnaryPlugin
+ * UnaryFetch as required by UnaryComponent
  */
-bool Tracter::HCopyWrapper::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::HCopyWrapper::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     /*
@@ -255,7 +255,7 @@ Ptr fOpen(Ptr thisHC,char *fn,BufferInfo *bInfo){
 }
 Ptr Tracter::HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
 {
-    // At this point we have enough information to set up the plugin
+    // At this point we have enough information to set up the component
     mArraySize=bInfo->tgtVecSize;
     mSamplePeriod=bInfo->frRate;
     MinSize(mInput, bInfo->frSize);

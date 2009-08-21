@@ -10,7 +10,7 @@
 #include "NoiseVAD.h"
 
 Tracter::NoiseVAD::NoiseVAD(
-    Plugin<float>* iInput, Plugin<float>* iNoiseInput, const char* iObjectName
+    Component<float>* iInput, Component<float>* iNoiseInput, const char* iObjectName
 )
 {
     mObjectName = iObjectName;
@@ -26,7 +26,7 @@ Tracter::NoiseVAD::NoiseVAD(
 
     // Noise tracker
     float noiseTimeConstant = GetEnv("NoiseTimeConstant", 0.5f);
-    float noiseTime = SecondsToSamples(noiseTimeConstant);
+    float noiseTime = SecondsToFrames(noiseTimeConstant);
     mNoisePole = (noiseTime - 1.0f) / noiseTime;
     mNoiseElop = 1.0f - mNoisePole;
 
@@ -37,8 +37,8 @@ Tracter::NoiseVAD::NoiseVAD(
     // The state machine
     float confirmSpeechTime = GetEnv("ConfirmSpeechTime", 0.3f);
     float confirmSilenceTime = GetEnv("ConfirmSilenceTime", 0.3f);
-    mConfirmSpeechTime = SecondsToSamples(confirmSpeechTime);
-    mConfirmSilenceTime = SecondsToSamples(confirmSilenceTime);
+    mConfirmSpeechTime = SecondsToFrames(confirmSpeechTime);
+    mConfirmSilenceTime = SecondsToFrames(confirmSilenceTime);
 
     mIndex = -1;
 
@@ -53,7 +53,7 @@ void Tracter::NoiseVAD::Reset(bool iPropagate)
     VADStateMachine::Reset(iPropagate);
 }
 
-bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, VADState* oData)
 {
     Verbose(3, "iIndex %ld\n", iIndex);
     assert(iIndex == mIndex+1);
@@ -73,8 +73,7 @@ bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, int iOffset)
     if (!input)
         return false;
     Update(log10f(*input) > mNoise+mThreshold);
-    VADState* output = GetPointer(iOffset);
-    *output = mState;
+    *oData = mState;
 
     /* Given the (new) state, update the noise estimate */
     const float* noise = mNoiseInput->UnaryRead(iIndex);

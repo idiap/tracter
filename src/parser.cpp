@@ -9,7 +9,7 @@
 
 #include "FileSource.h"
 #include "Tokenise.h"
-#include "ArraySink.h"
+#include "FrameSink.h"
 
 using namespace Tracter;
 
@@ -17,15 +17,14 @@ int main()
 {
     FileSource<char>* f = new FileSource<char>();
     Tokenise* t = new Tokenise(f);
-    ArraySink<std::string> sink = ArraySink<std::string>(t);
+    FrameSink<std::string> sink = FrameSink<std::string>(t);
 
     const char* file = "testfile.txt";
     printf("Opening file %s\n", file);
     f->Open(file);
 
     int index = 0;
-    std::string* p;
-    while (sink.GetArray(p, index++))
+    while (const std::string* p = sink.Read(index++))
     {
         printf("Got: %s\n", p->c_str());
     }

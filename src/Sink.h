@@ -10,14 +10,14 @@
 
 #include <cassert>
 
-#include "PluginObject.h"
+#include "Component.h"
 
 namespace Tracter
 {
     /**
      * A Sink is a (not necessarily the) final vertex of a directed graph;
      * one that has no arcs leading out of it.  In Tracter, a sink is a
-     * plugin with no cache.  In this sense it is also typeless.
+     * component with no cache.  In this sense it is also typeless.
      *
      * It makes sense for a sink to form the base of something that
      * naturally pulls data, or for a sink to provide a method that pulls
@@ -28,13 +28,13 @@ namespace Tracter
      * defined.  Classes derived from this, however, can choose to
      * implement a destructor that calls Delete().
      */
-    class Sink : public Tracter::PluginObject
+    class Sink : public ComponentBase
     {
     public:
         Sink()
         {
-            mMinReadBack = 0;
-            mMaxReadBack = 0;
+            mMinReadBehind = 0;
+            mMaxReadBehind = 0;
             mMinReadAhead = 0;
             mMaxReadAhead = 0;
         }

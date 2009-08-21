@@ -9,14 +9,14 @@
 
 #include <alsa/asoundlib.h>
 #include "Source.h"
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
-     * Source plugin that reads data from an ALSA device.
+     * Source component that reads data from an ALSA device.
      */
-    class ALSASource : public Source< CachedPlugin<short> >
+    class ALSASource : public Source< CachedComponent<short> >
     {
     public:
         ALSASource(const char* iObjectName = "ALSASource");

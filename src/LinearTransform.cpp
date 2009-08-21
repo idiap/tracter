@@ -10,21 +10,21 @@
 #include "LinearTransform.h"
 
 Tracter::LinearTransform::LinearTransform(
-    Plugin<float>* iInput, const char* iObjectName
+    Component<float>* iInput, const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    MinSize(mInput, 1);
+    mInput = iInput;
+    Connect(mInput);
 
     const char* file = GetEnv("XFormFile", (const char*)0);
-    mArraySize = LoadXForm(file);
-    if (mArraySize * mInput->GetArraySize() != (int)mMatrix.size())
+    mFrame.size = LoadXForm(file);
+    if (mFrame.size * mInput->Frame().size != (int)mMatrix.size())
         throw Exception("input dimension %d incompatible with matrix cols %d",
-                        mInput->GetArraySize(), (int)mMatrix.size()/mArraySize);
+                        mInput->Frame().size, (int)mMatrix.size()/mFrame.size);
 }
 
-bool Tracter::LinearTransform::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::LinearTransform::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(mMatrix.size() > 0);
@@ -34,16 +34,13 @@ bool Tracter::LinearTransform::UnaryFetch(IndexType iIndex, int iOffset)
     if (!p)
         return false;
 
-    // Output
-    float* cache = GetPointer(iOffset);
-
     /* Multiply, with due disregard to cache and BLAS */
-    int nCols = mInput->GetArraySize();
-    for (int r=0; r<mArraySize; r++)
+    int nCols = mInput->Frame().size;
+    for (int r=0; r<mFrame.size; r++)
     {
-        cache[r] = 0.0f;
+        oData[r] = 0.0f;
         for (int c=0; c<nCols; c++)
-            cache[r] += mMatrix[r*nCols + c] * p[c];
+            oData[r] += mMatrix[r*nCols + c] * p[c];
     }
 
     return true;

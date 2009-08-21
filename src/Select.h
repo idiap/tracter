@@ -7,25 +7,25 @@
 #ifndef SELECT_H
 #define SELECT_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Selects a sub-array
      */
-    class Select : public UnaryPlugin<float, float>
+    class Select : public CachedComponent<float>
     {
     public:
-      Select(Plugin<float>* iInput, const char* iObjectName = "Select");
+        Select(Component<float>* iInput, const char* iObjectName = "Select");
 
     protected:
-      bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-      int mLoIndex;
-      int mHiIndex;
-
+        Component<float>* mInput;
+        int mLoIndex;
+        int mHiIndex;
     };
 }
 

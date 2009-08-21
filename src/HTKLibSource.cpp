@@ -8,7 +8,7 @@
  */
 
 /*
- * HTKLibSource.cpp - Use HTKLib as the source in a tracter plugin.
+ * HTKLibSource.cpp - Use HTKLib as the source in a tracter component.
  *
  * This version reads files using HTKLib. The resulting features are
  * specified by the HTK config file.

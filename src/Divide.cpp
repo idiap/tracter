@@ -7,48 +7,26 @@
 
 #include "Divide.h"
 
-Tracter::PluginObject* Tracter::Divide::GetInput(int iInput)
-{
-    // Enumerate the inputs
-    switch (iInput)
-    {
-        case 0:
-            return mInput1;
-        case 1:
-            return mInput2;
-        default:
-            assert(0);
-    }
-
-    // Should never get here
-    return 0;
-}
-
 Tracter::Divide::Divide(
-    Plugin<float>* iInput1,
-    Plugin<float>* iInput2,
+    Component<float>* iInput1,
+    Component<float>* iInput2,
     const char* iObjectName
 )
 {
     mObjectName = iObjectName;
-    mArraySize = iInput1->GetArraySize();
-
+    mInput1 = iInput1;
+    mInput2 = iInput2;
     Connect(iInput1);
     Connect(iInput2);
 
-    mInput1 = iInput1;
-    mInput2 = iInput2;
-
-    for (int i=0; i<mNInputs; i++)
-        MinSize(GetInput(i), 1);
+    mFrame.size = iInput1->Frame().size;
 }
 
-bool Tracter::Divide::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Divide::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
-    assert(iOffset >= 0);
+    assert(oData);
     CacheArea inputArea;
-    float* cache = GetPointer(iOffset);
 
     // Start with the second input, likely to be a cepstral mean
     if (mInput2->Read(inputArea, iIndex) == 0)
@@ -61,8 +39,8 @@ bool Tracter::Divide::UnaryFetch(IndexType iIndex, int iOffset)
     float *p1 = mInput1->GetPointer(inputArea.offset);
 
     // Do the division
-    for (int i=0; i<mArraySize; i++)
-        cache[i] = p1[i] / p2[i];
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] = p1[i] / p2[i];
 
     return true;
 }

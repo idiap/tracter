@@ -9,23 +9,24 @@
 #define CEPSTRUM_H
 
 #include "Fourier.h"
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Generate the cepstrum of an input
      */
-    class Cepstrum : public UnaryPlugin<float, float>
+    class Cepstrum : public CachedComponent<float>
     {
     public:
-        Cepstrum(Plugin<float>* iInput, const char* iObjectName = "Cepstrum");
+        Cepstrum(Component<float>* iInput, const char* iObjectName = "Cepstrum");
         virtual ~Cepstrum() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         float mFloor;
         float mLogFloor;
         int mFloored;

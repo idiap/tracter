@@ -8,23 +8,25 @@
 #ifndef SOCKETSINK_H
 #define SOCKETSINK_H
 
-#include "UnarySink.h"
+#include "Component.h"
+#include "Sink.h"
 
 namespace Tracter
 {
     /**
      * Sinks to a socket.
      */
-    class SocketSink : public UnarySink<float>
+    class SocketSink : public Sink
     {
     public:
         SocketSink(
-            Plugin<float>* iInput, const char* iObjectName = "SocketSink"
+            Component<float>* iInput, const char* iObjectName = "SocketSink"
         );
         virtual ~SocketSink() throw();
         void Pull();
 
     private:
+        Component<float>* mInput;
         int mFD;
         unsigned short mPort;
         bool mHeader;

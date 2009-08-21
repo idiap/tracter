@@ -14,6 +14,8 @@ noinst_PROGRAMS = \
 
 lib_LTLIBRARIES = libtracter.la
 
+libtracter_la_LDFLAGS = -version-info 1:0:0
+
 TRACTER_SOURCES = \
 	Select.cpp \
 	NoiseVAD.cpp \
@@ -24,6 +26,9 @@ TRACTER_SOURCES = \
 	Signal.cpp \
 	Frame.cpp \
 	SocketTee.cpp \
+	Tokenise.cpp \
+	LNASource.cpp \
+	Pixmap.cpp \
 	ScreenSink.cpp \
 	LPCepstrum.cpp \
 	FileSink.cpp \
@@ -32,9 +37,6 @@ TRACTER_SOURCES = \
 	Energy.cpp \
 	TracterObject.cpp \
 	ASRFactory.cpp \
-	LowEnergyEnvelope.cpp \
-	Tokenise.cpp \
-	Histogram.cpp \
 	Variance.cpp \
 	Divide.cpp \
 	FilePath.cpp \
@@ -45,10 +47,8 @@ TRACTER_SOURCES = \
 	ComplexPeriodogram.cpp \
 	ComplexSample.cpp \
 	ByteOrder.cpp \
-	LNASource.cpp \
-	PluginObject.cpp \
+	Component.cpp \
 	Normalise.cpp \
-	MMap.cpp \
 	HTKSource.cpp \
 	HTKSink.cpp \
 	Delta.cpp \
@@ -58,23 +58,22 @@ TRACTER_SOURCES = \
 	MelFilter.cpp \
 	Cepstrum.cpp \
 	Mean.cpp \
-	Noise.cpp \
 	Subtract.cpp \
 	SpectralSubtract.cpp \
-	Pixmap.cpp
+	Noise.cpp \
+	LowEnergyEnvelope.cpp \
+	Histogram.cpp \
+	MMap.cpp
 
 pkginclude_HEADERS = $(TRACTER_SOURCES:.cpp=.h) \
 	GeometricNoise.h \
 	Resample.h \
 	Fourier.h \
-	ArraySink.h \
-	CachedPlugin.h \
+	FrameSink.h \
+	CachedComponent.h \
 	FileSource.h \
-	Plugin.h \
 	Sink.h \
-	Source.h \
-	UnaryPlugin.h \
-	UnarySink.h
+	Source.h
 
 libtracter_la_SOURCES = $(TRACTER_SOURCES)
 

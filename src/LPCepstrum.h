@@ -9,25 +9,26 @@
 #define LPCEPSTRUM_H
 
 #include "Fourier.h"
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * LPCepstrum analysis from a warped spectrum
      */
-    class LPCepstrum : public UnaryPlugin<float, float>
+    class LPCepstrum : public CachedComponent<float>
     {
     public:
         LPCepstrum(
-            Plugin<float>* iInput, const char* iObjectName = "LPCepstrum"
+            Component<float>* iInput, const char* iObjectName = "LPCepstrum"
         );
         virtual ~LPCepstrum() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         int mOrder;
         int mNCompressed;
         int mNCepstra;

@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 #include "VADStateMachine.h"
 
 namespace Tracter
@@ -19,10 +19,10 @@ namespace Tracter
      * VAD Gate.  Allows frames through from input to output depending
      * on a VAD input.
      */
-    class VADGate : public CachedPlugin<float>
+    class VADGate : public CachedComponent<float>
     {
     public:
-        VADGate(Plugin<float>* iInput, VADStateMachine* iVADInput,
+        VADGate(Component<float>* iInput, VADStateMachine* iVADInput,
                 const char* iObjectName = "VADGate");
 
         /**
@@ -32,19 +32,18 @@ namespace Tracter
          */
         TimeType TimeStamp(IndexType iIndex)
         {
-            return PluginObject::TimeStamp(
+            return ComponentBase::TimeStamp(
                 iIndex + std::max<IndexType>(mSpeechTriggered, (IndexType)0)
             );
         }
 
     protected:
-        PluginObject* GetInput(int iInput);
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
         virtual void Reset(bool iPropagate);
 
     private:
-        Plugin<float>* mInput;
-        Plugin<VADState>* mVADInput;
+        Component<float>* mInput;
+        Component<VADState>* mVADInput;
 
         bool mEnabled;
         bool mSegmenting;

@@ -7,39 +7,30 @@
 
 #include "Concatenate.h"
 
-Tracter::PluginObject* Tracter::Concatenate::GetInput(int iInput)
-{
-    assert(iInput < mNInputs);
-    return mInput[iInput];
-}
-
 Tracter::Concatenate::Concatenate(const char* iObjectName)
-    : CachedPlugin<float>()
 {
     mObjectName = iObjectName;
-    mArraySize = 0;
+    mFrame.size = 0;
 }
 
-void Tracter::Concatenate::Add(Plugin<float>* iInput)
+void Tracter::Concatenate::Add(Component<float>* iInput)
 {
     mInput.push_back(iInput);
-    mLength.push_back(iInput->GetArraySize());
-    mArraySize += iInput->GetArraySize();
+    mLength.push_back(iInput->Frame().size);
+    mFrame.size += iInput->Frame().size;
     Connect(iInput);
-    MinSize(iInput, 1);
 }
 
-bool Tracter::Concatenate::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Concatenate::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
-    assert(iOffset >= 0);
+    assert(oData);
     CacheArea inputArea;
 
     // Start with the high order inputs as they are likely to be Deltas
     // and it will help to prevent backwards cache reads.
-    float* cache = GetPointer(iOffset);
-    int arrayPos = mArraySize;
-    for (int i=mNInputs-1; i>=0; i--)
+    int arrayPos = mFrame.size;
+    for (int i=mInput.size()-1; i>=0; i--)
     {
         if(mInput[i]->Read(inputArea, iIndex) == 0)
             return false;
@@ -47,7 +38,7 @@ bool Tracter::Concatenate::UnaryFetch(IndexType iIndex, int iOffset)
         assert(arrayPos >= 0);
         float* p = mInput[i]->GetPointer(inputArea.offset);
         for (int j=0; j<mLength[i]; j++)
-            cache[arrayPos+j] = p[j];
+            oData[arrayPos+j] = p[j];
     }
 
     return true;

@@ -8,24 +8,25 @@
 #ifndef PIXMAP_H
 #define PIXMAP_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Writes a Pixmap (image) representing the input
      */
-    class Pixmap : public UnaryPlugin<float, float>
+    class Pixmap : public CachedComponent<float>
     {
     public:
-        Pixmap(Plugin<float>* iInput, const char* iObjectName = "Pixmap");
+        Pixmap(Component<float>* iInput, const char* iObjectName = "Pixmap");
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
         void write();
 
+        Component<float>* mInput;
         int mLoIndex;
         int mHiIndex;
         float mMin;

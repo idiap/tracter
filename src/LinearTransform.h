@@ -8,22 +8,23 @@
 #define LINEARTRANSFORM_H
 
 #include <vector>
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
-    class LinearTransform : public UnaryPlugin<float, float>
+    class LinearTransform : public CachedComponent<float>
     {
     public:
-        LinearTransform(Plugin<float>* iInput,
+        LinearTransform(Component<float>* iInput,
                         const char* iObjectName = "LinearTransform");
         virtual ~LinearTransform() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
         int LoadXForm(const char* iFileName);
 
     private:
+        Component<float>* mInput;
         std::vector<float> mMatrix;
     };
 }

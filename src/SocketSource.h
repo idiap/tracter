@@ -8,7 +8,7 @@
 #ifndef SOCKETSOURCE_H
 #define SOCKETSOURCE_H
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 #include "Source.h"
 
 namespace Tracter
@@ -37,7 +37,7 @@ namespace Tracter
      * another machine exists to supply data to the socket.
      */
     template <class T>
-    class SocketSource : public Source< CachedPlugin<T> >
+    class SocketSource : public Source< CachedComponent<T> >
     {
     public:
         SocketSource(
@@ -45,14 +45,14 @@ namespace Tracter
         )
             : mSocket(iObjectName)
         {
-            Source< CachedPlugin<T> >::mObjectName = iObjectName;
-            Source< CachedPlugin<T> >::mAuxiliary = iAuxiliary;
-            Source< CachedPlugin<T> >::mArraySize =
-                Source< CachedPlugin<T> >::GetEnv("ArraySize", 1);
-            Source< CachedPlugin<T> >::mSampleFreq =
-                Source< CachedPlugin<T> >::GetEnv("SampleFreq", 48000.0f);
-            Source< CachedPlugin<T> >::mSamplePeriod =
-                Source< CachedPlugin<T> >::GetEnv("SamplePeriod", 1);
+            Source< CachedComponent<T> >::mObjectName = iObjectName;
+            Source< CachedComponent<T> >::mAuxiliary = iAuxiliary;
+            Source< CachedComponent<T> >::mFrame.size =
+                Source< CachedComponent<T> >::GetEnv("FrameSize", 1);
+            Source< CachedComponent<T> >::mFrame.period =
+                Source< CachedComponent<T> >::GetEnv("FramePeriod", 1);
+            Source< CachedComponent<T> >::mFrameRate =
+                Source< CachedComponent<T> >::GetEnv("FrameRate", 48000.0f);
         }
         virtual ~SocketSource() throw () {}
         virtual void Open(
@@ -71,26 +71,26 @@ namespace Tracter
          */
         virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
-            int arraySize = Source< CachedPlugin<T> >::mArraySize;
-            arraySize = ((arraySize == 0) ? 1 : arraySize) * sizeof(T);
+            int getSize = Source< CachedComponent<T> >::mFrame.size;
+            getSize = ((getSize == 0) ? 1 : getSize) * sizeof(T);
 
             // First chunk of circular array
-            char* cache = (char*)Source< CachedPlugin<T> >::GetPointer(
+            char* cache = (char*)Source< CachedComponent<T> >::GetPointer(
                 iOutputArea.offset
             );
-            int nGet = arraySize * iOutputArea.len[0];
+            int nGet = getSize * iOutputArea.len[0];
             int nGot0 = mSocket.Receive(nGet, cache);
             if (nGot0 < nGet)
-                return nGot0 / arraySize;
+                return nGot0 / getSize;
 
             if (iOutputArea.len[1])
             {
                 // Second chunk of circular array
-                cache = (char*)Source< CachedPlugin<T> >::GetPointer();
-                nGet = arraySize * iOutputArea.len[1];
+                cache = (char*)Source< CachedComponent<T> >::GetPointer();
+                nGet = getSize * iOutputArea.len[1];
                 int nGot1 = mSocket.Receive(nGet, cache);
                 if (nGot1 < nGet)
-                    return (nGot0 + nGot1) / arraySize;
+                    return (nGot0 + nGot1) / getSize;
             }
 
             // If we get here, all was well

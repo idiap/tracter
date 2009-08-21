@@ -25,16 +25,16 @@
 #include "HParm.h"
 
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 #include "Source.h"
 
 
 namespace Tracter
 {
     /**
-     * Plugin to deal with source files using HTK
+     * Component to deal with source files using HTK
      */
-    class HTKLibSource : public Source< CachedPlugin<float> >
+    class HTKLibSource : public Source< CachedComponent<float> >
     {
     public:
         HTKLibSource(const char* iObjectName = "HTKLibSource");

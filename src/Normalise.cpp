@@ -9,13 +9,15 @@
 #include "Normalise.h"
 
 Tracter::Normalise::Normalise(
-    Plugin<short>* iInput,
+    Component<short>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, short>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = mInput->GetArraySize();
+    mInput = iInput;
+    mFrame.size = mInput->Frame().size;
+    Connect(mInput);
+
     Endian endian = ENDIAN_NATIVE;
     const char* env = GetEnv("Endian", "NATIVE");
     if (env)
@@ -32,21 +34,21 @@ Tracter::Normalise::Normalise(
     mByteOrder.SetSource(endian);
 }
 
-void Tracter::Normalise::MinSize(int iSize, int iReadBack, int iReadAhead)
+void Tracter::Normalise::MinSize(int iSize, int iReadBehind, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize, iReadBack, iReadAhead);
+    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize, 0, 0);
+    ComponentBase::MinSize(mInput, iSize, 0, 0);
 }
 
 int Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
-    assert(mArraySize);
+    assert(mFrame.size);
     CacheArea inputArea;
     int lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
     short* input = mInput->GetPointer(inputArea.offset);
@@ -68,7 +70,7 @@ int Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         }
 
         if (mByteOrder.WrongEndian())
-            for (int j=0; j<mArraySize; j++)
+            for (int j=0; j<mFrame.size; j++)
             {
                 // Inefficient!
                 short s = input[rOffset++];
@@ -76,7 +78,7 @@ int Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
                 output[wOffset++] = (float)s / 32768.0f;
             }
         else
-            for (int j=0; j<mArraySize; j++)
+            for (int j=0; j<mFrame.size; j++)
             {
                 output[wOffset++] = (float)input[rOffset++] / 32768.0f;
             }

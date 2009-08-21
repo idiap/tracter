@@ -20,28 +20,12 @@ namespace Tracter
     class NoiseVAD : public VADStateMachine
     {
     public:
-        NoiseVAD(Plugin<float>* iInput, Plugin<float>* iNoiseInput,
+        NoiseVAD(Component<float>* iInput, Component<float>* iNoiseInput,
                  const char* iObjectName = "NoiseVAD");
 
     protected:
 
-        PluginObject* GetInput(int iInput)
-        {
-            switch (iInput)
-            {
-            case 0:
-                assert(mInput);
-                return mInput;
-            case 1:
-                assert(this->mNInputs == 2);
-                assert(mNoiseInput);
-                return mNoiseInput;
-            default:
-                assert(0);
-            }
-        }
-
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, VADState* oData);
         virtual void Reset(bool iPropagate);
 
         void DotHook()
@@ -52,8 +36,8 @@ namespace Tracter
         }
 
     private:
-        Plugin<float>* mInput;
-        Plugin<float>* mNoiseInput;
+        Component<float>* mInput;
+        Component<float>* mNoiseInput;
         IndexType mIndex;
         float mNoise;
         float mNoisePole;

@@ -8,26 +8,27 @@
 #ifndef LOWENERGYENVELOPE_H
 #define LOWENERGYENVELOPE_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Use the Low Energy Envelope method to estimate noise
      */
-    class LowEnergyEnvelope : public UnaryPlugin<float, float>
+    class LowEnergyEnvelope : public CachedComponent<float>
     {
     public:
         LowEnergyEnvelope(
-            Plugin<float>* iInput,
+            Component<float>* iInput,
             const char* iObjectName = "LowEnergyEnvelope"
         );
         virtual ~LowEnergyEnvelope() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         int mNWindow;
         int mNGamma;
         float mCorrection;

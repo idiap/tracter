@@ -8,7 +8,7 @@
 #ifndef HTKSOURCE_H
 #define HTKSOURCE_H
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 #include "ByteOrder.h"
 #include "Source.h"
 #include "MMap.h"
@@ -16,9 +16,9 @@
 namespace Tracter
 {
     /**
-     * Plugin to deal with HTK feature files
+     * Component to deal with HTK feature files
      */
-    class HTKSource : public Source< CachedPlugin<float> >
+    class HTKSource : public Source< CachedComponent<float> >
     {
     public:
         HTKSource(const char* iObjectName = "HTKSource");

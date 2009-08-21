@@ -11,20 +11,20 @@ extern "C" {
 #include "MCep.h"
 
 Tracter::MCep::MCep(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
+    mInput = iInput;
+    Connect(mInput);
 
     // Array sizing
     mC0 = GetEnv("C0", 1);
     int nCepstra = GetEnv("NCepstra", 12);
-    mArraySize = mC0 ? nCepstra+1 : nCepstra;
+    mFrame.size = mC0 ? nCepstra+1 : nCepstra;
     assert(nCepstra > 0);
-    MinSize(mInput, 1);
-    mInData.resize(mInput->GetArraySize());
+    mInData.resize(mInput->Frame().size);
     mCepstra1.resize(nCepstra+1);
     mCepstra2.resize(nCepstra+1);
 
@@ -47,7 +47,7 @@ Tracter::MCep::MCep(
             Verbose(1, "Gamma == 0.0; using mgcep() only\n");
 }
 
-bool Tracter::MCep::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::MCep::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -101,11 +101,10 @@ bool Tracter::MCep::UnaryFetch(IndexType iIndex, int iOffset)
     }
 
     // Copy to output in HTK order (C0 last, if at all)
-    float* cache = GetPointer(iOffset);
     for (int i=0; i<m; i++)
-        cache[i] = c[i+1];
+        oData[i] = c[i+1];
     if (mC0)
-        cache[m] = c[0];
+        oData[m] = c[0];
 
     return true;
 }

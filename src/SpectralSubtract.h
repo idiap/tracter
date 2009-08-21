@@ -8,17 +8,17 @@
 #ifndef SPECTRALSUBTRACT_H
 #define SPECTRALSUBTRACT_H
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Subtracts a second input from a first with flooring.
      */
-    class SpectralSubtract : public CachedPlugin<float>
+    class SpectralSubtract : public CachedComponent<float>
     {
     public:
-        SpectralSubtract(Plugin<float>* iInput1, Plugin<float>* iInput2,
+        SpectralSubtract(Component<float>* iInput1, Component<float>* iInput2,
                          const char* iObjectName = "SpectralSubtract");
 
         /** Set the oversubtraction factor */
@@ -36,12 +36,11 @@ namespace Tracter
         }
 
     protected:
-        PluginObject* GetInput(int iInput);
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-        Plugin<float>* mInput1;
-        Plugin<float>* mInput2;
+        Component<float>* mInput1;
+        Component<float>* mInput2;
         float mAlpha;
         float mBeta;
     };

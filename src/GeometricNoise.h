@@ -27,7 +27,7 @@ namespace Tracter
          * Constructor.  Just sets the object name.
          */
         GeometricNoise(
-            Plugin<float>* iInput, const char* iObjectName = "GeometricNoise"
+            Component<float>* iInput, const char* iObjectName = "GeometricNoise"
         )
             :Noise(iInput, iObjectName)
         {

@@ -9,7 +9,7 @@
 
 #include <cassert>
 
-#include "Plugin.h"
+#include "Component.h"
 #include "Source.h"
 #include "MMap.h"
 
@@ -20,16 +20,16 @@ namespace Tracter
      * Reads raw files as file maps.
      */
     template <class T>
-    class FileSource : public Source< Plugin<T> >
+    class FileSource : public Source< Component<T> >
     {
     public:
 
         FileSource(const char* iObjectName = "FileSource")
         {
-            Plugin<T>::mObjectName = iObjectName;
-            Plugin<T>::mArraySize = Plugin<T>::GetEnv("FrameSize", 1);
-            Plugin<T>::mSampleFreq = Plugin<T>::GetEnv("SampleFreq", 8000.0f);
-            Plugin<T>::mSamplePeriod = 1;
+            Component<T>::mObjectName = iObjectName;
+            this->mFrameRate = Component<T>::GetEnv("FrameRate", 8000.0f);
+            Component<T>::mFrame.size = Component<T>::GetEnv("FrameSize", 1);
+            Component<T>::mFrame.period = 1;
         }
         virtual ~FileSource() throw() {}
 
@@ -45,20 +45,24 @@ namespace Tracter
 
             // Convert times to frames
             IndexType begin =
-                (iBeginTime >= 0) ? Plugin<T>::FrameIndex(iBeginTime) : 0;
+                (iBeginTime >= 0) ? Component<T>::FrameIndex(iBeginTime) : 0;
             IndexType end =
-                (iEndTime   >= 0) ? Plugin<T>::FrameIndex(iEndTime) : -1;
-            Plugin<T>::Verbose(1, "Begin: %ld  end: %ld\n", begin, end);
+                (iEndTime   >= 0) ? Component<T>::FrameIndex(iEndTime) : -1;
+            Component<T>::Verbose(1, "Begin: %ld  end: %ld\n", begin, end);
 
             // Fix the cache pointers to the given range
-            assert(Plugin<T>::mArraySize);
-            int size = mMap.GetSize() / (Plugin<T>::mArraySize * sizeof(T));
-            Plugin<T>::mSize = size;
-            Plugin<T>::mTail.index = 0;
-            Plugin<T>::mTail.offset = begin;
-            Plugin<T>::mHead.index =
+            assert(Component<T>::mFrame.size);
+            int size = mMap.Size() / (Component<T>::mFrame.size * sizeof(T));
+            CachePointer& head = Component<T>::mCluster[0].head;
+            CachePointer& tail = Component<T>::mCluster[0].tail;
+
+            Component<T>::mSize = size;
+            tail.index = 0;
+            tail.offset = begin;
+            head.index =
                 (end >= 0) ? std::min(size, (int)(end-begin+1)) : size;
-            Plugin<T>::mHead.offset = 0;
+            head.offset = 0;
+
         }
 
         T* GetPointer(int iOffset = 0)

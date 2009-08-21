@@ -25,7 +25,7 @@ Tracter::SpeakerIDSocketSource::SpeakerIDSocketSource(
  */
 bool Tracter::SpeakerIDSocketSource::UnaryFetch(IndexType iIndex, int iOffset)
 {
-    assert(mArraySize == 1);
+    assert(mFrame.size == 1);
 
     Verbose(2, "Fetching SpeakerID for index %ld\n", iIndex);
     char* cache = (char*)GetPointer(iOffset);

@@ -7,19 +7,19 @@
 
 #include "Delta.h"
 
-Tracter::Delta::Delta(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Delta::Delta(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
-    assert(mArraySize > 0);
+    mInput = iInput;
+    mFrame.size = iInput->Frame().size;
+    assert(mFrame.size > 0);
 
     mTheta = GetEnv("Theta", 2);
     assert(mTheta > 0);
 
     mWindow = mTheta*2 + 1;
     mFeature.resize(mWindow);
-    PluginObject::MinSize(mInput, mWindow, mTheta);
+    Connect(mInput, mWindow, mTheta);
 
     // Set the weights in advance
     mWeight.resize(mWindow);
@@ -34,7 +34,7 @@ Tracter::Delta::Delta(Plugin<float>* iInput, const char* iObjectName)
  * This is the calculation for one frame.  Pretty trivial, but the
  * edge effects make the code quite long.
  */
-bool Tracter::Delta::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Delta::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -85,15 +85,14 @@ bool Tracter::Delta::UnaryFetch(IndexType iIndex, int iOffset)
     assert(feature == mWindow);
 
     // The actual calculation
-    float* cache = GetPointer(iOffset);
-    for (int j=0; j<mArraySize; j++)
-        cache[j] = 0.0f;
+    for (int j=0; j<mFrame.size; j++)
+        oData[j] = 0.0f;
     for (int i=0; i<mWindow; i++)
     {
         if (i == mTheta)  // The weight is zero
             continue;
-        for (int j=0; j<mArraySize; j++)
-            cache[j] += mFeature[i][j] * mWeight[i];
+        for (int j=0; j<mFrame.size; j++)
+            oData[j] += mFeature[i][j] * mWeight[i];
     }
 
     return true;

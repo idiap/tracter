@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 #include "bsapi.h"
 
 namespace Tracter
@@ -22,32 +22,34 @@ namespace Tracter
     /**
      * Calculate fast Vocal Tract Length Normalisation parameter
      */
-    class BSAPIFastVTLN : public UnaryPlugin<float, float>
+    class BSAPIFastVTLN : public CachedComponent<float>
     {
     public:
-        BSAPIFastVTLN(Plugin<float>* iInput, const char* iObjectName = "BSAPIFastVTLN");
+        BSAPIFastVTLN(Component<float>* iInput, const char* iObjectName = "BSAPIFastVTLN");
         virtual ~BSAPIFastVTLN() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-	int   inputdim; 
-	float WaveformScaleUp;
-	float *mpInputWaveform;
+        int   inputdim; 
+        float WaveformScaleUp;
+        float *mpInputWaveform;
 
-	float wf;
+        float wf;
 	
-	SGMMBasedEstimatorI *mpFastVTLN;
+        SGMMBasedEstimatorI *mpFastVTLN;
 
-	int SamplingFreq;
-	int MaxBufferedFrames;
+        int SamplingFreq;
+        int MaxBufferedFrames;
 
-	//class SFastVtlnCallback : public SFastVtlnCallbackI
-	//{
-	//public:
-	// virtual bool BSAPI_METHOD OnWarpingFactor(long_long time, float warpingFactor);
-	//} gFastVtlnCallback;
+        Component<float>* mInput;
+
+        //class SFastVtlnCallback : public SFastVtlnCallbackI
+        //{
+        //public:
+        // virtual bool BSAPI_METHOD OnWarpingFactor(long_long time, float warpingFactor);
+        //} gFastVtlnCallback;
     };
 }
 

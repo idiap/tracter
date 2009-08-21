@@ -5,10 +5,9 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#ifndef MLP_VAD_H
-#define MLP_VAD_H
+#ifndef MLPVAD_H
+#define MLPVAD_H
 
-#include "UnaryPlugin.h"
 #include "VADStateMachine.h"
 
 namespace Tracter
@@ -16,23 +15,15 @@ namespace Tracter
     class MLPVAD : public VADStateMachine
     {
     public:
-        MLPVAD(Plugin<float>* iInput,
+        MLPVAD(Component<float>* iInput,
                const char* iObjectName = "MLPVAD");
 
     protected:
-
-        PluginObject* GetInput(int iInput)
-        {
-            assert(iInput == 0);
-            assert(this->mNInputs == 1);
-            return mInput;
-        }
-
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, VADState* oData);
         virtual void Reset(bool iPropagate);
 
     private:
-        Plugin<float>* mInput;
+        Component<float>* mInput;
         IndexType mIndex;
         int mInputIndex;
         float mThreshold;

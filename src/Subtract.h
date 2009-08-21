@@ -8,26 +8,25 @@
 #ifndef SUBTRACT_H
 #define SUBTRACT_H
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Subtracts a second input from a first.
      */
-    class Subtract : public CachedPlugin<float>
+    class Subtract : public CachedComponent<float>
     {
     public:
-        Subtract(Plugin<float>* iInput1, Plugin<float>* iInput2,
+        Subtract(Component<float>* iInput1, Component<float>* iInput2,
                  const char* iObjectName = "Subtract");
 
     protected:
-        PluginObject* GetInput(int iInput);
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-        Plugin<float>* mInput1;
-        Plugin<float>* mInput2;
+        Component<float>* mInput1;
+        Component<float>* mInput2;
     };
 }
 

@@ -38,7 +38,7 @@ public:
     {
         mObjectName = "Record";
         ASRFactory fac;
-        Plugin<float>* p = 0;
+        Component<float>* p = 0;
         VADStateMachine* sm = 0;
 
         // Source
@@ -47,7 +47,7 @@ public:
         // Modulation VAD
         if (GetEnv("Modulation", 1))
         {
-            Plugin<float>* v = p;
+            Component<float>* v = p;
             v = new Frame(v);
             v = new Energy(v);
             Modulation* m = new Modulation(v);
@@ -59,7 +59,7 @@ public:
         // MLP VAD
         else if (GetEnv("MLP", 0))
         {
-            Plugin<float>* v = p;
+            Component<float>* v = p;
             v = new Frame(v, "MLPFrame");
             v = new BSAPIFrontEnd(v, "PLPFrontEnd");
             Mean* mlpm = new Mean(v);
@@ -73,7 +73,7 @@ public:
         // Modulation MLP VAD
         else if (GetEnv("ModulationMLP", 0))
         {
-            Plugin<float>* v = p;
+            Component<float>* v = p;
             v = new Frame(v, "MLPFrame");
             v = new BSAPIFrontEnd(v, "PLPFrontEnd");
             Mean* mlpm = new Mean(v);

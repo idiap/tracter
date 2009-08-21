@@ -7,7 +7,7 @@
 
 #include "SocketTee.h"
 
-#include <cstdio>
+#include <cstdio>  // For perror()
 #include <cstring> // For memset()
 
 #include <unistd.h>
@@ -184,13 +184,13 @@ void Tracter::Socket::start()
 /**
  * Constructor.
  */
-Tracter::SocketTee::SocketTee(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::SocketTee::SocketTee(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
-    assert(mArraySize >= 0);
-    PluginObject::MinSize(iInput, 1);
+    mFrame.size = iInput->Frame().size;
+    assert(mFrame.size >= 0);
+    mInput = iInput;
+    Connect(mInput, 1);
 
     unsigned short port = GetEnv("Port", 30000);
     mFD = 0;
@@ -198,7 +198,7 @@ Tracter::SocketTee::SocketTee(Plugin<float>* iInput, const char* iObjectName)
     mAcceptMutex = mSocket.AcceptThread(1, &mFD);
 }
 
-bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -208,9 +208,8 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, int iOffset)
 
     // Copy input to output
     float* input  = mInput->GetPointer(inputArea.offset);
-    float* output = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
-        output[i] = input[i];
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] = input[i];
 
     // If there is a connection, output to the socket too
     mAcceptMutex->Lock();
@@ -220,7 +219,7 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, int iOffset)
          * If the other end breaks the connection, we'd normally get a
          * SIG_PIPE signal (= bomb out).  This one returns EPIPE.
          */
-        ssize_t s = send(mFD, input, sizeof(float) * mArraySize, MSG_NOSIGNAL);
+        ssize_t s = send(mFD, input, sizeof(float) * mFrame.size, MSG_NOSIGNAL);
         if (s == -1)
             switch (errno)
             {

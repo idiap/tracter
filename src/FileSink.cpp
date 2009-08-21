@@ -8,23 +8,23 @@
 #include "FileSink.h"
 
 Tracter::FileSink::FileSink(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnarySink<float>(iInput)
 {
     mObjectName = iObjectName;
-    mArraySize = mInput->GetArraySize();
-    if (mArraySize == 0)
-        mArraySize = 1;
-    MinSize(iInput, 1);
+    mInput = iInput;
+    Connect(iInput);
+    mFrame.size = mInput->Frame().size;
+    if (mFrame.size == 0)
+        mFrame.size = 1;
     Initialise();
     Reset();
 
     mFile = 0;
 
     if (mByteOrder.WrongEndian())
-        mTemp.resize(mArraySize);
+        mTemp.resize(mFrame.size);
     mMaxSize = GetEnv("MaxSize", 0);
 }
 
@@ -48,12 +48,12 @@ void Tracter::FileSink::Open(const char* iFile)
         float* f = mInput->GetPointer(cache.offset);
         if (mByteOrder.WrongEndian())
         {
-            for (int i=0; i<mArraySize; i++)
+            for (int i=0; i<mFrame.size; i++)
                 mTemp[i] = f[i];
             f = &mTemp[0];
-            mByteOrder.Swap(f, sizeof(float), mArraySize);
+            mByteOrder.Swap(f, sizeof(float), mFrame.size);
         }
-        if (fwrite(f, sizeof(float), mArraySize, mFile) != (size_t)mArraySize)
+        if (fwrite(f, sizeof(float), mFrame.size, mFile) != (size_t)mFrame.size)
             throw Exception("FileSink: Failed to write to file %s", iFile);
         if ((mMaxSize > 0) && (index >= mMaxSize))
             break;

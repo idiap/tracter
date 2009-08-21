@@ -7,7 +7,7 @@
 #ifndef NORMALISE_H
 #define NORMALISE_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 #include "ByteOrder.h"
 
 namespace Tracter
@@ -16,15 +16,16 @@ namespace Tracter
      * Normalises an audio input of type short to be a float between
      * -1 and 1, doing byte swapping if necessary.
      */
-    class Normalise : public UnaryPlugin<float, short>
+    class Normalise : public CachedComponent<float>
     {
     public:
         Normalise(
-            Plugin<short>* iInput, const char* iObjectName = "Normalise"
+            Component<short>* iInput, const char* iObjectName = "Normalise"
         );
-        void MinSize(int iSize, int iReadBack, int iReadAhead);
+        void MinSize(int iSize, int iReadBehind, int iReadAhead);
 
     protected:
+        Component<short>* mInput;
         ByteOrder mByteOrder;
         int Fetch(IndexType iIndex, CacheArea& iOutputArea);
     };

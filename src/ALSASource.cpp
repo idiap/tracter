@@ -33,17 +33,17 @@ static int alsaErr;
 Tracter::ALSASource::ALSASource(const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = GetEnv("FrameSize", 1);
-    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
-    mSamplePeriod = 1;
+    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.size = GetEnv("FrameSize", 1);
+    mFrame.period = 1;
     mHandle = 0;
 
     float seconds = GetEnv("BufferTime", 1.0f);
-    int samples = SecondsToSamples(seconds);
+    int samples = SecondsToFrames(seconds);
     MinSize(this, samples);
     Verbose(1, "buffer set to %d samples\n", samples);
 
-    /* Tell the PluginObject that we will take care of the pointers */
+    /* Tell the ComponentBase that we will take care of the pointers */
     mAsync = true;
 
     /* Allocate space and output to stdout */
@@ -75,31 +75,34 @@ void Tracter::ALSASource::asyncCallback()
     assert(mSize >= avail);
     assert(!mIndefinite);
 
+    CachePointer& head = mCluster[0].head;
+    CachePointer& tail = mCluster[0].tail;
+
     int xrun = 0;
-    int len0 = mSize - mHead.offset;
+    int len0 = mSize - head.offset;
     len0 = std::min((int)avail, len0);
     if (len0 > 0)
-        ALSACheck( snd_pcm_readi(mHandle, GetPointer(mHead.offset), len0) );
-    if ((mTail.offset >= mHead.offset) &&
-        (mHead.index != mTail.index) &&
-        (mTail.offset < mHead.offset + len0))
-        xrun = mHead.offset + len0 - mTail.offset;
+        ALSACheck( snd_pcm_readi(mHandle, GetPointer(head.offset), len0) );
+    if ((tail.offset >= head.offset) &&
+        (head.index != tail.index) &&
+        (tail.offset < head.offset + len0))
+        xrun = head.offset + len0 - tail.offset;
 
     int len1 = avail - len0;
     if (len1 > 0)
         ALSACheck( snd_pcm_readi(mHandle, GetPointer(0), len1) );
     if (xrun > 0)
         xrun += len1;
-    else if ((mTail.offset < len1))
-        xrun = len1 - mTail.offset;
+    else if ((tail.offset < len1))
+        xrun = len1 - tail.offset;
 
     //printf("s = %d h = %d,%ld t = %d,%ld  len0 = %d len1 = %d xrun = %d\n",
-    //       mSize, mHead.offset, mHead.index, mTail.offset, mTail.index,
+    //       mSize, head.offset, head.index, tail.offset, tail.index,
     //       len0, len1, xrun);
 
-    MovePointer(mHead, avail);
+    MovePointer(head, avail);
     if (xrun > 0)
-        MovePointer(mTail, xrun);
+        MovePointer(tail, xrun);
 }
 
 /**
@@ -157,8 +160,9 @@ snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
     /* Default values for parameters.  ALSA likes unsigned types, but
      * tracter avoids them. */
     int dir;
-    unsigned int sampleRate = (unsigned int)mSampleFreq;
-    unsigned int nChannels = (unsigned int)mArraySize;
+    unsigned int sampleRate = (unsigned int)mFrameRate;
+    unsigned int nChannels = (unsigned int)mFrame.size;
+
     snd_pcm_uframes_t bufferSize;
     snd_pcm_uframes_t periodSize = 160;
 
@@ -208,7 +212,8 @@ int Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     timespec req;
     req.tv_sec = 0;
     req.tv_nsec = 100000;
-    while (mHead.index < iIndex + iOutputArea.Length())
+    CachePointer& head = mCluster[0].head;
+    while (head.index < iIndex + iOutputArea.Length())
     {
         assert(snd_pcm_state(mHandle) == SND_PCM_STATE_RUNNING);
         struct timespec rem;

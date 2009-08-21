@@ -11,7 +11,8 @@
 #include <cstdio>
 #include <vector>
 
-#include "UnarySink.h"
+#include "Component.h"
+#include "Sink.h"
 #include "ByteOrder.h"
 
 namespace Tracter
@@ -19,16 +20,17 @@ namespace Tracter
     /**
      * Sinks to screen.
      */
-    class ScreenSink : public UnarySink<float>
+    class ScreenSink : public Sink
     {
     public:
         ScreenSink(
-            Plugin<float>* iInput, const char* iObjectName = "ScreenSink"
+            Component<float>* iInput, const char* iObjectName = "ScreenSink"
         );
-        virtual ~ScreenSink() throw() {}
+        virtual ~ScreenSink() throw() { Delete(); }
         void Open();
 
     private:
+        Component<float>* mInput;
         int mMaxSize;
     };
 }

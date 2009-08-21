@@ -11,24 +11,25 @@
 #include "Cepstrum.h"
 
 Tracter::Cepstrum::Cepstrum(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    mNLogData = mInput->GetArraySize();
+    mInput = iInput;
+    Connect(iInput);
+
+    mNLogData = mInput->Frame().size;
 
     mFloor = GetEnv("Floor", 1e-8f);
     mLogFloor = logf(mFloor);
     mFloored = 0;
     mC0 = GetEnv("C0", 1);
     mNCepstra = GetEnv("NCepstra", 12);
-    mArraySize = mC0 ? mNCepstra+1 : mNCepstra;
+    mFrame.size = mC0 ? mNCepstra+1 : mNCepstra;
 
     assert(mNCepstra > 0);
     assert(mNCepstra < mNLogData);
-    MinSize(mInput, 1);
 
     mLogData = 0;
     mCepstra = 0;
@@ -41,18 +42,16 @@ Tracter::Cepstrum::~Cepstrum() throw()
         Verbose(1, "floored %d values < %e\n", mFloored, mFloor);
 }
 
-bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
-    CacheArea inputArea;
 
     // Read the input frame
-    int one = mInput->Read(inputArea, iIndex);
-    if (one < 1)
+    const float* p = mInput->UnaryRead(iIndex);
+    if (!p)
         return false;
 
     // Copy the frame though a log function
-    float* p = mInput->GetPointer(inputArea.offset);
     for (int i=0; i<mNLogData; i++)
         if (p[i] > mFloor)
             mLogData[i] = logf(p[i]);
@@ -66,11 +65,10 @@ bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, int iOffset)
     mFourier.Transform();
 
     // Copy to output in HTK order (C0 last, if at all)
-    float* cache = GetPointer(iOffset);
     for (int i=0; i<mNCepstra; i++)
-        cache[i] = mCepstra[i+1];
+        oData[i] = mCepstra[i+1];
     if (mC0)
-        cache[mNCepstra] = mCepstra[0];
+        oData[mNCepstra] = mCepstra[0];
 
     return true;
 }

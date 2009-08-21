@@ -7,24 +7,25 @@
 
 #include "ZeroFilter.h"
 
-Tracter::ZeroFilter::ZeroFilter(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::ZeroFilter::ZeroFilter(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
+    mInput = iInput;
+    Connect(mInput);
     mZero = GetEnv("Zero", 0.97f);
 }
 
-void Tracter::ZeroFilter::MinSize(int iSize, int iReadBack, int iReadAhead)
+void Tracter::ZeroFilter::MinSize(int iSize, int iReadBehind, int iReadAhead)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    PluginObject::MinSize(iSize, iReadBack, iReadAhead);
+    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
 
     // We expect the input buffer to be at least the size of each
     // request, then +1 for the possible read-behind.  However, don't
     // add on any extra read-ahead or back.
     assert(mInput);
-    PluginObject::MinSize(mInput, iSize+1, 1, 0);
+    ComponentBase::MinSize(mInput, iSize+1, 1, 0);
 }
 
 int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)

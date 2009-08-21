@@ -9,7 +9,7 @@
 #define MEAN_H
 
 #include <vector>
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -24,18 +24,19 @@ namespace Tracter
      * Calculates the mean (over time) of the input stream, typically
      * for Cepstral Mean Normalisation.
      */
-    class Mean : public UnaryPlugin<float, float>
+    class Mean : public CachedComponent<float>
     {
     public:
-        Mean(Plugin<float>* iInput, const char* iObjectName = "Mean");
+        Mean(Component<float>* iInput, const char* iObjectName = "Mean");
         virtual ~Mean() throw() {}
         virtual void Reset(bool iPropagate);
         void SetTimeConstant(float iSeconds);
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         bool mValid;
         bool mPersistent;
         MeanType mMeanType;

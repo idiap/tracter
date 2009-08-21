@@ -8,26 +8,25 @@
 #ifndef DIVIDE_H
 #define DIVIDE_H
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
      * Divides a first input by a second.
      */
-    class Divide : public CachedPlugin<float>
+    class Divide : public CachedComponent<float>
     {
     public:
-        Divide(Plugin<float>* iInput1, Plugin<float>* iInput2,
+        Divide(Component<float>* iInput1, Component<float>* iInput2,
                const char* iObjectName = "Divide");
 
     protected:
-        PluginObject* GetInput(int iInput);
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
-        Plugin<float>* mInput1;
-        Plugin<float>* mInput2;
+        Component<float>* mInput1;
+        Component<float>* mInput2;
     };
 }
 

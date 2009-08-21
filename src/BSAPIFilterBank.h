@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 #include "bsapi.h"
 
 namespace Tracter
@@ -22,16 +22,15 @@ namespace Tracter
     /**
      * Calculate filter-bank features
      */
-  class BSAPIFilterBank : public CachedPlugin<float>
+  class BSAPIFilterBank : public CachedComponent<float>
     {
     public:
-        BSAPIFilterBank(Plugin<float>* iInput, const char* iObjectName = "BSAPIFilterBank");
-	BSAPIFilterBank(Plugin<float>* iInput, Plugin<float>* iInputWF, const char* iObjectName = "BSAPIFilterBank");
+        BSAPIFilterBank(Component<float>* iInput, const char* iObjectName = "BSAPIFilterBank");
+	BSAPIFilterBank(Component<float>* iInput, Component<float>* iInputWF, const char* iObjectName = "BSAPIFilterBank");
         virtual ~BSAPIFilterBank() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
-	PluginObject* GetInput(int iInput);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
 	SMelBanksI *mpMelBanks;
@@ -45,8 +44,8 @@ namespace Tracter
 
 	void InitFrontEnd(void);
 	void InitOutBuffer(void);
-	Plugin<float>* mInputWF; 
-	Plugin<float>* mInput; 
+	Component<float>* mInputWF; 
+	Component<float>* mInput; 
 
 	class STarget : public SFeatureExtractionCallbackI
         {  

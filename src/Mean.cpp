@@ -6,15 +6,17 @@
  */
 
 #include <cstring>
+#include <cstdio>
 
 #include "Mean.h"
 
-Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = iInput->GetArraySize();
-    assert(mArraySize >= 0);
+    mInput = iInput;
+
+    mFrame.size = iInput->Frame().size;
+    assert(mFrame.size >= 0);
 
     mMeanType = MEAN_ADAPTIVE;
 
@@ -32,18 +34,18 @@ Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
     {
     case MEAN_STATIC:
         // Set the input buffer to store everything
-        PluginObject::MinSize(mInput, -1);
+        Connect(mInput, ReadRange::INFINITE);
         mValid = false;
         break;
 
     case MEAN_ADAPTIVE:
-        PluginObject::MinSize(mInput, 1);
+        Connect(mInput, 1);
         mValid = false;
         break;
 
     case MEAN_FIXED:
         // In fact, the input will never be read
-        PluginObject::MinSize(mInput, 1);
+        Connect(mInput, 1);
         mValid = true;
         break;
 
@@ -56,7 +58,7 @@ Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
     if (priFile)
         Load(mPrior, "<MEAN>", priFile);
     else
-        mPrior.assign(mArraySize, 0.0f);
+        mPrior.assign(mFrame.size, 0.0f);
 
     // Initialise the mean to the prior
     mMean.assign(mPrior.begin(), mPrior.end());
@@ -68,7 +70,7 @@ Tracter::Mean::Mean(Plugin<float>* iInput, const char* iObjectName)
 void Tracter::Mean::SetTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
-    float n = iSeconds * mSampleFreq / mSamplePeriod;
+    float n = SecondsToFrames(iSeconds);
     mPole = (n-1.0f) / n;
     mElop = 1.0f - mPole;
 
@@ -88,10 +90,10 @@ void Tracter::Mean::Reset(bool iPropagate)
     }
 
     // Call the base class
-    UnaryPlugin<float, float>::Reset(iPropagate);
+    CachedComponent<float>::Reset(iPropagate);
 }
 
-bool Tracter::Mean::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Mean::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     switch (mMeanType)
@@ -121,9 +123,8 @@ bool Tracter::Mean::UnaryFetch(IndexType iIndex, int iOffset)
     // Copy to output, which is a bit of a waste if the output is only
     // size 1 and there's only one mean.  Maybe there's an
     // optimisation possible.
-    float* output = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
-        output[i] = mMean[i];
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] = mMean[i];
 
     return true;
 }
@@ -137,12 +138,12 @@ void Tracter::Mean::processAll()
     {
         assert(inputArea.Length() == 1);
         float* p = mInput->GetPointer(inputArea.offset);
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             mMean[i] += p[i];
         frame++;
     }
     if (frame > 0)
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             mMean[i] /= frame;
     mValid = true;
 
@@ -165,7 +166,7 @@ bool Tracter::Mean::adaptFrame(IndexType iIndex)
     if (mValid)
     {
         // Combine the new observation into the mean
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             mMean[i] = mPole * mMean[i] + mElop * p[i];
     }
     else
@@ -175,7 +176,7 @@ bool Tracter::Mean::adaptFrame(IndexType iIndex)
         // vector at the beginning causes problems in aurora2,
         // probably becuase the first state of the silence model gets
         // a much smaller variance.
-        for (int i=0; i<mArraySize; i++)
+        for (int i=0; i<mFrame.size; i++)
             mMean[i] = p[i] / 2.0f;
         mValid = true;
     }
@@ -203,14 +204,14 @@ void Tracter::Mean::Load(
                 if (fscanf(fp, "%d", &tmpInt) != 1)
                     throw Exception("Failed to read vector size");
     }
-    if (tmpInt != mArraySize)
-        throw Exception("Vector size %d != array size %d", tmpInt, mArraySize);
-    iVector.resize(mArraySize);
-    for (int i=0; i<mArraySize; i++)
+    if (tmpInt != mFrame.size)
+        throw Exception("Vector size %d != array size %d", tmpInt, mFrame.size);
+    iVector.resize(mFrame.size);
+    for (int i=0; i<mFrame.size; i++)
         if (fscanf(fp, "%f", &iVector[i]) != 1)
             throw Exception("failed to read element %d", i);
 #if 0
-    for (int i=0; i<mArraySize; i++)
+    for (int i=0; i<mFrame.size; i++)
         printf("%f\n", iVector[i]);
 #endif
 }

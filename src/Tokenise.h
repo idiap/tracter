@@ -9,14 +9,14 @@
 #define TOKENISE_H
 
 #include <string>
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
-    class Tokenise : public UnaryPlugin<std::string, char>
+    class Tokenise : public CachedComponent<std::string>
     {
     public:
-        Tokenise(Plugin<char>* iInput, const char* iObjectName = "Tokenise");
+        Tokenise(Component<char>* iInput, const char* iObjectName = "Tokenise");
         virtual ~Tokenise() throw() {}
 
     protected:
@@ -34,7 +34,8 @@ namespace Tracter
         int mIndex;
 
     private:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        Component<char>* mInput;
+        bool UnaryFetch(IndexType iIndex, std::string* oData);
         bool inStr(const char& iChar, const std::string& mStr)
         {
             size_t pos = mStr.find(iChar);

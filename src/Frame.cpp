@@ -7,42 +7,37 @@
 
 #include "Frame.h"
 
-Tracter::Frame::Frame(
-    Plugin<float>* iInput,
-    const char* iObjectName
-)
-    : UnaryPlugin<float, float>(iInput)
+Tracter::Frame::Frame(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mFrameSize = GetEnv("Size", 256);
-    mArraySize = mFrameSize;
-    mFramePeriod = GetEnv("Period", 80);
-    mSamplePeriod *= mFramePeriod;
-    assert(mFrameSize > 0);
-    assert(mFramePeriod > 0);
+    mFrame.size = GetEnv("Size", 256);
+    mFrame.period = GetEnv("Period", 80);
+    mInput = iInput;
 
     // Framers look ahead, not back
-    PluginObject::MinSize(mInput, mFrameSize, mFrameSize-1);
+    Connect(mInput, mFrame.size, mFrame.size-1);
+
+    assert(mFrame.size > 0);
+    assert(mFrame.period > 0);
 }
 
-bool Tracter::Frame::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Frame::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
 
     // Read the input frame
-    int readIndex = iIndex * mFramePeriod;
-    int got = mInput->Read(inputArea, readIndex, mFrameSize);
-    if (got < mFrameSize)
+    int readIndex = iIndex * mFrame.period;
+    int got = mInput->Read(inputArea, readIndex, mFrame.size);
+    if (got < mFrame.size)
         return false;
 
     // Copy to output
     float* ip = mInput->GetPointer();
-    float* op = GetPointer(iOffset);
     for (int i=0; i<inputArea.len[0]; i++)
-        op[i] = ip[inputArea.offset+i];
+        oData[i] = ip[inputArea.offset+i];
     for (int i=0; i<inputArea.len[1]; i++)
-        op[inputArea.len[0]+i] = ip[i];
+        oData[inputArea.len[0]+i] = ip[i];
 
     // Done
     return true;

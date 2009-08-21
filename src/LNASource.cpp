@@ -14,10 +14,10 @@
 Tracter::LNASource::LNASource(const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = GetEnv("ArraySize", 27);
-    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
-    mSamplePeriod = GetEnv("SamplePeriod", 80);
-    assert(mArraySize > 0);
+    mFrame.size = GetEnv("FrameSize", 27);
+    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.period = GetEnv("FramePeriod", 80);
+    assert(mFrame.size > 0);
 
     mMapData = 0;
     mLNA16 = GetEnv("LNA16", 0);
@@ -37,7 +37,7 @@ void Tracter::LNASource::Open(
 {
     assert(iFileName);
     mMapData = mMap.Map(iFileName);
-    mMapSize = mMap.GetSize() / (mArraySize+1);
+    mMapSize = mMap.Size() / (mFrame.size+1);
     if (mLNA16)
         mMapSize /= 2;
     Verbose(1, "LNA Size %d\n", mMapSize);
@@ -47,35 +47,34 @@ void Tracter::LNASource::Open(
  * The fetch call is necessary to convert from integer to floating
  * point form.
  */
-bool Tracter::LNASource::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::LNASource::UnaryFetch(IndexType iIndex, float* oData)
 {
     if (iIndex >= mMapSize)
         return false;
-    float* cache = GetPointer(iOffset);
     float sum = 0.0;
     int eos;
     if (mLNA16)
     {
         /* 16 bit specific code */
         unsigned short* data = (unsigned short*)mMapData;
-        data += (mArraySize+1) * iIndex;
+        data += (mFrame.size+1) * iIndex;
         eos = (int)*data++;
-        for (int j=0; j<mArraySize; j++)
+        for (int j=0; j<mFrame.size; j++)
         {
-            cache[j] = -((float)data[j] + 0.5f) / 5120.0f;
-            sum += expf(cache[j]);
+            oData[j] = -((float)data[j] + 0.5f) / 5120.0f;
+            sum += expf(oData[j]);
         }
     }
     else
     {
         /* 8 bit specific code */
         unsigned char* data = (unsigned char*)mMapData;
-        data += (mArraySize+1) * iIndex;
+        data += (mFrame.size+1) * iIndex;
         eos = (int)*data++;
-        for (int j=0; j<mArraySize; j++)
+        for (int j=0; j<mFrame.size; j++)
         {
-            cache[j] = -((float)data[j] + 0.5f) / 24.0f;
-            sum += expf(cache[j]);
+            oData[j] = -((float)data[j] + 0.5f) / 24.0f;
+            sum += expf(oData[j]);
         }
     }
 

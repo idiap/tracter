@@ -12,9 +12,9 @@
 Tracter::HTKSource::HTKSource(const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mArraySize = GetEnv("ArraySize", 39);
-    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
-    mSamplePeriod = GetEnv("SamplePeriod", 80);
+    mFrame.size = GetEnv("FrameSize", 39);
+    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.period = GetEnv("FramePeriod", 80);
 
     mMapData = 0;
     mNSamples = 0;
@@ -75,7 +75,7 @@ void Tracter::HTKSource::Open(
     data += 2;
 
     // This comparison is a little tricky as it's floating point
-    float objPeriod = mSamplePeriod / mSampleFreq;
+    float objPeriod = mFrame.period / mFrameRate;
     float htkPeriod = sampPeriod * 1e-7;
     float subPeriod = htkPeriod - objPeriod;
     if ( (subPeriod >  1e-9) ||
@@ -84,12 +84,12 @@ void Tracter::HTKSource::Open(
                         " sample period %f not equal to expected period %f",
                         objPeriod, htkPeriod);
 
-    if (sampSize/4 != mArraySize)
+    if (sampSize/4 != mFrame.size)
         throw Exception("HTKSource:"
                         " sample size %d/4 not equal to expected size %d\n",
-                        sampSize, mArraySize);
+                        sampSize, mFrame.size);
 
-    if ((size_t)nSamples * sampSize + 12 != mMap.GetSize())
+    if (nSamples * sampSize + 12 != mMap.Size())
         throw Exception("HTKSource:"
                         " data size in header not equal to size in file\n");
 
@@ -124,10 +124,10 @@ int Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         if (i == iOutputArea.len[0])
             offset = 0;
         float* cache = GetPointer(offset);
-        for (int j=0; j<mArraySize; j++)
-            cache[j] = mMapData[iIndex*mArraySize + j];
+        for (int j=0; j<mFrame.size; j++)
+            cache[j] = mMapData[iIndex*mFrame.size + j];
         if (mByteOrder.WrongEndian())
-            mByteOrder.Swap(cache, 4, mArraySize);
+            mByteOrder.Swap(cache, 4, mFrame.size);
         iIndex++;
         offset++;
     }

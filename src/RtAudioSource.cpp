@@ -12,15 +12,16 @@
 Tracter::RtAudioSource::RtAudioSource(const char* iObjectName)
 {
     mObjectName = iObjectName;
-    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
-    mSamplePeriod = 1;
+    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.period = 1;
+    mFrame.size = 1;
 
     float seconds = GetEnv("BufferTime", 1.0f);
-    int samples = SecondsToSamples(seconds);
+    int samples = SecondsToFrames(seconds);
     MinSize(this, samples);
     Verbose(1, "buffer set to %d samples\n", samples);
 
-    /* Tell the PluginObject that we will take care of the pointers */
+    /* Tell the ComponentBase that we will take care of the pointers */
     mAsync = true;
 }
 
@@ -46,17 +47,19 @@ int Tracter::RtAudioSource::Callback(
     assert(mSize >= (int)iNFrames);
     assert(!mIndefinite);
 
+    CachePointer& head = mCluster[0].head;
+    CachePointer& tail = mCluster[0].tail;
     int xrun = 0;
-    int len0 = mSize - mHead.offset;
+    int len0 = mSize - head.offset;
     len0 = std::min((int)iNFrames, len0);
     float* input = (float*)iInputBuffer;
-    float* cache = GetPointer(mHead.offset);
+    float* cache = GetPointer(head.offset);
     for (int i=0; i<len0; i++)
         cache[i] = input[i];
-    if ((mTail.offset >= mHead.offset) &&
-        (mHead.index != mTail.index) &&
-        (mTail.offset < mHead.offset + len0))
-        xrun = mHead.offset + len0 - mTail.offset;
+    if ((tail.offset >= head.offset) &&
+        (head.index != tail.index) &&
+        (tail.offset < head.offset + len0))
+        xrun = head.offset + len0 - tail.offset;
 
     int len1 = iNFrames - len0;
     cache = GetPointer(0);
@@ -65,16 +68,16 @@ int Tracter::RtAudioSource::Callback(
         cache[i] = input[i];
     if (xrun > 0)
         xrun += len1;
-    else if ((mTail.offset < len1))
-        xrun = len1 - mTail.offset;
+    else if ((tail.offset < len1))
+        xrun = len1 - tail.offset;
 
     //printf("s = %d h = %d,%ld t = %d,%ld  len0 = %d len1 = %d xrun = %d\n",
-    //       mSize, mHead.offset, mHead.index, mTail.offset, mTail.index,
+    //       mSize, head.offset, head.index, tail.offset, tail.index,
     //       len0, len1, xrun);
 
-    MovePointer(mHead, iNFrames);
+    MovePointer(head, iNFrames);
     if (xrun > 0)
-        MovePointer(mTail, xrun);
+        MovePointer(tail, xrun);
 
     return 0;
 }
@@ -111,7 +114,7 @@ void Tracter::RtAudioSource::Open(
     sp.deviceId = device;
     unsigned int bufSize = INT_MAX;
     mRtAudio.openStream(
-        0, &sp, RTAUDIO_FLOAT32, mSampleFreq, &bufSize, staticCallback, this
+        0, &sp, RTAUDIO_FLOAT32, mFrameRate, &bufSize, staticCallback, this
     );
 
     /* Start the stream */
@@ -128,7 +131,8 @@ int Tracter::RtAudioSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     timespec req;
     req.tv_sec = 0;
     req.tv_nsec = 100000;
-    while (mHead.index < iIndex + iOutputArea.Length())
+    CachePointer& head = mCluster[0].head;
+    while (head.index < iIndex + iOutputArea.Length())
     {
         struct timespec rem;
         nanosleep(&req, &rem);

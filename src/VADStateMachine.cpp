@@ -23,7 +23,7 @@ void Tracter::VADStateMachine::Reset(bool iPropagate)
     mState = SILENCE_CONFIRMED;
     //printf("RESET -> SIL_CONF\n");
     mTime = 0;
-    CachedPlugin<VADState>::Reset(iPropagate);
+    CachedComponent<VADState>::Reset(iPropagate);
 }
 
 void Tracter::VADStateMachine::ConfirmSilence()

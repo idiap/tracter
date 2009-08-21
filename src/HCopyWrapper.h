@@ -17,7 +17,7 @@
 #ifndef HCOPYWRAPPER_H_
 #define HCOPYWRAPPER_H_
 
-#include "UnaryPlugin.h"
+#include "UnaryComponent.h"
 
 /* As few headers as possible to allow the class to compile */
 #include "HShell.h"
@@ -28,7 +28,7 @@
 
 /*
  * Basically, HCopy reads type short.  However, tracter is geared
- * around float.  This causes the plugin to convert from float to
+ * around float.  This causes the component to convert from float to
  * short.
  */
 #define HCOPY_FLOAT
@@ -41,14 +41,14 @@ typedef short hcopy_t;
 namespace Tracter
 {
     class HCopyWrapper
-        : public UnaryPlugin<float, hcopy_t>
+        : public UnaryComponent<float, hcopy_t>
     {
     public:
         HCopyWrapper(
-            Plugin<hcopy_t>* iInput, const char* iObjectName = "HCopyWrapper"
+            Component<hcopy_t>* iInput, const char* iObjectName = "HCopyWrapper"
         );
         ~HCopyWrapper() throw();
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
         void setmArraySize(int featureDimension);
         Ptr fOpen__(char *fn, BufferInfo *info);
         int fNumSamp__(Ptr bInfo);

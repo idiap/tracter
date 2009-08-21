@@ -10,23 +10,24 @@
 
 #include <vector>
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
     /**
-     * Plugin to calculate delta features
+     * Component to calculate delta features
      */
-    class Delta : public UnaryPlugin<float, float>
+    class Delta : public CachedComponent<float>
     {
     public:
-        Delta(Plugin<float>* iInput, const char* iObjectName = "Delta");
+        Delta(Component<float>* iInput, const char* iObjectName = "Delta");
         virtual ~Delta() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
+        Component<float>* mInput;
         int mTheta;
         int mWindow;
         std::vector<float*> mFeature;

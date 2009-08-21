@@ -1,14 +1,46 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{5}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
+\bibitem[Lee and Messerschmitt(1987)]{Lee1987}
+Edward~A. Lee and David~G. Messerschmitt.
+\newblock Synchronous data flow.
+\newblock \emph{Proceedings of the IEEE}, 75\penalty0 (9):\penalty0 1235--1245,
+  September 1987.
+\newblock URL
+  \url{http://ptolemy.eecs.berkeley.edu/publications/papers/87/synchdataflow/}.
+
 \bibitem[Lee and Parks(1995)]{Lee1995}
 Edward~A. Lee and Thomas~M. Parks.
 \newblock Dataflow process networks.
 \newblock \emph{Proceedings of the IEEE}, 83\penalty0 (5):\penalty0 773--799,
   May 1995.
+
+\bibitem[Manolescu(1997)]{Manolescu1997}
+Dragos-Anton Manolescu.
+\newblock A data flow pattern language.
+\newblock In \emph{The 4th Pattern Languages of Programming Conference},
+  September 1997.
+\newblock URL
+  \url{http://st-www.cs.uiuc.edu/~hanmer/PLoP-97/Proceedings/manolescu.pdf}.
+\newblock Washington University Tech. Report (wucs-97-34).
+
+\bibitem[Young(2007)]{Young2007}
+Steve Young.
+\newblock \emph{{ATK}: An Application Toolkit for {HTK}. Version 1.6}.
+\newblock Machine Intelligence Laboratory, Cambridge University Engineering
+  Dept., Trumpington Street, Cambridge, CB2~1PZ, England, June 2007.
+\newblock URL \url{http://mi.eng.cam.ac.uk/research/dialogue/ATK\_Manual.pdf}.
+
+\bibitem[Zhao(2003)]{Zhao2003}
+Yang Zhao.
+\newblock A model of computation with push and pull processing.
+\newblock Technical Memorandum UCB/ERL M03/51, University of California,
+  Berkeley, CA 94720, December 2003.
+\newblock URL
+  \url{http://ptolemy.eecs.berkeley.edu/papers/03/PushPullProcessing/}.
 
 \end{thebibliography}

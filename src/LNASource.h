@@ -8,7 +8,7 @@
 #ifndef LNASOURCE_H
 #define LNASOURCE_H
 
-#include "CachedPlugin.h"
+#include "CachedComponent.h"
 #include "Source.h"
 #include "MMap.h"
 
@@ -17,7 +17,7 @@ namespace Tracter
     /**
      * Uses an LNA file as a source
      */
-    class LNASource : public Source< CachedPlugin<float> >
+    class LNASource : public Source< CachedComponent<float> >
     {
     public:
         LNASource(const char* iObjectName = "LNASource");
@@ -33,7 +33,7 @@ namespace Tracter
         void* mMapData;
         int mMapSize;
         bool mLNA16;
-        virtual bool UnaryFetch(IndexType iIndex, int iOffset);
+        virtual bool UnaryFetch(IndexType iIndex, float* oData);
     };
 }
 

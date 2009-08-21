@@ -8,18 +8,21 @@
 #ifndef ENERGY_H
 #define ENERGY_H
 
-#include "UnaryPlugin.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
-    class Energy : public UnaryPlugin<float, float>
+    class Energy : public CachedComponent<float>
     {
     public:
-        Energy(Plugin<float>* iInput,
+        Energy(Component<float>* iInput,
                const char* iObjectName = "Energy");
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
+
+    private:
+        Component<float>* mInput;
     };
 }
 

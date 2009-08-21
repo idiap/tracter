@@ -10,15 +10,16 @@
 #include "Periodogram.h"
 
 Tracter::Periodogram::Periodogram(
-    Plugin<float>* iInput,
+    Component<float>* iInput,
     const char* iObjectName
 )
-    : UnaryPlugin<float, float>(iInput)
 {
     mObjectName = iObjectName;
-    int frameSize = mInput->GetArraySize();
-    mArraySize = frameSize/2+1;
-    MinSize(mInput, 1);
+    mInput = iInput;
+    Connect(mInput);
+
+    int frameSize = mInput->Frame().size;
+    mFrame.size = frameSize/2+1;
 
     mRealData = 0;
     mComplexData = 0;
@@ -36,7 +37,7 @@ Tracter::Periodogram::~Periodogram() throw ()
     mWindow = 0;
 }
 
-bool Tracter::Periodogram::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::Periodogram::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -50,16 +51,15 @@ bool Tracter::Periodogram::UnaryFetch(IndexType iIndex, int iOffset)
         mWindow->Apply(p, mRealData);
     else
         // Raw copy
-        for (int i=0; i<mInput->GetArraySize(); i++)
+        for (int i=0; i<mInput->Frame().size; i++)
             mRealData[i] = p[i];
 
     // Do the DFT
     mFourier.Transform();
 
     // Compute periodogram
-    float* cache = GetPointer(iOffset);
-    for (int i=0; i<mArraySize; i++)
-        cache[i] =
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] =
             mComplexData[i].real() * mComplexData[i].real() +
             mComplexData[i].imag() * mComplexData[i].imag();
 
