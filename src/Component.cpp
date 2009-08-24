@@ -264,8 +264,8 @@ void* Tracter::ComponentBase::Initialise(
             assert(mInput[i]);
             int readAhead = (mIndefinite || (iReadAhead < 0))
                 ? -1
-                : (mMaxReadAhead+iReadAhead) * mFrame.period;
-            int readBack  = (mMaxReadBehind+iReadBehind) * mFrame.period;
+                : (int)(mFrame.period * (mMaxReadAhead+iReadAhead));
+            int readBack  = (int)(mFrame.period * (mMaxReadBehind+iReadBehind));
             void* aux = mInput[i]->Initialise(this, readBack, readAhead);
             if (i == 0)
                 mAuxiliary = aux;
