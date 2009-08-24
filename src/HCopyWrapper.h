@@ -1,8 +1,7 @@
 /*
  * Copyright 2008 by The University of Sheffield
  *
- * Copyright 2008 by Idiap Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2008 by Idiap Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -17,7 +16,7 @@
 #ifndef HCOPYWRAPPER_H_
 #define HCOPYWRAPPER_H_
 
-#include "UnaryComponent.h"
+#include "CachedComponent.h"
 
 /* As few headers as possible to allow the class to compile */
 #include "HShell.h"
@@ -40,8 +39,7 @@ typedef short hcopy_t;
 
 namespace Tracter
 {
-    class HCopyWrapper
-        : public UnaryComponent<float, hcopy_t>
+    class HCopyWrapper : public CachedComponent<float>
     {
     public:
         HCopyWrapper(
@@ -57,6 +55,7 @@ namespace Tracter
     protected:
 
     private:
+        Component<hcopy_t>* mInput;
         long lastSampleCopied;  ///< A largest index of samples copied to HTK
         long lastFrameCopied;   ///< A largest index of frames copied
                                 ///  into tracter

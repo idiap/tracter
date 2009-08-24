@@ -1,8 +1,7 @@
 /*
  * Copyright 2008 by The University of Sheffield
  *
- * Copyright 2008 by Idiap Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2008 by Idiap Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -13,7 +12,7 @@
  * This version reads files using HTKLib. The resulting features are
  * specified by the HTK config file.
  *
- * Note that the setting of mArraySize must be set correctly. There is
+ * Note that the setting of mFrame.size must be set correctly. There is
  * no access to any model files here so there is no easy way of
  * getting it automatically.
  *
@@ -52,9 +51,9 @@ Tracter::HTKLibSource::HTKLibSource(const char* iObjectName)
      * First sort out tracter specific/non-HTK stuff
      ***********************************************/
     mObjectName = iObjectName;
-    mArraySize = GetEnv("ArraySize", 39);
-    mSampleFreq = GetEnv("SampleFreq", 8000.0f);
-    mSamplePeriod = GetEnv("SamplePeriod", 80);
+    mFrame.size = GetEnv("FrameSize", 39);
+    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.period = GetEnv("FramePeriod", 80);
 
     /***********************************************
      * Now sort out the HTK specific stuff
@@ -87,8 +86,9 @@ void Tracter::HTKLibSource::Open(
         HError(3250,(char*)"ProcessFile: OpenBuffer failed in Tracter::HTKLibSource::Open");   
 
     /*
-     * Make the Observation structure for storing feature vectors. 
-     * We assume that mArraySize is correct because we have no easy access to a model set to get the correct number automatically.
+     * Make the Observation structure for storing feature vectors.  We
+     * assume that mFrame.size is correct because we have no easy
+     * access to a model set to get the correct number automatically.
      */
     BufferInfo pbinfo;
     GetBufferInfo(pbuf,&pbinfo);
@@ -97,7 +97,7 @@ void Tracter::HTKLibSource::Open(
     Boolean saveAsVQ = FALSE;
     Boolean eSep;
     ZeroStreamWidths(swidth0,swidth);
-    SetStreamWidths(pbinfo.tgtPK,mArraySize,swidth,&eSep);
+    SetStreamWidths(pbinfo.tgtPK,mFrame.size,swidth,&eSep);
     data=MakeObservation(&iStack,swidth,pbinfo.tgtPK,saveAsVQ, eSep);
 
     StartBuffer(pbuf);
@@ -113,8 +113,9 @@ Tracter::HTKLibSource::~HTKLibSource() throw() {
 }
 
 /**
- * The Fetch call: EVIL HACK: We can ignore iIndex because HTK can parse it's own extended filenames to 
- * seek to various positions in the file
+ * The Fetch call: EVIL HACK: We can ignore iIndex because HTK can
+ * parse it's own extended filenames to seek to various positions in
+ * the file
  */
 int Tracter::HTKLibSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
@@ -140,7 +141,7 @@ int Tracter::HTKLibSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
              /*
                 printf("HTKLibSource:  ");
                 cache = GetPointer(offset);
-                for (int i=0; i<mArraySize; i++)
+                for (int i=0; i<mFrame.size; i++)
                 printf("%.3f ",cache[i]);
                 printf("\n");
               */

@@ -65,12 +65,13 @@ Tracter::HCopyWrapper::HCopyWrapper(
     Component<hcopy_t>* iInput,
     const char* iObjectName
 )
-    : UnaryComponent<float, hcopy_t>(iInput)
 {
     /***********************************************
      * First sort out tracter specific/non-HTK stuff
      ***********************************************/
     mObjectName = iObjectName;
+    mInput = iInput;
+    Connect(mInput, 1);
     lastSampleCopied = -1;
     lastFrameCopied = -1;
 
@@ -204,11 +205,10 @@ bool Tracter::HCopyWrapper::UnaryFetch(IndexType iIndex, float* oData)
     /*
      * Copy the output of ReadAsBufer into the output buffer
      */
-    float* cache = GetPointer(iOffset);
     for (int stream = 1 ; stream <= data.swidth[0] ; stream++)
     {
-        memcpy(cache,data.fv[stream]+1,data.swidth[stream]*sizeof(float));
-        cache+=data.swidth[stream];
+        memcpy(oData,data.fv[stream]+1,data.swidth[stream]*sizeof(float));
+        oData+=data.swidth[stream];
     }
     lastFrameCopied++;
     /*
@@ -216,9 +216,9 @@ bool Tracter::HCopyWrapper::UnaryFetch(IndexType iIndex, float* oData)
      */
     /*
       printf("HCopyWrapper %d:  ",lastFrameCopied+1);
-      cache = GetPointer(iOffset);
-      for (int i=0; i<mArraySize; i++)
-      printf("%.3f ",cache[i]);
+      oData = GetPointer(iOffset);
+      for (int i=0; i<mFrame.size; i++)
+      printf("%.3f ",oData[i]);
       printf("\n");
     */
     /*
@@ -256,8 +256,8 @@ Ptr fOpen(Ptr thisHC,char *fn,BufferInfo *bInfo){
 Ptr Tracter::HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
 {
     // At this point we have enough information to set up the component
-    mArraySize=bInfo->tgtVecSize;
-    mSamplePeriod=bInfo->frRate;
+    mFrame.size=bInfo->tgtVecSize;
+    mFrame.period=bInfo->frRate;
     MinSize(mInput, bInfo->frSize);
 
     Verbose(1, "vec size %d, frame size %d, frame rate %d\n",
@@ -272,7 +272,7 @@ Ptr Tracter::HCopyWrapper::fOpen__(char *fn,BufferInfo *bInfo)
     Boolean saveAsVQ = FALSE;
     Boolean eSep;
     ZeroStreamWidths(swidth0,swidth);
-    SetStreamWidths(bInfo->tgtPK,mArraySize,swidth,&eSep);
+    SetStreamWidths(bInfo->tgtPK,mFrame.size,swidth,&eSep);
     data = MakeObservation(&iStack, swidth, bInfo->tgtPK, saveAsVQ, eSep);
     return bInfo;
 }
@@ -343,7 +343,7 @@ int Tracter::HCopyWrapper::fNumSamp__(Ptr bInfo)
      * "CalculateTheEntireUpstreamChain()"
      */
     CacheArea inputArea;
-    int nRead = mInput->Read(inputArea, lastSampleCopied+1, mSamplePeriod);
+    int nRead = mInput->Read(inputArea, lastSampleCopied+1, mFrame.period);
     int i = -1 - nRead;
     if (Tracter::sVerbose > 2)
         printf("%s::fNumSamp: read %d\n", mObjectName, nRead);
