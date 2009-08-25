@@ -14,6 +14,9 @@ Tracter::MLPVAD::MLPVAD(Component<float>* iInput, const char* iObjectName)
     mObjectName = iObjectName;
     mInput = iInput;
 
+    // make an initial connection so the times can be calculated
+    Connect(mInput);
+
     mShowGuts = GetEnv("ShowGuts", 0);
 
     // Threshold
@@ -31,8 +34,9 @@ Tracter::MLPVAD::MLPVAD(Component<float>* iInput, const char* iObjectName)
     mConfirmSilenceTime = SecondsToFrames(confirmSilenceTime);
     mLookAhead = mConfirmSilenceTime;
 
+    // Update the minimum size set by Connect() now the times are known
     int max = std::max(mConfirmSpeechTime, mConfirmSilenceTime);
-    Connect(mInput, mLookAhead+1,  mLookAhead+max);
+    MinSize(mInput, mLookAhead+1,  mLookAhead+max);
     mIndex = -1;
 
     Verbose(1, "%s: LookAhead=%d ConfirmSpeech=%d ConfirmSilence=%d\n",

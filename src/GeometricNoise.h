@@ -1,6 +1,5 @@
 /*
- * Copyright 2008 by IDIAP Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2008 by IDIAP Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -41,9 +40,9 @@ namespace Tracter
          */
         virtual void Accumulate(float* iInput)
         {
-            assert(mArraySize);
+            assert(mFrame.size);
             assert(iInput);
-            for (int i=0; i<mArraySize; i++)
+            for (int i=0; i<mFrame.size; i++)
                 mAccumulator[i] += logf(iInput[i]);
             mNAccumulated++;
         }
@@ -53,9 +52,9 @@ namespace Tracter
          */
         virtual void Calculate(float* oOutput)
         {
-            assert(mArraySize);
+            assert(mFrame.size);
             assert(oOutput);
-            for (int i=0; i<mArraySize; i++)
+            for (int i=0; i<mFrame.size; i++)
                 oOutput[i] = expf(mAccumulator[i] / mNAccumulated);
         }
     };

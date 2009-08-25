@@ -67,7 +67,8 @@ namespace Tracter
 
         T* GetPointer(int iOffset = 0)
         {
-            return &mCache[iOffset];
+            assert(Component<T>::mFrame.size);
+            return &mCache[iOffset * Component<T>::mFrame.size];
         }
 
         virtual void Reset(bool iPropagate)

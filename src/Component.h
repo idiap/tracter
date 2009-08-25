@@ -172,7 +172,8 @@ namespace Tracter
         /** Exact frame rate as a source rate plus divisor */
         virtual ExactRateType ExactFrameRate() const
         {
-            assert(mInput.size() > 0);
+            if (mInput.size() <= 0)
+                throw Exception("%s: No inputs", mObjectName);
             assert(mInput[0]);
             ExactRateType r = mInput[0]->ExactFrameRate();
             r.period *= mInput[0]->Frame().period;

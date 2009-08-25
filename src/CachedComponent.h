@@ -32,11 +32,11 @@ namespace Tracter
          * Get a pointer to the cache
          * returns a reference.
          */
-        T* GetPointer(int iIndex = 0)
+        T* GetPointer(int iOffset = 0)
         {
             return &mCache[Component<T>::mFrame.size
-                           ? iIndex * Component<T>::mFrame.size
-                           : iIndex];
+                           ? iOffset * Component<T>::mFrame.size
+                           : iOffset];
         }
 
     protected:
