@@ -166,7 +166,8 @@ void Tracter::ComponentBase::MinSize(
     else
     {
         // A fixed size cache
-        assert(iMinSize > 0);
+        if (iMinSize <= 0)
+            throw Exception("%s: iMinSize = %d", mObjectName, iMinSize);
         if (iMinSize > mMinSize)
         {
             mMinSize = iMinSize;

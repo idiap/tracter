@@ -37,13 +37,16 @@ Tracter::Resample::Resample(
     mInput = iInput;
 
     double targetRate = GetEnv("TargetRate", 16000);
+    mFrame.period = mInput->FrameRate() / targetRate;
     mResampleData = new ResampleData;
     ResampleData& r = *mResampleData;
     r.ratio = targetRate / mInput->FrameRate();
     r.handle = resample_open(1, r.ratio, r.ratio);
     assert(r.handle);
 
-    Connect(mInput, 1.0f / r.ratio);
+    // The size is somewhat minimum; it is likely to be increased later
+    Connect(mInput, (int)(mFrame.period+0.5f));
+    Verbose(1, "period %f ratio %f\n", mFrame.period, r.ratio);
 }
 
 /**
@@ -69,7 +72,7 @@ void Tracter::Resample::MinSize(int iSize, int iReadBehind, int iReadAhead)
     // Set the input buffer big enough to service largest output requests
     assert(mInput);
     ResampleData& r = *mResampleData;
-    int minSize = (int)((double)iSize / r.ratio + 0.5);
+    int minSize = (int)(mFrame.period * iSize + 0.5f);
     ComponentBase::MinSize(mInput, minSize, 0, 0);
 
     /* It's too complicated without an intermediate array */
