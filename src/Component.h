@@ -47,10 +47,6 @@ namespace Tracter
     };
 
     typedef long IndexType;      ///< Integer type of a frame index
-    typedef long long TimeType;  ///< 64 bit type like ASIOTimeStamp
-    const TimeType ONEe3 = 1000;
-    const TimeType ONEe6 = 1000000;
-    const TimeType ONEe9 = 1000000000;
 
     /** Index / Offset pair for internal cache management */
     struct CachePointer
@@ -94,13 +90,6 @@ namespace Tracter
         }
     };
 
-    /** Frame rate type */
-    struct ExactRateType
-    {
-        float rate;   ///< Original rate at the source
-        float period; ///< Accumulated period
-    };
-
     /** Range that a Read() can access */
     class ReadRange
     {
@@ -131,6 +120,19 @@ namespace Tracter
         int mReadAhead;
     };
 
+    /* Time type */
+    typedef long long TimeType;  ///< 64 bit type like ASIOTimeStamp
+    const TimeType ONEe3 = 1000;
+    const TimeType ONEe6 = 1000000;
+    const TimeType ONEe9 = 1000000000;
+
+    /** Frame rate type */
+    struct ExactRateType
+    {
+        float rate;   ///< Original rate at the source
+        float period; ///< Accumulated period
+    };
+
     /**
      * The type independent root of all components.
      *
@@ -146,6 +148,15 @@ namespace Tracter
         int Read(CacheArea& oArea, IndexType iIndex, int iLength = 1);
         virtual void Reset(bool iPropagate = true);
         void Delete();
+
+        /** Access the Frame structure */
+        const FrameInfo& Frame() const
+        {
+            return mFrame;
+        };
+
+        /** Call a recursive chain that outputs a dot graph */
+        void Dot();
 
         /**
          * Frame rate as a float
@@ -203,15 +214,6 @@ namespace Tracter
             return (IndexType)(iTime * FrameRate() / ONEe9);
         }
 
-        /** Access the Frame structure */
-        const FrameInfo& Frame() const
-        {
-            return mFrame;
-        };
-
-        /** Call a recursive chain that outputs a dot graph */
-        void Dot();
-
     protected:
 
         /**
@@ -250,15 +252,6 @@ namespace Tracter
             IndexType iIndex, int iLength, int iOffset
         );
 
-        /** Does exactly what it says on the tin */
-        int SecondsToFrames(float iSeconds) const
-        {
-            float samples = iSeconds * FrameRate();
-            return (int)(samples + 0.5);
-        }
-
-        TimeType TimeOffset(IndexType iIndex) const;
-
         /*
          * float mSampleFreq -> mFrame.rate -> FrameRate()
          * int mSamplePeriod -> mFrame.period
@@ -289,6 +282,15 @@ namespace Tracter
 
         virtual void DotHook() {}
         void DotRecord(int iVerbose, const char* iString, ...);
+
+        /** Does exactly what it says on the tin */
+        int SecondsToFrames(float iSeconds) const
+        {
+            float samples = iSeconds * FrameRate();
+            return (int)(samples + 0.5);
+        }
+
+        TimeType TimeOffset(IndexType iIndex) const;
 
     private:
         int FetchWrapper(IndexType iIndex, CacheArea& iOutputArea);

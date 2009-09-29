@@ -28,10 +28,14 @@ namespace Tracter
         /**
          * Intercept TimeStamp
          *
-         * We need to adjust for the segmenting effect
+         * We need to adjust for the segmenting effect.  Adding the
+         * trigger time will cause ComponentBase::TimeStamp() to add
+         * on an offset.
          */
-        TimeType TimeStamp(IndexType iIndex)
+        TimeType TimeStamp(IndexType iIndex) const
         {
+            Verbose(2, "TimeStamp: index %ld  trig %ld\n",
+                    iIndex, mSpeechTriggered);
             return ComponentBase::TimeStamp(
                 iIndex + std::max<IndexType>(mSpeechTriggered, (IndexType)0)
             );

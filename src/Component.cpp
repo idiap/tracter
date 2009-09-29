@@ -594,43 +594,6 @@ int Tracter::ComponentBase::ContiguousFetch(
 
 
 /**
- * Get an absolute time stamp for the given index.
- *
- * A time stamp is a 64 bit signed integer counting nanoseconds.  This
- * is based on the type used in ASIO.
- *
- * This call is recursive; it calls itself on the first input until a
- * source returns a time for index 0.  It then calls TimeOffset() to
- * get a time for the given frame and adds them.
- */
-Tracter::TimeType Tracter::ComponentBase::TimeStamp(IndexType iIndex) const
-{
-    if (mInput.size() == 0)
-        throw Exception("TimeStamp: No inputs."
-                        "  %s probably missing TimeStamp()", mObjectName);
-    TimeType time = mInput[0]->TimeStamp();
-    if (iIndex)
-        time += TimeOffset(iIndex);
-    return time;
-}
-
-/**
- * Calculate a relative time offset
- *
- * Given a frame index, uses the frame period and frequency to return
- * the time of that index from the point of view of index 0 being time
- * 0.
- */
-Tracter::TimeType Tracter::ComponentBase::TimeOffset(IndexType iIndex) const
-{
-    // There is undoubtedly a right way to do this.  This may not be
-    // it.
-    TimeType t = (TimeType)((double)iIndex * mFrame.period * 1e9 / FrameRate());
-    return t;
-}
-
-
-/**
  * Generate a dot graph
  */
 void Tracter::ComponentBase::Dot()
@@ -688,4 +651,45 @@ void Tracter::ComponentBase::DotRecord(int iVerbose, const char* iString, ...)
     vprintf(iString, ap);
     va_end(ap);
     printf("\\l");
+}
+
+
+/**
+ * Get an absolute time stamp for the given index.
+ *
+ * A time stamp is a 64 bit signed integer counting nanoseconds.  This
+ * is based on the type used in ASIO.
+ *
+ * This call is recursive; it calls itself on the first input until a
+ * source returns a time for index 0.  It then calls TimeOffset() to
+ * get a time for the given frame and adds them.
+ */
+Tracter::TimeType Tracter::ComponentBase::TimeStamp(IndexType iIndex) const
+{
+    assert(iIndex >= 0);
+    if (mInput.size() == 0)
+        throw Exception("TimeStamp: No inputs."
+                        "  %s probably missing TimeStamp()", mObjectName);
+    TimeType time = mInput[0]->TimeStamp();
+    if (iIndex)
+        time += TimeOffset(iIndex);
+    Verbose(2, "TimeStamp: index %ld time %ld\n", iIndex, time);
+    return time;
+}
+
+/**
+ * Calculate a relative time offset
+ *
+ * Given a frame index, uses the frame period and frequency to return
+ * the time of that index from the point of view of index 0 being time
+ * 0.
+ */
+Tracter::TimeType Tracter::ComponentBase::TimeOffset(IndexType iIndex) const
+{
+    // There is undoubtedly a right way to do this.  This may not be
+    // it.
+    ExactRateType r = ExactFrameRate();
+    TimeType t = (TimeType)((double)r.period / r.rate * ONEe9 * iIndex);
+    Verbose(2, "TimeOffset: index %ld time %ld\n", iIndex, t);
+    return t;
 }

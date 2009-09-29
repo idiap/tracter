@@ -50,7 +50,7 @@ namespace Tracter
         int GetEnv(const char* iSuffix, int iDefault);
         const char* GetEnv(const char* iSuffix, const char* iDefault);
 
-        void Verbose(int iLevel, const char* iString, ...);
+        void Verbose(int iLevel, const char* iString, ...) const;
 
     private:
         const char* getEnv(const char* iSuffix, const char* iDefault);

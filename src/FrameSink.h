@@ -13,17 +13,17 @@
 namespace Tracter
 {
     /**
-     * An FrameSink is a type of sink that just provides a method for
-     * reading individual arrays from a graph.  i.e., it is an interface
-     * between tracter and non-tracter-aware routines.  The arrays could
-     * be feature vectors.
+     * A FrameSink is a type of sink that just provides a method for
+     * reading individual arrays from a graph.  i.e., it is an
+     * interface between tracter and non-tracter-aware routines.  The
+     * arrays could be feature vectors.
      */
     template <class T>
     class FrameSink : public Sink
     {
     public:
 
-        /** Create an FrameSink with the input min-size set to 1 */
+        /** Create a FrameSink with the input min-size set to 1 */
         FrameSink(Component<T>* iInput, const char* iObjectName = "FrameSink")
         {
             mObjectName = iObjectName;
@@ -32,6 +32,7 @@ namespace Tracter
             mFrame.size = iInput->Frame().size;
             Initialise();
             Reset();
+            Verbose(1, "frame rate %f\n", FrameRate());
         }
 
         /** Get the array with the given index. */

@@ -128,7 +128,7 @@ const char* Tracter::Object::GetEnv(
  *  - 4 Once per frame (but not audio frequency)
  *  - 5 Per frame, unlimited frequency
  */
-void Tracter::Object::Verbose(int iLevel, const char* iString, ...)
+void Tracter::Object::Verbose(int iLevel, const char* iString, ...) const
 {
     if (iLevel > sVerbose)
         return;
