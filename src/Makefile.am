@@ -17,6 +17,7 @@ lib_LTLIBRARIES = libtracter.la
 libtracter_la_LDFLAGS = -version-info 1:0:0
 
 TRACTER_SOURCES = \
+	HTKLib.cpp \
 	Select.cpp \
 	NoiseVAD.cpp \
 	Modulation.cpp \

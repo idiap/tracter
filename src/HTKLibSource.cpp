@@ -21,6 +21,7 @@
  */
 
 #include "HTKLibSource.h"
+#include "HTKLib.h"
 
 #include "HMath.h"
 #include "HSigP.h"
@@ -54,6 +55,7 @@ Tracter::HTKLibSource::HTKLibSource(const char* iObjectName)
     mFrame.size = GetEnv("FrameSize", 39);
     mFrameRate = GetEnv("FrameRate", 8000.0f);
     mFrame.period = GetEnv("FramePeriod", 80);
+    sHTKLib.mHTKLibSource = this;
 
     /***********************************************
      * Now sort out the HTK specific stuff
