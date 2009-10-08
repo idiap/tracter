@@ -14,7 +14,6 @@
 #include "TracterObject.h"
 #include "Component.h"
 #include "Source.h"
-#include "SpeakerIDSocketSource.h"
 
 #define DECLARE_GRAPH_FACTORY(name) \
     class name##GraphFactory : public GraphFactory \
@@ -122,14 +121,9 @@ namespace Tracter
             mFrontend[iFrontend->ObjectName()] = iFrontend;
         }
 
-        Component<float>* GetSpeakerIDSource();
-
     protected:
         std::map<std::string, SourceFactory*> mSource;
         std::map<std::string, GraphFactory*> mFrontend;
-
-    private:
-        SpeakerIDSocketSource* mSpeakerIDSource;
     };
 
 }

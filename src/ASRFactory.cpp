@@ -114,15 +114,6 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #ifdef HAVE_SPTK
     RegisterFrontend(new MCepGraphFactory);
 #endif
-
-    // THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW
-    mSpeakerIDSource = 0;
-    const char* sidHost = GetEnv("SpeakerIDHost", (char*)0);
-    if (sidHost)
-    {
-        mSpeakerIDSource = new SpeakerIDSocketSource();
-        mSpeakerIDSource->Open(sidHost);
-    }
 }
 
 Tracter::ASRFactory::~ASRFactory() throw ()
@@ -174,7 +165,7 @@ Tracter::ASRFactory::CreateFrontend(Component<float>* iComponent)
 {
     Component<float> *component = 0;
 
-    const char* frontend = GetEnv("Frontend", "Basic");
+    const char* frontend = GetEnv("Frontend", "Null");
     if (mFrontend[frontend])
         component = mFrontend[frontend]->Create(iComponent);
     else
@@ -610,13 +601,3 @@ Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
     return p;
 }
 #endif
-
-// THIS SHOULD NOT BE HERE.  JUST FOR THE REVIEW.
-Tracter::Component<float>*
-Tracter::ASRFactory::GetSpeakerIDSource()
-{
-    if (mSpeakerIDSource)
-        return mSpeakerIDSource;
-
-    return 0;
-}
