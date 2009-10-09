@@ -28,9 +28,13 @@ namespace Tracter
 
     public:
         HTKLib();
+        void Initialise(const char* iScript);
+
         HTKLibSource* mHTKLibSource;
 
     private:
+
+        void InitialiseHTK(const char* iConfig, const char* iScript);
     };
 
     /** The lone static instantiation of HTKLib */
