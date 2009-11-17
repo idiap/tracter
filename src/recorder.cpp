@@ -90,7 +90,8 @@ public:
 
         // Gate
         p = new Frame(p);
-        p = new VADGate(p, sm);
+        if (!GetEnv("NoVAD", 0))
+            p = new VADGate(p, sm);
 
         // Sink
         mSink = new FileSink(p);

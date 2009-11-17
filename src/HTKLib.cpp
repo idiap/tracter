@@ -34,7 +34,9 @@ namespace Tracter
     /*
      * ---------------- Information about transforms ------------
      */
+#ifdef HAVE_HTKLIB
     XFInfo xfInfo;
+#endif
 }
 
 
