@@ -23,6 +23,8 @@
 
 #ifdef HAVE_BSAPI
 #ifdef HAVE_TORCH3
+# include <ViterbiVAD.h>
+# include <ViterbiVADGate.h>
 # include <BSAPIFrontEnd.h>
 # include <MLP.h>
 # include <MLPVAD.h>
@@ -52,6 +54,7 @@ public:
             v = new Energy(v);
             Modulation* m = new Modulation(v);
             sm = new NoiseVAD(m, v);
+            // Drop through
         }
 
 #ifdef HAVE_BSAPI
@@ -68,6 +71,7 @@ public:
             v = new Divide(v, mlpv);
             v = new MLP(v);
             sm = new MLPVAD(v);
+            // Drop through
         }
 
         // Modulation MLP VAD
@@ -84,7 +88,30 @@ public:
             v = new Select(v);
             v = new Modulation(v);
             sm = new MLPVAD(v);
+            // Drop through
         }
+
+        // Viterbi MLP VAD
+        else if (GetEnv("ViterbiMLP", 0))
+        {
+            Component<float>* v = p;
+            v = new Frame(v, "MLPFrame");
+            v = new BSAPIFrontEnd(v, "PLPFrontEnd");
+            Mean* mlpm = new Mean(v);
+            v = new Subtract(v, mlpm);
+            Variance* mlpv = new Variance(v);
+            v = new Divide(v, mlpv);
+            v = new MLP(v);
+            v = new Select(v,"SilSelect");
+            ViterbiVAD* vit = new ViterbiVAD(v);
+            p = new Frame(p);
+            p = new ViterbiVADGate(p, vit);
+            mSink = new FileSink(p);
+
+            // DON'T drop through
+            return;
+        }
+
 #endif
 #endif
 
@@ -106,7 +133,11 @@ public:
     void All(int argc, char* argv[])
     {
         if (argc != 3)
-            throw Exception("argc != 3");
+            throw Exception(
+                "argc != 3\n"
+                "usage: recorder <insource> <outsink>\n"
+                "(and don't forget to set your environment variables!)\n"
+            );
 
         Verbose(0, "%s -> %s\n", argv[1], argv[2]);
         mSource->Open(argv[1]);

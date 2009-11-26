@@ -1,0 +1,274 @@
+/*
+ * Copyright 2008 by IDIAP Research Institute
+ *                   http://www.idiap.ch
+ *
+ * See the file COPYING for the licence associated with this software.
+ */
+
+#include "ViterbiVADGate.h"
+
+Tracter::ViterbiVADGate::ViterbiVADGate(
+    Component<float>* iInput,
+    ViterbiVAD* iVADInput,
+    const char* iObjectName
+)
+{
+    mObjectName = iObjectName;
+    mFrame.size = iInput->Frame().size;
+
+    mInput = iInput;
+    mVADInput = iVADInput;
+    mSpeechTriggered = -1;
+    mSpeechConfirmed = -1;
+    mSilenceConfirmed = -1;
+    mIndexZero = 0;
+    mSpeechRemoved = 0;
+    mState = SILENCE_CONFIRMED;
+    mUpstreamEndOfData = false;
+
+    mEnabled = GetEnv("Enable", 1);
+    mSegmenting = GetEnv("Segmenting", 0);
+    mRemoveSilence = GetEnv("RemoveSilence", 0);
+    mCollar = GetEnv("Collar", 0);
+
+    assert(mCollar >= 0);
+
+    Connect(iInput,mCollar);
+    Connect(iVADInput, mCollar);
+}
+
+/**
+ * Catch reset.  Whether to pass upstream is an option.  In an online
+ * mode, it shouldn't be passed on, but when the input is a sequence
+ * of files it should be.
+ */
+void Tracter::ViterbiVADGate::Reset(bool iPropagate)
+{
+    Verbose(2, "Resetting\n");
+    if (mSegmenting)
+    {
+        if (mSilenceConfirmed >= 0)
+            mIndexZero = mSilenceConfirmed;
+    }
+    else
+        mIndexZero = 0;
+    mState = SILENCE_CONFIRMED;
+    mSpeechTriggered = -1;
+    mSpeechConfirmed = -1;
+    mSilenceConfirmed = -1;
+    mSpeechRemoved = 0;
+
+    // Propagate reset upstream under these conditions
+    CachedComponent<float>::Reset(
+        mUpstreamEndOfData ||  // Always after EOD
+        !mSegmenting ||        // If not segmenting
+        !mEnabled              // If disabled
+    );
+    mUpstreamEndOfData = false;
+}
+
+bool Tracter::ViterbiVADGate::UnaryFetch(IndexType iIndex, float* oData)
+{
+    assert(iIndex >= 0);
+    assert(oData);
+
+    //    printf("-----------> requested downstream input from %i\n",iIndex);
+
+    // gate() passes by reference and will update iIndex to the
+    // upstream point of view.
+    if (mEnabled && !gate(iIndex))
+    {
+        Verbose(2, "gate() returned at index %ld, silConf %ld\n",
+                iIndex, mSilenceConfirmed);
+        if ( mSegmenting &&
+             (mSilenceConfirmed >= 0) &&
+             (mSilenceConfirmed <= iIndex) )
+            throw Exception("iIndex ahead of silence");
+        assert(
+            (mSilenceConfirmed < 0) ||   /* Failed to find silence */
+            (mSilenceConfirmed > iIndex) /* Succeeded */
+        );
+
+        // Must leave mIndexZero alone until reset so the downstream
+        // components can query time properly
+        //mIndexZero = mSilenceConfirmed;
+        //mSpeechTriggered = -1;
+        //mSpeechConfirmed = -1;
+
+        return false;
+    }
+
+    //    printf("<---------- requested upstream input from %i\n",iIndex);
+
+    // Copy input to output
+    CacheArea inputArea;
+    if (mInput->Read(inputArea, iIndex) == 0)
+        return false;
+
+    
+    float* input = mInput->GetPointer(inputArea.offset);
+    for (int i=0; i<mFrame.size; i++)
+        oData[i] = input[i];
+
+    return true;
+}
+
+/**
+ * Returns true if speech should be output for the given index.
+ * iIndex is from the downstream point of view, but is updated to
+ * represent the upstream point of view, which could be larger
+ * representing skipped over data.
+ */
+bool Tracter::ViterbiVADGate::gate(IndexType& iIndex)
+{
+  assert(iIndex >= 0);
+  assert(mIndexZero >= 0);
+
+  // If the VAD has found an utterance, it must be reset before
+  // looking for another
+  if (mSilenceConfirmed >= 0 && !mRemoveSilence){
+    return false;
+  }
+
+  // iIndex is from the downstream point of view.  Reality could be ahead.
+  //printf("original iIndex: %i\n",iIndex);
+  iIndex += mIndexZero;
+
+  //printf("upstream iIndex: %i\n",iIndex);
+
+  if ((mSpeechTriggered < 0) && !confirmSpeech(iIndex)){
+    // Failed to find any speech
+    return false;
+  }
+
+  assert(mState == SPEECH_CONFIRMED);
+  assert(mSpeechTriggered >= 0);
+  assert(mSpeechConfirmed >= 0);
+
+  //printf("mSpeechConfirmed %i, mSpeechRemoved %i, mIndexZero %i\n",mSpeechConfirmed,mSpeechRemoved,mIndexZero);
+  iIndex += mSpeechConfirmed - mSpeechRemoved - mIndexZero;
+  //printf("adjusted iIndex: %i\n",iIndex);
+  if ((iIndex > mSpeechTriggered)){
+    if (!readVADState(iIndex)){
+      mSilenceConfirmed = iIndex + 1;
+      return false;
+    }
+    if ((mState == SILENCE_TRIGGERED) && !reconfirmSpeech(iIndex)){
+      assert(mSilenceConfirmed >= mSpeechTriggered);
+      if (mRemoveSilence && (mState == SILENCE_CONFIRMED)){
+	mSpeechRemoved += mSilenceConfirmed - mSpeechConfirmed;
+	if (!confirmSpeech(mSilenceConfirmed)){
+	  return false;
+	}else{
+	  iIndex += mSpeechConfirmed - mSilenceConfirmed;
+	}
+      }else{
+	return false;
+      }
+    }
+  }
+
+  //printf("mState: %i\n",mState); fflush(stdout);
+
+  return true;
+}
+
+/**
+ * Reads the state of the VAD for the given index into mState and
+ * returns true.  Returns false if EOD.
+ */
+bool Tracter::ViterbiVADGate::readVADState(IndexType iIndex)
+{
+    assert(iIndex >= 0);
+    CacheArea vadArea;
+    //printf("Reading VAD area at iIndex %i\n",iIndex);
+    //printf("-----------> requested VAD input from %i\n",iIndex);
+    if (mVADInput->Read(vadArea, iIndex) == 0)
+    {
+        Verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
+        mUpstreamEndOfData = true;
+        return false;
+    }
+    VADState* state = mVADInput->GetPointer(vadArea.offset);\
+    assert(*state == SPEECH_TRIGGERED || *state == SILENCE_TRIGGERED);
+    
+    if (*state == SPEECH_TRIGGERED){
+      if (mState != SPEECH_CONFIRMED){
+	mState = SPEECH_TRIGGERED;
+      }
+    }else{
+      if (mState != SILENCE_CONFIRMED){
+	mState = SILENCE_TRIGGERED;
+      }
+    }
+
+    //mState = *state;
+    return true;
+}
+
+/**
+ * Assuming we are in state SILENCE_CONFIRMED, typically at the
+ * beginning of a file, advance to state SPEECH_CONFIRMED.  This will
+ * set values for mSpeechTriggered and mSpeechConfirmed, then return
+ * true.  Returns false if no speech could be found.
+ */
+bool Tracter::ViterbiVADGate::confirmSpeech(IndexType iIndex)
+{
+  Verbose(2, "Attempting to confirm speech\n");
+  assert(iIndex >= 0);
+  assert(mState == SILENCE_CONFIRMED);
+
+  IndexType index = iIndex - 1;
+  do{
+    //printf("Read VAD state at %i\n",index+1);
+    if (!readVADState(++index))
+      return false;
+    assert((mState == SILENCE_CONFIRMED) ||
+	   (mState == SPEECH_TRIGGERED) ||
+	   (mState == SILENCE_TRIGGERED));
+  }
+  while (mState == SILENCE_CONFIRMED || mState == SILENCE_TRIGGERED);
+  assert(mState == SPEECH_TRIGGERED);
+  mSpeechTriggered = index;
+  Verbose(2, "confirmSpeech: triggered at %ld\n", mSpeechTriggered);
+
+  mState = SPEECH_CONFIRMED;
+  mSpeechConfirmed = index - mCollar >= 0 ? index-mCollar : 0;
+  Verbose(2, "confirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
+  return true;
+}
+
+/**
+ * When the state falls to SILENCE_TRIGGERED, this returns true if it
+ * subsequently goes back to SPEECH_CONFIRMED.  The other option is
+ * return false if silence is confirmed.
+ */
+bool Tracter::ViterbiVADGate::reconfirmSpeech(IndexType iIndex)
+{
+  Verbose(2, "Attempting to reconfirm speech at %ld\n",iIndex);
+  assert(iIndex >= 0);
+  assert(mState == SILENCE_TRIGGERED);
+  IndexType mIndex = iIndex;
+  do{
+    if (!readVADState(++iIndex)){
+      mSilenceConfirmed = iIndex + 1;
+      return false;
+    }
+  }
+  while (mState == SILENCE_TRIGGERED && iIndex - mIndex <= mCollar);
+
+  if (mState == SPEECH_TRIGGERED){
+    mState = SPEECH_CONFIRMED;
+    //mSpeechConfirmed = iIndex-1 - mCollar >= 0 ? iIndex-1 - mCollar : 0 ;
+    mSpeechTriggered = iIndex-1;
+    Verbose(2, "reconfirmSpeech: confirmed at %ld\n", mSpeechTriggered);
+    return true;
+  }
+
+  mState=SILENCE_CONFIRMED;
+  mSilenceConfirmed = iIndex-1;
+  Verbose(2, "reconfirmSpeech: Silence confirmed at %ld\n",
+	  mSilenceConfirmed);
+
+  return false;
+}

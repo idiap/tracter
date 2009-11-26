@@ -17,6 +17,8 @@ lib_LTLIBRARIES = libtracter.la
 libtracter_la_LDFLAGS = -version-info 1:0:0
 
 TRACTER_SOURCES = \
+	ViterbiVAD.cpp \
+	ViterbiVADGate.cpp \
 	HTKLib.cpp \
 	Select.cpp \
 	NoiseVAD.cpp \
