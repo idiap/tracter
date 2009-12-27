@@ -71,6 +71,9 @@
 
 #include "LinearTransform.h"
 
+#include "SNRSpectrum.h"
+#include "Minima.h"
+
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -114,6 +117,8 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #ifdef HAVE_SPTK
     RegisterFrontend(new MCepGraphFactory);
 #endif
+
+    RegisterFrontend(new SNRGraphFactory);
 }
 
 Tracter::ASRFactory::~ASRFactory() throw ()
@@ -601,3 +606,23 @@ Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
     return p;
 }
 #endif
+
+/**
+ * Instantiates a "basic MFCC" frontend with SNR spectral features.
+ */
+Tracter::Component<float>*
+Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
+{
+    Component<float>* p = iComponent;
+    p = new ZeroFilter(p);
+    p = new Frame(p);
+    p = new Periodogram(p);
+    Minima* m = new Minima(p);
+    p = new SNRSpectrum(p, m);
+    p = new MelFilter(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
+}
