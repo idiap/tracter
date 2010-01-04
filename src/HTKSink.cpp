@@ -5,6 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cmath>
+
 #include "HTKSink.h"
 
 Tracter::HTKSink::HTKSink(
@@ -96,6 +98,10 @@ void Tracter::HTKSink::Open(const char* iFile)
     while (mInput->Read(cache, index++))
     {
         float* f = mInput->GetPointer(cache.offset);
+        for (int i=0; i<mFrame.size; i++)
+            if (!finitef(f[i]))
+                throw Exception("HTKSink: !finite at %s frame %d index %d",
+                                iFile, index, i);
         if (mByteOrder.WrongEndian())
         {
             for (int i=0; i<mFrame.size; i++)
@@ -103,7 +109,7 @@ void Tracter::HTKSink::Open(const char* iFile)
             f = &mTemp[0];
             mByteOrder.Swap(f, sizeof(float), mFrame.size);
         }
-        if (fwrite(f, sizeof(float), mFrame.size, mFile) != (size_t)mFrame.size)
+        if ((int)fwrite(f, sizeof(float), mFrame.size, mFile) != mFrame.size)
             throw Exception("HTKSink: Failed to write to file %s", iFile);
     }
     mNSamples = index - 1;

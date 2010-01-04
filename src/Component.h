@@ -184,7 +184,7 @@ namespace Tracter
         virtual ExactRateType ExactFrameRate() const
         {
             if (mInput.size() <= 0)
-                throw Exception("%s: No inputs", mObjectName);
+                throw Exception("%s: ExactFrameRate: No inputs", mObjectName);
             assert(mInput[0]);
             ExactRateType r = mInput[0]->ExactFrameRate();
             r.period *= mInput[0]->Frame().period;
