@@ -24,28 +24,39 @@ Tracter::CosineTransform::CosineTransform(
     mOData = 0;
     mDCT.Init(mFrame.size, &mIData, &mOData);
 
-    mWindow.resize(mFrame.size);
-    for (int i=0; i<mFrame.size; i++)
-        mWindow[i] = 0.54f - 0.46f * cosf(M_PI * 2.0f * i / (mFrame.size - 1));
+    if (GetEnv("Window", 0))
+        mWindow = new Window(mObjectName, mFrame.size);
+    else
+        mWindow = 0;
 }
 
 bool Tracter::CosineTransform::UnaryFetch(IndexType iIndex, float* oData)
 {
     // Read the input frame
-    const float* input = mInput->UnaryRead(iIndex);
-    if (!input)
+    const float* ip = mInput->UnaryRead(iIndex);
+    if (!ip)
         return false;
 
-    // Copy the frame into the pre-allocated array though a window
-    for (int i=0; i<mFrame.size; i++)
-        mIData[i] = input[i] * mWindow[i];
+    if (mWindow)
+        // Copy the frame via the window
+        mWindow->Apply(ip, mIData);
+    else
+        // Raw copy
+        for (int i=0; i<mFrame.size; i++)
+            mIData[i] = ip[i];
 
     // DCT
     mDCT.Transform();
 
     // Copy to output
+#if 1
     for (int i=0; i<mFrame.size; i++)
         oData[i] = mOData[i];
-
+#else
+    // A hack to simulate HTK feature order
+    for (int i=0; i<12; i++)
+        oData[i] = mOData[i+1];
+    oData[12] = mOData[0];
+#endif
     return true;
 }

@@ -18,7 +18,7 @@ Tracter::Select::Select(Component<float>* iInput, const char* iObjectName)
     assert(mFrame.size >= 0);
     assert(mHiIndex < iInput->Frame().size);
     assert(mLoIndex >= 0);
-    Verbose(1, "passing indexes %d-%d of %d",
+    Verbose(1, "passing indexes %d-%d of %d\n",
             mLoIndex, mHiIndex, iInput->Frame().size);
 
     Connect(iInput, 1);

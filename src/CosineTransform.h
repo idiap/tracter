@@ -8,10 +8,9 @@
 #ifndef COSINETRANSFORM_H
 #define COSINETRANSFORM_H
 
-#include <vector>
-
-#include "CachedComponent.h"
+#include "Window.h"
 #include "Fourier.h"
+#include "CachedComponent.h"
 
 namespace Tracter
 {
@@ -31,7 +30,7 @@ namespace Tracter
         Fourier mDCT;
         float* mIData;
         float* mOData;
-        std::vector<float> mWindow;
+        Window* mWindow;
     };
 }
 

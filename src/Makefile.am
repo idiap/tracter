@@ -17,6 +17,8 @@ lib_LTLIBRARIES = libtracter.la
 libtracter_la_LDFLAGS = -version-info 1:0:0
 
 TRACTER_SOURCES = \
+	CosineTransform.cpp \
+	Log.cpp \
 	Minima.cpp \
 	SNRSpectrum.cpp \
 	ViterbiVAD.cpp \
