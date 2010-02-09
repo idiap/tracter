@@ -18,6 +18,10 @@
 # include "ALSASource.h"
 #endif
 
+#ifdef HAVE_RTAUDIO
+# include "RtAudioSource.h"
+#endif
+
 #ifdef HAVE_SNDFILE
 # include "SndFileSource.h"
 #endif
@@ -73,6 +77,7 @@
 
 #include "SNRSpectrum.h"
 #include "Minima.h"
+#include "TransverseFilter.h"
 
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
@@ -88,6 +93,9 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     RegisterSource(new LNASourceFactory);
 #ifdef HAVE_ALSA
     RegisterSource(new ALSASourceFactory);
+#endif
+#ifdef HAVE_RTAUDIO
+    RegisterSource(new RtAudioSourceFactory);
 #endif
 #ifdef HAVE_SNDFILE
     RegisterSource(new SndFileSourceFactory);
@@ -215,6 +223,19 @@ Tracter::ALSASourceFactory::Create(ISource*& iSource)
     Normalise* n = new Normalise(s);
     iSource = s;
     return n;
+}
+#endif
+
+#ifdef HAVE_RTAUDIO
+/**
+ * Instantiates an RtAudioSource followed by a Normalise component
+ */
+Tracter::Component<float>*
+Tracter::RtAudioSourceFactory::Create(ISource*& iSource)
+{
+    RtAudioSource* s = new RtAudioSource();
+    iSource = s;
+    return s;
 }
 #endif
 
@@ -617,7 +638,8 @@ Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
     p = new ZeroFilter(p);
     p = new Frame(p);
     p = new Periodogram(p);
-    Minima* m = new Minima(p);
+    Component<float>* m = new Minima(p);
+    m = new TransverseFilter(m);
     p = new SNRSpectrum(p, m);
     p = new MelFilter(p);
     p = new Cepstrum(p);
