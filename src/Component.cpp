@@ -673,7 +673,7 @@ Tracter::TimeType Tracter::ComponentBase::TimeStamp(IndexType iIndex) const
     TimeType time = mInput[0]->TimeStamp();
     if (iIndex)
         time += TimeOffset(iIndex);
-    Verbose(2, "TimeStamp: index %ld time %ld\n", iIndex, time);
+    Verbose(2, "TimeStamp: index %ld time %lld\n", iIndex, time);
     return time;
 }
 
@@ -690,6 +690,6 @@ Tracter::TimeType Tracter::ComponentBase::TimeOffset(IndexType iIndex) const
     // it.
     ExactRateType r = ExactFrameRate();
     TimeType t = (TimeType)((double)r.period / r.rate * ONEe9 * iIndex);
-    Verbose(2, "TimeOffset: index %ld time %ld\n", iIndex, t);
+    Verbose(2, "TimeOffset: index %ld time %lld\n", iIndex, t);
     return t;
 }
