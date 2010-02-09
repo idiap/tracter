@@ -99,7 +99,7 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     int nGet = (int)((double)iOutputArea.Length() / r.ratio);
     int nGot = mInput->Read(inputArea, index, nGet);
     int nOut = (int)((double)nGot * r.ratio + 0.5);
-    Verbose(2, "i=%ld Get=%d Got=%d Out=%d len0=%d len1=%d\n",
+    Verbose(3, "i=%ld Get=%d Got=%d Out=%d len0=%d len1=%d\n",
             index, nGet, nGot, nOut, inputArea.len[0], inputArea.len[1]);
 
     /*
@@ -127,7 +127,7 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             &r.resample.at(outCount),
             nOut - outCount
         );
-        Verbose(2, " Block 1: inCount %d  outCount %d\n", inCount, outCount);
+        Verbose(3, " Block 1: inCount %d  outCount %d\n", inCount, outCount);
     }
 
     /* Run again if there's a second circular block */
@@ -145,7 +145,7 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
                 &r.resample.at(outCount),
                 nOut - outCount
             );
-        Verbose(2, " Block 2: inCount %d  outCount %d\n", inCount, outCount);
+        Verbose(3, " Block 2: inCount %d  outCount %d\n", inCount, outCount);
     }
     else
     {
@@ -160,7 +160,7 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
                 &r.resample.at(outCount),
                 nOut - outCount
             );
-        Verbose(2, " Block 3: inCount %d  outCount %d\n", inCount, outCount);
+        Verbose(3, " Block 3: inCount %d  outCount %d\n", inCount, outCount);
     }
 
     /* Copy the resampled data to the output */
