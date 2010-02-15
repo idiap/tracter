@@ -19,7 +19,6 @@ Tracter::RtAudioSource::RtAudioSource(const char* iObjectName)
     float seconds = GetEnv("BufferTime", 1.0f);
     int samples = SecondsToFrames(seconds);
     MinSize(this, samples);
-    Verbose(1, "buffer set to %d samples\n", samples);
 
     /* Tell the ComponentBase that we will take care of the pointers */
     mAsync = true;
@@ -44,11 +43,15 @@ int Tracter::RtAudioSource::Callback(
 {
     Verbose(3, "Callback: iNFrames = %u\n", iNFrames);
 
-    assert(mSize >= (int)iNFrames);
     assert(!mIndefinite);
+    if (mSize < (int)iNFrames)
+        throw Exception(
+            "RtAudioSource::Callback: mSize=%d < iNFrames=%u", mSize, iNFrames
+        );
 
     CachePointer& head = mCluster[0].head;
     CachePointer& tail = mCluster[0].tail;
+
     int xrun = 0;
     int len0 = mSize - head.offset;
     len0 = std::min((int)iNFrames, len0);
@@ -112,10 +115,12 @@ void Tracter::RtAudioSource::Open(
     sp.nChannels = 1;
     sp.firstChannel = 0;
     sp.deviceId = device;
-    unsigned int bufSize = INT_MAX;
+    unsigned int bufSize = 100; // This is probably period size
     mRtAudio.openStream(
         0, &sp, RTAUDIO_FLOAT32, mFrameRate, &bufSize, staticCallback, this
     );
+    Verbose(1, "RtAudio buffer size %u, Tracter buffer size %d\n",
+            bufSize, mSize);
 
     /* Start the stream */
     mRtAudio.startStream();
