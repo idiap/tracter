@@ -60,7 +60,7 @@ void Tracter::socketSource::Open(const char* iHostName)
         mFD = 0;
     }
 
-    // For the host address
+    // For the host address (man suggests this call is obsolete)
     struct hostent* hostEnt = gethostbyname(iHostName);
     if (!hostEnt)
     {
@@ -78,6 +78,44 @@ void Tracter::socketSource::Open(const char* iHostName)
                         mObjectName, iHostName);
     }
 
+    // Socket options
+    int optVal = 0;
+    socklen_t optLen = sizeof(int);
+
+    // Activate keepalive
+    optVal = 1;
+    optLen = sizeof(optVal);
+    if(setsockopt(mFD, SOL_SOCKET, SO_KEEPALIVE, &optVal, optLen) < 0)
+    {
+        perror(mObjectName);
+        close(mFD);
+        throw Exception("%s: setsockopt() failed for %s\n",
+                        mObjectName, iHostName);
+    }
+
+    // Check the status
+    if(getsockopt(mFD, SOL_SOCKET, SO_KEEPALIVE, &optVal, &optLen) < 0)
+    {
+        perror(mObjectName);
+        close(mFD);
+        throw Exception("%s: getsockopt() failed for %s\n",
+                        mObjectName, iHostName);
+    }
+    Verbose(1, "SO_KEEPALIVE is %s\n", (optVal ? "ON" : "OFF"));
+
+    if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &optVal, &optLen))
+        throw Exception("getsockopt failed");
+    Verbose(1, "recvbuf is size %d\n", optVal);
+
+    if (mBufferSize > 0)
+    {
+        if (setsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &mBufferSize, optLen))
+            throw Exception("setsockopt failed");
+        if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &optVal, &optLen))
+            throw Exception("getsockopt failed");
+        Verbose(1, "resize: requested %d granted %d\n", mBufferSize, optVal);
+    }
+
     // Connect using the host address, port and file descriptor
     struct sockaddr_in server;
     server.sin_family = AF_INET;
@@ -90,21 +128,6 @@ void Tracter::socketSource::Open(const char* iHostName)
         perror(mObjectName);
         throw Exception("%s: connect() failed for %s:%hu\n",
                         mObjectName, iHostName, mPort);
-    }
-
-    int bufSize = 0;
-    socklen_t len = sizeof(int);
-    if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &bufSize, &len))
-        throw Exception("getsockopt failed");
-    Verbose(1, "recvbuf is size %d\n", bufSize);
-
-    if (mBufferSize > 0)
-    {
-        if (setsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &mBufferSize, len))
-            throw Exception("setsockopt failed");
-        if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &bufSize, &len))
-            throw Exception("getsockopt failed");
-        Verbose(1, "resize: requested %d granted %d\n", mBufferSize, bufSize);
     }
 }
 
