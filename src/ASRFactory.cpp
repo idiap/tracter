@@ -120,6 +120,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #ifdef HAVE_BSAPI
     RegisterFrontend(new PLPPosteriorGraphFactory);
     RegisterFrontend(new PLPvtlnGraphFactory);
+    RegisterFrontend(new BSAPIGraphFactory);
 #endif
 
 #ifdef HAVE_SPTK
@@ -607,6 +608,34 @@ Tracter::PLPvtlnGraphFactory::Create(Component<float>* iComponent)
 
     // Done
     return plp;  // Returns only the VTLN PLPs
+}
+
+/**
+ * Rather generic BSAPI based front-end with (tracter) online CMN
+ */
+Tracter::Component<float>*
+Tracter::BSAPIGraphFactory::Create(Component<float>* iComponent)
+{
+    Component<float>* p  = iComponent;
+
+    // Framed version of the input for BSAPI
+    Component<float>* f = new Frame(p);
+
+    // Energy based VAD
+    p = new Frame(p);
+    p = new Energy(p);
+    Modulation* m = new Modulation(p);
+    NoiseVAD* mv = new NoiseVAD(m, p);
+    p = new VADGate(f, mv);
+
+    // BSAPI CMN FrontEnd
+    p = new BSAPIFrontEnd(p);
+    Mean* pm = new Mean(p);
+    p = new Subtract(p, pm);
+    p = new BSAPITransform(p);
+
+    // Done
+    return p;
 }
 #endif
 
