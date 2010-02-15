@@ -56,7 +56,11 @@ void Tracter::NoiseVAD::Reset(bool iPropagate)
 bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, VADState* oData)
 {
     Verbose(3, "iIndex %ld\n", iIndex);
-    assert(iIndex == mIndex+1);
+    if (iIndex != mIndex+1)
+        throw Exception(
+            "NoiseVAD::UnaryFetch: Index %ld requested; %ld expected\n",
+            iIndex, mIndex+1
+        );
     mIndex = iIndex;
 
     /* Prime the noise smoother */
