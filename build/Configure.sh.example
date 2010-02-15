@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# This is an example based on what I use to configure tracter under
+# linux.  You can probably delete most of the --with-xxx lines and
+# these comments; all but kiss-fft are optional.
+#
+# From memory, HTK and BSAPI don't use unix style library names.  I
+# tend to create links so that the usual -L and -l options work:
+# libbsapi.so -> bsapi.so (etc)
+#
+# Phil Garner
+# February 2010
+#
+
+software=/idiap/resource/software
+bsapiDir=$HOME/build/bsapi/bsapi.vtln2.v1
+
+# RtAudio won't compile with -Werror
+#    CXXFLAGS="-Wall -Werror -g" \
+
+../configure \
+    CXXFLAGS="-Wall -g" \
+    --disable-shared \
+    --prefix=$HOME/local \
+    --with-kiss-fft=$software/kiss_fft_v1_2_8 \
+    --with-torch3=$HOME/build/Torch3 \
+    --with-libresample=$software/libresample-0.1.3 \
+    --with-sptk-includes="-I$HOME/local/include" \
+    --with-sptk-libs="-L$HOME/local/lib -lSPTK" \
+    --with-bsapi-includes="-I$bsapiDir" \
+    --with-bsapi-libs="-L$bsapiDir -lbsapi" \
+    --with-htk-includes="-I$software/HTK/HTK_V3.4/include" \
+    --with-htk-libs="-L$software/HTK/HTK_V3.4/lib -lhtk" \
+    --with-rtaudio=$HOME/build/rtaudio-4.0.7 \
+    $*
