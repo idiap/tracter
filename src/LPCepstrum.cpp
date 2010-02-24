@@ -9,7 +9,9 @@
 
 #include "LPCepstrum.h"
 
-Tracter::LPCepstrum::LPCepstrum(Component<float>* iInput, const char* iObjectName)
+Tracter::LPCepstrum::LPCepstrum(
+    Component<float>* iInput, const char* iObjectName
+)
 {
     mObjectName = iObjectName;
     mInput = iInput;
@@ -29,6 +31,8 @@ Tracter::LPCepstrum::LPCepstrum(Component<float>* iInput, const char* iObjectNam
         throw Exception("%s: Order(%d) must be less than input dimension(%d)",
                         mObjectName, mOrder, mNCompressed);
 
+    mAlpha0.resize(mOrder);
+    mAlpha1.resize(mOrder);
     mCompressed = 0;
     mAutoCorrelation = 0;
     mFourier.Init(mNCompressed, &mCompressed, &mAutoCorrelation);
@@ -53,27 +57,37 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
 
     // Levinson / Durbin recursion
     // Indexes are C style from 0, but the books use 1
-    std::vector<float> alpha0(mOrder);
-    std::vector<float> alpha1(mOrder);
-    float* a0 = &alpha0[0];  // Current alphas
-    float* a1 = &alpha1[0];  // Previous alphas
-    for (int i=0; i<mOrder; i++)
-    {
-        a0[i] = 0.0f;
-        a1[i] = 0.0f;
-    }
+    mAlpha0.assign(mOrder, 0.0f);
+    mAlpha1.assign(mOrder, 0.0f);
+    float* a0 = &mAlpha0.front();  // Current alphas
+    float* a1 = &mAlpha1.front();  // Previous alphas
     float error = mAutoCorrelation[0];
+
+    if (error < 1e-8f)
+    {
+        Verbose(2, "error too small at index %ld\n", iIndex);
+        return bailOut(oData);
+    }
+
     for (int i=0; i<mOrder; i++)
     {
         float* tmp = a0; a0 = a1; a1 = tmp; // Swap a1 and a0
-        float sum = 0.0f;
+
+        float sum = mAutoCorrelation[i+1];
         for (int j=0; j<i; j++)
-            sum += a1[j] * mAutoCorrelation[i-j];
-        float parcor = (mAutoCorrelation[i+1] - sum ) / error;
-        a0[i] = parcor;
+            sum -= a1[j] * mAutoCorrelation[i-j];
+        a0[i] = sum / error;
+        if (!finitef(a0[i]))
+        {
+            Verbose(2, "a0[%d] = %f at index %ld\n", i, a0[i], iIndex);
+            return bailOut(oData);
+        }
+        error *= 1.0f - a0[i] * a0[i];
+        assert(finitef(error));
+        assert(error != 0.0f);
+
         for (int j=0; j<i; j++)
-            a0[j] = a1[j] - parcor * a1[i-j-1];
-        error *= (1.0f - parcor * parcor);
+            a0[j] = a1[j] - a0[i] * a1[i-j-1];
     }
 
     // Gain (squared)
@@ -112,11 +126,25 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
         oData[i] = sum / (i+1);
         if (i < mOrder)
             oData[i] += a0[i];
+        assert(finitef(oData[i]));
     }
 
     if (mC0)
-        oData[mNCepstra] = logf(gain);
+        oData[mNCepstra] = logf(std::max(gain, 1e-8f));
 #endif
+
+    return true;
+}
+
+/*
+ * Something went wrong.  Just write something plausible and escape. 
+ */
+bool Tracter::LPCepstrum::bailOut(float* oData)
+{
+    for (int i=0; i<mNCepstra; i++)
+        oData[i] = 0;
+    if (mC0)
+        oData[mNCepstra] = logf(1e-8f);
 
     return true;
 }

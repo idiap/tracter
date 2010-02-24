@@ -37,6 +37,10 @@ namespace Tracter
         float* mCompressed;
         float* mAutoCorrelation;
         Fourier mFourier;
+        std::vector<float> mAlpha0;
+        std::vector<float> mAlpha1;
+
+        bool bailOut(float* oData);
     };
 }
 
