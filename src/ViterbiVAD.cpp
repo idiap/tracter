@@ -167,8 +167,8 @@ void Tracter::ViterbiVAD::doForward(IndexType iIndex, float pSil){
   assert(iIndex == mLookAheadIndex);
 
   // calculate scaled likelihoods
-  float lSil = log(pSil/mSilPrior);
-  float lSpeech = log((1-pSil)/mSpeechPrior);
+  float lSil = logf(pSil/mSilPrior);
+  float lSpeech = logf((1.0-pSil)/mSpeechPrior);
 
   //  printf("============== %i ===============\n",iIndex);
   //printf("iIndex: %i   lSil: %f     lSpeech %f\n",iIndex,lSil,lSpeech);
@@ -177,9 +177,10 @@ void Tracter::ViterbiVAD::doForward(IndexType iIndex, float pSil){
   if (mLookAhead == (int)traceback.size()){
     //printf("tb: circular buffer\n");
     mIndex++;
-    std::vector<int> &tmp_tb = *traceback.begin();
+    std::vector<int> &tmp_tb = traceback.front();
     traceback.pop_front();
     traceback.push_back(tmp_tb);
+    //traceback.push_back(std::vector<int>(mSilStates+mSpeechStates));
   }else if (pSil < 0 && traceback.size() > 0){
     //printf("tb: end buffer\n");
     mIndex++;
@@ -187,7 +188,8 @@ void Tracter::ViterbiVAD::doForward(IndexType iIndex, float pSil){
     return;
   }else{
     //printf("tb: new buffer\n");
-    traceback.push_back(*(new std::vector<int>(mSilStates+mSpeechStates)));
+    //traceback.push_back(*(new std::vector<int>(mSilStates+mSpeechStates)));
+    traceback.push_back(std::vector<int>(mSilStates+mSpeechStates));
   }
   std::vector<int> &tb = traceback.back();
  
@@ -207,9 +209,20 @@ void Tracter::ViterbiVAD::doForward(IndexType iIndex, float pSil){
   for (int i = 1; i < mSilStates; i++){
     tmp_score[i] = lSil + score[i-1];
     tb[i] = i-1;
+
+    //tmp_score_a = lSil + score[i];
+    //tmp_score_b = lSil + score[i-1];
+    //if (tmp_score_a >= tmp_score_b){
+    //  tmp_score[i] = tmp_score_a;
+    //  tb[i] = i;
+    //}else{
+    //  tmp_score[0] = tmp_score_b;
+    //  tb[i] = i-1;
+    //}
+
     if (tmp_score[i] > max_score){
       max_score = tmp_score[i];
-      mBestState = i;
+      mBestState = tb[i];
     }
   }
 
@@ -231,9 +244,20 @@ void Tracter::ViterbiVAD::doForward(IndexType iIndex, float pSil){
   for (int i = mSilStates+1; i < mSilStates+mSpeechStates; i++){
     tmp_score[i] = lSpeech + score[i-1];
     tb[i] = i-1;
+
+    //tmp_score_a = lSpeech + score[i];
+    //tmp_score_b = lSpeech + score[i-1];
+    //if (tmp_score_a >= tmp_score_b){
+    //  tmp_score[i] = tmp_score_a;
+    //  tb[i] = i;
+    //}else{
+    //  tmp_score[0] = tmp_score_b;
+    //  tb[i] = i-1;
+    //}
+
     if (tmp_score[i] > max_score){
       max_score = tmp_score[i];
-      mBestState = i;
+      mBestState = tb[i];
     }
   }
 

@@ -33,8 +33,9 @@ Tracter::ViterbiVADGate::ViterbiVADGate(
 
     assert(mCollar >= 0);
 
-    Connect(iInput,mCollar);
-    Connect(iVADInput, mCollar);
+    Connect(iInput,mCollar+1);
+    //Connect(iVADInput, mCollar+1);
+    Connect(iVADInput, mCollar+10);
 }
 
 /**
@@ -83,7 +84,7 @@ bool Tracter::ViterbiVADGate::UnaryFetch(IndexType iIndex, float* oData)
         if ( mSegmenting &&
              (mSilenceConfirmed >= 0) &&
              (mSilenceConfirmed <= iIndex) )
-            throw Exception("iIndex ahead of silence");
+	  throw Exception("iIndex ahead of silence");
         assert(
             (mSilenceConfirmed < 0) ||   /* Failed to find silence */
             (mSilenceConfirmed > iIndex) /* Succeeded */
@@ -157,7 +158,8 @@ bool Tracter::ViterbiVADGate::gate(IndexType& iIndex)
       assert(mSilenceConfirmed >= mSpeechTriggered);
       if (mRemoveSilence && (mState == SILENCE_CONFIRMED)){
 	mSpeechRemoved += mSilenceConfirmed - mSpeechConfirmed;
-	if (!confirmSpeech(mSilenceConfirmed)){
+	if (!confirmSpeech(mSilenceConfirmed+1)){
+	  mSilenceConfirmed++;
 	  return false;
 	}else{
 	  iIndex += mSpeechConfirmed - mSilenceConfirmed;
@@ -230,11 +232,11 @@ bool Tracter::ViterbiVADGate::confirmSpeech(IndexType iIndex)
   while (mState == SILENCE_CONFIRMED || mState == SILENCE_TRIGGERED);
   assert(mState == SPEECH_TRIGGERED);
   mSpeechTriggered = index;
-  Verbose(2, "confirmSpeech: triggered at %ld\n", mSpeechTriggered);
+  Verbose(2, "confirmSpeech: speech triggered at %ld\n", mSpeechTriggered);
 
   mState = SPEECH_CONFIRMED;
   mSpeechConfirmed = index - mCollar >= 0 ? index-mCollar : 0;
-  Verbose(2, "confirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
+  Verbose(2, "confirmSpeech: speech confirmed at %ld\n", mSpeechConfirmed);
   return true;
 }
 
@@ -255,19 +257,20 @@ bool Tracter::ViterbiVADGate::reconfirmSpeech(IndexType iIndex)
       return false;
     }
   }
-  while (mState == SILENCE_TRIGGERED && iIndex - mIndex <= mCollar);
+  while (mState == SILENCE_TRIGGERED && iIndex - mIndex <= mCollar*2);
+  // *2 since we need to take into account the collar for the next segment
 
   if (mState == SPEECH_TRIGGERED){
     mState = SPEECH_CONFIRMED;
     //mSpeechConfirmed = iIndex-1 - mCollar >= 0 ? iIndex-1 - mCollar : 0 ;
     mSpeechTriggered = iIndex-1;
-    Verbose(2, "reconfirmSpeech: confirmed at %ld\n", mSpeechTriggered);
+    Verbose(2, "reconfirmSpeech: speech reconfirmed at %ld\n", mSpeechTriggered);
     return true;
   }
 
   mState=SILENCE_CONFIRMED;
-  mSilenceConfirmed = iIndex-1;
-  Verbose(2, "reconfirmSpeech: Silence confirmed at %ld\n",
+  mSilenceConfirmed = iIndex-mCollar-1;
+  Verbose(2, "reconfirmSpeech: silence confirmed at %ld\n",
 	  mSilenceConfirmed);
 
   return false;

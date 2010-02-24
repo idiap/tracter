@@ -88,6 +88,7 @@ namespace Tracter
     DECLARE_GRAPH_FACTORY(BSAPI)
     DECLARE_GRAPH_FACTORY(MCep)
     DECLARE_GRAPH_FACTORY(SNR)
+    DECLARE_GRAPH_FACTORY(BSAPIMLPVAD)
 
     /**
      * Factory class for Automatic Speech Recognition.

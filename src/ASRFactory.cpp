@@ -5,9 +5,21 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+/*
+ * The ASR factory is a kind of dumping ground for all sorts of ASR
+ * experiments.  The Basic and BasicVAD graphs are pretty useful, as
+ * is the BSAPI one if you have it.
+ */
+
 #include "config.h"
 
 #include "ASRFactory.h"
+
+#include "EnergyNorm.h"
+#include "Log.h"
+#include "Select.h"
+#include "ViterbiVAD.h"
+#include "ViterbiVADGate.h"
 
 #include "HTKSource.h"
 #include "LNASource.h"
@@ -121,6 +133,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     RegisterFrontend(new PLPPosteriorGraphFactory);
     RegisterFrontend(new PLPvtlnGraphFactory);
     RegisterFrontend(new BSAPIGraphFactory);
+    RegisterFrontend(new BSAPIMLPVADGraphFactory);
 #endif
 
 #ifdef HAVE_SPTK
@@ -677,3 +690,66 @@ Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
     p = normaliseVariance(p);
     return p;
 }
+
+#ifdef HAVE_BSAPI
+/**
+ * John's MLP monster thing
+ */
+Tracter::Component<float>*
+Tracter::BSAPIMLPVADGraphFactory::Create(Component<float>* iComponent)
+{
+    Component<float>* p = iComponent;
+    Component<float>* v = iComponent;
+
+    // Framer for everything
+    v = new Frame(v);
+
+    // energy extraction & VAD for energy normalisation
+    Component<float>* e;
+    e = new Energy(v);
+    e = new Log(e);
+    e = new EnergyNorm(e);
+
+    // PLP extraction
+    p = new BSAPIFrontEnd(v);
+
+    // Concatenation & normalisation
+    Concatenate *c = new Concatenate();
+    c->Add(p);
+    c->Add(e);
+    v = c;
+
+    int deltaOrder = GetEnv("MLPDeltaOrder", 2);
+    if (deltaOrder > 0)
+    {
+        c = new Concatenate();
+        c->Add(v);
+        for (int i=0; i<deltaOrder; i++){
+            Delta* d = new Delta(v);
+            c->Add(d);
+            v = d;
+        }
+        v = c;
+    }
+
+    Mean* mlpm = new Mean(v, "MLPMean");
+    v = new Subtract(v, mlpm);
+    Variance* mlpv = new Variance(v, "MLPVariance");
+    v = new Divide(v, mlpv);
+
+    // MLP computation
+    v = new MLP(v);
+    v = new Select(v,"SilSelect");
+
+    // Viterbi segmentation
+    ViterbiVAD* vit = new ViterbiVAD(v);
+    p = new ViterbiVADGate(p, vit);
+
+    // The rest of a PLP front-end
+    Mean* pm = new Mean(p);
+    p = new Subtract(p, pm);
+    p = new BSAPITransform(p);
+
+    return p;
+}
+#endif
