@@ -10,6 +10,10 @@
 
 #include "CachedComponent.h"
 
+#ifdef HAVE_LIBRESAMPLE
+# define HAVE_RESAMPLE = 1
+#endif
+
 namespace Tracter
 {
     /**

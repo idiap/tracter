@@ -52,9 +52,7 @@
 #include "Frame.h"
 #include "LPCepstrum.h"
 
-#ifdef HAVE_LIBRESAMPLE
-# include "Resample.h"
-#endif
+#include "Resample.h"
 
 #ifdef HAVE_HTKLIB
 # include "HCopyWrapper.h"
@@ -174,7 +172,7 @@ Tracter::Component<float>* Tracter::ASRFactory::CreateSource(
     else
         throw Exception("ASRFactory: Unknown source %s\n", source);
 
-#ifdef HAVE_LIBRESAMPLE
+#ifdef HAVE_RESAMPLE
     // Not sure if here is the right place...
     if (GetEnv("Resample", 0))
         component = new Resample(component);
