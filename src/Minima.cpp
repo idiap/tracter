@@ -127,7 +127,10 @@ void Tracter::MinimaWindow::growRight()
 //        printf("maxValue %e > minSum %e  di %d\n", maxValue, minSum, mDataIndex);
 //        assert(0);
 //    }
-    assert(minSum >= 0.0f);
+
+    // It can tip just below zero, but too much is wrong
+    assert(minSum >= -1e-8);
+    minSum = std::max(minSum, 0.0);
 }
 
 void Tracter::MinimaWindow::determineMaximum()
