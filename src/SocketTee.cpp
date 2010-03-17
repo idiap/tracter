@@ -16,7 +16,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <errno.h>
-
+#include "config.h"
 
 Tracter::Thread::Thread()
 {
@@ -219,7 +219,14 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
          * If the other end breaks the connection, we'd normally get a
          * SIG_PIPE signal (= bomb out).  This one returns EPIPE.
          */
-        ssize_t s = send(mFD, input, sizeof(float) * mFrame.size, MSG_NOSIGNAL);
+	#ifdef HAVE_LINUX
+          ssize_t s = send(mFD, input, sizeof(float) * mFrame.size, MSG_NOSIGNAL);
+        #endif
+
+	#ifdef HAVE_DARWIN
+          ssize_t s = send(mFD, input, sizeof(float) * mFrame.size, SO_NOSIGPIPE);
+        #endif
+
         if (s == -1)
             switch (errno)
             {

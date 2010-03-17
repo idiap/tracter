@@ -17,9 +17,7 @@ using namespace Tracter;
  */
 int main(int argc, char** argv)
 {
-    /* Trap floating point exceptions */
-    TrapFPE();
-
+    
     /*
      * It's debatable whether it's even worth catching these
      * exceptions.  If not caught, the same error messages appear via

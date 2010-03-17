@@ -77,13 +77,13 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
         for (int j=0; j<i; j++)
             sum -= a1[j] * mAutoCorrelation[i-j];
         a0[i] = sum / error;
-        if (!finitef(a0[i]))
+        if (!finite(a0[i]))
         {
             Verbose(2, "a0[%d] = %f at index %ld\n", i, a0[i], iIndex);
             return bailOut(oData);
         }
         error *= 1.0f - a0[i] * a0[i];
-        assert(finitef(error));
+        assert(finite(error));
         assert(error != 0.0f);
 
         for (int j=0; j<i; j++)
@@ -126,7 +126,7 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
         oData[i] = sum / (i+1);
         if (i < mOrder)
             oData[i] += a0[i];
-        assert(finitef(oData[i]));
+        assert(finite(oData[i]));
     }
 
     if (mC0)

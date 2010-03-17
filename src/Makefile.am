@@ -32,7 +32,6 @@ TRACTER_SOURCES = \
 	Window.cpp \
 	Extract.cpp \
 	LinearTransform.cpp \
-	Signal.cpp \
 	Frame.cpp \
 	SocketTee.cpp \
 	Tokenise.cpp \
@@ -155,10 +154,15 @@ pkginclude_HEADERS += Resample.h
 endif
 
 if WITH_RTAUDIO
-TRACTER_SOURCES += RtAudioSource.cpp
-nodist_libtracter_la_SOURCES += \
-	@RTAUDIO_DIR@/RtAudio.cpp
-libtracter_la_CPPFLAGS += -I@RTAUDIO_DIR@ -D__LINUX_ALSA__
+  TRACTER_SOURCES += RtAudioSource.cpp
+  nodist_libtracter_la_SOURCES +=@RTAUDIO_DIR@/RtAudio.cpp
+if WITH_DARWIN
+  libtracter_la_CPPFLAGS += -I@RTAUDIO_DIR@ -D__MACOSX_CORE__
+  libtracter_la_LDFLAGS += -framework CoreAudio -framework CoreFoundation
+endif
+if WITH_LINUX
+  libtracter_la_CPPFLAGS += -I@RTAUDIO_DIR@ -D__LINUX_ALSA__
+endif
 endif
 
 libtracter_la_LIBADD = \

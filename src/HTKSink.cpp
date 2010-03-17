@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "HTKSink.h"
+#include "config.h"
 
 Tracter::HTKSink::HTKSink(
     Component<float>* iInput,
@@ -99,7 +100,8 @@ void Tracter::HTKSink::Open(const char* iFile)
     {
         float* f = mInput->GetPointer(cache.offset);
         for (int i=0; i<mFrame.size; i++)
-            if (!finitef(f[i]))
+             
+	     if (!finite(f[i]))
                 throw Exception("HTKSink: !finite at %s frame %d index %d",
                                 iFile, index, i);
         if (mByteOrder.WrongEndian())

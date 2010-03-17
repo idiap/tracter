@@ -21,6 +21,29 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
+AC_CANONICAL_HOST
+
+mac_os=darwin 
+linux_os=linux
+
+lowercase_macosx_os=$(echo ${host_os:0:${#mac_os}} | tr A-Z a-z)
+lowercase_linux_os=$(echo ${host_os:0:${#linux_os}} | tr A-Z a-z)
+
+AC_MSG_NOTICE("$host_os")
+
+if test "$lowercase_macosx_os" = "$mac_os"; then
+ AC_MSG_NOTICE("MAC OS X detected ....")
+ AC_DEFINE([HAVE_DARWIN], [1], [Define if your OS is Mac OSx darwin.]) 
+fi
+
+if test "$lowercase_linux_os" = "$linux_os"; then
+ AC_MSG_NOTICE("LINUX OS detected....")
+ AC_DEFINE([HAVE_LINUX], [1], [Define if your OS is Linux.]) 
+fi
+
+AM_CONDITIONAL([WITH_DARWIN], [test "$lowercase_macosx_os" = "$mac_os"])
+AM_CONDITIONAL([WITH_LINUX], [test "$lowercase_linux_os" = "$linux_os"])
+
 
 # ALSA
 # 1.0.6 is the version on CentOS at Sheffield; our Debian's is higher

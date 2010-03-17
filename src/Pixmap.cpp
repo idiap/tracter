@@ -10,6 +10,7 @@
 #include <cfloat>
 
 #include "Pixmap.h"
+#include "config.h"
 
 Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
 {
@@ -93,7 +94,7 @@ void Tracter::Pixmap::write()
     {
         min = mMin;
         max = mMax;
-        range = std::min(max - min, exp10f(mRange/10.0f));
+	range = std::min(max - min, powf(10, mRange/10.0f));
     }
     scale = 255.0f / range;
     min = max - range;

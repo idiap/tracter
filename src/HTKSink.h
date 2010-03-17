@@ -17,6 +17,7 @@
 
 namespace Tracter
 {
+
     /**
      * Sinks to an HTK format parameter file.  The file is always written
      * big-endian.

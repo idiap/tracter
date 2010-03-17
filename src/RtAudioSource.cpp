@@ -100,8 +100,12 @@ void Tracter::RtAudioSource::Open(
     for (int i=0; i<nDevices; i++)
     {
         RtAudio::DeviceInfo di = mRtAudio.getDeviceInfo(i);
-        Verbose(1, "Device: %s\n", di.name.c_str());
-        if (di.name == iDeviceName)
+        Verbose(1, "Device detected: %s\n", di.name.c_str());
+        Verbose(1, "Device asked: %s\n", iDeviceName);
+        Verbose(1, "Length device detected: %d\n", strlen(di.name.c_str()));
+        Verbose(1, "Length device asked: %d\n", strlen(iDeviceName));
+        
+	if (di.name == iDeviceName)
         {
             device = i;
             break;
