@@ -5,6 +5,7 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cstring>
 #include <algorithm>
 
 #include "RtAudioSource.h"
