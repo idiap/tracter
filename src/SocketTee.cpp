@@ -219,13 +219,13 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
          * If the other end breaks the connection, we'd normally get a
          * SIG_PIPE signal (= bomb out).  This one returns EPIPE.
          */
-	#ifdef HAVE_LINUX
+#ifdef HAVE_LINUX
           ssize_t s = send(mFD, input, sizeof(float) * mFrame.size, MSG_NOSIGNAL);
-        #endif
+#endif
 
-	#ifdef HAVE_DARWIN
+#ifdef HAVE_DARWIN
           ssize_t s = send(mFD, input, sizeof(float) * mFrame.size, SO_NOSIGPIPE);
-        #endif
+#endif
 
         if (s == -1)
             switch (errno)
