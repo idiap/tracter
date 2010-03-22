@@ -45,12 +45,3 @@ add_custom_target(dist
     | bzip2 > ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
-
-# Some really basic system things; not very portable
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  add_definitions(-DHAVE_DARWIN)
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  add_definitions(-DHAVE_LINUX)
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
