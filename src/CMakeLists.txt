@@ -74,7 +74,8 @@ list(APPEND HEADERS
   Source.h
   )
 
-# Kiss is compulsory for now...
+# Kiss is compulsory for now
+# The library is not supplied built, so we add in the sources explicitly.
 if(KISSFFT_FOUND)
   list(APPEND SOURCES
     FourierKiss.cpp
@@ -135,40 +136,29 @@ if(ALSA_FOUND)
   list(APPEND HEADERS ALSASource.h  )
   add_definitions(-DHAVE_ALSA)
   include_directories(${ALSA_INCLUDE_DIRS})
-#  link_directories(${ALSA_LIBRARY_DIRS})
 endif(ALSA_FOUND)
 
 # SndFile pretty much like ALSA
-if(ALSA_FOUND)
+if(SNDFILE_FOUND)
   list(APPEND SOURCES SndFileSource.cpp)
   list(APPEND HEADERS SndFileSource.h  )
   add_definitions(-DHAVE_SNDFILE)
   include_directories(${SNDFILE_INCLUDE_DIRS})
-#  link_directories(${SNDFILE_LIBRARY_DIRS})
-endif(ALSA_FOUND)
+endif(SNDFILE_FOUND)
 
-# libresample. This gets build in place, possibly an LGPL violation.
+# libresample
 if(LIBRESAMPLE_FOUND) 
   list(APPEND SOURCES ResampleLRS.cpp)
-  list(APPEND SOURCES
-    ${LIBRESAMPLE_DIR}/src/resample.c
-    ${LIBRESAMPLE_DIR}/src/resamplesubs.c
-    ${LIBRESAMPLE_DIR}/src/filterkit.c    
-    )
-  include_directories(
-    ${LIBRESAMPLE_DIR}/src
-    ${LIBRESAMPLE_DIR}/include
-    )
   add_definitions(-DHAVE_RESAMPLE)
+  include_directories(${LIBRESAMPLE_INCLUDE_DIRS})
 endif(LIBRESAMPLE_FOUND)
 
-# RtAudio.  Again, build in place, although I think this one is OK.
+# RtAudio
 if(RTAUDIO_FOUND)
   list(APPEND SOURCES RtAudioSource.cpp)
   list(APPEND HEADERS RtAudioSource.h  )
-  list(APPEND SOURCES ${RTAUDIO_DIR}/RtAudio.cpp)
-  add_definitions(-DHAVE_RTAUDIO -D__LINUX_ALSA__) # Not portable!
-  include_directories(${RTAUDIO_DIRS})
+  add_definitions(-DHAVE_RTAUDIO)
+  include_directories(${RTAUDIO_INCLUDE_DIRS})
 endif(RTAUDIO_FOUND)
 
 # SPTK
@@ -193,6 +183,8 @@ target_link_libraries(shared-lib
   ${ALSA_LIBRARIES}
   ${SNDFILE_LIBRARIES}
   ${SPTK_LIBRARIES}
+  ${RTAUDIO_LIBRARIES}
+  ${LIBRESAMPLE_LIBRARIES}
   )
 
 add_executable(extracter extracter.cpp)
