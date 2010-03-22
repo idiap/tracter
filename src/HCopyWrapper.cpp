@@ -27,6 +27,8 @@
 #include "HVQ.h"
 #include "HLabel.h"
 #include "HModel.h"
+
+#undef VERSION
 #include "esignal.h"
 #ifdef UNIX
 #include <sys/ioctl.h>

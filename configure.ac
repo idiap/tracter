@@ -12,7 +12,6 @@ AC_PREREQ(2.59)
 AC_INIT([Tracter], [0.5.0])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/TracterObject.cpp])
-AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.

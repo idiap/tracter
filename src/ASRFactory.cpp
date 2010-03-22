@@ -11,8 +11,6 @@
  * is the BSAPI one if you have it.
  */
 
-#include "config.h"
-
 #include "ASRFactory.h"
 
 #include "EnergyNorm.h"

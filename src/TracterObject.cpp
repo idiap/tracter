@@ -11,7 +11,6 @@
 #include <cmath>
 
 #include "TracterObject.h"
-#include "config.h"
 
 bool Tracter::sInitialised = false;
 bool Tracter::sShowConfig = false;

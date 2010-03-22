@@ -6,7 +6,6 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include "config.h"
 #include "HTKLib.h"
 
 namespace Tracter

@@ -16,7 +16,6 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <errno.h>
-#include "config.h"
 
 Tracter::Thread::Thread()
 {

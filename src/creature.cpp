@@ -26,8 +26,6 @@
 #include "FilePath.h"
 #include "Frame.h"
 
-#include "config.h"
-
 #ifdef HAVE_ALSA
 # include "ALSASource.h"
 #endif

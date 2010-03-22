@@ -6,8 +6,6 @@
 
 #include <cstdio>
 
-#include "config.h"
-
 #ifdef HAVE_RTAUDIO
 # include "RtAudioSource.h"
 #else

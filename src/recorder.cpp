@@ -19,8 +19,6 @@
 #include <Divide.h>
 #include <Select.h>
 
-#include <config.h>
-
 #ifdef HAVE_BSAPI
 #ifdef HAVE_TORCH3
 # include <ViterbiVAD.h>

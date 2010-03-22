@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "HTKSink.h"
-#include "config.h"
 
 Tracter::HTKSink::HTKSink(
     Component<float>* iInput,

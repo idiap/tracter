@@ -10,7 +10,6 @@
 #include <cfloat>
 
 #include "Pixmap.h"
-#include "config.h"
 
 Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
 {
