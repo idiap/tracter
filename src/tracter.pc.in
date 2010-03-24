@@ -1,0 +1,11 @@
+# pkgconfig file for/from CMake
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Tracter
+Description: A data-flow framework
+Version: @VERSION@
+Libs: -L${libdir} -ltracter -l@ALSA_LIBRARIES@ -l@SNDFILE_LIBRARIES@
+Cflags: -I${includedir} @TORCH3_CFLAGS@

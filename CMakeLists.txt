@@ -29,11 +29,10 @@ find_package(LibResample)
 find_package(RtAudio)
 find_package(SPTK)
 
+add_subdirectory(src)
+
 # Configure other files
 configure_file(Doxyfile.in Doxyfile)
-configure_file(tracter.pc.in tracter.pc)
-
-add_subdirectory(src)
 
 # This one is for binary distributions
 include(CPack)

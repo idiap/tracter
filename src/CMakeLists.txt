@@ -207,10 +207,27 @@ target_link_libraries(recorder  shared-lib)
 target_link_libraries(socketserver shared-lib)
 target_link_libraries(socketclient shared-lib)
 
+# CMake install line
 install(
   TARGETS extracter recorder shared-lib
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   PUBLIC_HEADER DESTINATION include/tracter
+  )
+
+
+# This feels like a hack.
+string(REGEX REPLACE ";" " -I" TORCH3_CFLAGS "-I${TORCH3_INCLUDE_DIRS}")
+
+# pkgconfig install lines
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix "\${prefix}")
+set(libdir "\${exec_prefix}/lib")
+set(includedir "\${prefix}/include/tracter")
+configure_file(tracter.pc.in ${CMAKE_CURRENT_BINARY_DIR}/tracter.pc)
+
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/tracter.pc
+  DESTINATION lib/pkgconfig
   )
