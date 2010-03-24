@@ -7,5 +7,6 @@ includedir=@includedir@
 Name: Tracter
 Description: A data-flow framework
 Version: @VERSION@
-Libs: -L${libdir} -ltracter -l@ALSA_LIBRARIES@ -l@SNDFILE_LIBRARIES@
+Requires: @TRACTER_REQUIRES@
+Libs: -L${libdir} -ltracter
 Cflags: -I${includedir} @TORCH3_CFLAGS@

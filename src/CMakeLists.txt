@@ -1,4 +1,3 @@
-#include_directories(${CMAKE_CURRENT_BINARY_DIR}) # For config.h
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DPACKAGE_VERSION="${VERSION}")
 
@@ -145,6 +144,7 @@ if(ALSA_FOUND)
   list(APPEND HEADERS ALSASource.h  )
   add_definitions(-DHAVE_ALSA)
   include_directories(${ALSA_INCLUDE_DIRS})
+  list(APPEND PKGCONFIG_REQUIRES alsa)
 endif(ALSA_FOUND)
 
 # SndFile pretty much like ALSA
@@ -153,6 +153,7 @@ if(SNDFILE_FOUND)
   list(APPEND HEADERS SndFileSource.h  )
   add_definitions(-DHAVE_SNDFILE)
   include_directories(${SNDFILE_INCLUDE_DIRS})
+  list(APPEND PKGCONFIG_REQUIRES sndfile)
 endif(SNDFILE_FOUND)
 
 # libresample
@@ -216,9 +217,9 @@ install(
   PUBLIC_HEADER DESTINATION include/tracter
   )
 
-
 # This feels like a hack.
 string(REGEX REPLACE ";" " -I" TORCH3_CFLAGS "-I${TORCH3_INCLUDE_DIRS}")
+string(REGEX REPLACE ";" "," TRACTER_REQUIRES "${PKGCONFIG_REQUIRES}")
 
 # pkgconfig install lines
 set(prefix ${CMAKE_INSTALL_PREFIX})
