@@ -1,3 +1,19 @@
+As of March 2010, the build system is based on CMake.  To build, you
+should only need to do the following:
+
+ cd build
+ cp Configure.sh.example Configure.sh
+ (edit Configure.sh to suit your environment)
+ ./Configure.sh
+ make
+ make install
+
+You must specifiy a path to kissfft; other dependencies are optional.
+
+
+Below are instructions for the old Gnu build system.  This should be
+removed in a future version.
+
 If you got tracter as a tarball then it includes a standard gnu build
 environment.  Just follow the instructions in INSTALL, although you
 might wish to use a VPATH build described below.

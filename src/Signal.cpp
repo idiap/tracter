@@ -6,9 +6,11 @@
  */
 
 #include <signal.h>
-#include <fpu_control.h>
+#ifdef HAVE_FPU_CONTROL
+# include <fpu_control.h>
+#endif
 
-#include "Signal.h"
+#iclude "Signal.h"
 #include "TracterObject.h"
 
 namespace Tracter
@@ -93,6 +95,7 @@ void Tracter::TrapFPE()
      * UM: Underflow mask
      * PM: Precision (inexact result) mask
      */
+#ifdef HAVE_FPU_CONTROL
     fpu_control_t cw;
     _FPU_GETCW(cw);
     cw &= ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM | _FPU_MASK_UM);
@@ -104,4 +107,5 @@ void Tracter::TrapFPE()
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGFPE, &sa, 0))
         throw Exception("Error setting sigaction\n");
+#endif
 }

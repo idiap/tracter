@@ -10,6 +10,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   add_definitions(-DHAVE_LINUX)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+find_path(FPU fpu_control.h)
+if(${FPU} MATCHES "FPU-NOTFOUND")
+  message(STATUS "fpu_control.h not found")
+else()
+  message(STATUS "fpu_control.h found")
+  add_definitions(-DHAVE_FPU_CONTROL)
+endif()
+
 # Basic all-the-time sources
 set(SOURCES
   ASRFactory.cpp
@@ -19,6 +27,7 @@ set(SOURCES
   ComplexSample.cpp
   Component.cpp
   Concatenate.cpp
+  CosineTransform.cpp
   Delta.cpp
   Divide.cpp
   Energy.cpp

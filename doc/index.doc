@@ -16,7 +16,7 @@ universities of <a href="http://www.sheffield.ac.uk">Sheffield</a> and
 \section download Obtaining the source code
 
 Tracter is available <a
-href="http://www.idiap.ch/software/tracter/sources">here</a>.  It is
+href="http://juicer.amiproject.org/tracter/sources">here</a>.  It is
 released under a BSD license, which is quite permissive.  Further
 information is in the README in the distribution.
 
@@ -52,7 +52,7 @@ used to read (and soon write) standard audio file formats.
 
 Tracter is BSD licenced.  In this sense it does not contain any GPL
 licenced components.  Some (two) are available, however, in a separate
-<a href="http://www.idiap.ch/software/tracter-gpl">tracter-gpl</a>
+<a href="http://juicer.amiproject.org/tracter-gpl">tracter-gpl</a>
 distribution.
 
 \section authors Authors
@@ -60,8 +60,18 @@ distribution.
 <a href="http://www.idiap.ch/~pgarner">Phil Garner</a> wrote the
 framework and most of the components.  Other significant contributions
 have been made by <a href="http://www.idiap.ch/~dines">John Dines</a>,
+<a href="http://ch.linkedin.com/in/mi5ke">Mike Flynn</a>,
 <a href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a>, <a
 href="http://www.idiap.ch/~dkorch">Danil Korchagin</a> and <a
 href="http://www.dcs.shef.ac.uk/~vinny">Vinny Wan</a>
+
+\section list Mailing list
+
+There is no mailing list specifically for tracter, but it is covered
+by the juicer mailing list.  To join send a message to
+juicer-list-request@idiap.ch with the word "subscribe" in the body.
+It is <a
+href="http://www.gnu.org/software/mailman/index.html">mailman</a>
+managed and understands all the usual commands.
 
 */
