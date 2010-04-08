@@ -209,11 +209,17 @@ target_link_libraries(shared-lib
 add_executable(extracter extracter.cpp)
 add_executable(recorder recorder.cpp)
 
+add_executable(testfile testfile.c)
+add_executable(creature creature.cpp)
+add_executable(fft fft.cpp)
 add_executable(socketserver socketserver.cpp)
 add_executable(socketclient socketclient.cpp)
 
 target_link_libraries(extracter shared-lib)
 target_link_libraries(recorder  shared-lib)
+target_link_libraries(testfile shared-lib)
+target_link_libraries(creature shared-lib)
+target_link_libraries(fft shared-lib)
 target_link_libraries(socketserver shared-lib)
 target_link_libraries(socketclient shared-lib)
 
