@@ -58,7 +58,6 @@ set(SOURCES
   SNRSpectrum.cpp
   ScreenSink.cpp
   Select.cpp
-  Signal.cpp
   SocketSink.cpp
   SocketSource.cpp
   SocketTee.cpp
@@ -67,6 +66,7 @@ set(SOURCES
   StreamSocketSource.cpp
   Subtract.cpp
   Tokenise.cpp
+  TracterFPE.cpp
   TracterObject.cpp
   TransverseFilter.cpp
   VADGate.cpp
