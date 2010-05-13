@@ -33,6 +33,7 @@ namespace Tracter
         void* mMapData;
         int mMapSize;
         bool mLNA16;
+        bool mCheckSum;
         virtual bool UnaryFetch(IndexType iIndex, float* oData);
     };
 }

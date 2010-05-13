@@ -21,6 +21,7 @@ Tracter::LNASource::LNASource(const char* iObjectName)
 
     mMapData = 0;
     mLNA16 = GetEnv("LNA16", 0);
+    mCheckSum = GetEnv("CheckSum", 1);
 
     /* Portability check */
     assert(sizeof(unsigned short) == 2);
@@ -79,8 +80,9 @@ bool Tracter::LNASource::UnaryFetch(IndexType iIndex, float* oData)
     }
 
     /* Check the sum is close to unity */
-    if ((sum < 0.97) || (sum > 1.03))
-        throw Exception("LNASource: Checksum error at index %ld", iIndex);
+    if (mCheckSum)
+        if ((sum < 0.97) || (sum > 1.03))
+            throw Exception("LNASource: Checksum error at index %ld", iIndex);
 
     /* Check the eos value is sensible */
     if ( ((iIndex <  mMapSize-1) && (eos != 0x00)) ||
