@@ -158,11 +158,15 @@ endif(ALSA_FOUND)
 
 # SndFile pretty much like ALSA
 if(SNDFILE_FOUND)
-  list(APPEND SOURCES SndFileSource.cpp)
-  list(APPEND HEADERS SndFileSource.h  )
+  list(APPEND SOURCES SndFileSource.cpp SndFileSink.cpp)
+  list(APPEND HEADERS SndFileSource.h   SndFileSink.h  )
   add_definitions(-DHAVE_SNDFILE)
   include_directories(${SNDFILE_INCLUDE_DIRS})
   list(APPEND PKGCONFIG_REQUIRES sndfile)
+
+  # codec relies on SndFile
+  add_executable(codec codec.cpp)
+  target_link_libraries(codec shared-lib)
 endif(SNDFILE_FOUND)
 
 # libresample
@@ -214,6 +218,7 @@ add_executable(creature creature.cpp)
 add_executable(fft fft.cpp)
 add_executable(socketserver socketserver.cpp)
 add_executable(socketclient socketclient.cpp)
+add_executable(lnadump lnadump.cpp)
 
 target_link_libraries(extracter shared-lib)
 target_link_libraries(recorder  shared-lib)
@@ -222,6 +227,7 @@ target_link_libraries(creature shared-lib)
 target_link_libraries(fft shared-lib)
 target_link_libraries(socketserver shared-lib)
 target_link_libraries(socketclient shared-lib)
+target_link_libraries(lnadump shared-lib)
 
 # CMake install line
 install(
