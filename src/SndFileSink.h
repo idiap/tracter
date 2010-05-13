@@ -32,6 +32,7 @@ namespace Tracter
     private:
         Component<float>* mInput;
         SNDFILE* mSndFile;
+        int mBlockSize;
         float mFrameRate;
         int mFormat;
     };

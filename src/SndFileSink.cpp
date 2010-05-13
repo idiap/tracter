@@ -13,13 +13,15 @@ Tracter::SndFileSink::SndFileSink(
 {
     mObjectName = iObjectName;
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = mInput->Frame().size;
-    Initialise();
-    Reset();
 
     mSndFile = 0;
     mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mBlockSize = GetEnv("BlockSize", 256);
+    Connect(mInput, mBlockSize);
+
+    mFrame.size = mInput->Frame().size;
+    Initialise();
+    Reset();
 
     mFormat = SF_FORMAT_WAV;
     if (GetEnv("MAT5", 0)) mFormat = SF_FORMAT_MAT5;
@@ -47,13 +49,16 @@ void Tracter::SndFileSink::Open(const char* iFile)
     /* Pull all data */
     int index = 0;
     CacheArea cache;
-    while (mInput->Read(cache, index++))
+    while (int nGot = mInput->Read(cache, index, mBlockSize))
     {
-        float* f = mInput->GetPointer(cache.offset);
-        int nPut = (int)sf_writef_float(mSndFile, f, mFrame.size);
-        if (nPut != 1)
+        float* ip = mInput->GetPointer();
+        int nPut = 0;
+        nPut += (int)sf_writef_float(mSndFile, ip+cache.offset, cache.len[0]);
+        nPut += (int)sf_writef_float(mSndFile, ip, cache.len[1]);
+        if (nPut != nGot)
             throw Exception("SndFileSink::Open: failed to write index %d",
                             index);
+        index += nGot;
     }
 
     /* Close the file */
