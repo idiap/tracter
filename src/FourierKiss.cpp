@@ -19,6 +19,7 @@ namespace FourierKiss
 enum TransformType
 {
     REAL_TO_COMPLEX,
+    COMPLEX_TO_REAL,
     COMPLEX_TO_COMPLEX,
     DCT2
 };
@@ -69,7 +70,9 @@ Tl* Allocate(int iSize, Tc** ioCData, void** ioLData, bool* iMyData)
 
 
 /* C to C */
-void Tracter::Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
+void Tracter::Fourier::Init(
+    int iOrder, complex** ioIData, complex** ioOData, bool iInverse
+)
 {
     assert(ioIData);
     assert(ioOData);
@@ -87,7 +90,10 @@ void Tracter::Fourier::Init(int iOrder, complex** ioIData, complex** ioOData)
     Allocate<kiss_fft_cpx, complex>(iOrder, ioIData, &m.IData, &m.MyIData);
     Allocate<kiss_fft_cpx, complex>(iOrder, ioOData, &m.OData, &m.MyOData);
     m.TmpData = 0;
-    m.Config = kiss_fft_alloc(iOrder, 0, 0, 0);
+    if (iInverse)
+        m.Config = kiss_fft_alloc(iOrder, 1, 0, 0);
+    else
+        m.Config = kiss_fft_alloc(iOrder, 0, 0, 0);
 }
 
 
@@ -113,6 +119,30 @@ void Tracter::Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
     Allocate<kiss_fft_cpx, complex>(iOrder/2+1, ioOData, &m.OData, &m.MyOData);
     m.TmpData = 0;
     m.Config = kiss_fftr_alloc(iOrder, 0, 0, 0);
+}
+
+/**
+ * Complex to Real transform
+ */
+void Tracter::Fourier::Init(int iOrder, complex** ioIData, float** ioOData)
+{
+    assert(ioIData);
+    assert(ioOData);
+    assert(iOrder > 0);
+    assert(sizeof(complex) == sizeof(kiss_fft_cpx));
+
+    FourierKiss::sInstanceCount++;
+
+    assert(mFourierData == 0);
+    mFourierData = new FourierData;
+    FourierData& m = *mFourierData;
+
+    m.Type = COMPLEX_TO_REAL;
+
+    Allocate<kiss_fft_cpx, complex>(iOrder/2+1, ioIData, &m.IData, &m.MyIData);
+    Allocate<float, float>(iOrder, ioOData, &m.OData, &m.MyOData);
+    m.TmpData = 0;
+    m.Config = kiss_fftr_alloc(iOrder, 1, 0, 0);
 }
 
 /**
@@ -196,10 +226,18 @@ void Tracter::Fourier::Transform()
         }
         break;
     }
+
     case REAL_TO_COMPLEX:
         kiss_fftr(
             (kiss_fftr_cfg)m.Config,
             (const float*)m.IData, (kiss_fft_cpx*)m.OData
+        );
+        break;
+
+    case COMPLEX_TO_REAL:
+        kiss_fftri(
+            (kiss_fftr_cfg)m.Config,
+            (const kiss_fft_cpx*)m.IData, (float*)m.OData
         );
         break;
 

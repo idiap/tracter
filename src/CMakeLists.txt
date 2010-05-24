@@ -35,6 +35,7 @@ set(SOURCES
   Extract.cpp
   FilePath.cpp
   FileSink.cpp
+  FourierTransform.cpp
   Frame.cpp
   Histogram.cpp
   HTKLib.cpp
@@ -53,6 +54,7 @@ set(SOURCES
   Noise.cpp
   NoiseVAD.cpp
   Normalise.cpp
+  OverlapAdd.cpp
   Periodogram.cpp
   Pixmap.cpp
   SNRSpectrum.cpp

@@ -34,7 +34,19 @@ namespace Tracter
         virtual ~Window() throw () {}
         void Resize(int iSize, bool iDivideN = false);
         float* Apply(const float* iData, float* oData) const;
-        const float operator[](int iIndex) { return mWeight[iIndex]; }
+        const float operator[](int iIndex) {
+            return mWeight[iIndex];
+        }
+
+        /**
+         * Scale the window by a constant value.  Particularly
+         * (perhaps only) useful to divide through by N in an inverse
+         * transform.
+         */
+        void Scale(float iScale) {
+            for (unsigned int i=0; i<mWeight.size(); i++)
+                mWeight[i] *= iScale;
+        }
 
     private:
         std::vector<float> mWeight;

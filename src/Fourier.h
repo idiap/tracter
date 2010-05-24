@@ -46,14 +46,20 @@ namespace Tracter
 
         /** Constructor, including initialisation of complex to complex
          * transform */
-        Fourier(int iOrder, complex** ioIData, complex** ioOData)
+        Fourier(
+            int iOrder, complex** ioIData, complex** ioOData,
+            bool iInverse=false
+        )
         {
             mFourierData = 0;
-            Init(iOrder, ioIData, ioOData);
+            Init(iOrder, ioIData, ioOData, iInverse);
         }
 
         /** Initialise a complex to complex transform */
-        void Init(int iOrder, complex** ioIData, complex** ioOData);
+        void Init(
+            int iOrder, complex** ioIData, complex** ioOData,
+            bool iInverse=false
+        );
 
         /** Constructor, including initialisation of real to complex
          * transform */
@@ -65,6 +71,17 @@ namespace Tracter
 
         /** Initialise a real to complex transform */
         void Init(int iOrder, float** ioIData, complex** ioOData);
+
+        /** Constructor, including initialisation of complex to real
+         * transform */
+        Fourier(int iOrder, complex** ioIData, float** ioOData)
+        {
+            mFourierData = 0;
+            Init(iOrder, ioIData, ioOData);
+        }
+
+        /** Initialise a complex to real transform */
+        void Init(int iOrder, complex** ioIData, float** ioOData);
 
         /** Constructor, including initialisation of real to real transform */
         Fourier(int iOrder, float** ioIData, float** ioOData)

@@ -41,6 +41,11 @@ Tracter::Window::Window(const char* iObjectName, int iSize)
         Resize(iSize);
 }
 
+/**
+ * Resize the window.  The window is, by default, symmetrical.  If
+ * iDivideN is true, the window is made asymmetrical
+ * (see http://en.wikipedia.org/wiki/Window_function)
+ */
 void Tracter::Window::Resize(int iSize, bool iDivideN)
 {
     const float PI = 3.14159265358979323846;

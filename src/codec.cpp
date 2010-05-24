@@ -7,19 +7,35 @@
 #include <SndFileSource.h>
 #include <SndFileSink.h>
 
+#include <Frame.h>
+#include <FourierTransform.h>
+#include <OverlapAdd.h>
+
 using namespace Tracter;
 
+/**
+ * Originally, perhaps only, a testbed for overlap add.  The idea here
+ * is that the class copies audio to audio allowing the various
+ * conversions that the components allow.
+ */
 class Codec : public Tracter::Object
 {
 public:
     Codec()
     {
         mObjectName = "Codec";
-        //Component<float>* p = 0;
 
         // Source
         SndFileSource *s = new SndFileSource();
-        mSink = new SndFileSink(s);
+        Component<float>* p = s;
+#if 1
+        Component<complex>* c = 0;
+        p = new Frame(p);
+        c = new FourierTransformR2C(p, "DFT");
+        p = new FourierTransformC2R(c, "IDFT");
+        p = new OverlapAdd(p);
+#endif
+        mSink = new SndFileSink(p);
         mSource = s;
     }
 
