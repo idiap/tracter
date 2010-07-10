@@ -5,7 +5,7 @@
 
 Tracter is a data flow framework.  It was written initially for doing
 speech signal processing in the context of <a
-href="http://www.idiap.ch/software/juicer">Juicer</a>.  It has
+href="http://juicer.amiproject.org/juicer">Juicer</a>.  It has
 developed into more of a wrapper for other packages.  For instance, it
 can generate HTK features by linking with HTK's library.  Written and
 maintained at Idiap, tracter contains contributions from other <a
@@ -60,10 +60,14 @@ distribution.
 <a href="http://www.idiap.ch/~pgarner">Phil Garner</a> wrote the
 framework and most of the components.  Other significant contributions
 have been made by <a href="http://www.idiap.ch/~dines">John Dines</a>,
-<a href="http://ch.linkedin.com/in/mi5ke">Mike Flynn</a>,
-<a href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a>, <a
+<a href="http://ch.linkedin.com/in/mi5ke">Mike Flynn</a>, <a
+href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a>, <a
 href="http://www.idiap.ch/~dkorch">Danil Korchagin</a> and <a
-href="http://www.dcs.shef.ac.uk/~vinny">Vinny Wan</a>
+href="http://www.dcs.shef.ac.uk/~vinny">Vinny Wan</a>.  Packaging and
+Mac port by <a href="http://www.idiap.ch/~bornet">Olivier Bornet</a>
+and <a
+href="http://ch.linkedin.com/pub/alexandre-nanchen/1/aa2/24a">Alexandre
+Nanchen</a>.
 
 \section list Mailing list
 
