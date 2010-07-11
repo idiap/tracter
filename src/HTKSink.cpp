@@ -22,7 +22,8 @@ Tracter::HTKSink::HTKSink(
     Reset();
 
     mFile = 0;
-    mByteOrder.SetTarget(ENDIAN_BIG);
+    Endian endian = (Endian)GetEnv(sEndian, ENDIAN_BIG);
+    mByteOrder.SetTarget(endian);
     if (mByteOrder.WrongEndian())
         mTemp.resize(mFrame.size);
 
@@ -32,22 +33,26 @@ Tracter::HTKSink::HTKSink(
     mSampPeriod = (int)(period * 1e7f + 0.5);
     mSampSize = mFrame.size * sizeof(float);
 
-    /* Default parameter type is USER; others set by environment */
-    mParmKind = 9;
-    if (GetEnv("LPC",       0)) mParmKind = 1;
-    if (GetEnv("LPCEPSTRA", 0)) mParmKind = 3;
-    if (GetEnv("MFCC",      0)) mParmKind = 6;
-    if (GetEnv("FBANK",     0)) mParmKind = 7;
-    if (GetEnv("MELSPEC",   0)) mParmKind = 8;
-    if (GetEnv("PLP",       0)) mParmKind = 11;
+    /* Parameter type is mutually exclusive, default to USER */
+    const StringEnum cParmKind[] = {
+        {"LPC",       1},
+        {"LPCEPSTRA", 3},
+        {"MFCC",      6},
+        {"FBANK",     7},
+        {"MELSPEC",   8},
+        {"USER",      9},
+        {"PLP",      11},
+    };
+    mParmKind = GetEnv(cParmKind, 9);
 
-    if (GetEnv("E", 0)) mParmKind |= 000100;
-    if (GetEnv("N", 0)) mParmKind |= 000200;
-    if (GetEnv("D", 0)) mParmKind |= 000400;
-    if (GetEnv("A", 0)) mParmKind |= 001000;
-    if (GetEnv("Z", 0)) mParmKind |= 004000;
-    if (GetEnv("0", 0)) mParmKind |= 020000;
-    if (GetEnv("T", 0)) mParmKind |= 100000;
+    /* Modifiers can be mixed */
+    if (GetEnv("E", 0)) mParmKind |= 0000100;
+    if (GetEnv("N", 0)) mParmKind |= 0000200;
+    if (GetEnv("D", 0)) mParmKind |= 0000400;
+    if (GetEnv("A", 0)) mParmKind |= 0001000;
+    if (GetEnv("Z", 0)) mParmKind |= 0004000;
+    if (GetEnv("0", 0)) mParmKind |= 0020000;
+    if (GetEnv("T", 0)) mParmKind |= 0100000;
 }
 
 void Tracter::HTKSink::WriteHeader(FILE* iFile)
@@ -99,8 +104,7 @@ void Tracter::HTKSink::Open(const char* iFile)
     {
         float* f = mInput->GetPointer(cache.offset);
         for (int i=0; i<mFrame.size; i++)
-             
-	     if (!finite(f[i]))
+            if (!finite(f[i]))
                 throw Exception("HTKSink: !finite at %s frame %d index %d",
                                 iFile, index, i);
         if (mByteOrder.WrongEndian())
