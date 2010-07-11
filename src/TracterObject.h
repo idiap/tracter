@@ -19,6 +19,14 @@ namespace Tracter
     extern bool sShowConfig;
     extern int sVerbose;
 
+    /** String to enumerated value mapping */
+    struct StringEnum
+    {
+        const char* str;
+        int val;
+    };
+
+
     /**
      * Root of all tracter objects.
      *
@@ -49,11 +57,14 @@ namespace Tracter
         float GetEnv(const char* iSuffix, float iDefault);
         int GetEnv(const char* iSuffix, int iDefault);
         const char* GetEnv(const char* iSuffix, const char* iDefault);
+        int GetEnv(const StringEnum* iStringEnum, int iDefault);
 
         void Verbose(int iLevel, const char* iString, ...) const;
 
     private:
-        const char* getEnv(const char* iSuffix, const char* iDefault);
+        const char* getEnv(
+            const char* iSuffix, const char* iDefault, bool iEcho = true
+        );
     };
 
     const int STRING_SIZE = 512;

@@ -8,6 +8,8 @@
 #ifndef BYTEORDER_H
 #define BYTEORDER_H
 
+#include "TracterObject.h" // for StringEnum
+
 namespace Tracter
 {
     /** Indicator of desired or measured byte order */
@@ -15,8 +17,11 @@ namespace Tracter
     {
         ENDIAN_BIG,
         ENDIAN_LITTLE,
-        ENDIAN_NATIVE
+        ENDIAN_NATIVE,
+        ENDIAN_UNDEF
     };
+
+    extern StringEnum sEndian[];
 
     /**
      * Stores the byte ordering of the machine, along with that of a
@@ -41,8 +46,8 @@ namespace Tracter
         void SetTarget(Endian iEndian)
         {
             mTarget = iEndian;
-            if (mSource == ENDIAN_NATIVE)
-                mSource = mNative;
+            if (mTarget == ENDIAN_NATIVE)
+                mTarget = mNative;
         }
 
         /** returns true if the source and target byte order are different */

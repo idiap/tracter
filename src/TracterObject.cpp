@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <cstdarg>
+#include <cstring>
 
 #include "TracterObject.h"
 
@@ -46,14 +48,14 @@ Tracter::Object::Object()
  * set.
  */
 const char* Tracter::Object::getEnv(
-    const char* iSuffix, const char* iDefault
+    const char* iSuffix, const char* iDefault, bool iEcho
 )
 {
     assert(mObjectName);
     char env[256];
     snprintf(env, 256, "%s_%s", mObjectName, iSuffix);
     const char* ret = getenv(env);
-    if (Tracter::sShowConfig)
+    if (iEcho && Tracter::sShowConfig)
     {
         snprintf(env, 256, "export %s_%s=%s", mObjectName, iSuffix,
                  ret ? ret : iDefault);
@@ -111,7 +113,49 @@ const char* Tracter::Object::GetEnv(
     return iDefault;
 }
 
-#include <cstdarg>
+/**
+ * Get an enumeration from an environment variable.
+ *
+ * The idea here is that all the possible enumerations are requested
+ * separately.  That way, the user sees all possible options when they
+ * are echoed.
+ */
+int Tracter::Object::GetEnv(const StringEnum* iStringEnum, int iDefault)
+{
+    const char* def[] = {"0", "1"};
+
+    /*
+     * This is a bit tricky.  We need two passes; the first is to find
+     * out whether anything is set, the second echos the setting, be
+     * it default or environment.
+     */
+    int i = -1;
+    int match = 0;
+    while (iStringEnum[++i].str)
+    {
+        // Suppress echo; just count
+        if (const char* r = getEnv(iStringEnum[i].str, def[0], false))
+            if (strcmp(r, def[0]) != 0)
+                match++;
+    }
+    bool useDefault = (match == 0);
+
+    i = -1;
+    int ret = -1;
+    while (iStringEnum[++i].str)
+    {
+        int d = (useDefault && (iStringEnum[i].val == iDefault)) ? 1 : 0;
+        if (const char* r = getEnv(iStringEnum[i].str, def[d]))
+            if (strcmp(r, def[0]) != 0)
+                ret = iStringEnum[i].val;
+    }
+    if (match > 1)
+        throw Exception("%s: enumeration with multiple values", mObjectName);
+    if (useDefault)
+        return iDefault;
+    return ret;
+}
+
 
 /**
  * Verbose output.  Prints output to stdout depending on the verbosity

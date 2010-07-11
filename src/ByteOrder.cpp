@@ -10,6 +10,21 @@
 
 #include "ByteOrder.h"
 
+namespace Tracter
+{
+    /**
+     * Map endian strings to enumeration for GetEnv().  Final entry
+     * must be 0.
+     */
+    StringEnum sEndian[] = {
+        {"BigEndian",    ENDIAN_BIG},
+        {"LittleEndian", ENDIAN_LITTLE},
+        {"NativeEndian", ENDIAN_NATIVE},
+        {0,              ENDIAN_UNDEF}
+    };
+}
+
+
 /** Determine native byte order and initialise source and target ordering */
 Tracter::ByteOrder::ByteOrder()
 {
