@@ -19,18 +19,16 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
     assert(mFrame.size >= 0);
 
     mAdaptStart = 0;
-    mVarianceType = VARIANCE_ADAPTIVE;
 
+    const StringEnum cVarianceType[] = {
+        {"Adaptive", VARIANCE_ADAPTIVE},
+        {"Static",   VARIANCE_STATIC},
+        {"Fixed",    VARIANCE_FIXED},
+        {0,          -1}
+    };
+    mVarianceType = (VarianceType)GetEnv(cVarianceType, VARIANCE_ADAPTIVE);
     mBurnIn = GetEnv("BurnIn", 20);
     mPersistent = GetEnv("Persistent", 0);
-
-    if (const char* env = GetEnv("Type", "ADAPTIVE"))
-    {
-        if (strcmp(env, "STATIC") == 0)
-            mVarianceType = VARIANCE_STATIC;
-        else if (strcmp(env, "FIXED") == 0)
-            mVarianceType = VARIANCE_FIXED;
-    }
 
     switch (mVarianceType)
     {

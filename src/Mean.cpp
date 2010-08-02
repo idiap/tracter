@@ -18,16 +18,13 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size >= 0);
 
-    mMeanType = MEAN_ADAPTIVE;
-
-    if (const char* env = GetEnv("Type", "ADAPTIVE"))
-    {
-        if (strcmp(env, "STATIC") == 0)
-            mMeanType = MEAN_STATIC;
-        else if (strcmp(env, "FIXED") == 0)
-            mMeanType = MEAN_FIXED;
-    }
-
+    const StringEnum cMeanType[] = {
+        {"Adaptive", MEAN_ADAPTIVE},
+        {"Static",   MEAN_STATIC},
+        {"Fixed",    MEAN_FIXED},
+        {0,          -1}
+    };
+    mMeanType = (MeanType)GetEnv(cMeanType, MEAN_ADAPTIVE);
     mPersistent = GetEnv("Persistent", 0);
 
     switch (mMeanType)
