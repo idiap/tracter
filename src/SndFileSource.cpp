@@ -47,7 +47,9 @@ void Tracter::SndFileSource::Open(
         char tmp[1024];
         snprintf(tmp, 1024, "sox %s /tmp/soxfile.wav", iFileName);
         Verbose(1, "%s\n", tmp);
-        system(tmp);
+        int ret = system(tmp);
+        if (ret)
+            Verbose(1, "returned %d\n", ret);
         iFileName = "/tmp/soxfile.wav";
     }
     SF_INFO sfInfo;
