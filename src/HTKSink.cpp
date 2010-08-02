@@ -42,6 +42,7 @@ Tracter::HTKSink::HTKSink(
         {"MELSPEC",   8},
         {"USER",      9},
         {"PLP",      11},
+        {0,          -1}
     };
     mParmKind = GetEnv(cParmKind, 9);
 

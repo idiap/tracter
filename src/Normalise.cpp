@@ -18,19 +18,7 @@ Tracter::Normalise::Normalise(
     mFrame.size = mInput->Frame().size;
     Connect(mInput);
 
-    Endian endian = ENDIAN_NATIVE;
-    const char* env = GetEnv("Endian", "NATIVE");
-    if (env)
-    {
-        if (strcmp(env, "BIG") == 0)
-            endian = ENDIAN_BIG;
-        else if (strcmp(env, "LITTLE") == 0)
-            endian = ENDIAN_LITTLE;
-        else if (strcmp(env, "NATIVE") == 0)
-            endian = ENDIAN_NATIVE;
-        else
-            throw Exception("Normalise: Unknown byte order: %s\n", env);
-    }
+    Endian endian = (Endian)GetEnv(sEndian, ENDIAN_NATIVE);
     mByteOrder.SetSource(endian);
 }
 
