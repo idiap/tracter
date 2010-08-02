@@ -13,12 +13,13 @@ Tracter::HTKSource::HTKSource(const char* iObjectName)
 {
     mObjectName = iObjectName;
     mFrame.size = GetEnv("FrameSize", 39);
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
-    mFrame.period = GetEnv("FramePeriod", 80);
+    mFrameRate = GetEnv("FrameRate", 100.0f);
+    mFrame.period = GetEnv("FramePeriod", 1);
 
     mMapData = 0;
     mNSamples = 0;
-    mByteOrder.SetSource(ENDIAN_BIG);
+    Endian endian = (Endian)GetEnv(sEndian, ENDIAN_BIG);
+    mByteOrder.SetSource(endian);
 }
 
 
@@ -89,9 +90,12 @@ void Tracter::HTKSource::Open(
                         " sample size %d/4 not equal to expected size %d\n",
                         sampSize, mFrame.size);
 
-    if (nSamples * sampSize + 12 != mMap.Size())
-        throw Exception("HTKSource:"
-                        " data size in header not equal to size in file\n");
+    if (nSamples * sampSize + 12 > mMap.Size())
+        throw Exception(
+            "HTKSource:"
+            " data size %d in header not equal to size in file %d\n",
+            nSamples * sampSize + 12, mMap.Size()
+        );
 
     Verbose(1, "nSamples: %d  parm: %ho\n", nSamples, parmKind);
     mNSamples = nSamples;
