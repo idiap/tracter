@@ -350,7 +350,7 @@ Tracter::GraphFactory::normaliseVariance(Component<float>* iComponent)
     bool cvn = GetEnv("NormaliseVariance", 0);
     if (cvn)
     {
-        Variance* v = new Variance(iComponent);
+        Component<float>* v = new Variance(iComponent);
         Divide* d = new Divide(iComponent, v);
         component = d;
     }
@@ -378,7 +378,10 @@ Tracter::CMVNGraphFactory::Create(Component<float>* iComponent)
     p = normaliseMean(p);
     p = deltas(p);
     p = normaliseVariance(p);
-    p = new LinearTransform(p);
+
+    // Doesn't really belong, but it's easy to "comment out" behind the option
+    if (GetEnv("LinearTransform", false))
+        p = new LinearTransform(p);
     return p;
 }
 
