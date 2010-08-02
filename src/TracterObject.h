@@ -16,7 +16,8 @@
 namespace Tracter
 {
     extern bool sInitialised;
-    extern bool sShowConfig;
+    extern bool sShConfig;
+    extern bool sCshConfig;
     extern int sVerbose;
 
     /** String to enumerated value mapping */
