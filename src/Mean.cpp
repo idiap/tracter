@@ -10,6 +10,16 @@
 
 #include "Mean.h"
 
+namespace Tracter
+{
+    const StringEnum cMeanType[] = {
+        {"Adaptive", MEAN_ADAPTIVE},
+        {"Static",   MEAN_STATIC},
+        {"Fixed",    MEAN_FIXED},
+        {0,          -1}
+    };
+}
+
 Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -18,12 +28,6 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size >= 0);
 
-    const StringEnum cMeanType[] = {
-        {"Adaptive", MEAN_ADAPTIVE},
-        {"Static",   MEAN_STATIC},
-        {"Fixed",    MEAN_FIXED},
-        {0,          -1}
-    };
     mMeanType = (MeanType)GetEnv(cMeanType, MEAN_ADAPTIVE);
     mPersistent = GetEnv("Persistent", 0);
 

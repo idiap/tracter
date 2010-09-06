@@ -20,6 +20,8 @@ namespace Tracter
         MEAN_ADAPTIVE
     };
 
+    extern const StringEnum cMeanType[];
+
     /**
      * Calculates the mean (over time) of the input stream, typically
      * for Cepstral Mean Normalisation.
@@ -34,6 +36,13 @@ namespace Tracter
 
     protected:
         bool UnaryFetch(IndexType iIndex, float* oData);
+
+        void DotHook()
+        {
+            CachedComponent<float>::DotHook();
+            DotRecord(1, "pole=%.2f", mPole);
+            DotRecord(1, "type=%s", cMeanType[mMeanType].str);
+        }
 
     private:
         Component<float>* mInput;

@@ -20,6 +20,8 @@ namespace Tracter
         VARIANCE_ADAPTIVE
     };
 
+    extern const StringEnum cVarianceType[];
+
     /**
      * Calculates the variance (over time) of the input stream, typically for
      * Cepstral Variance Normalisation.
@@ -34,6 +36,13 @@ namespace Tracter
 
     protected:
         bool UnaryFetch(IndexType iIndex, float* oData);
+
+        void DotHook()
+        {
+            CachedComponent<float>::DotHook();
+            DotRecord(1, "pole=%.2f", mPole);
+            DotRecord(1, "type=%s", cVarianceType[mVarianceType].str);
+        }
 
     private:
         Component<float>* mInput;

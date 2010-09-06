@@ -17,7 +17,6 @@
 
 namespace Tracter
 {
-
     /**
      * Sinks to an HTK format parameter file.  The file is always written
      * big-endian.
@@ -28,6 +27,14 @@ namespace Tracter
         HTKSink(Component<float>* iInput, const char* iObjectName = "HTKSink");
         virtual ~HTKSink() throw() { Delete(); }
         void Open(const char* iFile);
+
+    protected:
+        void DotHook()
+        {
+            Sink::DotHook();
+            DotRecord(1, "swap=%s", mByteOrder.WrongEndian() ? "yes" : "no");
+            DotRecord(1, "parm=0x%x", mParmKind);
+        }
 
     private:
         Component<float>* mInput;

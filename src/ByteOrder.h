@@ -21,7 +21,7 @@ namespace Tracter
         ENDIAN_UNDEF
     };
 
-    extern StringEnum sEndian[];
+    extern const StringEnum cEndian[];
 
     /**
      * Stores the byte ordering of the machine, along with that of a

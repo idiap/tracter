@@ -24,6 +24,12 @@ namespace Tracter
         );
         void MinSize(int iSize, int iReadBehind, int iReadAhead);
 
+        void DotHook()
+        {
+            CachedComponent<float>::DotHook();
+            DotRecord(1, "swap=%s", mByteOrder.WrongEndian() ? "yes" : "no");
+        }
+
     protected:
         Component<short>* mInput;
         ByteOrder mByteOrder;

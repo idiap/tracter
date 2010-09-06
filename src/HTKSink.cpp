@@ -22,7 +22,7 @@ Tracter::HTKSink::HTKSink(
     Reset();
 
     mFile = 0;
-    Endian endian = (Endian)GetEnv(sEndian, ENDIAN_BIG);
+    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_BIG);
     mByteOrder.SetTarget(endian);
     if (mByteOrder.WrongEndian())
         mTemp.resize(mFrame.size);

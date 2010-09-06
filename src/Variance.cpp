@@ -11,6 +11,16 @@
 
 #include "Variance.h"
 
+namespace Tracter
+{
+    const StringEnum cVarianceType[] = {
+        {"Adaptive", VARIANCE_ADAPTIVE},
+        {"Static",   VARIANCE_STATIC},
+        {"Fixed",    VARIANCE_FIXED},
+        {0,          -1}
+    };
+}
+
 Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -20,12 +30,6 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
 
     mAdaptStart = 0;
 
-    const StringEnum cVarianceType[] = {
-        {"Adaptive", VARIANCE_ADAPTIVE},
-        {"Static",   VARIANCE_STATIC},
-        {"Fixed",    VARIANCE_FIXED},
-        {0,          -1}
-    };
     mVarianceType = (VarianceType)GetEnv(cVarianceType, VARIANCE_ADAPTIVE);
     mBurnIn = GetEnv("BurnIn", 20);
     mPersistent = GetEnv("Persistent", 0);

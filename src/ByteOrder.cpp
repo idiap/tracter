@@ -16,7 +16,7 @@ namespace Tracter
      * Map endian strings to enumeration for GetEnv().  Final entry
      * must be 0.
      */
-    StringEnum sEndian[] = {
+    const StringEnum cEndian[] = {
         {"BigEndian",    ENDIAN_BIG},
         {"LittleEndian", ENDIAN_LITTLE},
         {"NativeEndian", ENDIAN_NATIVE},
@@ -24,8 +24,9 @@ namespace Tracter
     };
 }
 
-
-/** Determine native byte order and initialise source and target ordering */
+/**
+ * Determine native byte order and initialise source and target ordering
+ */
 Tracter::ByteOrder::ByteOrder()
 {
     /* A short and two chars in the same location */

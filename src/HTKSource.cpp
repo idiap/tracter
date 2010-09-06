@@ -18,7 +18,7 @@ Tracter::HTKSource::HTKSource(const char* iObjectName)
 
     mMapData = 0;
     mNSamples = 0;
-    Endian endian = (Endian)GetEnv(sEndian, ENDIAN_BIG);
+    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_BIG);
     mByteOrder.SetSource(endian);
 }
 
