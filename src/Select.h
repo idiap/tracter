@@ -22,6 +22,13 @@ namespace Tracter
     protected:
         bool UnaryFetch(IndexType iIndex, float* oData);
 
+        void DotHook()
+        {
+            CachedComponent<float>::DotHook();
+            DotRecord(1, "lo=%d", mLoIndex);
+            DotRecord(1, "hi=%d", mHiIndex);
+        }
+
     private:
         Component<float>* mInput;
         int mLoIndex;

@@ -598,8 +598,10 @@ int Tracter::ComponentBase::ContiguousFetch(
  */
 void Tracter::ComponentBase::Dot()
 {
+    bool lr = GetEnv("DotLR", false);
     printf("digraph tracter {\n");
-    //printf("rankdir=LR;\n");
+    if (lr)
+        printf("rankdir=LR;\n");
     Dot(0);
     printf("}\n");
 }
@@ -624,7 +626,9 @@ Tracter::ComponentBase::Dot(int iDot)
     if (-sVerbose > 0)
         printf("}|{");
     DotRecord(2, "frame.size=%d", mFrame.size);
-    DotRecord(2, "frame.period=%d", mFrame.period);
+    DotRecord(2, "frame.period=%.1f", mFrame.period);
+    ExactRateType r = ExactFrameRate();
+    DotRecord(2, "rate=%.1f/%.1f", r.rate, r.period);
     DotHook();
     printf("}\"];\n");
     int max = mDot;

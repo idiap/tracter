@@ -26,6 +26,12 @@ namespace Tracter
     protected:
         bool UnaryFetch(IndexType iIndex, float* oData);
 
+        void DotHook()
+        {
+            CachedComponent<float>::DotHook();
+            DotRecord(1, "win=%d=%d+1+%d", mWindow, mTheta, mTheta);
+        }
+
     private:
         Component<float>* mInput;
         int mTheta;
