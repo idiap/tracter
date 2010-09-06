@@ -26,7 +26,7 @@ namespace Tracter
         ScreenSink(
             Component<float>* iInput, const char* iObjectName = "ScreenSink"
         );
-        virtual ~ScreenSink() throw() { Delete(); }
+        virtual ~ScreenSink() throw() {}
         void Open();
 
     private:

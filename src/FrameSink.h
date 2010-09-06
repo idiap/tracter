@@ -35,6 +35,8 @@ namespace Tracter
             Verbose(1, "frame rate %f\n", FrameRate());
         }
 
+        virtual ~FrameSink() throw () {}
+
         /** Get the array with the given index. */
         const T* Read(
             int iIndex  ///< Index of the required array

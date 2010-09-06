@@ -25,7 +25,7 @@ namespace Tracter
     {
     public:
         HTKSink(Component<float>* iInput, const char* iObjectName = "HTKSink");
-        virtual ~HTKSink() throw() { Delete(); }
+        virtual ~HTKSink() throw() {}
         void Open(const char* iFile);
 
     protected:

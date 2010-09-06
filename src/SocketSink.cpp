@@ -123,8 +123,6 @@ Tracter::SocketSink::~SocketSink() throw()
 #endif
         mFD = 0;
     }
-
-    Delete();
 }
 
 void Tracter::SocketSink::Pull()

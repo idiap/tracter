@@ -11,9 +11,8 @@
 #include <cstdio>
 #include <vector>
 
-#include "Component.h"
-#include "Sink.h"
 #include "ByteOrder.h"
+#include "Sink.h"
 
 namespace Tracter
 {
@@ -23,8 +22,10 @@ namespace Tracter
     class FileSink : public Sink
     {
     public:
-        FileSink(Component<float>* iInput, const char* iObjectName = "FileSink");
-        virtual ~FileSink() throw() { Delete(); }
+        FileSink(
+            Component<float>* iInput, const char* iObjectName = "FileSink"
+        );
+        virtual ~FileSink() throw() {}
         void Open(const char* iFile);
 
     private:

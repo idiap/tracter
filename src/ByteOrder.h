@@ -8,6 +8,8 @@
 #ifndef BYTEORDER_H
 #define BYTEORDER_H
 
+#include <cassert>
+
 #include "TracterObject.h" // for StringEnum
 
 namespace Tracter

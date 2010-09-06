@@ -22,14 +22,20 @@ namespace Tracter
      * It makes sense for a sink to form the base of something that
      * naturally pulls data, or for a sink to provide a method that pulls
      * data for non-tracter-aware routines.
-     *
-     * N.B., there is no destructor in this base class.  In particular, it
-     * does not call Delete() as that function requires inputs to be
-     * defined.  Classes derived from this, however, can choose to
-     * implement a destructor that calls Delete().
      */
     class Sink : public ComponentBase
     {
+        /*
+         * PNG: As of September 2010, I'm not sure what this comment
+         * is on about.  I put the Delete here because it's easy to
+         * forget otherwise.
+         *
+         * " N.B., there is no destructor in this base class.  In
+         * particular, it does not call Delete() as that function
+         * requires inputs to be defined.  Classes derived from this,
+         * however, can choose to implement a destructor that calls
+         * Delete(). "
+         */
     public:
         Sink()
         {
@@ -38,7 +44,7 @@ namespace Tracter
             mMinReadAhead = 0;
             mMaxReadAhead = 0;
         }
-        ~Sink() throw () {}
+        virtual ~Sink() throw () { Delete(); }
 
         /** Fetch() should not be called on a sink */
         int Fetch(IndexType iIndex, CacheArea& iOutputArea)
