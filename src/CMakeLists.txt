@@ -210,6 +210,7 @@ target_link_libraries(shared-lib
   ${SPTK_LIBRARIES}
   ${RTAUDIO_LIBRARIES}
   ${LIBRESAMPLE_LIBRARIES}
+  ${Boost_LIBRARIES}
   )
 
 add_executable(extracter extracter.cpp)

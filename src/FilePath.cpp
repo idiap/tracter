@@ -1,6 +1,5 @@
 /*
- * Copyright 2008 by IDIAP Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2008 by IDIAP Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -9,12 +8,7 @@
 #include <cstdio>
 #include <errno.h>
 
-#ifdef _WIN32
-# include <direct.h>
-#else
-# include <sys/stat.h>
-# include <sys/types.h>
-#endif
+#include <boost/filesystem/convenience.hpp>
 
 #include "TracterObject.h"
 #include "FilePath.h"
@@ -74,35 +68,7 @@ void Tracter::FilePath::MakePath()
     if (mPath.size() == 0)
         return;
 
-    // Copy to temp storage so we can mess with it
-    mTmp.resize(mPath.size()+1);
-    mPath.copy(&mTmp[0], mTmp.size());
-    mTmp[mPath.size()] = '\0';
-
-    // Replace separators with nulls
-    // Ignore the first character
-    for (unsigned int i=1; i<mTmp.size(); i++)
-    {
-        if ((mTmp[i] == '/') || (mTmp[i] == '\0'))
-        {
-            mTmp[i] = '\0';
-            if (
-#ifdef _WIN32
-                mkdir(&mTmp[0]) &&
-#else
-                mkdir(&mTmp[0], 0777) &&
-#endif
-                (errno != EEXIST)
-            )
-            {
-                perror("mkdir");
-                Dump();
-                throw Exception("FilePath: MakePath failed for \"%s\"",
-                                &mTmp[0]);
-            }
-            mTmp[i] = '/';
-        }
-    }
+    boost::filesystem::create_directories(mPath);
 }
 
 /**

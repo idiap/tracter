@@ -17,7 +17,12 @@ cmake_minimum_required(VERSION 2.6)
 project(tracter)
 set(VERSION 0.6.0)
 
-# Find packages
+# Find boost, get rid of the version number
+find_package(Boost COMPONENTS filesystem REQUIRED)
+string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
+message(STATUS "Boost lib is ${Boost_LIBRARIES}")
+
+# Find other packages
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 find_package(KissFFT REQUIRED)
 find_package(Torch3)
@@ -29,6 +34,7 @@ find_package(LibResample)
 find_package(RtAudio)
 find_package(SPTK)
 
+add_subdirectory(bin)
 add_subdirectory(src)
 
 # Configure other files
