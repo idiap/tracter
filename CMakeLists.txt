@@ -33,6 +33,7 @@ find_package(SndFile)
 find_package(LibResample)
 find_package(RtAudio)
 find_package(SPTK)
+find_package(PulseAudio)
 
 add_subdirectory(bin)
 add_subdirectory(src)

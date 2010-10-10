@@ -32,6 +32,10 @@
 # include "RtAudioSource.h"
 #endif
 
+#ifdef HAVE_PULSEAUDIO
+# include "PulseAudioSource.h"
+#endif
+
 #ifdef HAVE_SNDFILE
 # include "SndFileSource.h"
 #endif
@@ -104,6 +108,9 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 #endif
 #ifdef HAVE_RTAUDIO
     RegisterSource(new RtAudioSourceFactory);
+#endif
+#ifdef HAVE_PULSEAUDIO
+    RegisterSource(new PulseAudioSourceFactory);
 #endif
 #ifdef HAVE_SNDFILE
     RegisterSource(new SndFileSourceFactory);
@@ -244,6 +251,19 @@ Tracter::Component<float>*
 Tracter::RtAudioSourceFactory::Create(ISource*& iSource)
 {
     RtAudioSource* s = new RtAudioSource();
+    iSource = s;
+    return s;
+}
+#endif
+
+#ifdef HAVE_PULSEAUDIO
+/**
+ * Instantiates an PulseAudioSource followed by a Normalise component
+ */
+Tracter::Component<float>*
+Tracter::PulseAudioSourceFactory::Create(ISource*& iSource)
+{
+    PulseAudioSource* s = new PulseAudioSource();
     iSource = s;
     return s;
 }

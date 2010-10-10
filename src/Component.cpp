@@ -577,7 +577,8 @@ int Tracter::ComponentBase::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     len += ContiguousFetch(iIndex, iOutputArea.len[0], iOutputArea.offset);
     if (len < iOutputArea.len[0])
         return len;
-    len += ContiguousFetch(iIndex+len, iOutputArea.len[1], 0);
+    if (iOutputArea.len[1] > 0)
+        len += ContiguousFetch(iIndex+len, iOutputArea.len[1], 0);
 
     return len;
 }

@@ -57,6 +57,7 @@ set(SOURCES
   OverlapAdd.cpp
   Periodogram.cpp
   Pixmap.cpp
+  PulseAudioSource.cpp
   SNRSpectrum.cpp
   ScreenSink.cpp
   Select.cpp
@@ -194,6 +195,15 @@ if(SPTK_FOUND)
   include_directories(${SPTK_INCLUDE_DIRS})
 endif(SPTK_FOUND)
 
+# PulseAudio is another pkgconfig one
+if(PULSEAUDIO_FOUND)
+  list(APPEND SOURCES PulseAudioSource.cpp) # PulseAudioSink.cpp)
+  list(APPEND HEADERS PulseAudioSource.h)   # PulseAudioSink.h  )
+  add_definitions(-DHAVE_PULSEAUDIO)
+  include_directories(${PULSEAUDIO_INCLUDE_DIRS})
+  list(APPEND PKGCONFIG_REQUIRES libpulse)
+endif(PULSEAUDIO_FOUND)
+
 # A little wordy, but allows static lib also with the same syntax
 add_library(shared-lib SHARED ${SOURCES})
 set_target_properties(shared-lib
@@ -211,6 +221,7 @@ target_link_libraries(shared-lib
   ${RTAUDIO_LIBRARIES}
   ${LIBRESAMPLE_LIBRARIES}
   ${Boost_LIBRARIES}
+  ${PULSEAUDIO_LIBRARIES}
   )
 
 add_executable(extracter extracter.cpp)
