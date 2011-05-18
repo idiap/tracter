@@ -57,7 +57,6 @@ set(SOURCES
   OverlapAdd.cpp
   Periodogram.cpp
   Pixmap.cpp
-  PulseAudioSource.cpp
   SNRSpectrum.cpp
   ScreenSink.cpp
   Select.cpp
