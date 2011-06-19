@@ -64,7 +64,6 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
     CacheArea inputArea;
 
     float filter = 0.0f;
-    float energy = 0.0f;
 
     if (iIndex == 0)
     {
@@ -73,7 +72,6 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
         const float* p = mInput->UnaryRead(iIndex);
         if (!p)
             return false;
-        energy = p[0];
         for (int i=0; i<mLookBehind; i++)
             mDFT.Transform(p[0], 0.0f);
 
@@ -97,7 +95,6 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
     /* Current value */
     if (!mInput->Read(inputArea, iIndex))
         return false;
-    energy = *mInput->GetPointer(inputArea.offset);
 
     /* Now the new lookahead value.  Read back from the end until it's
      * found.  It'll be the first hit unless near the end */
