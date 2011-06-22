@@ -18,7 +18,8 @@ namespace Tracter
     {
     public:
         CosineTransform(
-            Component<float>* iInput, const char* iObjectName = "CosineTransform"
+            Component<float>* iInput,
+            const char* iObjectName = "CosineTransform"
         );
         virtual ~CosineTransform() throw() {}
 
@@ -31,6 +32,7 @@ namespace Tracter
         float* mIData;
         float* mOData;
         Window* mWindow;
+        int mCZeroIndex;
     };
 }
 

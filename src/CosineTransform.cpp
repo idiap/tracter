@@ -28,6 +28,8 @@ Tracter::CosineTransform::CosineTransform(
         mWindow = new Window(mObjectName, mFrame.size);
     else
         mWindow = 0;
+
+    mCZeroIndex = GetEnv("CZeroIndex", 0);
 }
 
 bool Tracter::CosineTransform::UnaryFetch(IndexType iIndex, float* oData)
@@ -49,14 +51,21 @@ bool Tracter::CosineTransform::UnaryFetch(IndexType iIndex, float* oData)
     mDCT.Transform();
 
     // Copy to output
-#if 1
-    for (int i=0; i<mFrame.size; i++)
-        oData[i] = mOData[i];
-#else
-    // A hack to simulate HTK feature order
-    for (int i=0; i<12; i++)
-        oData[i] = mOData[i+1];
-    oData[12] = mOData[0];
-#endif
+    if (mCZeroIndex)
+    {
+        // A hack only really useful to simulate HTK feature order
+        for (int i=0; i<mCZeroIndex; i++)
+            oData[i] = mOData[i+1];
+        oData[mCZeroIndex] = mOData[0];
+        for (int i=mCZeroIndex+1; i<mFrame.size; i++)
+            oData[i] = mOData[i];
+    }
+    else
+    {
+        // A raw copy.  In fact the above would work, but it's ugly.
+        for (int i=0; i<mFrame.size; i++)
+            oData[i] = mOData[i];
+    }
+
     return true;
 }
