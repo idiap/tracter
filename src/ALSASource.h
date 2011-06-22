@@ -35,6 +35,7 @@ namespace Tracter
         snd_output_t* mOutput;
         snd_pcm_t* mHandle;
         snd_pcm_status_t* mStatus;
+        IndexType mMaxIndex;
 
         static void staticCallback(snd_async_handler_t *iHandler);
         snd_pcm_uframes_t setHardwareParameters();

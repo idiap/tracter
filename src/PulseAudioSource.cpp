@@ -21,6 +21,10 @@ Tracter::PulseAudioSource::PulseAudioSource(const char* iObjectName)
     mFrame.size = GetEnv("FrameSize", 1);
     mFrame.period = 1;
     mHandle = 0;
+
+    /* Limit the time for which we can connect */
+    float maxTime = GetEnv("MaxTime", 0.0f);
+    mMaxIndex = SecondsToFrames(maxTime);
 }
 
 Tracter::PulseAudioSource::~PulseAudioSource() throw()
@@ -45,28 +49,31 @@ void Tracter::PulseAudioSource::Open(
     /* Helper variables for the device */
     int error;
     const char* server = (*iDeviceName == 0) ? 0 : iDeviceName;
-    pa_sample_spec spec = {
-        PA_SAMPLE_FLOAT32LE, // Need an endian check here
-        mFrameRate,
-        mFrame.size
-    };
-    pa_buffer_attr attr = {
-        (uint32_t) -1,
-        0, 0, 0,
-        (uint32_t) -1
-    };
+
+    /* Sample spec */
+    pa_sample_spec spec;
+    spec.format = PA_SAMPLE_FLOAT32NE;
+    spec.rate = mFrameRate;
+    spec.channels = mFrame.size;
+
+    /* Buffer attributes */
+    // pa_buffer_attr attr = {
+    //     (uint32_t) -1,
+    //     0, 0, 0,
+    //     (uint32_t) -1
+    // };
 
     /* Connect to the device */
     mHandle = pa_simple_new(
-        server,
-        mObjectName,
-        PA_STREAM_RECORD,
-        0,
-        mObjectName,
-        &spec,
-        0,
-        &attr,
-        &error
+        server,           // Server name
+        mObjectName,      // Application name
+        PA_STREAM_RECORD, // Stream direction
+        0,                // Device
+        mObjectName,      // Stream name
+        &spec,            // Sample format
+        0,                // Channel map
+        0,                // Buffering attributes
+        &error            // Error code
     );
 
     /* Die if it failed */
@@ -83,11 +90,24 @@ int Tracter::PulseAudioSource::ContiguousFetch(
     IndexType iIndex, int iLength, int iOffset
 )
 {
-    /* I am assuming that it reads a whole buffer-full here */
+    if (mMaxIndex)
+        if (iIndex > mMaxIndex)
+            return 0;
+
+    /* I'm assuming that it reads a whole buffer-full here */
     int error;
-    int ret = pa_simple_read(mHandle, GetPointer(iOffset), iLength, &error);
+    int ret = pa_simple_read(
+        mHandle,
+        GetPointer(iOffset),
+        iLength * sizeof(float),
+        &error
+    );
     if (ret < 0)
         throw Exception("%s: Failed to read %d samples. %s",
                         mObjectName, iLength, pa_strerror(error));
+
+    if (mMaxIndex)
+        if (iIndex + iLength > mMaxIndex)
+            return mMaxIndex - iIndex;
     return iLength;
 }

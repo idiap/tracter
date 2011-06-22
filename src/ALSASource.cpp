@@ -49,6 +49,10 @@ Tracter::ALSASource::ALSASource(const char* iObjectName)
     /* Allocate space and output to stdout */
     ALSACheck( snd_pcm_status_malloc(&mStatus) );
     ALSACheck( snd_output_stdio_attach(&mOutput, stdout, 0) );
+
+    /* Limit the time for which we can connect */
+    float maxTime = GetEnv("MaxTime", 0.0f);
+    mMaxIndex = SecondsToFrames(maxTime);
 }
 
 Tracter::ALSASource::~ALSASource() throw()
@@ -206,6 +210,9 @@ int Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     Verbose(3, "Fetch: requested: %d %d\n",
             iOutputArea.len[0], iOutputArea.len[1]);
+    if (mMaxIndex)
+        if (iIndex > mMaxIndex)
+            return 0;
 
     /* The fetch is actually completely asynchronous, so just sleep
      * until the head pointer passes where we need to be */
@@ -221,5 +228,8 @@ int Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     }
 
     // Done
+    if (mMaxIndex)
+        if (iIndex + iOutputArea.Length() > mMaxIndex)
+            return mMaxIndex - iIndex;
     return iOutputArea.Length();
 }

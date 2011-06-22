@@ -16,7 +16,7 @@
 namespace Tracter
 {
     /**
-     * Source component that reads data from a PULSEAUDIO device.
+     * Source component that reads data from a PulseAudio device.
      */
     class PulseAudioSource : public Source< CachedComponent<float> >
     {
@@ -34,6 +34,7 @@ namespace Tracter
 
     private:
         pa_simple* mHandle;
+        IndexType mMaxIndex;
     };
 }
 
