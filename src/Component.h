@@ -46,6 +46,7 @@ namespace Tracter
         float period;  ///< Frame period of this component
     };
 
+    typedef char BoolType;       ///< Tracter bool - vector<bool> is special
     typedef long IndexType;      ///< Integer type of a frame index
 
     /** Index / Offset pair for internal cache management */

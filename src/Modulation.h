@@ -27,8 +27,8 @@ namespace Tracter
         const complex& Transform(float iNew, float iOld);
         void Reset()
         {
-            mState.real() = 0.0f;
-            mState.imag() = 0.0f;
+            mState.real() = 0.0;
+            mState.imag() = 0.0;
         }
 
     private:

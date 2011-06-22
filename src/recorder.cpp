@@ -5,9 +5,10 @@
  */
 
 #include <Source.h>
-#include <FileSink.h>
+#include <SndFileSink.h>
 #include <ASRFactory.h>
 #include <Frame.h>
+#include <Unframe.h>
 #include <Energy.h>
 #include <Modulation.h>
 #include <NoiseVAD.h>
@@ -29,6 +30,11 @@
 #endif
 #endif
 
+#include "Minima.h"
+#include "Comparator.h"
+#include "TimedLatch.h"
+#include "Gate.h"
+
 using namespace Tracter;
 
 class Record : public Tracter::Object
@@ -41,24 +47,65 @@ public:
         Component<float>* p = 0;
         VADStateMachine* sm = 0;
 
+        // Choose a VAD
+        enum {
+            MODULATION,
+            NEW_MODULATION,
+            MLP,
+            MODULATION_MLP,
+            VITERBI_MLP
+        };
+        const StringEnum cVAD[] = {
+            {"Modulation",    MODULATION},
+            {"NewModulation", NEW_MODULATION},
+            {"MLP",           MLP},
+            {"ModulationMLP", MODULATION_MLP},
+            {"ViterbiMLP",    VITERBI_MLP},
+            {0,               -1}
+        };
+        int vad = GetEnv(cVAD, -1);
+
         // Source
         p = fac.CreateSource(mSource);
 
-        // Modulation VAD
-        if (GetEnv("Modulation", 1))
+        switch (vad)
+        {
+            // Modulation VAD
+        case MODULATION:
         {
             Component<float>* v = p;
             v = new Frame(v);
             v = new Energy(v);
             Modulation* m = new Modulation(v);
             sm = new NoiseVAD(m, v);
-            // Drop through
+            p = new Frame(p);
+            if (!GetEnv("NoVAD", 0))
+                p = new VADGate(p, sm);
+            p = new Unframe(p);
+            break;
+        }
+
+        // New Modulation VAD
+        case NEW_MODULATION:
+        {
+            Component<float>* v = p;
+            v = new Frame(v);
+            v = new Energy(v);
+            Modulation* m = new Modulation(v);
+            Component<float>* n = new Minima(v);
+            Component<BoolType>* b = new Comparator(m, n);
+            b = new TimedLatch(b);
+            p = new Frame(p);
+            if (!GetEnv("NoVAD", 0))
+                p = new Gate(p, b);
+            p = new Unframe(p);
+            break;
         }
 
 #ifdef HAVE_BSAPI
 #ifdef HAVE_TORCH3
         // MLP VAD
-        else if (GetEnv("MLP", 0))
+        case MLP:
         {
             Component<float>* v = p;
             v = new Frame(v, "MLPFrame");
@@ -69,11 +116,15 @@ public:
             v = new Divide(v, mlpv);
             v = new MLP(v);
             sm = new MLPVAD(v);
-            // Drop through
+            p = new Frame(p);
+            if (!GetEnv("NoVAD", 0))
+                p = new VADGate(p, sm);
+            p = new Unframe(p);
+            break;
         }
 
         // Modulation MLP VAD
-        else if (GetEnv("ModulationMLP", 0))
+        case MODULATION_MLP:
         {
             Component<float>* v = p;
             v = new Frame(v, "MLPFrame");
@@ -86,11 +137,15 @@ public:
             v = new Select(v);
             v = new Modulation(v);
             sm = new MLPVAD(v);
-            // Drop through
+            p = new Frame(p);
+            if (!GetEnv("NoVAD", 0))
+                p = new VADGate(p, sm);
+            p = new Unframe(p);
+            break;
         }
 
         // Viterbi MLP VAD
-        else if (GetEnv("ViterbiMLP", 0))
+        case VITERBI_MLP:
         {
             Component<float>* v = p;
             v = new Frame(v, "MLPFrame");
@@ -104,22 +159,18 @@ public:
             ViterbiVAD* vit = new ViterbiVAD(v);
             p = new Frame(p);
             p = new ViterbiVADGate(p, vit);
-            mSink = new FileSink(p);
-
-            // DON'T drop through
-            return;
+            p = new Unframe(p);
+            break;
         }
 
 #endif
 #endif
-
-        // Gate
-        p = new Frame(p);
-        if (!GetEnv("NoVAD", 0))
-            p = new VADGate(p, sm);
+        default:
+            Verbose(1, "No VAD, or not compiled in\n");
+        }
 
         // Sink
-        mSink = new FileSink(p);
+        mSink = new SndFileSink(p);
     }
 
     virtual ~Record() throw ()
@@ -137,14 +188,14 @@ public:
                 "(and don't forget to set your environment variables!)\n"
             );
 
-        Verbose(0, "%s -> %s\n", argv[1], argv[2]);
+        Verbose(1, "%s -> %s\n", argv[1], argv[2]);
         mSource->Open(argv[1]);
         mSink->Open(argv[2]);
     }
 
 private:
     ISource* mSource;
-    FileSink* mSink;
+    SndFileSink* mSink;
 };
 
 int main(int argc, char* argv[])

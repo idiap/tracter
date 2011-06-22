@@ -12,8 +12,8 @@
 void Tracter::SlidingDFT::SetRotation(int iBin, int iNBins)
 {
     float a = 2.0f * M_PI * iBin / iNBins;
-    float r = cosf(a);
-    float i = sinf(a);
+    float r = cos(a);
+    float i = sin(a);
     mRotation = complex(r, i);
 }
 
@@ -61,52 +61,59 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
     Verbose(3, "iIndex %ld\n", iIndex);
     assert(iIndex == mIndex+1);
     mIndex = iIndex;
-    CacheArea inputArea;
-
-    float filter = 0.0f;
 
     if (iIndex == 0)
     {
-        /* Reset and prime half the DFT with the first sample */
+        /*
+         * This is quite tricky.  We need to make the DFT memory look
+         * like it's been running continuously up to index -1.  That
+         * is, reset, then shift in mLookBehind + 1 + mLookAhead
+         * samples.  Below, assume a window of 12+1+12 = 25 frames.
+         */
         mDFT.Reset();
-        const float* p = mInput->UnaryRead(iIndex);
+        int len = mLookAhead;
+        const float* p = mInput->ContiguousRead(0, len);
         if (!p)
             return false;
-        for (int i=0; i<mLookBehind; i++)
+        assert(len == mLookAhead); // The cache should be big enough
+
+        /* Prime with the first sample for all the missing ones */
+        for (int i=0; i<mLookBehind+1; i++)
             mDFT.Transform(p[0], 0.0f);
 
-        /* Prime the rest of the DFT with the look-ahead. */
-        if (!mInput->Read(inputArea, iIndex, mLookAhead+1))
-            return false;
-        assert(inputArea.len[1] == 0); // The cache should be big enough
-        p = mInput->GetPointer(inputArea.offset);
-        for (int i=0; i<mLookAhead+1; i++)
+        /* Prime the rest with the look-ahead; this includes the first
+         * sample once more, so there are 14 copies of the first
+         * sample */
+        for (int i=0; i<mLookAhead; i++)
             mDFT.Transform(p[i], 0.0f);
     }
 
-    /* Read the old value - the one just behind the DFT window */
-    IndexType oldIndex = iIndex > mLookBehind
+    /* Read the old value - the one just behind the DFT window.  This
+     * should be index zero the first 14 times for a 12+1+12 window */
+    IndexType loIndex = iIndex > mLookBehind
         ? iIndex - mLookBehind - 1
         : 0;
-    if (!mInput->Read(inputArea, oldIndex))
+    const float* oldVal = mInput->UnaryRead(loIndex);
+    if (!oldVal)
         return false;
-    float oldVal = *mInput->GetPointer(inputArea.offset);
 
-    /* Current value */
-    if (!mInput->Read(inputArea, iIndex))
+    /* Check that the current value is valid */
+    if (!mInput->UnaryRead(iIndex))
         return false;
 
     /* Now the new lookahead value.  Read back from the end until it's
      * found.  It'll be the first hit unless near the end */
-    IndexType in = 0;
-    for (in=iIndex+mLookAhead; in>=iIndex; in--)
-        if (mInput->Read(inputArea, in))
+    const float* newVal;
+    for (IndexType hiIndex=iIndex+mLookAhead; hiIndex>=iIndex; hiIndex--)
+    {
+        newVal = mInput->UnaryRead(hiIndex);
+        if (newVal)
             break;
-    float newVal = *mInput->GetPointer(inputArea.offset);
+    }
 
     /* Do the transform */
-    complex tmp = mDFT.Transform(newVal, oldVal);
-    filter = abs(tmp);
+    complex tmp = mDFT.Transform(*newVal, *oldVal);
+    float filter = abs(tmp);
     filter /= mNBins;
     *oData = filter;
     return true;

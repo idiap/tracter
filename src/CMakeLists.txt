@@ -23,6 +23,7 @@ set(SOURCES
   ASRFactory.cpp
   ByteOrder.cpp
   Cepstrum.cpp
+  Comparator.cpp
   ComplexPeriodogram.cpp
   ComplexSample.cpp
   Component.cpp
@@ -37,6 +38,7 @@ set(SOURCES
   FileSink.cpp
   FourierTransform.cpp
   Frame.cpp
+  Gate.cpp
   Histogram.cpp
   HTKLib.cpp
   HTKSink.cpp
@@ -67,10 +69,12 @@ set(SOURCES
   SpectralSubtract.cpp
   StreamSocketSource.cpp
   Subtract.cpp
+  TimedLatch.cpp
   Tokenise.cpp
   TracterFPE.cpp
   TracterObject.cpp
   TransverseFilter.cpp
+  Unframe.cpp
   VADGate.cpp
   VADStateMachine.cpp
   Variance.cpp
@@ -149,7 +153,7 @@ if(BSAPI_FOUND)
   include_directories(${BSAPI_INCLUDE_DIRS})
 endif(BSAPI_FOUND)
 
-# ALSA is a system thng, depends on whether pkgconfig found it
+# ALSA is a system thing, depends on whether pkgconfig found it
 if(ALSA_FOUND)
   list(APPEND SOURCES ALSASource.cpp)
   list(APPEND HEADERS ALSASource.h  )

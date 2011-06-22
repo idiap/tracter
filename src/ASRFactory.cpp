@@ -91,6 +91,10 @@
 #include "Minima.h"
 #include "TransverseFilter.h"
 
+#include "Comparator.h"
+#include "TimedLatch.h"
+#include "Gate.h"
+
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
     mObjectName = iObjectName;
@@ -446,8 +450,18 @@ Tracter::BasicVADGraphFactory::Create(Component<float>* iComponent)
     v = new Frame(v);
     v = new Energy(v);
     Modulation* m = new Modulation(v);
+#if 0
+    // Old VAD
     NoiseVAD* mv = new NoiseVAD(m, v);
     v = new VADGate(p, mv);
+#else
+    // New VAD
+    Component<float>* n = new Minima(v);
+//    n = new Mean(n);
+    Component<BoolType>* b = new Comparator(m, n);
+    b = new TimedLatch(b);
+    v = new Gate(p, b);
+#endif
 
     return v;
 }

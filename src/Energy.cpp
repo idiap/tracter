@@ -5,6 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cmath>
+
 #include "Energy.h"
 
 Tracter::Energy::Energy(
@@ -32,5 +34,6 @@ bool Tracter::Energy::UnaryFetch(IndexType iIndex, float* oData)
         *oData += p[i] * p[i];
 
     // Done
+    Verbose(2, "plot %ld %e\n", iIndex, 10.0*log10(*oData));
     return true;
 }
