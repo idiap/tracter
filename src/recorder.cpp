@@ -79,8 +79,7 @@ public:
             Modulation* m = new Modulation(v);
             sm = new NoiseVAD(m, v);
             p = new Frame(p);
-            if (!GetEnv("NoVAD", 0))
-                p = new VADGate(p, sm);
+            p = new VADGate(p, sm);
             p = new Unframe(p);
             break;
         }
@@ -96,8 +95,7 @@ public:
             Component<BoolType>* b = new Comparator(m, n);
             b = new TimedLatch(b);
             p = new Frame(p);
-            if (!GetEnv("NoVAD", 0))
-                p = new Gate(p, b);
+            p = new Gate(p, b);
             p = new Unframe(p);
             break;
         }
@@ -117,8 +115,7 @@ public:
             v = new MLP(v);
             sm = new MLPVAD(v);
             p = new Frame(p);
-            if (!GetEnv("NoVAD", 0))
-                p = new VADGate(p, sm);
+            p = new VADGate(p, sm);
             p = new Unframe(p);
             break;
         }
@@ -138,8 +135,7 @@ public:
             v = new Modulation(v);
             sm = new MLPVAD(v);
             p = new Frame(p);
-            if (!GetEnv("NoVAD", 0))
-                p = new VADGate(p, sm);
+            p = new VADGate(p, sm);
             p = new Unframe(p);
             break;
         }
