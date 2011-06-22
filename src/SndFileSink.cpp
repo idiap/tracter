@@ -15,17 +15,23 @@ Tracter::SndFileSink::SndFileSink(
     mInput = iInput;
 
     mSndFile = 0;
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
     mBlockSize = GetEnv("BlockSize", 256);
     Connect(mInput, mBlockSize);
 
+    mFrameRate = GetEnv("FrameRate", FrameRate());
     mFrame.size = mInput->Frame().size;
     Initialise();
     Reset();
 
-    mFormat = SF_FORMAT_WAV;
-    if (GetEnv("MAT5", 0)) mFormat = SF_FORMAT_MAT5;
-    if (GetEnv("NIST", 0)) mFormat = SF_FORMAT_NIST;
+    // There are lots; see: http://www.mega-nerd.com/libsndfile/api.html
+    const StringEnum cFormat[] = {
+        {"WAV",  SF_FORMAT_WAV},
+        {"MAT5", SF_FORMAT_MAT5},
+        {"NIST", SF_FORMAT_NIST},
+        {"FLAC", SF_FORMAT_FLAC},
+        {0, -1}
+    };
+    mFormat = GetEnv(cFormat, SF_FORMAT_WAV);
 }
 
 /**
