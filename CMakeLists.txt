@@ -15,7 +15,7 @@ cmake_minimum_required(VERSION 2.6)
 
 # Top level project information
 project(tracter)
-set(VERSION 0.6.0)
+set(VERSION 1.0.0)
 
 # Find boost, get rid of the version number
 find_package(Boost COMPONENTS filesystem REQUIRED)
