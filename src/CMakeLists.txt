@@ -97,6 +97,12 @@ list(APPEND HEADERS
   Source.h
   )
 
+# Things to install
+set(INSTALL_TARGETS
+  extracter
+  static-lib
+)
+
 # Kiss is compulsory for now
 # The library is not supplied built, so we add in the sources explicitly.
 if(KISSFFT_FOUND)
@@ -170,9 +176,12 @@ if(SNDFILE_FOUND)
   include_directories(${SNDFILE_INCLUDE_DIRS})
   list(APPEND PKGCONFIG_REQUIRES sndfile)
 
-  # codec relies on SndFile
+  # codec and recorder rely on SndFile
   add_executable(codec codec.cpp)
-  target_link_libraries(codec shared-lib)
+  add_executable(recorder recorder.cpp)
+  target_link_libraries(codec static-lib)
+  target_link_libraries(recorder  static-lib)
+  list(APPEND INSTALL_TARGETS recorder)
 endif(SNDFILE_FOUND)
 
 # libresample
@@ -204,17 +213,11 @@ if(PULSEAUDIO_FOUND)
   list(APPEND HEADERS PulseAudioSource.h)   # PulseAudioSink.h  )
   add_definitions(-DHAVE_PULSEAUDIO)
   include_directories(${PULSEAUDIO_INCLUDE_DIRS})
-  list(APPEND PKGCONFIG_REQUIRES libpulse)
+  list(APPEND PKGCONFIG_REQUIRES libpulse-simple)
 endif(PULSEAUDIO_FOUND)
 
 # A little wordy, but allows static lib also with the same syntax
-add_library(shared-lib SHARED ${SOURCES})
-set_target_properties(shared-lib
-  PROPERTIES OUTPUT_NAME   "tracter"
-             PUBLIC_HEADER "${HEADERS}"
-  )
-
-target_link_libraries(shared-lib
+set(TARGET_LIBS
   ${TORCH3_LIBRARIES}
   ${HTK_LIBRARIES}
   ${BSAPI_LIBRARIES}
@@ -225,10 +228,31 @@ target_link_libraries(shared-lib
   ${LIBRESAMPLE_LIBRARIES}
   ${Boost_LIBRARIES}
   ${PULSEAUDIO_LIBRARIES}
+)
+
+# Static library
+add_library(static-lib STATIC ${SOURCES})
+set_target_properties(static-lib
+  PROPERTIES OUTPUT_NAME   "tracter"
+             PUBLIC_HEADER "${HEADERS}"
   )
+target_link_libraries(static-lib ${TARGET_LIBS})
+
+# Shared library
+set(USE_SHARED $ENV{USE_SHARED}
+  CACHE BOOLEAN "Whether to build shared library"
+  )
+if (USE_SHARED)
+  add_library(shared-lib SHARED ${SOURCES})
+  set_target_properties(shared-lib
+    PROPERTIES OUTPUT_NAME   "tracter"
+    PUBLIC_HEADER "${HEADERS}"
+    )
+  target_link_libraries(shared-lib ${TARGET_LIBS})
+  list(APPEND INSTALL_TARGETS shared-lib)
+endif (USE_SHARED)
 
 add_executable(extracter extracter.cpp)
-add_executable(recorder recorder.cpp)
 
 add_executable(testfile testfile.c)
 add_executable(creature creature.cpp)
@@ -237,18 +261,18 @@ add_executable(socketserver socketserver.cpp)
 add_executable(socketclient socketclient.cpp)
 add_executable(lnadump lnadump.cpp)
 
-target_link_libraries(extracter shared-lib)
-target_link_libraries(recorder  shared-lib)
-target_link_libraries(testfile shared-lib)
-target_link_libraries(creature shared-lib)
-target_link_libraries(fft shared-lib)
-target_link_libraries(socketserver shared-lib)
-target_link_libraries(socketclient shared-lib)
-target_link_libraries(lnadump shared-lib)
+# These link static for the time being.  Could be changed.
+target_link_libraries(extracter static-lib)
+target_link_libraries(testfile static-lib)
+target_link_libraries(creature static-lib)
+target_link_libraries(fft static-lib)
+target_link_libraries(socketserver static-lib)
+target_link_libraries(socketclient static-lib)
+target_link_libraries(lnadump static-lib)
 
 # CMake install line
 install(
-  TARGETS extracter recorder shared-lib
+  TARGETS ${INSTALL_TARGETS}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

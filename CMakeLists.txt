@@ -15,7 +15,7 @@ cmake_minimum_required(VERSION 2.6)
 
 # Top level project information
 project(tracter)
-set(VERSION 1.0.0)
+set(VERSION 1.0)
 
 # Find boost, get rid of the version number
 find_package(Boost COMPONENTS filesystem REQUIRED)
@@ -23,6 +23,11 @@ string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
 message(STATUS "Boost lib is ${Boost_LIBRARIES}")
 
 # Find other packages
+#
+# To build *totally* static, comment out ALSA, SndFile, PulseAudio and
+# RtAudio.  Pulse on Ubuntu doesn't have static libraries; the others
+# use dynamic loading (maybe...)
+#
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 find_package(KissFFT REQUIRED)
 find_package(Torch3)
@@ -30,10 +35,11 @@ find_package(HTK)
 find_package(BSAPI)
 find_package(ALSA)
 find_package(SndFile)
+find_package(PulseAudio)
+
 find_package(LibResample)
 find_package(RtAudio)
 find_package(SPTK)
-find_package(PulseAudio)
 
 add_subdirectory(bin)
 add_subdirectory(src)
