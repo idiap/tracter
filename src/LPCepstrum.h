@@ -34,6 +34,7 @@ namespace Tracter
         int mNCepstra;
         bool mC0;
         float mCompressionPower;
+        float mRidge;
         float* mCompressed;
         float* mAutoCorrelation;
         Fourier mFourier;

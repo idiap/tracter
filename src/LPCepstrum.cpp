@@ -25,6 +25,7 @@ Tracter::LPCepstrum::LPCepstrum(
 
     mOrder = GetEnv("Order", 14);
     mCompressionPower = GetEnv("CompressionPower", 0.33f);
+    mRidge = GetEnv("Ridge", 0.0f);
 
     // We get as many autocorrelation coeffs as input dimensions
     if (mOrder >= mNCompressed)
@@ -61,7 +62,7 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
     mAlpha1.assign(mOrder, 0.0f);
     float* a0 = &mAlpha0.front();  // Current alphas
     float* a1 = &mAlpha1.front();  // Previous alphas
-    float error = mAutoCorrelation[0];
+    float error = mAutoCorrelation[0] * (mRidge + 1.0f);
 
     if (error < 1e-8f)
     {
