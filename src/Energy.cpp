@@ -34,6 +34,6 @@ bool Tracter::Energy::UnaryFetch(IndexType iIndex, float* oData)
         *oData += p[i] * p[i];
 
     // Done
-    Verbose(2, "plot %ld %e\n", iIndex, 10.0*log10(*oData));
+    Verbose(4, "plot %ld %e\n", iIndex, 10.0*log10(*oData));
     return true;
 }

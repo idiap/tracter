@@ -7,6 +7,7 @@
 
 #include "PulseAudioSource.h"
 
+#include <cstring>
 #include <pulse/error.h>
 
 /**
@@ -49,6 +50,8 @@ void Tracter::PulseAudioSource::Open(
     /* Helper variables for the device */
     int error;
     const char* server = (*iDeviceName == 0) ? 0 : iDeviceName;
+    if (strcmp(server, "default") == 0)
+        server = 0;
 
     /* Sample spec */
     pa_sample_spec spec;

@@ -47,8 +47,8 @@ bool Tracter::Comparator::UnaryFetch(IndexType iIndex, BoolType* oData)
     *oData = state;
 
     /* Feedback */
-    if (sVerbose >= 2) // ie, dont always do the log calculations
-        Verbose(2, "plot %ld %e %e %e %d\n",
+    if (sVerbose >= 4) // ie, dont always do the log calculations
+        Verbose(4, "plot %ld %e %e %e %d\n",
                 iIndex,
                 10.0*log10f(*input1),
                 10.0*log10f(*input2),

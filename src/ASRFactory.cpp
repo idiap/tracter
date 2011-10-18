@@ -450,18 +450,20 @@ Tracter::BasicVADGraphFactory::Create(Component<float>* iComponent)
     v = new Frame(v);
     v = new Energy(v);
     Modulation* m = new Modulation(v);
-#if 0
-    // Old VAD
-    NoiseVAD* mv = new NoiseVAD(m, v);
-    v = new VADGate(p, mv);
-#else
-    // New VAD
-    Component<float>* n = new Minima(v);
-//    n = new Mean(n);
-    Component<BoolType>* b = new Comparator(m, n);
-    b = new TimedLatch(b);
-    v = new Gate(p, b);
-#endif
+    if (!GetEnv("MinimaVAD", 0))
+    {
+        // Old VAD
+        NoiseVAD* mv = new NoiseVAD(m, v);
+        v = new VADGate(p, mv);
+    }
+    else
+    {
+        // New minima-based VAD
+        Component<float>* n = new Minima(v);
+        Component<BoolType>* b = new Comparator(m, n);
+        b = new TimedLatch(b);
+        v = new Gate(p, b);
+    }
 
     return v;
 }

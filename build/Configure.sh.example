@@ -12,6 +12,7 @@
 SETSHELL kissfft
 SETSHELL libresample
 SETSHELL rtaudio
+SETSHELL torch3
 export KISSFFT_DIR=$KISSFFTROOT
 export LIBRESAMPLE_DIR=$LIBRESAMPLEROOT
 export RTAUDIO_DIR=$RTAUDIOROOT
@@ -19,7 +20,6 @@ export RTAUDIO_DIR=$RTAUDIOROOT
 # This is more generic
 software=/idiap/resource/software
 export HTK_DIR=$software/HTK/HTK_V3.4/src/htk
-export TORCH3_DIR=$HOME/build/Torch3
 export BSAPI_DIR=$HOME/build/bsapi/bsapi.vtln.sfeacat.v2
 
 # For things that have a configured install to a non-standard place

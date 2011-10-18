@@ -73,15 +73,17 @@ bool Tracter::Gate::UnaryFetch(IndexType iIndex, float* oData)
     // upstream point of view.
     if (mEnabled && !gate(iIndex))
     {
-        Verbose(2, "gate() returned at index %ld, silConf %ld\n",
+        Verbose(2, "gate() returned at Index %ld, ClosedIndex %ld\n",
                 iIndex, mClosedIndex);
+
+        // If all went well, mClosedIndex should be equal to iIndex
         if ( mSegmenting &&
              (mClosedIndex >= 0) &&
-             (mClosedIndex <= iIndex) )
+             (mClosedIndex < iIndex) )
             throw Exception("iIndex ahead of silence");
         assert(
-            (mClosedIndex < 0) ||   /* Failed to find silence */
-            (mClosedIndex > iIndex) /* Succeeded */
+            (mClosedIndex < 0) ||    /* Failed to find silence */
+            (mClosedIndex >= iIndex) /* Succeeded */
         );
 
         // Must leave mIndexZero alone until reset so the downstream
@@ -152,7 +154,10 @@ bool Tracter::Gate::gate(IndexType& iIndex)
                 mClosedIndex = -1; // i.e., it's not closed anymore
         }
         else
+        {
+            mClosedIndex = iIndex;
             return false;
+        }
     }
 
     return true;
