@@ -37,7 +37,7 @@ Tracter::ComponentBase::ComponentBase()
 {
     mObjectName = 0;
     mSize = 0;
-    
+
     mFrame.period = 1.0f;
     mFrame.size = 1;
 
