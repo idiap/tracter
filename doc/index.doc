@@ -34,8 +34,9 @@ is used for sample rate conversion.
  - If present, <a href="http://htk.eng.cam.ac.uk/">HTK</a> can be
 linked in to enable true HTK feature generation.  Other features can
 be written in HTK format without this dependency.
- - <a href="http://www.alsa-project.org/">ALSA</a> is used for audio
-acquisition under linux.
+ - <a href="http://www.alsa-project.org/">ALSA</a> can be used for audio
+acquisition under Linux.
+ - <a href="http://www.pulseaudio.org/">Pulse Audio</a> is recently a better option for audio acquisition uder Linux.
  - <a href="http://www.music.mcgill.ca/~gary/rtaudio/">RtAudio</a> can
 be used for more general audio acquisition.  We may add <a
 href="http://www.portaudio.com/">PortAudio</a> in the future as
@@ -44,7 +45,7 @@ RtAudio doesn't use the plug interface with ALSA.
 API) can be used to generate features, notably those used in the NIST
 RT evalutions.
  - <a href="http://www.mega-nerd.com/libsndfile/">libsndfile</a> is
-used to read (and soon write) standard audio file formats.
+used to read and write standard audio file formats.
  - <a href="http://sp-tk.sourceforge.net/">SPTK</a> tools (e.g., Mel
    generalised cepstral analysis) can be wrapped as tracter
    components.
@@ -63,7 +64,7 @@ have been made by <a href="http://www.idiap.ch/~dines">John Dines</a>,
 <a href="http://ch.linkedin.com/in/mi5ke">Mike Flynn</a>, <a
 href="http://www.fit.vutbr.cz/~karafiat">Martin Karafiat</a>, <a
 href="http://www.idiap.ch/~dkorch">Danil Korchagin</a> and <a
-href="http://www.dcs.shef.ac.uk/~vinny">Vinny Wan</a>.  Packaging and
+href="http://www.linkedin.com/pub/vincent-wan/a/aa4/60">Vinny Wan</a>.  Packaging and
 Mac port by <a href="http://www.idiap.ch/~bornet">Olivier Bornet</a>
 and <a
 href="http://ch.linkedin.com/pub/alexandre-nanchen/1/aa2/24a">Alexandre
