@@ -9,36 +9,6 @@ should only need to do the following:
  make install
 
 You must specifiy a path to kissfft; other dependencies are optional.
-
-
-Below are instructions for the old Gnu build system.  This should be
-removed in a future version.
-
-If you got tracter as a tarball then it includes a standard gnu build
-environment.  Just follow the instructions in INSTALL, although you
-might wish to use a VPATH build described below.
-
-If you got tracter from git, you need autoconf, automake and libtool.
-The following commands are necessary to boot up the gnu build
-environment:
-
- autoheader
- aclocal
- libtoolize
- autoconf
- automake -a
-
-Then, assuming you want to use this as a working repository, I suggest
-you use a VPATH style build.  This builds in a separate tree allowing
-several parallel builds that don't mess up the source directory:
-
- mkdir build
- cd build
- ../configure CXXFLAGS='-Wall -Werror -Os -g' \
-   --with-kiss-fft=/path/to/kiss_fft_v1_2_8
- make
-
-(Note that kiss-fft is compulsory)
 The executables will appear in build/src
 
 Documentation is provided in doxygen form.  Go to the build directory

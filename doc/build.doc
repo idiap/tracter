@@ -1,0 +1,47 @@
+/** \page build Build instructions
+
+\section basic Basic build
+
+Tracter has a lot of optional dependencies, but only one mandatory
+one: Kiss FFT.  First unpack tracter; then to prepare Kiss FFT, just
+get it from the <a href="http://kissfft.sourceforge.net/">Kiss
+web-site</a> and unpack it somewhere.
+
+Once both are unpacked, the following should do a basic build:
+\verbatim
+cd build
+export KISSFFT_DIR=/path/to/kiss_fft_v1_2_8
+cmake -D CMAKE_INSTALL_PREFIX=$HOME/local ..
+make install
+\endverbatim
+Of course, change the install prefix to wherever you like.
+
+The install will install a pkgconfig file. To allow other programs to
+find the pkgconfig, add the path to the environment variable:
+\verbatim
+export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig  # sh
+setenv PKG_CONFIG_PATH $HOME/local/lib/pkgconfig  # csh
+\endverbatim
+
+\section involved More involved build
+
+For a more involved build, see the example configure script:
+\verbatim
+cd build
+cp Configure.sh.example Configure.sh
+\endverbatim
+edit the configure script to reflect your environment.
+Then
+\verbatim
+./Configure.sh
+make install
+\endverbatim
+will install the software locally.
+
+The different packages that tracter will link against each have
+different means of pointing at them.  The ones that use pkgconfig will
+tend to be linked in automatically.  Others require an environment
+variable or an entry on the search path.  See the configuration
+example.
+
+*/
