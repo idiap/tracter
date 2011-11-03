@@ -18,7 +18,7 @@ project(tracter)
 set(VERSION 1.0)
 
 # Find boost, get rid of the version number
-find_package(Boost COMPONENTS filesystem REQUIRED)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
 message(STATUS "Boost lib is ${Boost_LIBRARIES}")
 

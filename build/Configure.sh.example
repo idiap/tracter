@@ -28,6 +28,6 @@ export CMAKE_PREFIX_PATH=$HOME/local
 # Finally the configure is actually done using CMake
 cmake \
     -D CMAKE_INSTALL_PREFIX=$HOME/local \
-    -D CMAKE_CXX_FLAGS_DEBUG="-g -Wall -Werror" \
+    -D CMAKE_CXX_FLAGS_DEBUG:STRING="-g -Wall -Werror" \
     -D CMAKE_BUILD_TYPE=debug \
     ..
