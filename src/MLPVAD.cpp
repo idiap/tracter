@@ -53,7 +53,7 @@ void Tracter::MLPVAD::Reset(bool iPropagate)
 
 bool Tracter::MLPVAD::UnaryFetch(IndexType iIndex, VADState* oData)
 {
-    Verbose(3, "iIndex %ld\n", iIndex);
+    Verbose(3, "iIndex %lld\n", iIndex);
     //printf("%i %i\n",iIndex, mIndex);
     assert(iIndex == mIndex+1);
     mIndex = iIndex;
@@ -76,7 +76,6 @@ bool Tracter::MLPVAD::UnaryFetch(IndexType iIndex, VADState* oData)
     *oData = mState;
 
     if (mShowGuts)
-        printf("%ld %e\n",
-               iIndex, prob);
+        printf("%lld %e\n", iIndex, prob);
     return true;
 }

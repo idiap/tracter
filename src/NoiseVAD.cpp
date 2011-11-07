@@ -55,10 +55,10 @@ void Tracter::NoiseVAD::Reset(bool iPropagate)
 
 bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, VADState* oData)
 {
-    Verbose(3, "iIndex %ld\n", iIndex);
+    Verbose(3, "iIndex %lld\n", iIndex);
     if (iIndex != mIndex+1)
         throw Exception(
-            "NoiseVAD::UnaryFetch: Index %ld requested; %ld expected\n",
+            "NoiseVAD::UnaryFetch: Index %lld requested; %lld expected\n",
             iIndex, mIndex+1
         );
     mIndex = iIndex;
@@ -88,7 +88,7 @@ bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, VADState* oData)
 
     /* Feedback */
     if (mShowGuts)
-        printf("%ld %e %e %e %e\n",
+        printf("%lld %e %e %e %e\n",
                iIndex, log10f(*noise), log10f(*input),
                mNoise, mNoise+mThreshold);
     return true;

@@ -46,8 +46,8 @@ namespace Tracter
         float period;  ///< Frame period of this component
     };
 
-    typedef char BoolType;       ///< Tracter bool - vector<bool> is special
-    typedef long IndexType;      ///< Integer type of a frame index
+    typedef char BoolType;   ///< Tracter bool - vector<bool> is special
+    typedef long long IndexType;  ///< Type of a frame index (64 bit)
 
     /** Index / Offset pair for internal cache management */
     struct CachePointer
@@ -68,6 +68,7 @@ namespace Tracter
         {0, 0}
     };
 
+#if 0
     /** Storage of minimum / maximum */
     class MinMax
     {
@@ -87,9 +88,10 @@ namespace Tracter
         void Update(int iVal)
         {
             min = std::min(min, iVal);
-            max = std::max(min, iVal);
+            max = std::max(max, iVal);
         }
     };
+#endif
 
     /** Range that a Read() can access */
     class ReadRange
@@ -278,8 +280,10 @@ namespace Tracter
         int mMinReadBehind;
         int mTotalReadAhead;
         int mTotalReadBehind;
+#if 0
         MinMax mGlobalReadAhead;
         MinMax mGlobalReadBehind;
+#endif
 
         virtual void DotHook() {}
         void DotRecord(int iVerbose, const char* iString, ...);
@@ -330,7 +334,7 @@ namespace Tracter
          * If we only want to read one item, the syntax can be rather
          * more simple.
          */
-        const T* UnaryRead(int iIndex)
+        const T* UnaryRead(IndexType iIndex)
         {
             assert(iIndex >= 0);
 
@@ -352,7 +356,7 @@ namespace Tracter
          * return a pointer straight away as with the UnaryRead().  It
          * must be called twice.
          */
-        const T* ContiguousRead(int iIndex, int& ioLength)
+        const T* ContiguousRead(IndexType iIndex, int& ioLength)
         {
             assert(iIndex >= 0);
 

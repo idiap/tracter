@@ -26,11 +26,11 @@ void Tracter::SlidingWindow::reset() {
 }
 
 void Tracter::SlidingWindow::dump(FILE *out) {
-    fprintf(out, "windowOffset %ld [", windowOffset);
+    fprintf(out, "windowOffset %lld [", windowOffset);
     const char *sep = "";
-    const int windowStart = windowOffset > 0 ? windowOffset : 0;
-    const int windowEnd = windowOffset + windowSize > dataSize ? dataSize : windowOffset + windowSize;
-    for(int index = windowStart; index<windowEnd; index++) {
+    const IndexType windowStart = windowOffset > 0 ? windowOffset : 0;
+    const IndexType windowEnd = windowOffset + windowSize > dataSize ? dataSize : windowOffset + windowSize;
+    for(IndexType index = windowStart; index<windowEnd; index++) {
         fprintf(out, "%s%g", sep, get(index));
         sep = ",";
     }
@@ -74,7 +74,7 @@ void Tracter::MinimaWindow::shrinkLeft()
 
 void Tracter::MinimaWindow::growRight()
 {
-    const int   index   = windowOffset + windowSize - 1;
+    const IndexType   index   = windowOffset + windowSize - 1;
 
 //    if (mDataIndex == 16)
 //    {
@@ -151,15 +151,15 @@ void Tracter::MinimaWindow::scanMinimum()
     static const float floatMax = std::numeric_limits<float>::max();
 
     float minValue = floatMax;
-    int minIndex = -1;
+    IndexType minIndex = -1;
     int minIndexToSkip = 0;                 // current minIndex we should not consider 
-    int minToSkip = mins[minIndexToSkip];           // current min we should not consider 
+    IndexType minToSkip = mins[minIndexToSkip];           // current min we should not consider 
 
-    const int windowStart = windowOffset > 0 ? windowOffset : 0;
-    const int windowEnd = windowOffset + windowSize > dataSize ? dataSize : windowOffset + windowSize;
+    const IndexType windowStart = windowOffset > 0 ? windowOffset : 0;
+    const IndexType windowEnd = windowOffset + windowSize > dataSize ? dataSize : windowOffset + windowSize;
     //const int windowEnd = windowOffset+windowSize;
 
-    for(int i = windowStart; i<windowEnd; i++) {
+    for(IndexType i = windowStart; i<windowEnd; i++) {
 
         if(minIndexToSkip<minCount && i == minToSkip) { // already have it?
             minToSkip = mins[++minIndexToSkip]; // skip over element
@@ -217,7 +217,7 @@ float Tracter::SlidingWindow::get(IndexType iIndex)
 {
     assert(iIndex >= mMinIndex);
     assert(iIndex < mMinIndex + mCacheArea.Length());
-    int offset = iIndex - mMinIndex;
+    int offset = (int)(iIndex - mMinIndex);
     float* data = mInput->GetPointer(
         (offset < mCacheArea.len[0])
         ? mCacheArea.offset + offset
@@ -284,7 +284,7 @@ bool Tracter::Minima::unaryFetch(IndexType iIndex, float* oData)
     // Read the window, plus the one datum before it that we're removing
     CacheArea ca;
     IndexType getIndex = std::max((IndexType)0, iIndex + mNAhead - mNWindow);
-    int nGet = std::min((IndexType)mNWindow + 1, iIndex + mNAhead + 1);
+    int nGet = (int)std::min((IndexType)mNWindow + 1, iIndex + mNAhead + 1);
     int nGot = mInput->Read(ca, getIndex, nGet);
     Verbose(4, "Got %d of %d from %ld\n", nGot, nGet, getIndex);
 

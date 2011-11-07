@@ -27,7 +27,7 @@ bool Tracter::Frame::UnaryFetch(IndexType iIndex, float* oData)
     CacheArea inputArea;
 
     // Read the input frame
-    int readIndex = (int)(mFrame.period * iIndex);
+    IndexType readIndex = iIndex * mFrame.period;
     int got = mInput->Read(inputArea, readIndex, mFrame.size);
     if (got < mFrame.size)
         return false;

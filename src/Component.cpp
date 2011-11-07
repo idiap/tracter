@@ -227,18 +227,19 @@ void* Tracter::ComponentBase::Initialise(
     // Accumulate readahead and readback from all outputs
     mTotalReadAhead += iReadAhead;
     mTotalReadBehind += iReadBehind;
-
-    mGlobalReadAhead.Update(iReadAhead);
-    mGlobalReadBehind.Update(iReadBehind);
-
     Verbose(2, "ComponentBase::Initialise:"
             " i [%d:%d] m [%d,%d:%d,%d] tot [%d:%d]\n",
             iReadBehind, iReadAhead,
             mMinReadBehind, mMaxReadBehind, mMinReadAhead, mMaxReadAhead,
             mTotalReadBehind, mTotalReadAhead);
+
+#if 0
+    mGlobalReadAhead.Update(iReadAhead);
+    mGlobalReadBehind.Update(iReadBehind);
     Verbose(2, " grb: [%d,%d]  gra [%d,%d]\n",
             mGlobalReadBehind.min, mGlobalReadBehind.max,
             mGlobalReadAhead.min, mGlobalReadAhead.max);
+#endif
 
     // If the accumulation is complete, then recurse the call
     if ((mNOutputs == 0) || (++mNInitialised == mNOutputs))
@@ -395,8 +396,10 @@ int Tracter::ComponentBase::Read(
     CacheArea& oRange, IndexType iIndex, int iLength
 )
 {
-    Verbose(3, "Read: index %ld  length %d\n", iIndex, iLength);
+    Verbose(3, "Read: index %lld  length %d\n", iIndex, iLength);
     assert(iLength >= 0);
+    if (iIndex < 0)
+        throw Exception("%s: iIndex = %lld", mObjectName, iIndex);
     assert(iIndex >= 0);
     assert(mIndefinite || (iLength <= mSize));  // Request > cache size
     int len;
@@ -547,7 +550,7 @@ int Tracter::ComponentBase::FetchWrapper(
     if (len < iOutputArea.Length())
     {
         mEndOfData = iIndex + len;
-        Verbose(2, "EOD at index %ld, got %d of %d\n",
+        Verbose(2, "EOD at index %lld, got %d of %d\n",
                 mEndOfData, len, iOutputArea.Length());
     }
     return len;
@@ -678,7 +681,7 @@ Tracter::TimeType Tracter::ComponentBase::TimeStamp(IndexType iIndex) const
     TimeType time = mInput[0]->TimeStamp();
     if (iIndex)
         time += TimeOffset(iIndex);
-    Verbose(2, "TimeStamp: index %ld time %lld\n", iIndex, time);
+    Verbose(2, "TimeStamp: index %lld time %lld\n", iIndex, time);
     return time;
 }
 
@@ -695,6 +698,6 @@ Tracter::TimeType Tracter::ComponentBase::TimeOffset(IndexType iIndex) const
     // it.
     ExactRateType r = ExactFrameRate();
     TimeType t = (TimeType)((double)r.period / r.rate * ONEe9 * iIndex);
-    Verbose(2, "TimeOffset: index %ld time %lld\n", iIndex, t);
+    Verbose(2, "TimeOffset: index %lld time %lld\n", iIndex, t);
     return t;
 }
