@@ -14,8 +14,12 @@ Tracter::RtAudioSource::RtAudioSource(const char* iObjectName)
 {
     mObjectName = iObjectName;
     mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.size = GetEnv("FrameSize", 1);
     mFrame.period = 1;
-    mFrame.size = 1;
+
+    mNChannels = GetEnv("NChannels", mFrame.size);
+    if ((mNChannels != mFrame.size) && (mFrame.size != 1))
+        throw Exception("RtAudioSource: Frame size must be 1 or NChannels");
 
     float seconds = GetEnv("BufferTime", 1.0f);
     int samples = SecondsToFrames(seconds);
@@ -59,7 +63,16 @@ int Tracter::RtAudioSource::Callback(
     float* input = (float*)iInputBuffer;
     float* cache = GetPointer(head.offset);
     for (int i=0; i<len0; i++)
-        cache[i] = input[i];
+        if (mFrame.size == mNChannels)
+            for (int j=0; j<mNChannels; j++)
+                *cache++ = *input++;
+        else
+        {
+            float sum = 0.0f;
+            for (int j=0; j<mNChannels; j++)
+                sum += *input++;
+            cache[i] = sum / mNChannels;
+        }
     if ((tail.offset >= head.offset) &&
         (head.index != tail.index) &&
         (tail.offset < head.offset + len0))
@@ -67,9 +80,18 @@ int Tracter::RtAudioSource::Callback(
 
     int len1 = iNFrames - len0;
     cache = GetPointer(0);
-    input += len0;
     for (int i=0; i<len1; i++)
-        cache[i] = input[i];
+        // Code is dupped from above
+        if (mFrame.size == mNChannels)
+            for (int j=0; j<mNChannels; j++)
+                *cache++ = *input++;
+        else
+        {
+            float sum = 0.0f;
+            for (int j=0; j<mNChannels; j++)
+                sum += *input++;
+            cache[i] = sum / mNChannels;
+        }
     if (xrun > 0)
         xrun += len1;
     else if ((tail.offset < len1))
@@ -98,15 +120,15 @@ void Tracter::RtAudioSource::Open(
     /* Try to find a device with the given name */
     int device = -1;
     int nDevices = mRtAudio.getDeviceCount();
+
+    Verbose(1, "Device requested (length: %d): %s\n",
+            strlen(iDeviceName), iDeviceName);
     for (int i=0; i<nDevices; i++)
     {
         RtAudio::DeviceInfo di = mRtAudio.getDeviceInfo(i);
-        Verbose(1, "Device detected: %s\n", di.name.c_str());
-        Verbose(1, "Device asked: %s\n", iDeviceName);
-        Verbose(1, "Length device detected: %d\n", strlen(di.name.c_str()));
-        Verbose(1, "Length device asked: %d\n", strlen(iDeviceName));
-        
-	if (di.name == iDeviceName)
+        Verbose(1, "Device detected  (length: %d): %s\n",
+                strlen(di.name.c_str()), di.name.c_str());
+        if (di.name == iDeviceName)
         {
             device = i;
             break;
@@ -117,7 +139,7 @@ void Tracter::RtAudioSource::Open(
 
     /* Given the device, try to open a stream */
     RtAudio::StreamParameters sp;
-    sp.nChannels = 1;
+    sp.nChannels = mNChannels;
     sp.firstChannel = 0;
     sp.deviceId = device;
     unsigned int bufSize = 100; // This is probably period size

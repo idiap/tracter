@@ -47,6 +47,7 @@ namespace Tracter
         );
 
         RtAudio mRtAudio;
+        int mNChannels;
     };
 }
 
