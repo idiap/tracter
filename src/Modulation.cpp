@@ -54,6 +54,7 @@ void Tracter::Modulation::Reset(bool iPropagate)
 {
     Verbose(2, "Reset\n");
     mIndex = -1;
+    CachedComponent<float>::Reset(iPropagate);
 }
 
 bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
