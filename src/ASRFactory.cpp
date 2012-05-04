@@ -126,6 +126,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     RegisterFrontend(new BasicGraphFactory);
     RegisterFrontend(new BasicVADGraphFactory);
     RegisterFrontend(new PLPGraphFactory);
+    RegisterFrontend(new PLPVADGraphFactory);
 
 #ifdef HAVE_TORCH3
     RegisterFrontend(new BasicMLPVADGraphFactory);
@@ -528,6 +529,46 @@ Tracter::PLPGraphFactory::Create(Component<float>* iComponent)
     p = deltas(p);
     p = normaliseVariance(p);
     return p;
+}
+
+/**
+ * Instantiates a PLP frontend with energy based VAD and
+ * VADGate components.
+ */
+Tracter::Component<float>*
+Tracter::PLPVADGraphFactory::Create(Component<float>* iComponent)
+{
+    Component<float>* p = iComponent;
+    p = new ZeroFilter(p);
+    p = new Frame(p);
+    p = new Periodogram(p);
+    p = new MelFilter(p);
+    p = new LPCepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+
+    /* VAD */
+    Component<float>* v = iComponent;
+    v = new Frame(v);
+    v = new Energy(v);
+    Modulation* m = new Modulation(v);
+    if (!GetEnv("MinimaVAD", 0))
+    {
+        // Old VAD
+        NoiseVAD* mv = new NoiseVAD(m, v);
+        v = new VADGate(p, mv);
+    }
+    else
+    {
+        // New minima-based VAD
+        Component<float>* n = new Minima(v);
+        Component<BoolType>* b = new Comparator(m, n);
+        b = new TimedLatch(b);
+        v = new Gate(p, b);
+    }
+
+    return v;
 }
 
 #ifdef HAVE_HTKLIB
