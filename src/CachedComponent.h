@@ -53,14 +53,14 @@ namespace Tracter
                           ? iSize * Component<T>::mFrame.size
                           : iSize);
             Component<T>::mSize = iSize;
-            Verbose(2, "CachedComponent::Resize: %d to %d\n",
-                    Component<T>::mSize, iSize);
+            this->Verbose(2, "CachedComponent::Resize: %d to %d\n",
+                          Component<T>::mSize, iSize);
         }
 
         virtual void DotHook()
         {
             Component<T>::DotHook();
-            DotRecord(2, "cache.size=%d", Component<T>::mSize);
+            this->DotRecord(2, "cache.size=%d", Component<T>::mSize);
         }
 
     private:
