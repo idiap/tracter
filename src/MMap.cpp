@@ -60,7 +60,7 @@ void* Tracter::MMap::Map(const char* iFileName)
     mSize = buf.RegionSize;
 
     if (sVerbose > 1)
-        printf("MMap: %s size %d\n", iFileName, (int)mSize);
+        printf("MMap: %s size %ld\n", iFileName, (long int)mSize);
 
     return mMap;
 }
@@ -135,7 +135,7 @@ void* Tracter::MMap::Map(const char* iFileName)
     }
 
     if (sVerbose > 1)
-        printf("MMap: %s size %d\n", iFileName, (int)mSize);
+        printf("MMap: %s size %ld\n", iFileName, (long int)mSize);
 
     return mMap;
 }

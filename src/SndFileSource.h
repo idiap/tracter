@@ -30,7 +30,7 @@ namespace Tracter
         );
 
     private:
-        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
         SNDFILE* mSndFile;
         IndexType mNFrames;
         bool mSoxHack;

@@ -65,8 +65,8 @@ namespace Tracter
         Component<float>* mInput;
         IndexType mIndex;
         int mNBins;
-        int mLookAhead;
-        int mLookBehind;
+        SizeType mLookAhead;
+        SizeType mLookBehind;
         SlidingDFT mDFT;
     };
 

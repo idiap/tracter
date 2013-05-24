@@ -5,8 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#ifndef PLUGIN_H
-#define PLUGIN_H
+#ifndef COMPONENT_H
+#define COMPONENT_H
 
 #include <cassert>
 #include <climits>
@@ -17,6 +17,10 @@
 
 namespace Tracter
 {
+    typedef char BoolType;        ///< Tracter bool - vector<bool> is special
+    typedef long long IndexType;  ///< Type of a frame index (64 bit)
+    typedef long SizeType;        ///< Type of a (cache) size
+
     /**
      * A contiguous area of interest of a circular cache.
      *
@@ -28,15 +32,15 @@ namespace Tracter
     class CacheArea
     {
     public:
-        int offset;
-        int len[2];
+        SizeType offset;
+        SizeType len[2];
 
-        int Length() const
+        SizeType Length() const
         {
             return len[0] + len[1];
         };
 
-        void Set(int iLength, int iOffset, int iSize);
+        void Set(SizeType iLength, SizeType iOffset, SizeType iSize);
     };
 
     /** Information about frame size and period */
@@ -46,14 +50,11 @@ namespace Tracter
         float period;  ///< Frame period of this component
     };
 
-    typedef char BoolType;   ///< Tracter bool - vector<bool> is special
-    typedef long long IndexType;  ///< Type of a frame index (64 bit)
-
     /** Index / Offset pair for internal cache management */
     struct CachePointer
     {
         IndexType index;     ///< Index in logical space
-        int offset;          ///< Index in physical space
+        SizeType offset;     ///< Index in physical space
     };
 
     /** Head-tail pair of cache pointers */
@@ -97,30 +98,30 @@ namespace Tracter
     class ReadRange
     {
     public:
-        static const int INFINITE = INT_MAX;
-        ReadRange(int iSize = 1)
+        static const SizeType INFINITE = LONG_MAX;
+        ReadRange(SizeType iSize = 1)
         {
             mSize = iSize;
             mReadAhead = iSize - 1;
         }
 
         ReadRange(
-            int iSize,     ///< Size of the read window
-            int iReadAhead ///< How far ahead in time
+            SizeType iSize,     ///< Size of the read window
+            SizeType iReadAhead ///< How far ahead in time
         )
         {
             mSize = iSize;
             mReadAhead = iReadAhead;
         }
-        int Size() const { return mSize; }
-        int Ahead() const { return mReadAhead; }
-        int Behind() const
+        SizeType Size() const { return mSize; }
+        SizeType Ahead() const { return mReadAhead; }
+        SizeType Behind() const
         {
             return mSize == INFINITE ? INFINITE : mSize - mReadAhead - 1;
         }
     private:
-        int mSize;
-        int mReadAhead;
+        SizeType mSize;
+        SizeType mReadAhead;
     };
 
     /* Time type */
@@ -148,7 +149,7 @@ namespace Tracter
         ComponentBase(void);
         virtual ~ComponentBase(void) throw () {};
 
-        int Read(CacheArea& oArea, IndexType iIndex, int iLength = 1);
+        SizeType Read(CacheArea& oArea, IndexType iIndex, SizeType iLength = 1);
         virtual void Reset(bool iPropagate = true);
         void Delete();
 
@@ -235,24 +236,29 @@ namespace Tracter
 
         void SetClusterSize(int iSize);
 
-        void MinSize(ComponentBase* iObject, int iMinSize, int iReadAhead = 0);
         void MinSize(
-            ComponentBase* iInput, int iMinSize, int iReadBehind, int iReadAhead
+            ComponentBase* iObject, SizeType iMinSize, SizeType iReadAhead = 0
+        );
+        void MinSize(
+            ComponentBase* iInput, SizeType iMinSize,
+            SizeType iReadBehind, SizeType iReadAhead
         );
         void* Initialise(
             const ComponentBase* iDownStream = 0,
-            int iReadBehind = 0, int iReadAhead = 0
+            SizeType iReadBehind = 0, SizeType iReadAhead = 0
         );
-        ComponentBase* Connect(ComponentBase* iInput, int iSize = 1);
+        ComponentBase* Connect(ComponentBase* iInput, SizeType iSize = 1);
         ComponentBase* Connect(ComponentBase* iInput,
-                              int iSize, int iReadAhead);
-        void MovePointer(CachePointer& iPointer, int iLen);
+                              SizeType iSize, SizeType iReadAhead);
+        void MovePointer(CachePointer& iPointer, SizeType iLen);
 
-        virtual void MinSize(int iMinSize, int iReadBehind, int iReadAhead);
-        virtual void Resize(int iSize) = 0;
-        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
-        virtual int ContiguousFetch(
-            IndexType iIndex, int iLength, int iOffset
+        virtual void MinSize(
+            SizeType iMinSize, SizeType iReadBehind, SizeType iReadAhead
+        );
+        virtual void Resize(SizeType iSize) = 0;
+        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType ContiguousFetch(
+            IndexType iIndex, SizeType iLength, SizeType iOffset
         );
 
         /*
@@ -265,7 +271,7 @@ namespace Tracter
 
         std::vector<CachePair> mCluster; ///< Circular cache maintainance
 
-        int mSize;            ///< Size of the cache counted in frames
+        SizeType mSize;       ///< Size of the cache counted in frames
         int mNOutputs;        ///< Number of outputs
         bool mIndefinite;     ///< If true, cache grows indefinitely
         bool mAsync;          ///< Flag that the cache is updated asynchronously
@@ -273,13 +279,13 @@ namespace Tracter
         IndexType mEndOfData; ///< Index of the last datum available
         int mNInitialised;    ///< No. of outputs that have called Initialise()
 
-        int mMinSize;         ///< Maximum requested minimum size
-        int mMaxReadAhead;    ///< Maximum read-ahead of output buffers
-        int mMinReadAhead;
-        int mMaxReadBehind;
-        int mMinReadBehind;
-        int mTotalReadAhead;
-        int mTotalReadBehind;
+        SizeType mMinSize;         ///< Maximum requested minimum size
+        SizeType mMaxReadAhead;    ///< Maximum read-ahead of output buffers
+        SizeType mMinReadAhead;
+        SizeType mMaxReadBehind;
+        SizeType mMinReadBehind;
+        SizeType mTotalReadAhead;
+        SizeType mTotalReadBehind;
 #if 0
         MinMax mGlobalReadAhead;
         MinMax mGlobalReadBehind;
@@ -289,16 +295,16 @@ namespace Tracter
         void DotRecord(int iVerbose, const char* iString, ...);
 
         /** Does exactly what it says on the tin */
-        int SecondsToFrames(float iSeconds) const
+        SizeType SecondsToFrames(float iSeconds) const
         {
             float samples = iSeconds * FrameRate();
-            return (int)(samples + 0.5);
+            return (SizeType)(samples + 0.5);
         }
 
         TimeType TimeOffset(IndexType iIndex) const;
 
     private:
-        int FetchWrapper(IndexType iIndex, CacheArea& iOutputArea);
+        SizeType FetchWrapper(IndexType iIndex, CacheArea& iOutputArea);
         void Reset(ComponentBase* iDownStream);
         bool Delete(ComponentBase* iDownStream);
 
@@ -326,7 +332,7 @@ namespace Tracter
          * Get a pointer to the storage
          * returns a reference.
          */
-        virtual T* GetPointer(int iIndex = 0) = 0;
+        virtual T* GetPointer(SizeType iIndex = 0) = 0;
 
         /**
          * Unary read
@@ -340,7 +346,7 @@ namespace Tracter
 
             // Convert to a full Read(), return null pointer on failure
             CacheArea inputArea;
-            int got = Read(inputArea, iIndex);
+            SizeType got = Read(inputArea, iIndex);
             if (!got)
                 return 0;
 
@@ -356,13 +362,13 @@ namespace Tracter
          * return a pointer straight away as with the UnaryRead().  It
          * must be called twice.
          */
-        const T* ContiguousRead(IndexType iIndex, int& ioLength)
+        const T* ContiguousRead(IndexType iIndex, SizeType& ioLength)
         {
             assert(iIndex >= 0);
 
             // Convert to a full Read(), return null pointer on failure
             CacheArea inputArea;
-            int got = Read(inputArea, iIndex, ioLength);
+            SizeType got = Read(inputArea, iIndex, ioLength);
             if (!got)
                 return 0;
 
@@ -384,14 +390,16 @@ namespace Tracter
          * @returns the number of frames successfully fetched.  Fewer
          * than asked for indicates end of data (EOD).
          */
-        virtual int ContiguousFetch(IndexType iIndex, int iLength, int iOffset)
+        virtual SizeType ContiguousFetch(
+            IndexType iIndex, SizeType iLength, SizeType iOffset
+        )
         {
             assert(iIndex >= 0);
             assert(iLength >= 0);
             assert(iOffset >= 0);
 
             // Break the contiguous fetch into unary fetches
-            for (int i=0; i<iLength; i++)
+            for (SizeType i=0; i<iLength; i++)
             {
                 T* output = GetPointer(iOffset+i);
                 if (!UnaryFetch(iIndex+i, output))
@@ -441,7 +449,7 @@ namespace Tracter
         /**
          * Index operator.  Returns a (reference to) the Nth object.
          */
-        T& operator[](int iIndex)
+        T& operator[](SizeType iIndex)
         {
             assert( mOffset >= mCacheArea.offset ||
                     mOffset <  mCacheArea.len[1] );
@@ -489,8 +497,8 @@ namespace Tracter
     private:
         Component<T>* mComponent;
         CacheArea mCacheArea;
-        int mOffset;
+        SizeType mOffset;
     };
 }
 
-#endif /* PLUGIN_H */
+#endif /* COMPONENT_H */

@@ -14,7 +14,7 @@ Tracter::Tokenise::Tokenise(Component<char>* iInput, const char* iObjectName)
 {
     mObjectName = iObjectName;
     mInput = iInput;
-    Connect(mInput, BLOCK_SIZE);
+    Connect(iInput, BLOCK_SIZE);
 
     mWhite = " \n\t";
     mQuote = "\"\'";
@@ -22,30 +22,31 @@ Tracter::Tokenise::Tokenise(Component<char>* iInput, const char* iObjectName)
     mComment = "#;";
 
     mIndex = 0;
-    mLine = 0;
+    mLine = 1;
 }
 
-bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, std::string* oData)
+bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, Token* oData)
 {
     assert(iIndex >= 0);
 
     bool inToken = false;
     bool inComment = false;
     char quote = 0;
-    std::string& token = *oData;
-    token.clear();
+    Token& token = *oData;
+    token.str.clear();
+    token.pos = mLine;
 
     // Read the input
     CacheArea inputArea;
     while (mInput->Read(inputArea, mIndex, BLOCK_SIZE))
     {
         CacheIterator<char> mIterator(mInput, inputArea);
-        for (int i=0; i<inputArea.Length(); ++i, ++mIterator, ++mIndex)
+        for (SizeType i=0; i<inputArea.Length(); ++i, ++mIterator, ++mIndex)
         {
             char c = *mIterator;
 
             if (c == '\n')
-                mLine++;
+                token.pos = ++mLine;
 
             if (quote)
             {
@@ -54,7 +55,7 @@ bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, std::string* oData)
                     mIndex++;
                     return true;
                 }
-                token += c;
+                token.str += c;
                 continue;
             }
 
@@ -101,15 +102,27 @@ bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, std::string* oData)
                 }
             }
 
+            if (isSpecial(c))
+            {
+                if (inToken)
+                    return true;
+                else
+                {
+                    token.str += c;
+                    mIndex++;
+                    return true;
+                }
+            }
+
             inToken = true;
-            token += c;
+            token.str += c;
         }
     }
     // Dropping out here means the end of the file
 
     // In the middle of something
     if (quote)
-        throw Exception("Unexpected EOF at line %d\n", mLine);
+        throw Exception("Unexpected EOF at line %ld\n", mLine);
 
     // Deals with lack of a final newline
     if (inToken)

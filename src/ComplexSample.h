@@ -24,10 +24,10 @@ namespace Tracter
     public:
         ComplexSample(Component<float>* iInput,
                       const char* iObjectName = "ComplexSample");
-        void MinSize(int iSize, int iReadBehind, int iReadAhead);
+        void MinSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
 
     protected:
-        int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
         Component<float>* mInput;

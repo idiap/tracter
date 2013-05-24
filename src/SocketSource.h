@@ -69,7 +69,7 @@ namespace Tracter
          * A simple fetch call.  Implemented as two calls to
          * Receive().
          */
-        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea)
+        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
             int getSize = Source< CachedComponent<T> >::mFrame.size;
             getSize = ((getSize == 0) ? 1 : getSize) * sizeof(T);
@@ -78,8 +78,8 @@ namespace Tracter
             char* cache = (char*)Source< CachedComponent<T> >::GetPointer(
                 iOutputArea.offset
             );
-            int nGet = getSize * iOutputArea.len[0];
-            int nGot0 = mSocket.Receive(nGet, cache);
+            SizeType nGet = getSize * iOutputArea.len[0];
+            SizeType nGot0 = mSocket.Receive(nGet, cache);
             if (nGot0 < nGet)
                 return nGot0 / getSize;
 

@@ -52,7 +52,8 @@ namespace Tracter
 
             // Fix the cache pointers to the given range
             assert(Component<T>::mFrame.size);
-            int size = mMap.Size() / (Component<T>::mFrame.size * sizeof(T));
+            SizeType size =
+                mMap.Size() / (Component<T>::mFrame.size * sizeof(T));
             CachePointer& head = Component<T>::mCluster[0].head;
             CachePointer& tail = Component<T>::mCluster[0].tail;
 
@@ -60,12 +61,12 @@ namespace Tracter
             tail.index = 0;
             tail.offset = begin;
             head.index =
-                (end >= 0) ? std::min(size, (int)(end-begin+1)) : size;
+                (end >= 0) ? std::min(size, (SizeType)(end-begin+1)) : size;
             head.offset = 0;
 
         }
 
-        T* GetPointer(int iOffset = 0)
+        T* GetPointer(SizeType iOffset = 0)
         {
             assert(Component<T>::mFrame.size);
             return &mCache[iOffset * Component<T>::mFrame.size];
@@ -82,12 +83,12 @@ namespace Tracter
         T* mCache;
 
         /** It makes no sense to Resize a file source */
-        void Resize(int iSize)
+        void Resize(SizeType iSize)
         {
             return;
         }
 
-        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea)
+        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
             // If this gets called by the base, it probably means
             // we're out of data

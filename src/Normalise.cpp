@@ -22,7 +22,9 @@ Tracter::Normalise::Normalise(
     mByteOrder.SetSource(endian);
 }
 
-void Tracter::Normalise::MinSize(int iSize, int iReadBehind, int iReadAhead)
+void Tracter::Normalise::MinSize(
+    SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
+)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -33,18 +35,19 @@ void Tracter::Normalise::MinSize(int iSize, int iReadBehind, int iReadAhead)
     ComponentBase::MinSize(mInput, iSize, 0, 0);
 }
 
-int Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     assert(mFrame.size);
     CacheArea inputArea;
-    int lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
+    SizeType lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
     short* input = mInput->GetPointer(inputArea.offset);
     float* output = GetPointer(iOutputArea.offset);
 
-    int rOffset = 0;
-    int wOffset = 0;
-    for (int i=0; i<lenGot; i++)
+    SizeType rOffset = 0;
+    SizeType wOffset = 0;
+    for (SizeType i=0; i<lenGot; i++)
     {
         if (i == inputArea.len[0])
         {

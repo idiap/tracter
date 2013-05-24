@@ -22,7 +22,7 @@ namespace Tracter
         Normalise(
             Component<short>* iInput, const char* iObjectName = "Normalise"
         );
-        void MinSize(int iSize, int iReadBehind, int iReadAhead);
+        void MinSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
 
         void DotHook()
         {
@@ -33,7 +33,7 @@ namespace Tracter
     protected:
         Component<short>* mInput;
         ByteOrder mByteOrder;
-        int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
     };
 }
 

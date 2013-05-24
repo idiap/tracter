@@ -32,7 +32,7 @@ namespace Tracter
          * Get a pointer to the cache
          * returns a reference.
          */
-        T* GetPointer(int iOffset = 0)
+        T* GetPointer(SizeType iOffset = 0)
         {
             return &mCache[Component<T>::mFrame.size
                            ? iOffset * Component<T>::mFrame.size
@@ -45,7 +45,7 @@ namespace Tracter
             // Nothing to do
         }
 
-        virtual void Resize(int iSize)
+        virtual void Resize(SizeType iSize)
         {
             assert(iSize > 0);
             assert(iSize > Component<T>::mSize);

@@ -47,14 +47,14 @@ namespace Tracter
         virtual ~Sink() throw () { Delete(); }
 
         /** Fetch() should not be called on a sink */
-        int Fetch(IndexType iIndex, CacheArea& iOutputArea)
+        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
             assert(iIndex >= 0);
             assert(0);
         }
 
         /** Resize() should not be called on a sink */
-        void Resize(int iSize)
+        void Resize(SizeType iSize)
         {
             assert(iSize >= 0);
             assert(0);

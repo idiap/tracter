@@ -29,7 +29,7 @@ namespace Tracter
         void asyncCallback();
 
     protected:
-        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
         snd_output_t* mOutput;

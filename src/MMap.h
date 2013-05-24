@@ -26,7 +26,7 @@ namespace Tracter
         MMap();
         ~MMap();
         void* Map(const char* iFileName);
-        int Size() { return (int)mSize; }
+        long int Size() { return (long int)mSize; }
 
     private:
         FDType mFD; // File descriptor

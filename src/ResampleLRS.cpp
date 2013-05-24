@@ -45,7 +45,7 @@ Tracter::Resample::Resample(
     assert(r.handle);
 
     // The size is somewhat minimum; it is likely to be increased later
-    Connect(mInput, (int)(mFrame.period+0.5f));
+    Connect(mInput, (SizeType)(mFrame.period+0.5f));
     Verbose(1, "period %f ratio %f\n", mFrame.period, r.ratio);
 }
 
@@ -61,9 +61,12 @@ Tracter::Resample::~Resample() throw()
 }
 
 /**
- * Ensures that the input component has the right size given the rate conversion
+ * Ensures that the input component has the right size given the rate
+ * conversion
  */
-void Tracter::Resample::MinSize(int iSize, int iReadBehind, int iReadAhead)
+void Tracter::Resample::MinSize(
+    SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
+)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -72,7 +75,7 @@ void Tracter::Resample::MinSize(int iSize, int iReadBehind, int iReadAhead)
     // Set the input buffer big enough to service largest output requests
     assert(mInput);
     ResampleData& r = *mResampleData;
-    int minSize = (int)(mFrame.period * iSize + 0.5f);
+    SizeType minSize = (SizeType)(mFrame.period * iSize + 0.5f);
     ComponentBase::MinSize(mInput, minSize, 0, 0);
 
     /* It's too complicated without an intermediate array */
@@ -88,7 +91,8 @@ void Tracter::Resample::Reset(bool iPropagate)
     CachedComponent<float>::Reset(iPropagate);
 }
 
-int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iOutputArea.Length() > 0);
     assert(iIndex >= 0);
@@ -96,9 +100,9 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 
     ResampleData& r = *mResampleData;
     IndexType index = (IndexType)((double)iIndex / r.ratio);
-    int nGet = (int)((double)iOutputArea.Length() / r.ratio);
-    int nGot = mInput->Read(inputArea, index, nGet);
-    int nOut = (int)((double)nGot * r.ratio + 0.5);
+    SizeType nGet = (SizeType)((double)iOutputArea.Length() / r.ratio);
+    SizeType nGot = mInput->Read(inputArea, index, nGet);
+    SizeType nOut = (SizeType)((double)nGot * r.ratio + 0.5);
     Verbose(3, "i=%ld Get=%d Got=%d Out=%d len0=%d len1=%d\n",
             index, nGet, nGot, nOut, inputArea.len[0], inputArea.len[1]);
 
@@ -165,10 +169,10 @@ int Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 
     /* Copy the resampled data to the output */
     float* output = GetPointer(iOutputArea.offset);
-    for (int i=0; i<iOutputArea.len[0]; i++)
+    for (SizeType i=0; i<iOutputArea.len[0]; i++)
         output[i] = r.resample[i];
     output = GetPointer();
-    for (int i=0; i<iOutputArea.len[1]; i++)
+    for (SizeType i=0; i<iOutputArea.len[1]; i++)
         output[i] = r.resample[iOutputArea.len[0] + i];
 
     return nOut;

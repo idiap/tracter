@@ -7,7 +7,9 @@
 
 #include "ZeroFilter.h"
 
-Tracter::ZeroFilter::ZeroFilter(Component<float>* iInput, const char* iObjectName)
+Tracter::ZeroFilter::ZeroFilter(
+    Component<float>* iInput, const char* iObjectName
+)
 {
     mObjectName = iObjectName;
     mInput = iInput;
@@ -15,7 +17,9 @@ Tracter::ZeroFilter::ZeroFilter(Component<float>* iInput, const char* iObjectNam
     mZero = GetEnv("Zero", 0.97f);
 }
 
-void Tracter::ZeroFilter::MinSize(int iSize, int iReadBehind, int iReadAhead)
+void Tracter::ZeroFilter::MinSize(
+    SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
+)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -28,7 +32,8 @@ void Tracter::ZeroFilter::MinSize(int iSize, int iReadBehind, int iReadAhead)
     ComponentBase::MinSize(mInput, iSize+1, 1, 0);
 }
 
-int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -39,7 +44,7 @@ int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     // This makes the code afterwards identical for iIndex == 0 too.
     if (iIndex > 0)
     {
-        int one = mInput->Read(inputArea, iIndex-1);
+        SizeType one = mInput->Read(inputArea, iIndex-1);
         if (one == 0)
             return 0;
         input = mInput->GetPointer();
@@ -47,9 +52,9 @@ int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     }
 
     // The usual read and offset initialisation
-    int lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
-    int rOffset = inputArea.offset;
-    int wOffset = iOutputArea.offset;
+    SizeType lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
+    SizeType rOffset = inputArea.offset;
+    SizeType wOffset = iOutputArea.offset;
     input = mInput->GetPointer();
 
     // For the edge effect, duplicate the first sample
@@ -58,7 +63,7 @@ int Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 
     // Main calculation
     float* output = GetPointer();
-    for (int i=0; i<lenGot; i++)
+    for (SizeType i=0; i<lenGot; i++)
     {
         if (i == inputArea.len[0])
             rOffset = 0;

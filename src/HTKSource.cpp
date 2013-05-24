@@ -113,12 +113,13 @@ void Tracter::HTKSource::Open(
 /**
  * The Fetch call is necessary to byte swap the data
  */
-int Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     iIndex += mBeginFrame;
 
-    int i;
-    int offset = iOutputArea.offset;
+    SizeType i;
+    SizeType offset = iOutputArea.offset;
     for (i=0; i<iOutputArea.Length(); i++)
     {
         if (iIndex >= mNSamples)

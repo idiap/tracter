@@ -63,7 +63,8 @@ void Tracter::SndFileSource::Open(
     Verbose(1, "frames =     %d\n", mNFrames);
 }
 
-int Tracter::SndFileSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::SndFileSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     // Seek to the right point, unless it's off the end
     if (iIndex > mNFrames)

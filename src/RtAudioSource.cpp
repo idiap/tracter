@@ -22,7 +22,7 @@ Tracter::RtAudioSource::RtAudioSource(const char* iObjectName)
         throw Exception("RtAudioSource: Frame size must be 1 or NChannels");
 
     float seconds = GetEnv("BufferTime", 1.0f);
-    int samples = SecondsToFrames(seconds);
+    SizeType samples = SecondsToFrames(seconds);
     MinSize(this, samples);
 
     /* Tell the ComponentBase that we will take care of the pointers */
@@ -49,7 +49,7 @@ int Tracter::RtAudioSource::Callback(
     Verbose(3, "Callback: iNFrames = %u\n", iNFrames);
 
     assert(!mIndefinite);
-    if (mSize < (int)iNFrames)
+    if (mSize < (SizeType)iNFrames)
         throw Exception(
             "RtAudioSource::Callback: mSize=%d < iNFrames=%u", mSize, iNFrames
         );
@@ -57,12 +57,12 @@ int Tracter::RtAudioSource::Callback(
     CachePointer& head = mCluster[0].head;
     CachePointer& tail = mCluster[0].tail;
 
-    int xrun = 0;
-    int len0 = mSize - head.offset;
-    len0 = std::min((int)iNFrames, len0);
+    SizeType xrun = 0;
+    SizeType len0 = mSize - head.offset;
+    len0 = std::min((SizeType)iNFrames, len0);
     float* input = (float*)iInputBuffer;
     float* cache = GetPointer(head.offset);
-    for (int i=0; i<len0; i++)
+    for (SizeType i=0; i<len0; i++)
         if (mFrame.size == mNChannels)
             for (int j=0; j<mNChannels; j++)
                 *cache++ = *input++;
@@ -78,9 +78,9 @@ int Tracter::RtAudioSource::Callback(
         (tail.offset < head.offset + len0))
         xrun = head.offset + len0 - tail.offset;
 
-    int len1 = iNFrames - len0;
+    SizeType len1 = iNFrames - len0;
     cache = GetPointer(0);
-    for (int i=0; i<len1; i++)
+    for (SizeType i=0; i<len1; i++)
         // Code is dupped from above
         if (mFrame.size == mNChannels)
             for (int j=0; j<mNChannels; j++)
@@ -153,7 +153,8 @@ void Tracter::RtAudioSource::Open(
     mRtAudio.startStream();
 }
 
-int Tracter::RtAudioSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::RtAudioSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     Verbose(3, "Fetch: requested: %d %d\n",
             iOutputArea.len[0], iOutputArea.len[1]);

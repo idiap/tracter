@@ -72,20 +72,20 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
          * samples.  Below, assume a window of 12+1+12 = 25 frames.
          */
         mDFT.Reset();
-        int len = mLookAhead;
+        SizeType len = mLookAhead;
         const float* p = mInput->ContiguousRead(0, len);
         if (!p)
             return false;
         assert(len == mLookAhead); // The cache should be big enough
 
         /* Prime with the first sample for all the missing ones */
-        for (int i=0; i<mLookBehind+1; i++)
+        for (SizeType i=0; i<mLookBehind+1; i++)
             mDFT.Transform(p[0], 0.0f);
 
         /* Prime the rest with the look-ahead; this includes the first
          * sample once more, so there are 14 copies of the first
          * sample */
-        for (int i=0; i<mLookAhead; i++)
+        for (SizeType i=0; i<mLookAhead; i++)
             mDFT.Transform(p[i], 0.0f);
     }
 

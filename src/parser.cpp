@@ -17,15 +17,15 @@ int main()
 {
     FileSource<char>* f = new FileSource<char>();
     Tokenise* t = new Tokenise(f);
-    FrameSink<std::string> sink = FrameSink<std::string>(t);
+    FrameSink<Token> sink(t);
 
     const char* file = "testfile.txt";
     printf("Opening file %s\n", file);
     f->Open(file);
 
     int index = 0;
-    while (const std::string* p = sink.Read(index++))
+    while (const Token* p = sink.Read(index++))
     {
-        printf("Got: %s\n", p->c_str());
+        printf("%ld: %s\n", p->pos, p->str.c_str());
     }
 }

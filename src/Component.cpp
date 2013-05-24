@@ -16,7 +16,7 @@
  * Set a CacheArea to represent a particular range at a particular
  * offset.
  */
-void Tracter::CacheArea::Set(int iLength, int iOffset, int iSize)
+void Tracter::CacheArea::Set(SizeType iLength, SizeType iOffset, SizeType iSize)
 {
     assert(iLength >= 0);
     assert(iOffset >= 0);
@@ -46,9 +46,9 @@ Tracter::ComponentBase::ComponentBase()
     mIndefinite = false;
     mMinSize = 0;
     mNInitialised = 0;
-    mMinReadAhead = INT_MAX;
+    mMinReadAhead = LONG_MAX;
     mMaxReadAhead = 0;
-    mMinReadBehind = INT_MAX;
+    mMinReadBehind = LONG_MAX;
     mMaxReadBehind = 0;
     mTotalReadAhead = 0;
     mTotalReadBehind = 0;
@@ -78,7 +78,7 @@ void Tracter::ComponentBase::SetClusterSize(int iSize)
  * @returns iInput
  */
 Tracter::ComponentBase*
-Tracter::ComponentBase::Connect(ComponentBase* iInput, int iSize)
+Tracter::ComponentBase::Connect(ComponentBase* iInput, SizeType iSize)
 {
     assert(iInput);
     mInput.push_back(iInput);
@@ -89,7 +89,9 @@ Tracter::ComponentBase::Connect(ComponentBase* iInput, int iSize)
 }
 
 Tracter::ComponentBase*
-Tracter::ComponentBase::Connect(ComponentBase* iInput, int iSize, int iReadAhead)
+Tracter::ComponentBase::Connect(
+    ComponentBase* iInput, SizeType iSize, SizeType iReadAhead
+)
 {
     assert(iInput);
     mInput.push_back(iInput);
@@ -106,11 +108,11 @@ Tracter::ComponentBase::Connect(ComponentBase* iInput, int iSize, int iReadAhead
  * permission to call the input component directly.
  */
 void Tracter::ComponentBase::MinSize(
-    ComponentBase* iInput, int iMinSize, int iReadAhead
+    ComponentBase* iInput, SizeType iMinSize, SizeType iReadAhead
 )
 {
     assert(iInput);
-    int readBack = 0;
+    SizeType readBack = 0;
     if (iMinSize > 0)
     {
         // i.e, it's not indefinitely resizing
@@ -124,7 +126,7 @@ void Tracter::ComponentBase::MinSize(
  * don't necessarily add up properly.
  */
 void Tracter::ComponentBase::MinSize(
-    ComponentBase* iInput, int iMinSize, int iReadBehind, int iReadAhead
+    ComponentBase* iInput, SizeType iMinSize, SizeType iReadBehind, SizeType iReadAhead
 )
 {
     assert(iInput);
@@ -138,7 +140,7 @@ void Tracter::ComponentBase::MinSize(
  * indefinitely
  */
 void Tracter::ComponentBase::MinSize(
-    int iMinSize, int iReadBehind, int iReadAhead
+    SizeType iMinSize, SizeType iReadBehind, SizeType iReadAhead
 )
 {
     // Keep track of the maximum read-ahead
@@ -207,7 +209,7 @@ void Tracter::ComponentBase::MinSize(
  * Aside, this is still a mess.  Some caches are too big.
  */
 void* Tracter::ComponentBase::Initialise(
-    const ComponentBase* iDownStream, int iReadBehind, int iReadAhead
+    const ComponentBase* iDownStream, SizeType iReadBehind, SizeType iReadAhead
 )
 {
     assert((mNOutputs == 0) /* Sink */ ||
@@ -248,9 +250,9 @@ void* Tracter::ComponentBase::Initialise(
         if (!mIndefinite)
         {
             // Add in the sizes of the previous components
-            int readAhead = mTotalReadAhead + mMaxReadAhead;
-            int readBack = mTotalReadBehind + mMaxReadBehind;
-            int newSize = (mNOutputs > 1)
+            SizeType readAhead = mTotalReadAhead + mMaxReadAhead;
+            SizeType readBack = mTotalReadBehind + mMaxReadBehind;
+            SizeType newSize = (mNOutputs > 1)
                 ? readBack + 1 + readAhead
                 : mMinSize;
             assert(newSize >= mMinSize);
@@ -264,10 +266,10 @@ void* Tracter::ComponentBase::Initialise(
         for (int i=0; i<(int)mInput.size(); i++)
         {
             assert(mInput[i]);
-            int readAhead = (mIndefinite || (iReadAhead < 0))
+            SizeType readAhead = (mIndefinite || (iReadAhead < 0))
                 ? -1
-                : (int)(mFrame.period * (mMaxReadAhead+iReadAhead));
-            int readBack  = (int)(mFrame.period * (mMaxReadBehind+iReadBehind));
+                : (SizeType)(mFrame.period * (mMaxReadAhead+iReadAhead));
+            SizeType readBack  = (SizeType)(mFrame.period * (mMaxReadBehind+iReadBehind));
             void* aux = mInput[i]->Initialise(this, readBack, readAhead);
             if (i == 0)
                 mAuxiliary = aux;
@@ -374,7 +376,7 @@ void Tracter::ComponentBase::Delete()
  * Update a cachepointer.
  * Handles wraparound too.
  */
-void Tracter::ComponentBase::MovePointer(CachePointer& iPointer, int iLen)
+void Tracter::ComponentBase::MovePointer(CachePointer& iPointer, SizeType iLen)
 {
     iPointer.index += iLen;
     iPointer.offset += iLen;
@@ -392,8 +394,9 @@ void Tracter::ComponentBase::MovePointer(CachePointer& iPointer, int iLen)
  * @returns the number of data actually available.  It may be less
  * than the number requested.
  */
-int Tracter::ComponentBase::Read(
-    CacheArea& oRange, IndexType iIndex, int iLength
+Tracter::SizeType
+Tracter::ComponentBase::Read(
+    CacheArea& oRange, IndexType iIndex, SizeType iLength
 )
 {
     Verbose(3, "Read: index %lld  length %d\n", iIndex, iLength);
@@ -402,7 +405,7 @@ int Tracter::ComponentBase::Read(
         throw Exception("%s: iIndex = %lld", mObjectName, iIndex);
     assert(iIndex >= 0);
     assert(mIndefinite || (iLength <= mSize));  // Request > cache size
-    int len;
+    SizeType len;
 
     // Remember:
     //
@@ -419,7 +422,7 @@ int Tracter::ComponentBase::Read(
         if (finalIndex >= head.index)
         {
             // Number of new samples required
-            int fetch = iIndex + iLength - head.index;
+            SizeType fetch = iIndex + iLength - head.index;
             assert(fetch > 0);
             if (mSize < iIndex + iLength)
                 Resize(iIndex + iLength);
@@ -478,7 +481,7 @@ int Tracter::ComponentBase::Read(
         if (finalIndex >= head.index)
         {
             // Case 2: It's an extension of the current range
-            int fetch = iIndex + iLength - head.index;
+            SizeType fetch = iIndex + iLength - head.index;
             assert(fetch > 0);
             CacheArea area;
             area.Set(fetch, head.offset, mSize);
@@ -491,7 +494,7 @@ int Tracter::ComponentBase::Read(
                     head.offset -= mSize;
                 if (head.index - tail.index > mSize)
                 {
-                    int diff = head.index - tail.index - mSize;
+                    SizeType diff = head.index - tail.index - mSize;
                     tail.index += diff;
                     tail.offset += diff;
                     if (tail.offset >= mSize)
@@ -511,7 +514,7 @@ int Tracter::ComponentBase::Read(
 
         // Whichever of cases 2 and 3, we need to fix up the output
         // range
-        int offset = tail.offset + (iIndex - tail.index);
+        SizeType offset = tail.offset + (iIndex - tail.index);
         if (offset >= mSize)
             offset -= mSize;
         oRange.Set(len, offset, mSize);
@@ -537,7 +540,8 @@ int Tracter::ComponentBase::Read(
  * deal with that with a flag later).  So, if EOD is set, all requests
  * here will be after it.
  */
-int Tracter::ComponentBase::FetchWrapper(
+Tracter::SizeType
+Tracter::ComponentBase::FetchWrapper(
     IndexType iIndex, CacheArea& iOutputArea
 )
 {
@@ -546,7 +550,7 @@ int Tracter::ComponentBase::FetchWrapper(
     if ((mEndOfData >= 0) && (iIndex >= mEndOfData))
         return 0;
 
-    int len = Fetch(iIndex, iOutputArea);
+    SizeType len = Fetch(iIndex, iOutputArea);
     if (len < iOutputArea.Length())
     {
         mEndOfData = iIndex + len;
@@ -571,12 +575,13 @@ int Tracter::ComponentBase::FetchWrapper(
  * @returns the number of data actually available.  It may be less
  * than the number requested, implying end of data (EOD).
  */
-int Tracter::ComponentBase::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::ComponentBase::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
 
     // Split it into two contiguous calls.
-    int len = 0;
+    SizeType len = 0;
     len += ContiguousFetch(iIndex, iOutputArea.len[0], iOutputArea.offset);
     if (len < iOutputArea.len[0])
         return len;
@@ -589,8 +594,9 @@ int Tracter::ComponentBase::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 /**
  * ContiguousFetch in this class should never be called
  */
-int Tracter::ComponentBase::ContiguousFetch(
-    IndexType iIndex, int iLength, int iOffset
+Tracter::SizeType
+Tracter::ComponentBase::ContiguousFetch(
+    IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
     throw Exception("%s: ComponentBase::ContiguousFetch called", mObjectName);

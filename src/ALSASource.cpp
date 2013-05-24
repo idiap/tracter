@@ -82,9 +82,9 @@ void Tracter::ALSASource::asyncCallback()
     CachePointer& head = mCluster[0].head;
     CachePointer& tail = mCluster[0].tail;
 
-    int xrun = 0;
-    int len0 = mSize - head.offset;
-    len0 = std::min((int)avail, len0);
+    SizeType xrun = 0;
+    SizeType len0 = mSize - head.offset;
+    len0 = std::min((SizeType)avail, len0);
     if (len0 > 0)
         ALSACheck( snd_pcm_readi(mHandle, GetPointer(head.offset), len0) );
     if ((tail.offset >= head.offset) &&
@@ -92,7 +92,7 @@ void Tracter::ALSASource::asyncCallback()
         (tail.offset < head.offset + len0))
         xrun = head.offset + len0 - tail.offset;
 
-    int len1 = avail - len0;
+    SizeType len1 = avail - len0;
     if (len1 > 0)
         ALSACheck( snd_pcm_readi(mHandle, GetPointer(0), len1) );
     if (xrun > 0)
@@ -206,7 +206,8 @@ snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
     return bufferSize;
 }
 
-int Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     Verbose(3, "Fetch: requested: %d %d\n",
             iOutputArea.len[0], iOutputArea.len[1]);

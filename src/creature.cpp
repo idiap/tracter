@@ -51,16 +51,16 @@ public:
         Reset();
     }
 
-    void Pull(int iIndex, int len)
+    void Pull(IndexType iIndex, SizeType len)
     {
         CacheArea br;
-        int got = mInput->Read(br, iIndex, len);
+        SizeType got = mInput->Read(br, iIndex, len);
         if (got != len)
-            printf("Asked for %u, got %u\n", len, got);
-        printf("Suck: len %u br %u %u %u\n",
+            printf("Asked for %ld, got %ld\n", len, got);
+        printf("Suck: len %ld br %ld %ld %ld\n",
                len, br.len[0], br.len[1], br.offset);
-        int offset = br.offset;
-        for (int i=0; i<br.Length(); i++)
+        SizeType offset = br.offset;
+        for (SizeType i=0; i<br.Length(); i++)
         {
             float* f = mInput->GetPointer(offset);
             if (i == br.len[0])
@@ -68,7 +68,7 @@ public:
                 offset = 0;
                 printf("---\n");
             }
-            printf("%2u", iIndex+i);
+            printf("%2lld", iIndex+i);
             for (int j=0; j<5; j++)
                 printf(" %e", f[j]); // * 1.1327);
             printf("...\n");
@@ -150,7 +150,7 @@ int main(int argc, char** argv)
     FrameSink<float> fs(nn);
     hh->Open("testfile.dat");
     fs.Reset();
-    int index = 0;
+    IndexType index = 0;
     while(const float* frame = fs.Read(index++))
     {
         printf("%.3f\n", frame[0] * 32768);

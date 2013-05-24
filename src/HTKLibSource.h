@@ -51,7 +51,7 @@ namespace Tracter
         ParmBuf pbuf;           ///< HTK buffer where HParm does all its work
         Observation data;       ///< The place where HTK writes the
                                 ///  feature vector
-        virtual int Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     };
 }

@@ -17,7 +17,9 @@ Tracter::ComplexSample::ComplexSample(
     Connect(mInput);
 }
 
-void Tracter::ComplexSample::MinSize(int iSize, int iReadBehind, int iReadAhead)
+void Tracter::ComplexSample::MinSize(
+    SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
+)
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
@@ -28,22 +30,23 @@ void Tracter::ComplexSample::MinSize(int iSize, int iReadBehind, int iReadAhead)
     ComponentBase::MinSize(mInput, iSize * 4 - 2, 0, 0);
 }
 
-int Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SizeType
+Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
 
     // Read the input data
-    int readIndex = iIndex * 4;
-    int readLen = iOutputArea.Length() * 4 - 2;
-    int lenGot = mInput->Read(inputArea, readIndex, readLen);
+    IndexType readIndex = iIndex * 4;
+    SizeType readLen = iOutputArea.Length() * 4 - 2;
+    SizeType lenGot = mInput->Read(inputArea, readIndex, readLen);
 
     CacheIterator<float> input(mInput, inputArea);
     CacheIterator<complex> output(this, iOutputArea);
 
     // Copy the first two of each group of 4 into the complex output
-    int count = 0;
-    for (int i=0; i+1<lenGot; i+=4)
+    SizeType count = 0;
+    for (SizeType i=0; i+1<lenGot; i+=4)
     {
         float real = *input++;
         float imag = *input++;
