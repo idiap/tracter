@@ -89,8 +89,9 @@ void Tracter::PulseAudioSource::Open(
  * Contiguous Fetch.
  * The simple API is blocking, which is perfect for tracter.  Fab.
  */
-int Tracter::PulseAudioSource::ContiguousFetch(
-    IndexType iIndex, int iLength, int iOffset
+Tracter::SizeType
+Tracter::PulseAudioSource::ContiguousFetch(
+    IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
     if (mMaxIndex)

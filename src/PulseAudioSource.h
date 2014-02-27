@@ -30,7 +30,9 @@ namespace Tracter
         );
 
     protected:
-        virtual int ContiguousFetch(IndexType iIndex, int iLength, int iOffset);
+        virtual SizeType ContiguousFetch(
+            IndexType iIndex, SizeType iLength, SizeType iOffset
+        );
 
     private:
         pa_simple* mHandle;
