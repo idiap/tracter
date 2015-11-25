@@ -197,7 +197,7 @@ if(RTAUDIO_FOUND)
   list(APPEND SOURCES RtAudioSource.cpp)
   list(APPEND HEADERS RtAudioSource.h  )
   add_definitions(-DHAVE_RTAUDIO)
-  include_directories(${RTAUDIO_INCLUDE_DIRS})
+  include_directories(${RTAUDIO_INCLUDE_DIR})
 endif(RTAUDIO_FOUND)
 
 # SPTK
