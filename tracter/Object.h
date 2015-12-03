@@ -5,8 +5,8 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#ifndef TRACTEROBJECT_H
-#define TRACTEROBJECT_H
+#ifndef OBJECT_H
+#define OBJECT_H
 
 #include <exception>
 
@@ -82,4 +82,4 @@ namespace Tracter
     };
 }
 
-#endif /* TRACTEROBJECT_H */
+#endif /* OBJECT_H */

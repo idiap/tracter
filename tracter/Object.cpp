@@ -12,7 +12,7 @@
 #include <cstdarg>
 #include <cstring>
 
-#include "TracterObject.h"
+#include "tracter/Object.h"
 
 bool Tracter::sInitialised = false;
 bool Tracter::sShConfig = false;

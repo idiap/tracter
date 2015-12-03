@@ -10,7 +10,7 @@
 
 #include <boost/filesystem/convenience.hpp>
 
-#include "TracterObject.h"
+#include "tracter/Object.h"
 #include "FilePath.h"
 
 /**

@@ -42,7 +42,7 @@ find_package(RtAudio)
 find_package(SPTK)
 
 add_subdirectory(bin)
-add_subdirectory(src)
+add_subdirectory(tracter)
 
 # Configure other files
 configure_file(Doxyfile.in Doxyfile)

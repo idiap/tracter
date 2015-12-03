@@ -9,7 +9,7 @@
 #ifndef HTKLIB_H
 #define HTKLIB_H
 
-#include "TracterObject.h"
+#include "tracter/Object.h"
 
 namespace Tracter
 {

@@ -5,12 +5,12 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#ifndef SIGNAL_H
-#define SIGNAL_H
+#ifndef FPE_H
+#define FPE_H
 
 namespace Tracter
 {
     void TrapFPE();
 }
 
-#endif /* SIGNAL_H */
+#endif /* FPE_H */

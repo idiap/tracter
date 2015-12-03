@@ -10,8 +10,8 @@
 # include <fpu_control.h>
 #endif
 
-#include "TracterFPE.h"
-#include "TracterObject.h"
+#include "tracter/FPE.h"
+#include "tracter/Object.h"
 
 namespace Tracter
 {

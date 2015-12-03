@@ -14,7 +14,7 @@
 // and send me a better version.
 // Then let me take all the credit!!!
 
-#include "TracterObject.h"
+#include "tracter/Object.h"
 
 namespace Torch {
 

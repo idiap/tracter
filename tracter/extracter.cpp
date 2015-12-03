@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "Extract.h"
-#include "TracterFPE.h"
+#include "tracter/FPE.h"
 
 using namespace Tracter;
 

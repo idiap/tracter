@@ -1,3 +1,4 @@
+include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 add_definitions(-DPACKAGE_VERSION="${VERSION}")
@@ -35,6 +36,7 @@ set(SOURCES
   Energy.cpp
   EnergyNorm.cpp
   Extract.cpp
+  FPE.cpp
   FilePath.cpp
   FileSink.cpp
   FourierTransform.cpp
@@ -57,6 +59,7 @@ set(SOURCES
   Noise.cpp
   NoiseVAD.cpp
   Normalise.cpp
+  Object.cpp
   OverlapAdd.cpp
   Periodogram.cpp
   Pixmap.cpp
@@ -72,8 +75,6 @@ set(SOURCES
   Subtract.cpp
   TimedLatch.cpp
   Tokenise.cpp
-  TracterFPE.cpp
-  TracterObject.cpp
   TransverseFilter.cpp
   Unframe.cpp
   VADGate.cpp

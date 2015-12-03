@@ -10,7 +10,7 @@
 
 #include <cassert>
 
-#include "TracterObject.h" // for StringEnum
+#include "tracter/Object.h" // for StringEnum
 
 namespace Tracter
 {
