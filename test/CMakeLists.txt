@@ -30,3 +30,10 @@ add_test(
   NAME fft
   COMMAND ${CMAKE_COMMAND} -D TEST_DIR=${TEST_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/test-fft.cmake
   )
+
+add_executable(test-tokenise test-tokenise.cpp)
+target_link_libraries(test-tokenise static-lib ${TARGET_LIBS})
+add_test(
+  NAME tokenise
+  COMMAND ${CMAKE_COMMAND} -D TEST_DIR=${TEST_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/test-tokenise.cmake
+  )

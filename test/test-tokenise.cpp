@@ -7,9 +7,9 @@
 
 #include <cstdio>
 
-#include "FileSource.h"
-#include "Tokenise.h"
-#include "FrameSink.h"
+#include "tracter/FileSource.h"
+#include "tracter/Tokenise.h"
+#include "tracter/FrameSink.h"
 
 using namespace Tracter;
 
@@ -19,7 +19,7 @@ int main()
     Tokenise* t = new Tokenise(f);
     FrameSink<Token> sink(t);
 
-    const char* file = "testfile.txt";
+    const char* file = TEST_DIR "/testfile.c";
     printf("Opening file %s\n", file);
     f->Open(file);
 
