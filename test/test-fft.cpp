@@ -6,7 +6,7 @@
  */
 
 #include <cstdio>
-#include "Fourier.h"
+#include "tracter/Fourier.h"
 
 using namespace Tracter;
 

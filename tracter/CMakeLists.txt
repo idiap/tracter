@@ -255,7 +255,6 @@ endif (USE_SHARED)
 
 add_executable(extracter extracter.cpp)
 
-add_executable(fft fft.cpp)
 add_executable(socketserver socketserver.cpp)
 add_executable(socketclient socketclient.cpp)
 add_executable(lnadump lnadump.cpp)
@@ -263,7 +262,6 @@ add_executable(parser parser.cpp)
 
 # These link static for the time being.  Could be changed.
 target_link_libraries(extracter static-lib)
-target_link_libraries(fft static-lib)
 target_link_libraries(socketserver static-lib)
 target_link_libraries(socketclient static-lib)
 target_link_libraries(lnadump static-lib)

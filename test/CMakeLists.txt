@@ -15,10 +15,18 @@
 
 set(TEST_DIR ${CMAKE_SOURCE_DIR}/test)
 add_definitions(-DTEST_DIR="${TEST_DIR}")
+
 add_executable(test-feature test-feature.cpp)
 add_executable(testfile testfile.c)
 target_link_libraries(test-feature static-lib ${TARGET_LIBS})
 add_test(
   NAME feature
   COMMAND ${CMAKE_COMMAND} -D TEST_DIR=${TEST_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/test-feature.cmake
+  )
+
+add_executable(test-fft test-fft.cpp)
+target_link_libraries(test-fft static-lib ${TARGET_LIBS})
+add_test(
+  NAME fft
+  COMMAND ${CMAKE_COMMAND} -D TEST_DIR=${TEST_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/test-fft.cmake
   )
