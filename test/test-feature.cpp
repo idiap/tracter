@@ -7,27 +7,27 @@
 
 #include <cstdio>
 
-#include "CachedComponent.h"
-#include "FileSource.h"
-#include "Normalise.h"
-#include "HTKSource.h"
-#include "Delta.h"
-#include "Concatenate.h"
-#include "Periodogram.h"
-#include "ZeroFilter.h"
-#include "MelFilter.h"
-#include "Cepstrum.h"
-#include "Mean.h"
-#include "FrameSink.h"
-#include "LNASource.h"
-#include "ByteOrder.h"
-#include "ComplexSample.h"
-#include "ComplexPeriodogram.h"
-#include "FilePath.h"
-#include "Frame.h"
+#include "tracter/CachedComponent.h"
+#include "tracter/FileSource.h"
+#include "tracter/Normalise.h"
+#include "tracter/HTKSource.h"
+#include "tracter/Delta.h"
+#include "tracter/Concatenate.h"
+#include "tracter/Periodogram.h"
+#include "tracter/ZeroFilter.h"
+#include "tracter/MelFilter.h"
+#include "tracter/Cepstrum.h"
+#include "tracter/Mean.h"
+#include "tracter/FrameSink.h"
+#include "tracter/LNASource.h"
+#include "tracter/ByteOrder.h"
+#include "tracter/ComplexSample.h"
+#include "tracter/ComplexPeriodogram.h"
+#include "tracter/FilePath.h"
+#include "tracter/Frame.h"
 
 #ifdef HAVE_ALSA
-# include "ALSASource.h"
+# include "tracter/ALSASource.h"
 #endif
 
 #ifdef _WIN32
@@ -137,11 +137,11 @@ int main(int argc, char** argv)
     SinkSucker as(f);
 
     as.Reset();
-    h->Open("data/4k0a0101.plp");
+    h->Open(TEST_DIR "/test1.htk");
     as.Pull(0, 10);
 
     as.Reset();
-    h->Open("data/4k0a0102.plp");
+    h->Open(TEST_DIR "/test2.htk");
     as.Pull(0, 10);
 
     printf("FrameSink...\n");
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
     printf("LNA...\n");
     LNASource* lna = new LNASource();
     FrameSink<float> ls(lna);
-    lna->Open("data/NU-1004.zipcode.lna");
+    lna->Open(TEST_DIR "/test.lna");
     ls.Reset();
     index=0;
     while(const float* frame = ls.Read(index++))

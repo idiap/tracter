@@ -29,6 +29,7 @@ message(STATUS "Boost lib is ${Boost_LIBRARIES}")
 # use dynamic loading (maybe...)
 #
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include_directories(${CMAKE_SOURCE_DIR})
 find_package(KissFFT REQUIRED)
 find_package(Torch3)
 find_package(HTK)
@@ -46,6 +47,10 @@ add_subdirectory(tracter)
 
 # Configure other files
 configure_file(Doxyfile.in Doxyfile)
+
+# Testing
+enable_testing()
+add_subdirectory(test)
 
 # This one is for binary distributions
 include(CPack)
