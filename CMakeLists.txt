@@ -45,6 +45,27 @@ find_package(SPTK)
 add_subdirectory(bin)
 add_subdirectory(tracter)
 
+# Executables
+add_executable(extracter extracter.cpp)
+target_link_libraries(extracter static-lib)
+set(INSTALL_TARGETS
+  extracter
+)
+
+if(SNDFILE_FOUND)
+  # codec and recorder rely on SndFile
+  add_executable(codec codec.cpp)
+  add_executable(recorder recorder.cpp)
+  target_link_libraries(codec static-lib)
+  target_link_libraries(recorder  static-lib)
+  list(APPEND INSTALL_TARGETS recorder codec)
+endif(SNDFILE_FOUND)
+
+install(
+  TARGETS ${INSTALL_TARGETS}
+  RUNTIME DESTINATION bin
+  )
+
 # Configure other files
 configure_file(Doxyfile.in Doxyfile)
 

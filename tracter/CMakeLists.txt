@@ -100,7 +100,6 @@ list(APPEND HEADERS
 
 # Things to install
 set(INSTALL_TARGETS
-  extracter
   static-lib
 )
 
@@ -176,13 +175,6 @@ if(SNDFILE_FOUND)
   add_definitions(-DHAVE_SNDFILE)
   include_directories(${SNDFILE_INCLUDE_DIRS})
   list(APPEND PKGCONFIG_REQUIRES sndfile)
-
-  # codec and recorder rely on SndFile
-  add_executable(codec codec.cpp)
-  add_executable(recorder recorder.cpp)
-  target_link_libraries(codec static-lib)
-  target_link_libraries(recorder  static-lib)
-  list(APPEND INSTALL_TARGETS recorder)
 endif(SNDFILE_FOUND)
 
 # libresample
@@ -253,13 +245,11 @@ if (USE_SHARED)
   list(APPEND INSTALL_TARGETS shared-lib)
 endif (USE_SHARED)
 
-add_executable(extracter extracter.cpp)
 add_executable(socketserver socketserver.cpp)
 add_executable(socketclient socketclient.cpp)
 add_executable(lnadump lnadump.cpp)
 
 # These link static for the time being.  Could be changed.
-target_link_libraries(extracter static-lib)
 target_link_libraries(socketserver static-lib)
 target_link_libraries(socketclient static-lib)
 target_link_libraries(lnadump static-lib)

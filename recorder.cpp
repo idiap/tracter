@@ -4,36 +4,36 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <Source.h>
-#include <SndFileSink.h>
-#include <ASRFactory.h>
-#include <Frame.h>
-#include <Unframe.h>
-#include <Energy.h>
-#include <Modulation.h>
-#include <NoiseVAD.h>
-#include <VADGate.h>
+#include <tracter/Source.h>
+#include <tracter/SndFileSink.h>
+#include <tracter/ASRFactory.h>
+#include <tracter/Frame.h>
+#include <tracter/Unframe.h>
+#include <tracter/Energy.h>
+#include <tracter/Modulation.h>
+#include <tracter/NoiseVAD.h>
+#include <tracter/VADGate.h>
 
-#include <Mean.h>
-#include <Variance.h>
-#include <Subtract.h>
-#include <Divide.h>
-#include <Select.h>
+#include <tracter/Mean.h>
+#include <tracter/Variance.h>
+#include <tracter/Subtract.h>
+#include <tracter/Divide.h>
+#include <tracter/Select.h>
 
 #ifdef HAVE_BSAPI
 #ifdef HAVE_TORCH3
-# include <ViterbiVAD.h>
-# include <ViterbiVADGate.h>
-# include <BSAPIFrontEnd.h>
-# include <MLP.h>
-# include <MLPVAD.h>
+# include <tracter/ViterbiVAD.h>
+# include <tracter/ViterbiVADGate.h>
+# include <tracter/BSAPIFrontEnd.h>
+# include <tracter/MLP.h>
+# include <tracter/MLPVAD.h>
 #endif
 #endif
 
-#include "Minima.h"
-#include "Comparator.h"
-#include "TimedLatch.h"
-#include "Gate.h"
+#include <tracter/Minima.h>
+#include <tracter/Comparator.h>
+#include <tracter/TimedLatch.h>
+#include <tracter/Gate.h>
 
 using namespace Tracter;
 

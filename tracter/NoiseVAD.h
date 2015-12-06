@@ -7,7 +7,7 @@
 #ifndef NOISEVAD_H
 #define NOISEVAD_H
 
-#include "VADStateMachine.h"
+#include "tracter/VADStateMachine.h"
 
 namespace Tracter
 {

@@ -8,7 +8,7 @@
 #ifndef VADSTATEMACHINE_H
 #define VADSTATEMACHINE_H
 
-#include <CachedComponent.h>
+#include <tracter/CachedComponent.h>
 
 namespace Tracter
 {

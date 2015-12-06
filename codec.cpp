@@ -4,12 +4,12 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <SndFileSource.h>
-#include <SndFileSink.h>
+#include <tracter/SndFileSource.h>
+#include <tracter/SndFileSink.h>
 
-#include <Frame.h>
-#include <FourierTransform.h>
-#include <OverlapAdd.h>
+#include <tracter/Frame.h>
+#include <tracter/FourierTransform.h>
+#include <tracter/OverlapAdd.h>
 
 using namespace Tracter;
 
