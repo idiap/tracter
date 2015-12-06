@@ -14,7 +14,7 @@ set(OUT test-feature-out.txt)
 
 # Run the test
 execute_process(
-  COMMAND testfile
+  COMMAND ./testfile
   )
 execute_process(
   COMMAND ${CMD}
