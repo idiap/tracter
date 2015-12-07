@@ -1,4 +1,3 @@
-Opening file /home/phil/src/tracter/test/testfile.c
 2: /*
 2: *
 2: Copyright

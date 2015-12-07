@@ -20,7 +20,8 @@ int main()
     FrameSink<Token> sink(t);
 
     const char* file = TEST_DIR "/testfile.c";
-    printf("Opening file %s\n", file);
+    // Not appropriate for testing as the path will vary across machines
+    //printf("Opening file %s\n", file);
     f->Open(file);
 
     int index = 0;
