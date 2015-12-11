@@ -23,6 +23,7 @@ endif()
 set(SOURCES
   ASRFactory.cpp
   ByteOrder.cpp
+  BoolToFloat.cpp
   Cepstrum.cpp
   Comparator.cpp
   ComplexPeriodogram.cpp

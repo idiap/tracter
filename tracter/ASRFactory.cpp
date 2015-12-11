@@ -94,6 +94,7 @@
 #include "Comparator.h"
 #include "TimedLatch.h"
 #include "Gate.h"
+#include "BoolToFloat.h"
 
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
@@ -124,6 +125,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     RegisterFrontend(new NullGraphFactory);
     RegisterFrontend(new CMVNGraphFactory);
     RegisterFrontend(new BasicGraphFactory);
+    RegisterFrontend(new BasicSpeechDetGraphFactory);
     RegisterFrontend(new BasicVADGraphFactory);
     RegisterFrontend(new PLPGraphFactory);
     RegisterFrontend(new PLPVADGraphFactory);
@@ -426,6 +428,41 @@ Tracter::BasicGraphFactory::Create(Component<float>* iComponent)
     p = deltas(p);
     p = normaliseVariance(p);
     return p;
+}
+
+/**
+ * Instantiates a basic MFCC frontend with speech/sil detection.
+ */
+Tracter::Component<float>*
+Tracter::BasicSpeechDetGraphFactory::Create(Component<float>* iComponent)
+{
+    // Features pipeline
+    Component<float>* p = iComponent;
+    p = new ZeroFilter(p);
+    p = new Frame(p);
+    p = new Periodogram(p);
+    p = new MelFilter(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+
+    // Minima-based VAD
+    Component<float>* v = iComponent;
+    v = new Frame(v);
+    v = new Energy(v);
+    Modulation* m = new Modulation(v);
+    Component<float>* n = new Minima(v);
+    Component<BoolType>* b = new Comparator(m, n);
+    b = new TimedLatch(b);
+    Component<float>* f = new BoolToFloat(b);
+    
+    // Concatenation
+    Concatenate* c = new Concatenate();
+    c->Add(p);
+    c->Add(f);
+
+    return c;
 }
 
 /**
