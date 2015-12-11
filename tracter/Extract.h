@@ -7,7 +7,7 @@
 #ifndef EXTRACT_H
 #define EXTRACT_H
 
-#include "HTKSink.h"
+#include "Sink.h"
 #include "ASRFactory.h"
 
 namespace Tracter
@@ -33,9 +33,10 @@ namespace Tracter
         char* mFile[2];
         char* mFileList;
         bool mLoop;
+        int mFeatureIndice;
 
         ISource* mSource;
-        HTKSink* mSink;
+        Sink* mSink;
     };
 }
 

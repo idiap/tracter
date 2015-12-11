@@ -45,6 +45,7 @@ namespace Tracter
             mMaxReadAhead = 0;
         }
         virtual ~Sink() throw () { Delete(); }
+        virtual void Open(const char* iFile){};
 
         /** Fetch() should not be called on a sink */
         SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)

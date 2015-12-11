@@ -4,8 +4,12 @@
  * See the file COPYING for the licence associated with this software.
  */
 
+#include <cstdlib>
+
 #include "Extract.h"
 #include "FilePath.h"
+#include "HTKSink.h"
+#include "FileSink.h"
 
 Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
 {
@@ -14,13 +18,7 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
     mFile[0] = 0;
     mFile[1] = 0;
     mLoop = false;
-
-    /* Use the factory for the source and front-end */
-    Component<float>* s = iFactory->CreateSource(mSource);
-    Component<float>* f = iFactory->CreateFrontend(s);
-
-    /* An HTK file sink */
-    mSink = new HTKSink(f);
+    mFeatureIndice = -1;
 
     /* Read command line for the files */
     int fileCount = 0;
@@ -42,6 +40,10 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
         case 'f':
             mFileList = iArgv[++i];
             break;
+        
+        case 'i':
+            mFeatureIndice = atoi(iArgv[++i]);
+            break;
 
         case 'l':
             mLoop = true;
@@ -56,10 +58,28 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
             throw Exception("Unrecognised argument %s", iArgv[i]);
         }
     }
+
+    Verbose(1, "Feature indice: %d\n", mFeatureIndice);
+
+    /* Use the factory for the source and front-end */
+    Component<float>* s = iFactory->CreateSource(mSource);
+    Component<float>* f = iFactory->CreateFrontend(s);
+
+    /* Setup file sink */
+    if (mFeatureIndice < 0) {
+        mSink = new HTKSink(f);
+    } else {
+        mSink = new FileSink(f);
+    }
 }
 
 void Tracter::Extract::All()
 {
+    // Which feature to output?
+    // Default to all    
+    if (mFeatureIndice >= 0)
+        ((FileSink*)mSink)->setFeatureIndice(mFeatureIndice);
+
     if (mFileList)
         List(mFileList);
     else
@@ -82,6 +102,7 @@ void Tracter::Extract::Usage(const char* iName)
         "Usage: %s [options] [infile outfile | -f file-list]\n"
         "Options:\n"
         "-f list  Read input and output files from list\n"
+        "-i       Indice for specific feature to output\n"
         "-l       Loop indefinitely if not in list mode\n"
         "-d       Generate dot format graph\n"
         "Anything else prints this information\n"
@@ -102,6 +123,7 @@ void Tracter::Extract::File(
     FilePath path;
     path.SetName(iFile2);
     path.MakePath();
+
     do
     {
         mSink->Open(iFile2);
