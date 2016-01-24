@@ -28,8 +28,8 @@ message(STATUS "Boost lib is ${Boost_LIBRARIES}")
 # RtAudio.  Pulse on Ubuntu doesn't have static libraries; the others
 # use dynamic loading (maybe...)
 #
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-include_directories(${CMAKE_SOURCE_DIR})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 find_package(KissFFT REQUIRED)
 find_package(Torch3)
 find_package(HTK)
