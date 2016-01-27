@@ -15,26 +15,26 @@
 #include "Component.h"
 #include "Source.h"
 
-#define DECLARE_GRAPH_FACTORY(name) \
-    class name##GraphFactory : public GraphFactory \
-    { \
-    public: \
-        name##GraphFactory(const char* iObjectName = #name) \
-        { \
-            mObjectName = iObjectName; \
-        } \
+#define DECLARE_GRAPH_FACTORY(name)                             \
+    class name##GraphFactory : public GraphFactory              \
+    {                                                           \
+    public:                                                     \
+        name##GraphFactory(const char* iObjectName = #name)     \
+        {                                                       \
+            mObjectName = iObjectName;                          \
+        }                                                       \
         Component<float>* Create(Component<float>* iComponent); \
     };
 
-#define DECLARE_SOURCE_FACTORY(name) \
-    class name##SourceFactory : public SourceFactory \
-    { \
-    public: \
-        name##SourceFactory(const char* iObjectName = #name) \
-        { \
-            mObjectName = iObjectName; \
-        } \
-        Component<float>* Create(ISource*& iSource); \
+#define DECLARE_SOURCE_FACTORY(name)                            \
+    class name##SourceFactory : public SourceFactory            \
+    {                                                           \
+    public:                                                     \
+        name##SourceFactory(const char* iObjectName = #name)    \
+        {                                                       \
+            mObjectName = iObjectName;                          \
+        }                                                       \
+        Component<float>* Create(ISource*& iSource);            \
     };
 
 namespace Tracter
@@ -90,6 +90,7 @@ namespace Tracter
     DECLARE_GRAPH_FACTORY(PLPvtln)
     DECLARE_GRAPH_FACTORY(BSAPI)
     DECLARE_GRAPH_FACTORY(MCep)
+    DECLARE_GRAPH_FACTORY(Cochlear)
     DECLARE_GRAPH_FACTORY(SNR)
     DECLARE_GRAPH_FACTORY(BSAPIMLPVAD)
 

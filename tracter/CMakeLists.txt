@@ -210,6 +210,14 @@ if(PULSEAUDIO_FOUND)
   list(APPEND PKGCONFIG_REQUIRES libpulse-simple)
 endif(PULSEAUDIO_FOUND)
 
+# LibSSP
+if(LIBSSP_FOUND)
+  list(APPEND SOURCES CochlearFilter.cpp CochlearFrame.cpp)
+  list(APPEND HEADERS CochlearFilter.h   CochlearFrame.h  )
+  add_definitions(-DHAVE_LIBSSP)
+  include_directories(${LIBSSP_INCLUDE_DIRS})
+endif(LIBSSP_FOUND)
+
 # A little wordy, but allows static lib also with the same syntax
 set(TARGET_LIBS
   ${TORCH3_LIBRARIES}
@@ -222,6 +230,7 @@ set(TARGET_LIBS
   ${LIBRESAMPLE_LIBRARIES}
   ${Boost_LIBRARIES}
   ${PULSEAUDIO_LIBRARIES}
+  ${LIBSSP_LIBRARIES}
 )
 
 # Static library

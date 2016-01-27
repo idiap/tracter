@@ -78,6 +78,11 @@
 # include "MCep.h"
 #endif
 
+#ifdef HAVE_LIBSSP
+# include "CochlearFilter.h"
+# include "CochlearFrame.h"
+#endif
+
 #include "Pixmap.h"
 
 #include "Energy.h"
@@ -148,6 +153,10 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
 #ifdef HAVE_SPTK
     RegisterFrontend(new MCepGraphFactory);
+#endif
+
+#ifdef HAVE_LIBSSP
+    RegisterFrontend(new CochlearGraphFactory);
 #endif
 
     RegisterFrontend(new SNRGraphFactory);
@@ -776,6 +785,24 @@ Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
     p = new Frame(p);
     p = new Periodogram(p);
     p = new MCep(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
+}
+#endif
+
+#ifdef HAVE_LIBSSP
+/**
+ * Instantiates a libssp based cochlear frontend.
+ */
+Tracter::Component<float>*
+Tracter::CochlearGraphFactory::Create(Component<float>* iComponent)
+{
+    Component<float>* p = iComponent;
+    p = new CochlearFilter(p);
+    p = new CochlearFrame(p);
+    p = new Cepstrum(p);
     p = normaliseMean(p);
     p = deltas(p);
     p = normaliseVariance(p);
