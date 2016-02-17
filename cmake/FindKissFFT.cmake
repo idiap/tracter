@@ -5,9 +5,10 @@ set(KISSFFT_DIR $ENV{KISSFFT_DIR}
   CACHE FILEPATH "Path to Kiss FFT directory"
   )
 
-if ("${KISSFFT_DIR}" MATCHES "")
+if ("${KISSFFT_DIR}" EQUAL "")
+  message(STATUS "Matches")
   set(KISSFFT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/kissfft")
-endif ("${KISSFFT_DIR}" MATCHES "")
+endif ("${KISSFFT_DIR}" EQUAL "")
 
 if (EXISTS "${KISSFFT_DIR}")
   message(STATUS "Using Kiss FFT dir: ${KISSFFT_DIR}")
