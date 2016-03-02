@@ -157,6 +157,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
 #ifdef HAVE_LIBSSP
     RegisterFrontend(new CochlearGraphFactory);
+    RegisterFrontend(new CochlearSNRGraphFactory);
 #endif
 
     RegisterFrontend(new SNRGraphFactory);
@@ -792,24 +793,6 @@ Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
 }
 #endif
 
-#ifdef HAVE_LIBSSP
-/**
- * Instantiates a libssp based cochlear frontend.
- */
-Tracter::Component<float>*
-Tracter::CochlearGraphFactory::Create(Component<float>* iComponent)
-{
-    Component<float>* p = iComponent;
-    p = new CochlearFilter(p);
-    p = new CochlearFrame(p);
-    p = new Cepstrum(p);
-    p = normaliseMean(p);
-    p = deltas(p);
-    p = normaliseVariance(p);
-    return p;
-}
-#endif
-
 /**
  * Instantiates a "basic MFCC" frontend with SNR spectral features.
  */
@@ -830,6 +813,45 @@ Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
     p = normaliseVariance(p);
     return p;
 }
+
+#ifdef HAVE_LIBSSP
+/**
+ * Instantiates a libssp based cochlear frontend.
+ */
+Tracter::Component<float>*
+Tracter::CochlearGraphFactory::Create(Component<float>* iComponent)
+{
+    Component<float>* p = iComponent;
+    p = new ZeroFilter(p);
+    p = new CochlearFilter(p);
+    p = new CochlearFrame(p);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
+}
+
+/**
+ * Instantiates a cochlear frontend with SNR spectral features.
+ */
+Tracter::Component<float>*
+Tracter::CochlearSNRGraphFactory::Create(Component<float>* iComponent)
+{
+    Component<float>* p = iComponent;
+    p = new ZeroFilter(p);
+    p = new CochlearFilter(p);
+    p = new CochlearFrame(p);
+    Component<float>* m = new Minima(p);
+    //m = new TransverseFilter(m);
+    p = new SNRSpectrum(p, m);
+    p = new Cepstrum(p);
+    p = normaliseMean(p);
+    p = deltas(p);
+    p = normaliseVariance(p);
+    return p;
+}
+#endif
 
 #ifdef HAVE_BSAPI
 /**

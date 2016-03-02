@@ -9,6 +9,15 @@
 
 #include "CochlearFilter.h"
 
+namespace Tracter
+{
+    const StringEnum cFilter[] = {
+        {"Holdsworth", ssp::BPF_HOLDSWORTH},
+        {"Lyon",       ssp::BPF_LYON},
+        {0,            -1}
+    };
+}
+
 using namespace Tracter;
 
 CochlearFilter::CochlearFilter(
@@ -22,8 +31,10 @@ CochlearFilter::CochlearFilter(
     mFrame.size = GetEnv("Size", 23);
     float loHertz = GetEnv("LoHertz", 64.0f);
     float hiHertz = GetEnv("HiHertz", 4000.0f);
-    mCochlea =
-        new ssp::Cochlea(loHertz, hiHertz, mFrame.size, 1.0f / FrameRate());
+    int type = GetEnv(cFilter, ssp::BPF_LYON);
+    mCochlea = new ssp::Cochlea(
+        loHertz, hiHertz, mFrame.size, 1.0f / FrameRate(), type
+    );
 }
 
 CochlearFilter::~CochlearFilter() throw()

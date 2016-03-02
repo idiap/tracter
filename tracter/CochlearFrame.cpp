@@ -9,6 +9,22 @@
 
 #include "CochlearFrame.h"
 
+namespace Tracter
+{
+    enum {
+        METHOD_MAX,
+        METHOD_MAG,
+        METHOD_ENERGY
+    };
+
+    const StringEnum cMethod[] = {
+        {"Max",       METHOD_MAX},
+        {"Mag",       METHOD_MAG},
+        {"Energy",    METHOD_ENERGY},
+        {0,          -1}
+    };
+}
+
 using namespace Tracter;
 
 CochlearFrame::CochlearFrame(
@@ -24,9 +40,21 @@ CochlearFrame::CochlearFrame(
     // Framers look ahead, not back
     Connect(mInput, mSize, mSize-1);
 
+    mMethod = GetEnv(cMethod, METHOD_ENERGY);
+    mWindow = 0;
+    if (GetEnv("Window", 0))
+        mWindow = new Window(mObjectName, mSize);
+
     assert(mSize > 0);
     assert(mFrame.size > 0);
     assert(mFrame.period > 0);
+}
+
+CochlearFrame::~CochlearFrame()
+{
+    if (mWindow)
+        delete mWindow;
+    mWindow = 0;
 }
 
 bool CochlearFrame::UnaryFetch(IndexType iIndex, float* oData)
@@ -49,8 +77,23 @@ bool CochlearFrame::UnaryFetch(IndexType iIndex, float* oData)
         for (int i=0; i<n; i++)
         {
             for (int j=0; j<mFrame.size; j++)
-                // Energy
-                oData[j] += ip[j]*ip[j];
+            {
+                float f = ip[j];
+                if (mWindow)
+                    f *= mWindow->at(nRead+i);
+                switch (mMethod)
+                {
+                case METHOD_MAX:
+                    oData[j] = std::max(f*f, oData[j]);
+                    break;
+                case METHOD_MAG:
+                    oData[j] += std::abs(f);
+                    break;
+                case METHOD_ENERGY:
+                    oData[j] += f*f;
+                    break;
+                }
+            }
             ip += mFrame.size;
         }
         nRead += n;

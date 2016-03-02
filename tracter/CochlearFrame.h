@@ -8,7 +8,8 @@
 #ifndef COCHLEARFRAME_H
 #define COCHLEARFRAME_H
 
-#include "CachedComponent.h"
+#include <tracter/CachedComponent.h>
+#include <tracter/Window.h>
 
 namespace Tracter
 {
@@ -17,6 +18,7 @@ namespace Tracter
     public:
         CochlearFrame(Component<float>* iInput,
                       const char* iObjectName = "CochlearFrame");
+        virtual ~CochlearFrame() throw();
 
     protected:
         bool UnaryFetch(IndexType iIndex, float* oData);
@@ -24,6 +26,8 @@ namespace Tracter
     private:
         Component<float>* mInput;
         int mSize;
+        int mMethod;
+        Window* mWindow;
     };
 }
 
