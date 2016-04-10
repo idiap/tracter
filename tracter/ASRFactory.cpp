@@ -799,15 +799,22 @@ Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
 Tracter::Component<float>*
 Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
 {
+    bool mel = GetEnv("Mel", 0);
     Component<float>* p = iComponent;
     p = new ZeroFilter(p);
     p = new Frame(p);
     p = new Periodogram(p);
+    if (mel)
+        p = new MelFilter(p);
     Component<float>* m = new Minima(p);
     m = new TransverseFilter(m);
     p = new SNRSpectrum(p, m);
-    p = new MelFilter(p);
-    p = new Cepstrum(p);
+    if (!mel)
+        p = new MelFilter(p);
+    if (GetEnv("PLP", 0))
+        p = new LPCepstrum(p);
+    else
+        p = new Cepstrum(p);
     p = normaliseMean(p);
     p = deltas(p);
     p = normaliseVariance(p);
@@ -845,7 +852,10 @@ Tracter::CochlearSNRGraphFactory::Create(Component<float>* iComponent)
     Component<float>* m = new Minima(p);
     //m = new TransverseFilter(m);
     p = new SNRSpectrum(p, m);
-    p = new Cepstrum(p);
+    if (GetEnv("PLP", 0))
+        p = new LPCepstrum(p);
+    else
+        p = new Cepstrum(p);
     p = normaliseMean(p);
     p = deltas(p);
     p = normaliseVariance(p);
