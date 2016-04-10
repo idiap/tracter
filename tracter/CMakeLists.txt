@@ -111,14 +111,12 @@ set(TARGET_LIBS
 
 # Kiss is compulsory for now
 # The library is not supplied built, so we add in the sources explicitly.
-if(KISSFFT_FOUND)
-  list(APPEND SOURCES
-    FourierKiss.cpp
-    ${KISSFFT_DIR}/tools/kiss_fftr.c
-    ${KISSFFT_DIR}/kiss_fft.c
-    )
-  include_directories(${KISSFFT_DIR} ${KISSFFT_DIR}/tools)
-endif(KISSFFT_FOUND)
+list(APPEND SOURCES
+  FourierKiss.cpp
+  ${KISSFFT_DIR}/tools/kiss_fftr.c
+  ${KISSFFT_DIR}/kiss_fft.c
+  )
+include_directories(${KISSFFT_DIR} ${KISSFFT_DIR}/tools)
 
 # HTK is optional
 if(HTK_FOUND)
