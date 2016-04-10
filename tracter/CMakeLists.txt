@@ -104,16 +104,19 @@ set(INSTALL_TARGETS
   static-lib
 )
 
+# A little wordy, but allows static lib also with the same syntax
+set(TARGET_LIBS
+  ${Boost_LIBRARIES}
+)
+
 # Kiss is compulsory for now
 # The library is not supplied built, so we add in the sources explicitly.
-if(KISSFFT_FOUND)
-  list(APPEND SOURCES
-    FourierKiss.cpp
-    ${KISSFFT_DIR}/tools/kiss_fftr.c
-    ${KISSFFT_DIR}/kiss_fft.c
-    )
-  include_directories(${KISSFFT_DIR} ${KISSFFT_DIR}/tools)
-endif(KISSFFT_FOUND)
+list(APPEND SOURCES
+  FourierKiss.cpp
+  ${KISSFFT_DIR}/tools/kiss_fftr.c
+  ${KISSFFT_DIR}/kiss_fft.c
+  )
+include_directories(${KISSFFT_DIR} ${KISSFFT_DIR}/tools)
 
 # HTK is optional
 if(HTK_FOUND)
@@ -121,6 +124,7 @@ if(HTK_FOUND)
   list(APPEND HEADERS HCopyWrapper.h   HTKLibSource.h  )
   add_definitions(-DHAVE_HTKLIB)
   include_directories(${HTK_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${HTK_LIBRARIES})
 endif(HTK_FOUND)
 
 # Torch3 is optional
@@ -140,6 +144,7 @@ if(TORCH3_FOUND)
   add_definitions(-DHAVE_TORCH3)
   include_directories(${TORCH3_INCLUDE_DIRS})
   link_directories(${TORCH3_LIBRARY_DIRS})
+  list(APPEND TARGET_LIBS ${TORCH3_LIBRARIES})
 endif(TORCH3_FOUND)
 
 # BSAPI comes as a shared library
@@ -158,6 +163,7 @@ if(BSAPI_FOUND)
     )
   add_definitions(-DHAVE_BSAPI)
   include_directories(${BSAPI_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${BSAPI_LIBRARIES})
 endif(BSAPI_FOUND)
 
 # ALSA is a system thing, depends on whether pkgconfig found it
@@ -166,6 +172,7 @@ if(ALSA_FOUND)
   list(APPEND HEADERS ALSASource.h  )
   add_definitions(-DHAVE_ALSA)
   include_directories(${ALSA_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${ALSA_LIBRARIES})
   list(APPEND PKGCONFIG_REQUIRES alsa)
 endif(ALSA_FOUND)
 
@@ -175,6 +182,7 @@ if(SNDFILE_FOUND)
   list(APPEND HEADERS SndFileSource.h   SndFileSink.h  )
   add_definitions(-DHAVE_SNDFILE)
   include_directories(${SNDFILE_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${SNDFILE_LIBRARIES})
   list(APPEND PKGCONFIG_REQUIRES sndfile)
 endif(SNDFILE_FOUND)
 
@@ -183,6 +191,7 @@ if(LIBRESAMPLE_FOUND)
   list(APPEND SOURCES ResampleLRS.cpp)
   add_definitions(-DHAVE_RESAMPLE)
   include_directories(${LIBRESAMPLE_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${LIBRESAMPLE_LIBRARIES})
 endif(LIBRESAMPLE_FOUND)
 
 # RtAudio
@@ -190,7 +199,8 @@ if(RTAUDIO_FOUND)
   list(APPEND SOURCES RtAudioSource.cpp)
   list(APPEND HEADERS RtAudioSource.h  )
   add_definitions(-DHAVE_RTAUDIO)
-  include_directories(${RTAUDIO_INCLUDE_DIR})
+  include_directories(${RTAUDIO_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${RTAUDIO_LIBRARIES})
 endif(RTAUDIO_FOUND)
 
 # SPTK
@@ -199,6 +209,7 @@ if(SPTK_FOUND)
   list(APPEND HEADERS MCep.h  )
   add_definitions(-DHAVE_SPTK)
   include_directories(${SPTK_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${SPTK_LIBRARIES})
 endif(SPTK_FOUND)
 
 # PulseAudio is another pkgconfig one
@@ -207,6 +218,7 @@ if(PULSEAUDIO_FOUND)
   list(APPEND HEADERS PulseAudioSource.h)   # PulseAudioSink.h  )
   add_definitions(-DHAVE_PULSEAUDIO)
   include_directories(${PULSEAUDIO_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${PULSEAUDIO_LIBRARIES})
   list(APPEND PKGCONFIG_REQUIRES libpulse-simple)
 endif(PULSEAUDIO_FOUND)
 
@@ -216,22 +228,8 @@ if(LIBSSP_FOUND)
   list(APPEND HEADERS CochlearFilter.h   CochlearFrame.h  )
   add_definitions(-DHAVE_LIBSSP)
   include_directories(${LIBSSP_INCLUDE_DIRS})
+  list(APPEND TARGET_LIBS ${LIBSSP_LIBRARIES})
 endif(LIBSSP_FOUND)
-
-# A little wordy, but allows static lib also with the same syntax
-set(TARGET_LIBS
-  ${TORCH3_LIBRARIES}
-  ${HTK_LIBRARIES}
-  ${BSAPI_LIBRARIES}
-  ${ALSA_LIBRARIES}
-  ${SNDFILE_LIBRARIES}
-  ${SPTK_LIBRARIES}
-  ${RTAUDIO_LIBRARIES}
-  ${LIBRESAMPLE_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${PULSEAUDIO_LIBRARIES}
-  ${LIBSSP_LIBRARIES}
-)
 
 # Static library
 add_library(static-lib STATIC ${SOURCES})
