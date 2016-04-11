@@ -41,7 +41,9 @@ find_package(PulseAudio)
 find_package(LibResample)
 find_package(RtAudio)
 find_package(SPTK)
-find_package(LibSSP)
+if (NOT LIBSSP_FOUND)
+  find_package(LibSSP)
+endif (NOT LIBSSP_FOUND)
 
 # This is required for ssp headers
 set(CMAKE_CXX_FLAGS "-std=c++11")
