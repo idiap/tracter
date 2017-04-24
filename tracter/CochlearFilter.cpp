@@ -11,9 +11,15 @@
 
 namespace Tracter
 {
+    enum {
+        HOLDSWORTH,
+        LYON,
+        CASCADE
+    };
     const StringEnum cFilter[] = {
-        {"Holdsworth", ssp::BPF_HOLDSWORTH},
-        {"Lyon",       ssp::BPF_LYON},
+        {"Holdsworth", HOLDSWORTH},
+        {"Lyon",       LYON},
+        {"Cascade",    CASCADE},
         {0,            -1}
     };
 }
@@ -31,10 +37,25 @@ CochlearFilter::CochlearFilter(
     mFrame.size = GetEnv("Size", 23);
     float loHertz = GetEnv("LoHertz", 64.0f);
     float hiHertz = GetEnv("HiHertz", 4000.0f);
-    int type = GetEnv(cFilter, ssp::BPF_LYON);
-    mCochlea = new ssp::Cochlea(
-        loHertz, hiHertz, mFrame.size, 1.0f / FrameRate(), type
-    );
+    int type = GetEnv(cFilter, LYON);
+    switch (type)
+    {
+    case HOLDSWORTH:
+        mCochlea = new ssp::Holdsworth(
+            loHertz, hiHertz, mFrame.size, 1.0f / FrameRate()
+        );
+        break;
+    case LYON:
+        mCochlea = new ssp::Lyon(
+            loHertz, hiHertz, mFrame.size, 1.0f / FrameRate()
+        );
+        break;
+    case CASCADE:
+        mCochlea = new ssp::Cascade(
+            loHertz, hiHertz, mFrame.size, 1.0f / FrameRate()
+        );
+        break;
+    }
 }
 
 CochlearFilter::~CochlearFilter() throw()
