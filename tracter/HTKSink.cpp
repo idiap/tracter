@@ -105,7 +105,7 @@ void Tracter::HTKSink::Open(const char* iFile)
     {
         float* f = mInput->GetPointer(cache.offset);
         for (int i=0; i<mFrame.size; i++)
-            if (!finite(f[i]))
+            if (!isfinite(f[i]))
                 throw Exception("HTKSink: !finite at %s frame %d index %d",
                                 iFile, index, i);
         if (mByteOrder.WrongEndian())

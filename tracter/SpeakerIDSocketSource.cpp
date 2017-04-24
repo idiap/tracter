@@ -23,12 +23,12 @@ Tracter::SpeakerIDSocketSource::SpeakerIDSocketSource(
  * server.  It should respond immediately with a speaker ID, otherwise
  * everything will grind to a halt.
  */
-bool Tracter::SpeakerIDSocketSource::UnaryFetch(IndexType iIndex, int iOffset)
+bool Tracter::SpeakerIDSocketSource::UnaryFetch(IndexType iIndex, float* oData)
 {
     assert(mFrame.size == 1);
 
     Verbose(2, "Fetching SpeakerID for index %ld\n", iIndex);
-    char* cache = (char*)GetPointer(iOffset);
+    char* cache = (char*)oData;
 
     // Send time stamp to the socket: converting from nanoseconds
     // to milliseconds

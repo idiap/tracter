@@ -1,6 +1,5 @@
 /*
- * Copyright 2008 by Idiap Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2008 by Idiap Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -20,7 +19,9 @@ namespace Tracter
             const char* iObjectName = "StreamSocketSource"
         )
             : SocketSource<float>(iAuxiliary, iObjectName) {}
-        virtual void Open(const char* iHostName);
+        virtual void Open(
+            const char* iHostName, TimeType iBeginTime=-1, TimeType iEndTime=-1
+        );
     };
 }
 

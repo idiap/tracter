@@ -27,7 +27,7 @@ Tracter::ScreenSink::ScreenSink(
 /**
  * Suck data onto screen.
  */
-void Tracter::ScreenSink::Open()
+void Tracter::ScreenSink::Open(const char* iFile)
 {
 
     /* Processing loop */

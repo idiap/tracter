@@ -16,8 +16,8 @@ Tracter::OverlapAdd::OverlapAdd(
     Connect(mInput, 2);
 }
 
-int Tracter::OverlapAdd::ContiguousFetch(
-    IndexType iIndex, int iLength, int iOffset
+Tracter::SizeType Tracter::OverlapAdd::ContiguousFetch(
+    IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
     assert(iIndex >= 0);

@@ -23,7 +23,7 @@ namespace Tracter
         );
 
     protected:
-        bool UnaryFetch(IndexType iIndex, int iOffset);
+        bool UnaryFetch(IndexType iIndex, float* oData);
 
     private:
         int mTimeOffset;

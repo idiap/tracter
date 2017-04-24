@@ -7,7 +7,9 @@
 
 #include "StreamSocketSource.h"
 
-void Tracter::StreamSocketSource::Open(const char* iHostName)
+void Tracter::StreamSocketSource::Open(
+    const char* iHostName, TimeType iBeginTime, TimeType iEndTime
+)
 {
     /* Call the base class */
     SocketSource<float>::Open(iHostName);

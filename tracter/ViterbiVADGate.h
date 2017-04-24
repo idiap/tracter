@@ -1,6 +1,5 @@
 /*
- * Copyright 2008 by IDIAP Research Institute
- *                   http://www.idiap.ch
+ * Copyright 2008 by IDIAP Research Institute, http://www.idiap.ch
  *
  * See the file COPYING for the licence associated with this software.
  */
@@ -17,11 +16,11 @@ namespace Tracter
 {
 
     /**
-     * VAD Gate using Viterbi algorithm to calculate class posterior probabilities
-     * smoothed by segment minimum duration and insertion penalty constraints.
-     * Assumes that the inputs are frame-level class posterior probabilties.
-     * Allows frames through from input to output depending
-     * on a VAD input.
+     * VAD Gate using Viterbi algorithm to calculate class posterior
+     * probabilities smoothed by segment minimum duration and insertion penalty
+     * constraints.  Assumes that the inputs are frame-level class posterior
+     * probabilties.  Allows frames through from input to output depending on a
+     * VAD input.
      */
     class ViterbiVADGate : public CachedComponent<float>
     {
@@ -34,7 +33,7 @@ namespace Tracter
          *
          * We need to adjust for the segmenting effect
          */
-        TimeType TimeStamp(IndexType iIndex)
+        TimeType TimeStamp(IndexType iIndex) const
         {
             return ComponentBase::TimeStamp(
                 iIndex + std::max<IndexType>(mSpeechTriggered, (IndexType)0)

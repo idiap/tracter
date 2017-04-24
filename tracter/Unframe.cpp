@@ -21,8 +21,9 @@ Tracter::Unframe::Unframe(Component<float>* iInput, const char* iObjectName)
     Connect(mInput);
 }
 
-int Tracter::Unframe::ContiguousFetch(
-    IndexType iIndex, int iLength, int iOffset
+Tracter::SizeType
+Tracter::Unframe::ContiguousFetch(
+    IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
     assert(iIndex >= 0);

@@ -19,7 +19,9 @@ namespace Tracter
                    const char* iObjectName = "OverlapAdd");
 
     protected:
-        int ContiguousFetch(IndexType iIndex, int iLength, int iOffset);
+        SizeType ContiguousFetch(
+            IndexType iIndex, SizeType iLength, SizeType iOffset
+        );
 
     private:
         Component<float>* mInput;

@@ -7,6 +7,7 @@
  *   Phil Garner, January 2016
  */
 
+#include <cmath>
 #include "CochlearFrame.h"
 
 namespace Tracter
@@ -50,7 +51,7 @@ CochlearFrame::CochlearFrame(
     assert(mFrame.period > 0);
 }
 
-CochlearFrame::~CochlearFrame()
+CochlearFrame::~CochlearFrame() throw ()
 {
     if (mWindow)
         delete mWindow;
