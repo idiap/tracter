@@ -27,10 +27,6 @@ namespace Tracter
         );
         virtual ~FileSink() throw() {}
         void Open(const char* iFile);
-        
-        void setFeatureIndice(int indice) {
-            mFeatureIndice = indice;
-        }
 
     private:
         Component<float>* mInput;
@@ -38,7 +34,6 @@ namespace Tracter
         ByteOrder mByteOrder;
         std::vector<float> mTemp;
         int mMaxSize;
-        int mFeatureIndice;
     };
 }
 

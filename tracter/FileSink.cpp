@@ -5,7 +5,6 @@
  * See the file COPYING for the licence associated with this software.
  */
 
-#include <string>
 #include "FileSink.h"
 
 Tracter::FileSink::FileSink(
@@ -14,7 +13,6 @@ Tracter::FileSink::FileSink(
 )
 {
     mObjectName = iObjectName;
-    mFeatureIndice = -1;
     mInput = iInput;
     Connect(iInput);
     mFrame.size = mInput->Frame().size;
@@ -55,15 +53,8 @@ void Tracter::FileSink::Open(const char* iFile)
             f = &mTemp[0];
             mByteOrder.Swap(f, sizeof(float), mFrame.size);
         }
-        // All features are outputed
-        if (mFeatureIndice < 0) {
-            if (fwrite(f, sizeof(float), mFrame.size, mFile) != (size_t)mFrame.size)
-                throw Exception("FileSink: Failed to write to file %s", iFile);
-        } else {                
-            assert(mFeatureIndice < mFrame.size);
-            if (fprintf(mFile, "%f\n", f[mFeatureIndice]) < 0)
-                throw Exception("FileSink: Failed to write to file %s", iFile);
-        }
+        if (fwrite(f, sizeof(float), mFrame.size, mFile) != (size_t)mFrame.size)
+            throw Exception("FileSink: Failed to write to file %s", iFile);
         if ((mMaxSize > 0) && (index >= mMaxSize))
             break;
     }
