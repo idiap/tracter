@@ -21,6 +21,14 @@ fi
 # CMake finders
 if [ ! -e cmake/FindLibSSP.cmake ]
 then
-    curl -L https://github.com/idiap/libssp/raw/master/cmake/FindLibSSP.cmake \
-         -o cmake/FindLibSSP.cmake
+    curl \
+        -L https://github.com/Idiap/libssp/raw/master/cmake/FindLibSSP.cmake \
+        -o cmake/FindLibSSP.cmake
+fi
+
+if [ ! -e cmake/FindLibUBE.cmake ]
+then
+    curl \
+        -L https://github.com/pgarner/libube/raw/master/cmake/FindLibUBE.cmake \
+        -o cmake/FindLibUBE.cmake
 fi

@@ -6,8 +6,7 @@
 Tracter is a data flow framework.  It was written initially for doing
 speech signal processing in the context of <a
 href="http://juicer.amiproject.org/juicer">Juicer</a>.  It has
-developed into more of a wrapper for other packages.  For instance, it
-can generate HTK features by linking with HTK's library.  Written and
+developed into more of a wrapper for other packages.  Written and
 maintained at Idiap, tracter contains contributions from other <a
 href="http://www.amiproject.org/">AMIDA</a> partners at the
 universities of <a href="http://www.sheffield.ac.uk">Sheffield</a> and
@@ -25,9 +24,6 @@ Tracter has one compulsory external dependency:
 simple BSD licensed FFT library.
  .
 and quite a lot of optional library dependencies:
- - <a href="http://www.torch.ch/">Torch3</a>.  The distribution that
-comes with <a href="http://torch3vision.idiap.ch/">Torch3vision</a>
-probably works too.
  - <a
 href="http://www-ccrma.stanford.edu/~jos/resample/Free_Resampling_Software.html">libresample</a>
 is used for sample rate conversion.

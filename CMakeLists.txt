@@ -6,47 +6,22 @@
 #
 
 # Version 2.4 might work, but it won't find static libraries with odd names
-cmake_minimum_required(VERSION 2.6)
-
-# CMake used to complain without this
-#if(COMMAND cmake_policy)
-#  cmake_policy(SET CMP0003 NEW)
-#endif(COMMAND cmake_policy)
+cmake_minimum_required(VERSION 3.8)
 
 # Top level project information
 project(tracter)
-set(VERSION 1.1)
+set(VERSION 2.0a)
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+# This is required for ssp headers
+set(CMAKE_CXX_FLAGS "-std=c++11")
 
 # Find boost, get rid of the version number
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
 message(STATUS "Boost lib is ${Boost_LIBRARIES}")
-
-# Find other packages
-#
-# To build *totally* static, comment out ALSA, SndFile, PulseAudio and
-# RtAudio.  Pulse on Ubuntu doesn't have static libraries; the others
-# use dynamic loading (maybe...)
-#
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(KISSFFT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/kissfft")
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-find_package(Torch3)
-find_package(HTK)
-find_package(BSAPI)
-find_package(ALSA)
-find_package(SndFile)
-find_package(PulseAudio)
-
-find_package(LibResample)
-find_package(RtAudio)
-find_package(SPTK)
-if (NOT LIBSSP_FOUND)
-  find_package(LibSSP)
-endif (NOT LIBSSP_FOUND)
-
-# This is required for ssp headers
-set(CMAKE_CXX_FLAGS "-std=c++11")
 
 add_subdirectory(bin)
 add_subdirectory(tracter)
@@ -56,8 +31,10 @@ add_executable(extracter extracter.cpp)
 target_link_libraries(extracter static-lib)
 set(INSTALL_TARGETS
   extracter
+  recorder
 )
 
+find_package(SndFile)
 if(SNDFILE_FOUND)
   # codec and recorder rely on SndFile
   add_executable(codec codec.cpp)

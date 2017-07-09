@@ -7,8 +7,7 @@
 
 /*
  * The ASR factory is a kind of dumping ground for all sorts of ASR
- * experiments.  The Basic and BasicVAD graphs are pretty useful, as
- * is the BSAPI one if you have it.
+ * experiments.  The Basic and BasicVAD graphs are pretty useful.
  */
 
 #include "ASRFactory.h"
@@ -56,24 +55,6 @@
 
 #include "Resample.h"
 
-#ifdef HAVE_HTKLIB
-# include "HCopyWrapper.h"
-# include "HTKLibSource.h"
-#endif
-
-#ifdef HAVE_BSAPI
-# include "BSAPITransform.h"
-# include "BSAPIFrontEnd.h"
-# include "BSAPIFilterBank.h"
-# include "BSAPIFastVTLN.h"
-#endif
-
-#ifdef HAVE_TORCH3
-# include "MLP.h"
-# include "MLPVAD.h"
-# undef real
-#endif
-
 #ifdef HAVE_SPTK
 # include "MCep.h"
 #endif
@@ -107,9 +88,6 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 
     // List all sources
     RegisterSource(new FileSourceFactory);
-#ifdef HAVE_HTKLIB
-    RegisterSource(new HTKLibSourceFactory);
-#endif
     RegisterSource(new StreamSocketSourceFactory);
     RegisterSource(new HTKSourceFactory);
     RegisterSource(new LNASourceFactory);
@@ -134,22 +112,6 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     RegisterFrontend(new BasicVADGraphFactory);
     RegisterFrontend(new PLPGraphFactory);
     RegisterFrontend(new PLPVADGraphFactory);
-
-#ifdef HAVE_TORCH3
-    RegisterFrontend(new BasicMLPVADGraphFactory);
-    RegisterFrontend(new MLPVADGraphFactory);
-#endif
-
-#ifdef HAVE_HTKLIB
-    RegisterFrontend(new HTKGraphFactory);
-#endif
-
-#ifdef HAVE_BSAPI
-    RegisterFrontend(new PLPPosteriorGraphFactory);
-    RegisterFrontend(new PLPvtlnGraphFactory);
-    RegisterFrontend(new BSAPIGraphFactory);
-    RegisterFrontend(new BSAPIMLPVADGraphFactory);
-#endif
 
 #ifdef HAVE_SPTK
     RegisterFrontend(new MCepGraphFactory);
@@ -296,19 +258,6 @@ Tracter::StreamSocketSourceFactory::Create(ISource*& iSource)
     iSource = s;
     return s;
 }
-
-#ifdef HAVE_HTKLIB
-/**
- * Instantiates an HTKLibSource component
- */
-Tracter::Component<float>*
-Tracter::HTKLibSourceFactory::Create(ISource*& iSource)
-{
-    HTKLibSource * s = new HTKLibSource();
-    iSource = s;
-    return s;
-}
-#endif
 
 /**
  * Instantiates an HTKSource component
@@ -516,50 +465,6 @@ Tracter::BasicVADGraphFactory::Create(Component<float>* iComponent)
     return v;
 }
 
-#ifdef HAVE_TORCH3
-/**
- * Instantiates a basic MFCC frontend with MLPVAD and VADGate
- * components.
- */
-Tracter::Component<float>*
-Tracter::BasicMLPVADGraphFactory::Create(Component<float>* iComponent)
-{
-    /* Basic signal processing chain */
-    Component<float>* p = iComponent;
-    p = new ZeroFilter(p);
-    p = new Frame(p);
-    p = new Periodogram(p);
-    p = new MelFilter(p);
-    p = new Cepstrum(p);
-    p = normaliseMean(p);
-    p = deltas(p);
-    p = normaliseVariance(p);
-
-    /* VAD - works on the "basic" features */
-    Component<float>* v = new MLP(p);
-    MLPVAD* mv = new MLPVAD(v);
-    p = new VADGate(p, mv);
-
-    return p;
-}
-
-/**
- * Instantiates MLPVAD and VADGate components on the assumption that
- * the source is providing suitable features directly.
- */
-Tracter::Component<float>*
-Tracter::MLPVADGraphFactory::Create(Component<float>* iComponent)
-{
-    /* VAD working on features */
-    Component<float>* p = iComponent;
-    Component<float>* v = new MLP(p);
-    MLPVAD* mv = new MLPVAD(v);
-    p = new VADGate(p, mv);
-
-    return p;
-}
-#endif
-
 /**
  * Instantiates a PLP frontend.
  */
@@ -617,163 +522,6 @@ Tracter::PLPVADGraphFactory::Create(Component<float>* iComponent)
 
     return v;
 }
-
-#ifdef HAVE_HTKLIB
-/**
- * Instantiates an HCopyWrapper component
- */
-Tracter::Component<float>*
-Tracter::HTKGraphFactory::Create(Component<float>* iComponent)
-{
-    Component<float>* p = iComponent;
-    p = new HCopyWrapper(p);
-    return p;
-}
-#endif
-
-#ifdef HAVE_BSAPI
-/**
- * Instantiates BSAPI components with both standard and posterior based
- * features.
- */
-Tracter::Component<float>*
-Tracter::PLPPosteriorGraphFactory::Create(Component<float>* iComponent)
-{
-    Component<float>* p  = iComponent;
-
-    // Framed version of the input for BSAPI
-    Component<float>* f = new Frame(p);
-
-#ifdef HAVE_TORCH3
-    // MLP based VAD
-    p = new BSAPIFrontEnd(f, "PLPFrontEnd");
-    Mean* mlpm = new Mean(p);
-    p = new Subtract(p, mlpm);
-    Variance* mlpv = new Variance(p);
-    p = new Divide(p, mlpv);
-    p = new MLP(p);
-    MLPVAD* m = new MLPVAD(p);
-    p = new VADGate(f, m);
-#else
-    // Energy based VAD
-    p = new Frame(p);
-    p = new Energy(p);
-    Modulation* m = new Modulation(p);
-    NoiseVAD* mv = new NoiseVAD(m, p)
-    p = new VADGate(f, mv);
-#endif
-
-    // VTLN PLP
-    Component<float>* wf = new BSAPIFastVTLN(p);
-
-    // NN Front End
-    Component<float>* nn;
-    nn = new BSAPIFilterBank(p, wf);
-    Mean* nnm = new Mean(nn);
-    nn = new Subtract(nn, nnm);
-    Variance* nnv = new Variance(nn);
-    nn = new Divide(nn, nnv);
-    nn = new BSAPITransform(nn, "NNTransform");
-
-    // PLP HLDA FrontEnd
-    Component<float>* plp;
-    plp = new BSAPIFrontEnd(p, wf, "PLPHLDAFrontEnd");
-    Mean* plpm = new Mean(plp);
-    plp = new Subtract(plp, plpm);
-    plp = new BSAPITransform(plp, "DATTransform");
-    Variance* plpv = new Variance(plp, "PLPVariance");
-    plp = new Divide(plp, plpv);
-    plp = new BSAPITransform(plp, "HLDATransform");
-
-    // Concatenation
-    Concatenate* c = new Concatenate();
-    c->Add(plp);
-    c->Add(nn);
-    Mean* cm = new Mean(c);
-    p = new Subtract(c, cm);
-    Variance* cv = new Variance(p, "CatVariance");
-    p = new Divide(p, cv);
-
-    // Done
-    return p;    // Returns the concatenated VPLP , posterior features
-}
-
-/**
- * Instantiates BSAPI components with both standard VTLN PLP
- * features.
- */
-Tracter::Component<float>*
-Tracter::PLPvtlnGraphFactory::Create(Component<float>* iComponent)
-{
-    Component<float>* p  = iComponent;
-
-    // Framed version of the input for BSAPI
-    Component<float>* f = new Frame(p);
-
-#ifdef HAVE_TORCH3
-    // MLP based VAD
-    p = new BSAPIFrontEnd(f, "PLPFrontEnd");
-    Mean* mlpm = new Mean(p);
-    p = new Subtract(p, mlpm);
-    Variance* mlpv = new Variance(p);
-    p = new Divide(p, mlpv);
-    p = new MLP(p);
-    MLPVAD* m = new MLPVAD(p);
-    p = new VADGate(f, m);
-#else
-    // Energy based VAD
-    p = new Frame(p);
-    p = new Energy(p);
-    Modulation* m = new Modulation(p);
-    NoiseVAD* mv = new NoiseVAD(m, p)
-    p = new VADGate(f, mv);
-#endif
-
-    // VTLN PLP
-    Component<float>* wf = new BSAPIFastVTLN(p);
-
-    // PLP HLDA FrontEnd
-    Component<float>* plp;
-    plp = new BSAPIFrontEnd(p, wf, "PLPHLDAFrontEnd");
-    Mean* plpm = new Mean(plp);
-    plp = new Subtract(plp, plpm);
-    plp = new BSAPITransform(plp, "DATTransform");
-//  Variance* plpv = new Variance(plp, "PLPVariance");
-//  plp = new Divide(plp, plpv);
-    plp = new BSAPITransform(plp, "HLDATransform");
-
-    // Done
-    return plp;  // Returns only the VTLN PLPs
-}
-
-/**
- * Rather generic BSAPI based front-end with (tracter) online CMN
- */
-Tracter::Component<float>*
-Tracter::BSAPIGraphFactory::Create(Component<float>* iComponent)
-{
-    Component<float>* p  = iComponent;
-
-    // Framed version of the input for BSAPI
-    Component<float>* f = new Frame(p);
-
-    // Energy based VAD
-    p = new Frame(p);
-    p = new Energy(p);
-    Modulation* m = new Modulation(p);
-    NoiseVAD* mv = new NoiseVAD(m, p);
-    p = new VADGate(f, mv);
-
-    // BSAPI CMN FrontEnd
-    p = new BSAPIFrontEnd(p);
-    Mean* pm = new Mean(p);
-    p = new Subtract(p, pm);
-    p = new BSAPITransform(p);
-
-    // Done
-    return p;
-}
-#endif
 
 #ifdef HAVE_SPTK
 /**
@@ -859,69 +607,6 @@ Tracter::CochlearSNRGraphFactory::Create(Component<float>* iComponent)
     p = normaliseMean(p);
     p = deltas(p);
     p = normaliseVariance(p);
-    return p;
-}
-#endif
-
-#ifdef HAVE_BSAPI
-/**
- * John's MLP monster thing
- */
-Tracter::Component<float>*
-Tracter::BSAPIMLPVADGraphFactory::Create(Component<float>* iComponent)
-{
-    Component<float>* p = iComponent;
-    Component<float>* v = iComponent;
-
-    // Framer for everything
-    v = new Frame(v);
-
-    // energy extraction & VAD for energy normalisation
-    Component<float>* e;
-    e = new Energy(v);
-    e = new Log(e);
-    e = new EnergyNorm(e);
-
-    // PLP extraction
-    p = new BSAPIFrontEnd(v);
-
-    // Concatenation & normalisation
-    Concatenate *c = new Concatenate();
-    c->Add(p);
-    c->Add(e);
-    v = c;
-
-    int deltaOrder = GetEnv("MLPDeltaOrder", 2);
-    if (deltaOrder > 0)
-    {
-        c = new Concatenate();
-        c->Add(v);
-        for (int i=0; i<deltaOrder; i++){
-            Delta* d = new Delta(v);
-            c->Add(d);
-            v = d;
-        }
-        v = c;
-    }
-
-    Mean* mlpm = new Mean(v, "MLPMean");
-    v = new Subtract(v, mlpm);
-    Variance* mlpv = new Variance(v, "MLPVariance");
-    v = new Divide(v, mlpv);
-
-    // MLP computation
-    v = new MLP(v);
-    v = new Select(v,"SilSelect");
-
-    // Viterbi segmentation
-    ViterbiVAD* vit = new ViterbiVAD(v);
-    p = new ViterbiVADGate(p, vit);
-
-    // The rest of a PLP front-end
-    Mean* pm = new Mean(p);
-    p = new Subtract(p, pm);
-    p = new BSAPITransform(p);
-
     return p;
 }
 #endif
