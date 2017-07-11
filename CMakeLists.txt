@@ -23,6 +23,9 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
 message(STATUS "Boost lib is ${Boost_LIBRARIES}")
 
+find_package(LibUBE REQUIRED)
+include_directories(${LIBUBE_INCLUDE_DIRS})
+
 add_subdirectory(bin)
 add_subdirectory(tracter)
 
@@ -31,7 +34,6 @@ add_executable(extracter extracter.cpp)
 target_link_libraries(extracter static-lib)
 set(INSTALL_TARGETS
   extracter
-  recorder
 )
 
 find_package(SndFile)

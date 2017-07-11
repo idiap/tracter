@@ -7,67 +7,56 @@
 #include "Extract.h"
 #include "FilePath.h"
 
+#include <lube/config.h>
+
+using namespace lube;
+
 Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
 {
     mObjectName = "Extract";
-    mFileList = 0;
-    mFile[0] = 0;
-    mFile[1] = 0;
     mLoop = false;
 
-    /* Use the factory for the source and front-end */
+    /* Use the factory for the source and front-end; add an HTK sink */
     Component<float>* s = iFactory->CreateSource(mSource);
     Component<float>* f = iFactory->CreateFrontend(s);
-
-    /* An HTK file sink */
     mSink = new HTKSink(f);
 
-    /* Read command line for the files */
-    int fileCount = 0;
-    for (int i=1; i<iArgc; i++)
+    // Sort out the command line
+    Option o("Extract: Extract features to file");
+    o('f', "Read input and output files from list", "");
+    o('l', "Loop indefinitely if not in list mode");
+    o('d', "Generate dot format graph");
+    o.parse(iArgc, iArgv);
+
+    // Handle the qualified arguments
+    if (o['f'] != "")
+        mFileList = o['f'];
+    if (o['l'].defined())
+        mLoop = true;
+    if (o['d'].defined())
+        mSink->Dot();
+
+    // Unqualified arguments are then filenames
+    var argv = o.args();
+    if (argv.size() == 2)
     {
-        /* Unqualified arguments are the input and output files */
-        if (iArgv[i][0] != '-')
-        {
-            if (fileCount < 2)
-                mFile[fileCount++] = iArgv[i];
-            else
-                throw Exception("Too many unqualified arguments");
-            continue;
-        }
-
-        /* Arguments beginning with a '-' */
-        switch (iArgv[i][1])
-        {
-        case 'f':
-            mFileList = iArgv[++i];
-            break;
-
-        case 'l':
-            mLoop = true;
-            break;
-
-        case 'd':
-            mSink->Dot();
-            break;
-
-        default:
-            Usage(iArgv[0]);
-            throw Exception("Unrecognised argument %s", iArgv[i]);
-        }
+        mFile[0] = argv[0];
+        mFile[1] = argv[1];
     }
+    if (argv.size() > 2)
+        throw Exception("Too many unqualified arguments");
 }
 
 void Tracter::Extract::All()
 {
     if (mFileList)
-        List(mFileList);
+        List(mFileList.str());
     else
     {
         /* If there's no file list we need 2 files */
         if (!mFile[0] || !mFile[1])
             throw Exception("Not enough files defined");
-        File(mFile[0], mFile[1], mLoop);
+        File(mFile[0].str(), mFile[1].str(), mLoop);
     }
 }
 
@@ -76,6 +65,7 @@ Tracter::Extract::~Extract() throw ()
     delete mSink;
 }
 
+#if 0
 void Tracter::Extract::Usage(const char* iName)
 {
     printf(
@@ -89,6 +79,7 @@ void Tracter::Extract::Usage(const char* iName)
         iName
     );
 }
+#endif
 
 /**
  * Extract from one file to another.  If the loop parameter is true,
@@ -98,6 +89,9 @@ void Tracter::Extract::File(
     const char* iFile1, const char* iFile2, bool iLoop
 )
 {
+    assert(iFile1);
+    assert(iFile2);
+    Verbose(1, "file1 %s, file2 %s\n", iFile1, iFile2);
     mSource->Open(iFile1);
     FilePath path;
     path.SetName(iFile2);

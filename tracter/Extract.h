@@ -10,6 +10,8 @@
 #include "HTKSink.h"
 #include "ASRFactory.h"
 
+#include <lube.h>
+
 namespace Tracter
 {
     /**
@@ -26,12 +28,11 @@ namespace Tracter
         void All();
 
     private:
-        void Usage(const char* iName);
         void File(const char* iFile1, const char* iFile2, bool iLoop=false);
         void List(const char* iFileList);
 
-        char* mFile[2];
-        char* mFileList;
+        var mFile[2];
+        var mFileList;
         bool mLoop;
 
         ISource* mSource;
