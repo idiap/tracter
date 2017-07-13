@@ -5,8 +5,8 @@
 # March 2009
 #
 
-# Version 2.4 might work, but it won't find static libraries with odd names
-cmake_minimum_required(VERSION 3.8)
+# Idiap's Debian; essentially the oldest version that I use
+cmake_minimum_required(VERSION 3.6)
 
 # Top level project information
 project(tracter)
@@ -18,9 +18,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # This is required for ssp headers
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
-# Find boost, get rid of the version number
+# Find boost.  The commented part gets rid of the version number; this can help
+# with nonhomegeneous clusters.
 find_package(Boost COMPONENTS system filesystem REQUIRED)
-string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
+# string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
 message(STATUS "Boost lib is ${Boost_LIBRARIES}")
 
 find_package(LibUBE REQUIRED)
