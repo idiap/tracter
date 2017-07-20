@@ -113,13 +113,13 @@ namespace Tracter
         /** Register a source factory in the builder */
         void RegisterSource(SourceFactory* iSource)
         {
-            mSource[iSource->ObjectName()] = iSource;
+            mSource[iSource->objectName()] = iSource;
         }
 
         /** Register a graph factory for front-ends in the builder */
         void RegisterFrontend(GraphFactory* iFrontend)
         {
-            mFrontend[iFrontend->ObjectName()] = iFrontend;
+            mFrontend[iFrontend->objectName()] = iFrontend;
         }
 
     protected:

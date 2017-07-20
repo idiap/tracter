@@ -14,36 +14,13 @@
 
 #include "tracter/Object.h"
 
-bool Tracter::sInitialised = false;
-bool Tracter::sShConfig = false;
-bool Tracter::sCshConfig = false;
 int Tracter::sVerbose = 0;
 
-/**
- * Constructor.  Initialises static verbosity and config output
- * options, or returns immediately if they are set.
- */
-Tracter::Object::Object()
+void Tracter::Object::verbose(var iVerbose)
 {
-    mObjectName = "Tracter";
-
-    if (Tracter::sInitialised)
-        return;
-
-    // else... set up the parameter echoing
-    sShConfig  = GetEnv("shConfig", 0);
-    sCshConfig = GetEnv("cshConfig", 0);
-
-    // Do it again to get the output :-)
-    if (sShConfig)
-        GetEnv("shConfig", 0);
-    if (sCshConfig)
-        GetEnv("cshConfig", 0);
-
-    // And the verbosity
-    sVerbose = GetEnv("Verbose", 0);
-    Verbose(1, "version %s\n", PACKAGE_VERSION);
-    sInitialised = true;
+    sVerbose = iVerbose.cast<int>();
+    Verbose(1, "verbosity set to %d\n", sVerbose);
+    Verbose(1, "library version %s\n", PACKAGE_VERSION);
 }
 
 
@@ -61,20 +38,12 @@ const char* Tracter::Object::getEnv(
     assert(mObjectName);
     char env[256];
     snprintf(env, 256, "%s_%s", mObjectName, iSuffix);
-    const char* ret = getenv(env);
-    if (iEcho && (sShConfig || sCshConfig))
+    const char* ret = config(env, (const char*)0);
+    if (iEcho && (sVerbose > 0))
     {
-        if (sShConfig)
-            snprintf(env, 256, "export %s_%s=%s", mObjectName, iSuffix,
-                     ret ? ret : iDefault);
-        if (sCshConfig)
-            snprintf(env, 256, "setenv %s_%s %s", mObjectName, iSuffix,
-                     ret ? ret : iDefault);
-        printf("%-50s", env);
-        if (ret)
-            printf("# Environment\n");
-        else
-            printf("# Default\n");
+        if (!ret)
+            printf("# ");
+        printf("[%s] %s = %s\n", mObjectName, iSuffix, ret ? ret : iDefault);
     }
     return ret;
 }
@@ -86,7 +55,7 @@ const char* Tracter::Object::getEnv(
 float Tracter::Object::GetEnv(const char* iSuffix, float iDefault)
 {
     char def[256];
-    if (sShConfig || sCshConfig)
+    if (sVerbose > 0)
         snprintf(def, 256,
                  (fabs(iDefault) < 1e-2) ? "%.3e" : "%.3f", iDefault);
     if (const char* env = getEnv(iSuffix, def))
@@ -101,7 +70,7 @@ float Tracter::Object::GetEnv(const char* iSuffix, float iDefault)
 int Tracter::Object::GetEnv(const char* iSuffix, int iDefault)
 {
     char def[256];
-    if (sShConfig || sCshConfig)
+    if (sVerbose > 0)
         snprintf(def, 256, "%d", iDefault);
     if (const char* env = getEnv(iSuffix, def))
         return atoi(env);
@@ -117,7 +86,7 @@ const char* Tracter::Object::GetEnv(
 )
 {
     char def[256];
-    if (sShConfig || sCshConfig)
+    if (sVerbose > 0)
         snprintf(def, 256, "%s", iDefault);
     if (const char* env = getEnv(iSuffix, def))
         return env;

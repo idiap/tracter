@@ -23,12 +23,18 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
 
     // Sort out the command line
     Option o("Extract: Extract features to file");
+    o('C', "Read configuration file", "");
+    o('v', "Set verbosity level", 0);
     o('f', "Read input and output files from list", "");
     o('l', "Loop indefinitely if not in list mode");
     o('d', "Generate dot format graph");
     o.parse(iArgc, iArgv);
 
     // Handle the qualified arguments
+    if (o['v'].defined())
+        verbose(o['v']);
+    if (o['C'] != "")
+        configFile(o['C']);
     if (o['f'] != "")
         mFileList = o['f'];
     if (o['l'].defined())

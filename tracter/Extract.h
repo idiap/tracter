@@ -10,8 +10,6 @@
 #include "HTKSink.h"
 #include "ASRFactory.h"
 
-#include <lube.h>
-
 namespace Tracter
 {
     /**
