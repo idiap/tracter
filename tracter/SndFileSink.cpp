@@ -11,7 +11,7 @@ Tracter::SndFileSink::SndFileSink(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
 
     mSndFile = 0;

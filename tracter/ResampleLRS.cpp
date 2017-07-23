@@ -33,7 +33,7 @@ Tracter::Resample::Resample(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
 
     double targetRate = GetEnv("TargetRate", 16000);

@@ -229,7 +229,7 @@ float Tracter::SlidingWindow::get(IndexType iIndex)
 
 Tracter::Minima::Minima(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 

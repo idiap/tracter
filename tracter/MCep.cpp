@@ -15,7 +15,7 @@ Tracter::MCep::MCep(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 

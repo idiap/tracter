@@ -14,7 +14,7 @@ Tracter::TimedLatch::TimedLatch(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = iInput->Frame().size;
     mInput = iInput;
     Connect(iInput);

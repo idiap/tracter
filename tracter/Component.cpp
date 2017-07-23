@@ -35,7 +35,6 @@ void Tracter::CacheArea::Set(SizeType iLength, SizeType iOffset, SizeType iSize)
 
 Tracter::ComponentBase::ComponentBase()
 {
-    mObjectName = 0;
     mSize = 0;
 
     mFrame.period = 1.0f;
@@ -162,14 +161,14 @@ void Tracter::ComponentBase::MinSize(
     {
         // It's an indefinitely resizing cache
         mIndefinite = true;
-        assert(mObjectName);
+        assert(objectName());
         Verbose(1, "cache set to indefinite size\n");
     }
     else
     {
         // A fixed size cache
         if (iMinSize <= 0)
-            throw Exception("%s: iMinSize = %d", mObjectName, iMinSize);
+            throw Exception("%s: iMinSize = %d", objectName(), iMinSize);
         if (iMinSize > mMinSize)
         {
             mMinSize = iMinSize;
@@ -402,7 +401,7 @@ Tracter::ComponentBase::Read(
     Verbose(3, "Read: index %lld  length %d\n", iIndex, iLength);
     assert(iLength >= 0);
     if (iIndex < 0)
-        throw Exception("%s: iIndex = %lld", mObjectName, iIndex);
+        throw Exception("%s: iIndex = %lld", objectName(), iIndex);
     assert(iIndex >= 0);
     assert(mIndefinite || (iLength <= mSize));  // Request > cache size
     SizeType len;
@@ -524,7 +523,7 @@ Tracter::ComponentBase::Read(
     // Otherwise (case 4) the request was for lost data
     throw Exception("%s: ComponentBase: Backwards cache access, data lost\n"
                     "Head = %ld  Tail = %ld  Request index = %ld\n",
-                    mObjectName, head.index, tail.index, iIndex);
+                    objectName(), head.index, tail.index, iIndex);
 
     return 0;
 }
@@ -599,7 +598,7 @@ Tracter::ComponentBase::ContiguousFetch(
     IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
-    throw Exception("%s: ComponentBase::ContiguousFetch called", mObjectName);
+    throw Exception("%s: ComponentBase::ContiguousFetch called", objectName());
 }
 
 
@@ -632,7 +631,7 @@ Tracter::ComponentBase::Dot(int iDot)
     }
 
     mDot = iDot;
-    printf("%d [shape=record, label=\"{%s", mDot, mObjectName);
+    printf("%d [shape=record, label=\"{%s", mDot, objectName());
     if (-sVerbose > 0)
         printf("}|{");
     DotRecord(2, "frame.size=%d", mFrame.size);
@@ -683,7 +682,7 @@ Tracter::TimeType Tracter::ComponentBase::TimeStamp(IndexType iIndex) const
     assert(iIndex >= 0);
     if (mInput.size() == 0)
         throw Exception("TimeStamp: No inputs."
-                        "  %s probably missing TimeStamp()", mObjectName);
+                        "  %s probably missing TimeStamp()", objectName());
     TimeType time = mInput[0]->TimeStamp();
     if (iIndex)
         time += TimeOffset(iIndex);

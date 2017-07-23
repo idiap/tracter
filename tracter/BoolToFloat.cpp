@@ -15,7 +15,7 @@
  */
 Tracter::BoolToFloat::BoolToFloat(Component<BoolType>* iInput, const char* iObjectName) 
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
     mFrame.size = iInput->Frame().size;

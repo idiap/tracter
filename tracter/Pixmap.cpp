@@ -13,7 +13,7 @@
 
 Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
 
     mFrame.size = GetEnv("FrameSize", iInput->Frame().size);
@@ -74,7 +74,7 @@ void Tracter::Pixmap::write()
     // Body
     if (mLog && (mMin < 0.0f))
         throw Exception("%s: Minimum value is < 0, can't use log scaling\n",
-                        mObjectName);
+                        objectName());
 
     // Scale the available range to 0-255.  Can be floored.
     float min;

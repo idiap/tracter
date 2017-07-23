@@ -84,7 +84,7 @@
 
 Tracter::ASRFactory::ASRFactory(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
 
     // List all sources
     RegisterSource(new FileSourceFactory);

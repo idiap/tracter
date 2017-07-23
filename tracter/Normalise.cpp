@@ -13,7 +13,7 @@ Tracter::Normalise::Normalise(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     mFrame.size = mInput->Frame().size;
     Connect(mInput);

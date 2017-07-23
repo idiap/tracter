@@ -11,7 +11,7 @@ Tracter::ComplexSample::ComplexSample(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     mFrame.period = 4;
     Connect(mInput);

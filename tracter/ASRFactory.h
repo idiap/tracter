@@ -21,7 +21,7 @@
     public:                                                     \
         name##GraphFactory(const char* iObjectName = #name)     \
         {                                                       \
-            mObjectName = iObjectName;                          \
+            objectName(iObjectName);                            \
         }                                                       \
         Component<float>* Create(Component<float>* iComponent); \
     };
@@ -32,7 +32,7 @@
     public:                                                     \
         name##SourceFactory(const char* iObjectName = #name)    \
         {                                                       \
-            mObjectName = iObjectName;                          \
+            objectName(iObjectName);                            \
         }                                                       \
         Component<float>* Create(ISource*& iSource);            \
     };

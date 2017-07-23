@@ -32,7 +32,7 @@ class Record : public Tracter::Object
 public:
     Record()
     {
-        mObjectName = "Record";
+        objectName("Record");
         ASRFactory fac;
         Component<float>* p = 0;
         VADStateMachine* sm = 0;

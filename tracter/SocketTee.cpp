@@ -185,7 +185,7 @@ void Tracter::Socket::start()
  */
 Tracter::SocketTee::SocketTee(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size >= 0);
     mInput = iInput;
@@ -235,8 +235,8 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
                 mFD = 0;
                 break;
             default:
-                perror(mObjectName);
-                throw Exception("%s: Failed to write()", mObjectName);
+                perror(objectName());
+                throw Exception("%s: Failed to write()", objectName());
             }
     }
     mAcceptMutex->Unlock();

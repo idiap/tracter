@@ -12,7 +12,7 @@ Tracter::ScreenSink::ScreenSink(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
     mFrame.size = mInput->Frame().size;

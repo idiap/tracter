@@ -13,7 +13,7 @@ Tracter::SpectralSubtract::SpectralSubtract(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput1 = iInput1;
     mInput2 = iInput2;
     Connect(iInput1);

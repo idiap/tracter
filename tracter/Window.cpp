@@ -18,7 +18,7 @@ namespace Tracter
 
 Tracter::Window::Window(const char* iObjectName, int iSize)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
 
     // Static shape information
     if (sShapeMap.size() == 0)

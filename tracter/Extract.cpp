@@ -13,13 +13,8 @@ using namespace lube;
 
 Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
 {
-    mObjectName = "Extract";
+    objectName("Extract");
     mLoop = false;
-
-    /* Use the factory for the source and front-end; add an HTK sink */
-    Component<float>* s = iFactory->CreateSource(mSource);
-    Component<float>* f = iFactory->CreateFrontend(s);
-    mSink = new HTKSink(f);
 
     // Sort out the command line
     Option o("Extract: Extract features to file");
@@ -51,6 +46,11 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
     }
     if (argv.size() > 2)
         throw Exception("Too many unqualified arguments");
+
+    /* Use the factory for the source and front-end; add an HTK sink */
+    Component<float>* s = iFactory->CreateSource(mSource);
+    Component<float>* f = iFactory->CreateFrontend(s);
+    mSink = new HTKSink(f);
 }
 
 void Tracter::Extract::All()
@@ -70,22 +70,6 @@ Tracter::Extract::~Extract() throw ()
 {
     delete mSink;
 }
-
-#if 0
-void Tracter::Extract::Usage(const char* iName)
-{
-    printf(
-        "Usage: %s [options] [infile outfile | -f file-list]\n"
-        "Options:\n"
-        "-f list  Read input and output files from list\n"
-        "-l       Loop indefinitely if not in list mode\n"
-        "-d       Generate dot format graph\n"
-        "Anything else prints this information\n"
-        "Set environment variable Tracter_shConfig to 1 for more options\n",
-        iName
-    );
-}
-#endif
 
 /**
  * Extract from one file to another.  If the loop parameter is true,

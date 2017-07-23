@@ -17,7 +17,7 @@
  */
 Tracter::PulseAudioSource::PulseAudioSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrameRate = GetEnv("FrameRate", 8000.0f);
     mFrame.size = GetEnv("FrameSize", 1);
     mFrame.period = 1;
@@ -69,10 +69,10 @@ void Tracter::PulseAudioSource::Open(
     /* Connect to the device */
     mHandle = pa_simple_new(
         server,           // Server name
-        mObjectName,      // Application name
+        objectName(),      // Application name
         PA_STREAM_RECORD, // Stream direction
         0,                // Device
-        mObjectName,      // Stream name
+        objectName(),      // Stream name
         &spec,            // Sample format
         0,                // Channel map
         0,                // Buffering attributes
@@ -82,7 +82,7 @@ void Tracter::PulseAudioSource::Open(
     /* Die if it failed */
     if (!mHandle)
         throw Exception("%s: Failed to connect to device %s. %s",
-                        mObjectName, iDeviceName, pa_strerror(error));
+                        objectName(), iDeviceName, pa_strerror(error));
 }
 
 /**
@@ -108,7 +108,7 @@ Tracter::PulseAudioSource::ContiguousFetch(
     );
     if (ret < 0)
         throw Exception("%s: Failed to read %d samples. %s",
-                        mObjectName, iLength, pa_strerror(error));
+                        objectName(), iLength, pa_strerror(error));
 
     if (mMaxIndex)
         if (iIndex + iLength > mMaxIndex)

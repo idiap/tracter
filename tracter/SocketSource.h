@@ -45,7 +45,7 @@ namespace Tracter
         )
             : mSocket(iObjectName)
         {
-            Source< CachedComponent<T> >::mObjectName = iObjectName;
+            Source< CachedComponent<T> >::objectName(iObjectName);
             Source< CachedComponent<T> >::mAuxiliary = iAuxiliary;
             Source< CachedComponent<T> >::mFrame.size =
                 Source< CachedComponent<T> >::GetEnv("FrameSize", 1);

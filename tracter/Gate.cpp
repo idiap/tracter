@@ -15,7 +15,7 @@ Tracter::Gate::Gate(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = iInput->Frame().size;
 
     Connect(iInput);

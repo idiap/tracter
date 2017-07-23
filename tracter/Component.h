@@ -188,7 +188,7 @@ namespace Tracter
         virtual ExactRateType ExactFrameRate() const
         {
             if (mInput.size() <= 0)
-                throw Exception("%s: ExactFrameRate: No inputs", mObjectName);
+                throw Exception("%s: ExactFrameRate: No inputs", objectName());
             assert(mInput[0]);
             ExactRateType r = mInput[0]->ExactFrameRate();
             r.period *= mInput[0]->Frame().period;
@@ -421,7 +421,7 @@ namespace Tracter
         virtual bool UnaryFetch(IndexType iIndex, T* oData)
         {
             throw Exception("Component::UnaryFetch called."
-                            " %s missing fetch method?", mObjectName);
+                            " %s missing fetch method?", objectName());
             return false;
         }
     };

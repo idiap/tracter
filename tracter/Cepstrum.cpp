@@ -15,7 +15,7 @@ Tracter::Cepstrum::Cepstrum(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(iInput);
 

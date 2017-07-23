@@ -13,7 +13,7 @@ Tracter::ViterbiVAD::ViterbiVAD(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = 1;
 
     // Viterbi config - all time values are in frames

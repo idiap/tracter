@@ -9,7 +9,7 @@
 
 Tracter::Concatenate::Concatenate(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = 0;
 }
 

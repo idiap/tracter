@@ -8,7 +8,7 @@
 
 Tracter::Select::Select(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
 
     mLoIndex = GetEnv("Lo", 0);

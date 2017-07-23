@@ -13,7 +13,7 @@ Tracter::LPCepstrum::LPCepstrum(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 
@@ -30,7 +30,7 @@ Tracter::LPCepstrum::LPCepstrum(
     // We get as many autocorrelation coeffs as input dimensions
     if (mOrder >= mNCompressed)
         throw Exception("%s: Order(%d) must be less than input dimension(%d)",
-                        mObjectName, mOrder, mNCompressed);
+                        objectName(), mOrder, mNCompressed);
 
     mAlpha0.resize(mOrder);
     mAlpha1.resize(mOrder);

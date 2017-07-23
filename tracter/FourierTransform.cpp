@@ -13,7 +13,7 @@ Tracter::FourierTransformR2C::FourierTransformR2C(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 
@@ -25,7 +25,7 @@ Tracter::FourierTransformR2C::FourierTransformR2C(
     mFourier.Init(frameSize, &mRealData, &mComplexData);
 
     if (GetEnv("Window", 1))
-        mWindow = new Window(mObjectName, frameSize);
+        mWindow = new Window(objectName(), frameSize);
     else
         mWindow = 0;
 
@@ -71,7 +71,7 @@ Tracter::FourierTransformC2R::FourierTransformC2R(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 
@@ -84,7 +84,7 @@ Tracter::FourierTransformC2R::FourierTransformC2R(
 
     if (GetEnv("Window", 1))
     {
-        mWindow = new Window(mObjectName, mFrame.size);
+        mWindow = new Window(objectName(), mFrame.size);
         mWindow->Scale(1.0f/mFrame.size);
     }
     else

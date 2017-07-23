@@ -14,7 +14,7 @@ Tracter::CosineTransform::CosineTransform(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 
@@ -25,7 +25,7 @@ Tracter::CosineTransform::CosineTransform(
     mDCT.Init(mFrame.size, &mIData, &mOData);
 
     if (GetEnv("Window", 0))
-        mWindow = new Window(mObjectName, mFrame.size);
+        mWindow = new Window(objectName(), mFrame.size);
     else
         mWindow = 0;
 

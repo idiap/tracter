@@ -11,7 +11,7 @@ Tracter::ZeroFilter::ZeroFilter(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
     mZero = GetEnv("Zero", 0.97f);

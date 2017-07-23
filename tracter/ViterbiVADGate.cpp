@@ -13,7 +13,7 @@ Tracter::ViterbiVADGate::ViterbiVADGate(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = iInput->Frame().size;
 
     mInput = iInput;

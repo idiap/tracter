@@ -14,7 +14,7 @@ Tracter::ComplexPeriodogram::ComplexPeriodogram(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     mFrame.period = GetEnv("FramePeriod", 40);
     Connect(iInput);

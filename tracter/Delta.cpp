@@ -9,7 +9,7 @@
 
 Tracter::Delta::Delta(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size > 0);

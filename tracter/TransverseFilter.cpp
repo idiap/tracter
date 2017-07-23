@@ -17,7 +17,7 @@ Tracter::TransverseFilter::TransverseFilter(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
     mFrame.size = iInput->Frame().size;

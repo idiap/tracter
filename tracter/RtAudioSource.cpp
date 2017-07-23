@@ -12,7 +12,7 @@
 
 Tracter::RtAudioSource::RtAudioSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrameRate = GetEnv("FrameRate", 8000.0f);
     mFrame.size = GetEnv("FrameSize", 1);
     mFrame.period = 1;

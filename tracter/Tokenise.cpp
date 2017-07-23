@@ -12,7 +12,7 @@ const int BLOCK_SIZE = 16;
 
 Tracter::Tokenise::Tokenise(Component<char>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(iInput, BLOCK_SIZE);
 

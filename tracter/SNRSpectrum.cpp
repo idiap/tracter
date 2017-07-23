@@ -14,7 +14,7 @@ Tracter::SNRSpectrum::SNRSpectrum(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = iPowerInput->Frame().size;
 
     mPowerInput = iPowerInput;

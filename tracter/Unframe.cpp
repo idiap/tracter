@@ -11,7 +11,7 @@
 
 Tracter::Unframe::Unframe(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
 
     mFrame.period = 1.0f/iInput->Frame().size;
     assert(mFrame.period > 0);

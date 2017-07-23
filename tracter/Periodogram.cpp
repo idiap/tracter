@@ -14,7 +14,7 @@ Tracter::Periodogram::Periodogram(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 
@@ -26,7 +26,7 @@ Tracter::Periodogram::Periodogram(
     mFourier.Init(frameSize, &mRealData, &mComplexData);
 
     if (GetEnv("Window", 1))
-        mWindow = new Window(mObjectName, frameSize);
+        mWindow = new Window(objectName(), frameSize);
     else
         mWindow = 0;
 }

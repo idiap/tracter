@@ -26,7 +26,7 @@
 
 Tracter::socketSource::socketSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mPort = GetEnv("Port", 30000);
     mBufferSize = GetEnv("BufferSize", 0);
     mFD = 0;
@@ -66,16 +66,16 @@ void Tracter::socketSource::Open(const char* iHostName)
     {
         // Would be better to parse h_errno here
         throw Exception("%s: gethostbyname() failed for %s\n",
-                        mObjectName, iHostName);
+                        objectName(), iHostName);
     }
 
     // For the file descriptor
     mFD = socket(PF_INET, SOCK_STREAM, 0);
     if (mFD < 0)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: socket() failed for %s\n",
-                        mObjectName, iHostName);
+                        objectName(), iHostName);
     }
 
     // Socket options
@@ -87,19 +87,19 @@ void Tracter::socketSource::Open(const char* iHostName)
     optLen = sizeof(optVal);
     if(setsockopt(mFD, SOL_SOCKET, SO_KEEPALIVE, &optVal, optLen) < 0)
     {
-        perror(mObjectName);
+        perror(objectName());
         close(mFD);
         throw Exception("%s: setsockopt() failed for %s\n",
-                        mObjectName, iHostName);
+                        objectName(), iHostName);
     }
 
     // Check the status
     if(getsockopt(mFD, SOL_SOCKET, SO_KEEPALIVE, &optVal, &optLen) < 0)
     {
-        perror(mObjectName);
+        perror(objectName());
         close(mFD);
         throw Exception("%s: getsockopt() failed for %s\n",
-                        mObjectName, iHostName);
+                        objectName(), iHostName);
     }
     Verbose(1, "SO_KEEPALIVE is %s\n", (optVal ? "ON" : "OFF"));
 
@@ -125,9 +125,9 @@ void Tracter::socketSource::Open(const char* iHostName)
 
     if (connect(mFD, (struct sockaddr *)&server, sizeof(server)) == -1)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: connect() failed for %s:%hu\n",
-                        mObjectName, iHostName, mPort);
+                        objectName(), iHostName, mPort);
     }
 }
 
@@ -150,9 +150,9 @@ int Tracter::socketSource::Receive(int iNBytes, char* iBuffer)
         nGot += n;
         if (n == -1)
         {
-            perror(mObjectName);
+            perror(objectName());
             throw Exception("%s: recv failed for %d bytes",
-                            mObjectName, iNBytes);
+                            objectName(), iNBytes);
         }
         if (n == 0)
         {

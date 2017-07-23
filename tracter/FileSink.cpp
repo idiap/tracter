@@ -12,7 +12,7 @@ Tracter::FileSink::FileSink(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(iInput);
     mFrame.size = mInput->Frame().size;

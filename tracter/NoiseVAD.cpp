@@ -13,7 +13,7 @@ Tracter::NoiseVAD::NoiseVAD(
     Component<float>* iInput, Component<float>* iNoiseInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(iInput);
     MinSize(mInput, 1);

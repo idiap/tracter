@@ -12,7 +12,7 @@ Tracter::LowEnergyEnvelope::LowEnergyEnvelope(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     mFrame.size = iInput->Frame().size;
 

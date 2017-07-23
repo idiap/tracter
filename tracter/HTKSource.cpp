@@ -11,7 +11,7 @@
 
 Tracter::HTKSource::HTKSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = GetEnv("FrameSize", 39);
     mFrameRate = GetEnv("FrameRate", 100.0f);
     mFrame.period = GetEnv("FramePeriod", 1);

@@ -23,7 +23,7 @@ class Codec : public Tracter::Object
 public:
     Codec()
     {
-        mObjectName = "Codec";
+        objectName("Codec");
 
         // Source
         SndFileSource *s = new SndFileSource();

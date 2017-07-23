@@ -13,7 +13,7 @@
 /** Constructor */
 Tracter::LNASource::LNASource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = GetEnv("FrameSize", 27);
     mFrameRate = GetEnv("FrameRate", 8000.0f);
     mFrame.period = GetEnv("FramePeriod", 80);

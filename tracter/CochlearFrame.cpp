@@ -32,7 +32,7 @@ CochlearFrame::CochlearFrame(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     mSize = GetEnv("Size", 256);
     mFrame.size = mInput->Frame().size;
@@ -44,7 +44,7 @@ CochlearFrame::CochlearFrame(
     mMethod = GetEnv(cMethod, METHOD_ENERGY);
     mWindow = 0;
     if (GetEnv("Window", 0))
-        mWindow = new Window(mObjectName, mSize);
+        mWindow = new Window(objectName(), mSize);
 
     assert(mSize > 0);
     assert(mFrame.size > 0);

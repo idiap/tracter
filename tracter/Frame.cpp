@@ -9,7 +9,7 @@
 
 Tracter::Frame::Frame(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = GetEnv("Size", 256);
     mFrame.period = GetEnv("Period", 80);
     mInput = iInput;

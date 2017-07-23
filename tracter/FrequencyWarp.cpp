@@ -38,7 +38,7 @@ float Tracter::FrequencyWarp::binToHertz(int iBin)
 
 Tracter::FrequencyWarp::FrequencyWarp(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
 
     mMaxHertz = GetEnv("MaxHertz", 4000.0f);
     mNBins = GetEnv("NBins", 23);

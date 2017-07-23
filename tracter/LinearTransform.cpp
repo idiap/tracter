@@ -13,7 +13,7 @@ Tracter::LinearTransform::LinearTransform(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 

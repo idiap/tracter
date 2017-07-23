@@ -43,7 +43,7 @@ public:
 
     SinkSucker(Component<float>* iInput, const char* iObjectName = "SinkSucker")
     {
-        mObjectName = iObjectName;
+        objectName(iObjectName);
         mInput = iInput;
         Connect(mInput, 10);
         mFrame.size = iInput->Frame().size;

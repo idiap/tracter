@@ -27,7 +27,7 @@ Tracter::SocketSink::SocketSink(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 
@@ -42,8 +42,8 @@ Tracter::SocketSink::SocketSink(
     int sockFD = socket(AF_INET, SOCK_STREAM, 0);
     if (sockFD < 0)
     {
-        perror(mObjectName);
-        throw Exception("%s: socket() failed\n", mObjectName);
+        perror(objectName());
+        throw Exception("%s: socket() failed\n", objectName());
     }
 
 #ifdef _WIN32
@@ -53,8 +53,8 @@ Tracter::SocketSink::SocketSink(
 #endif
     if (setsockopt(sockFD, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
-        perror(mObjectName);
-        throw Exception("%s: setsockopt() failed\n", mObjectName);
+        perror(objectName());
+        throw Exception("%s: setsockopt() failed\n", objectName());
     }
 
     struct sockaddr_in server;
@@ -65,16 +65,16 @@ Tracter::SocketSink::SocketSink(
 
     if (bind(sockFD, (struct sockaddr *)&server, sizeof(server)) == -1)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: bind() failed for port %hu\n",
-                        mObjectName, mPort);
+                        objectName(), mPort);
     }
 
     if (listen(sockFD, 1) == -1)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: listen() failed for port %hu\n",
-                        mObjectName, mPort);
+                        objectName(), mPort);
     }
 
     Verbose(1, "waiting for connection\n");
@@ -87,9 +87,9 @@ Tracter::SocketSink::SocketSink(
     mFD = accept(sockFD, (struct sockaddr *)&client, &clientSize);
     if (mFD == -1)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: accept() failed for port %hu\n",
-                        mObjectName, mPort);
+                        objectName(), mPort);
     }
     Verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
 #ifdef _WIN32
@@ -104,9 +104,9 @@ Tracter::SocketSink::SocketSink(
         ssize_t nSent = send(mFD, &time, sizeof(TimeType), 0);
         if (nSent == -1)
         {
-            perror(mObjectName);
+            perror(objectName());
             throw Exception("%s: send() failed for port %hu\n",
-                            mObjectName, mPort);
+                            objectName(), mPort);
         }
         Verbose(1, "Sent time %lld\n", time);
     }
@@ -144,9 +144,9 @@ void Tracter::SocketSink::Pull()
                 (int)nSend, (int)nSent, total++);
         if (nSent == -1)
         {
-            perror(mObjectName);
+            perror(objectName());
             throw Exception("%s: send() failed for port %hu\n",
-                            mObjectName, mPort);
+                            objectName(), mPort);
         }
     }
 #ifdef _WIN32

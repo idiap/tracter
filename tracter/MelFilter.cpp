@@ -39,7 +39,7 @@ Tracter::MelFilter::MelFilter(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
 

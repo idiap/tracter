@@ -9,7 +9,7 @@
 
 Tracter::SndFileSource::SndFileSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = GetEnv("FrameSize", 1);
     mFrameRate = GetEnv("FrameRate", 8000.0f);
     mFrame.period = 1;

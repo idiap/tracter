@@ -26,7 +26,7 @@ namespace Tracter
         /** Create a FrameSink with the input min-size set to 1 */
         FrameSink(Component<T>* iInput, const char* iObjectName = "FrameSink")
         {
-            mObjectName = iObjectName;
+            objectName(iObjectName);
             mInput = iInput;
             Connect(mInput, 21);
             mFrame.size = iInput->Frame().size;

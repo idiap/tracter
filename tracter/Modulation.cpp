@@ -29,7 +29,7 @@ Tracter::Modulation::Modulation(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
     Connect(iInput);
 
