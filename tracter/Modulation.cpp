@@ -38,8 +38,8 @@ Tracter::Modulation::Modulation(
 
     /* For a 100Hz frame rate and bin 1 = 4Hz, we have nBins = 100/4 =
      * 25 */
-    float freq = GetEnv("Freq", 4.0f);
-    int bin = GetEnv("Bin", 1);
+    float freq = config("Freq", 4.0f);
+    int bin = config("Bin", 1);
     mNBins = (int)(FrameRate() / freq + 0.5f);
     mDFT.SetRotation(bin, mNBins);
     mLookAhead = mNBins / 2; // Round down

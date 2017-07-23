@@ -191,7 +191,7 @@ Tracter::SocketTee::SocketTee(Component<float>* iInput, const char* iObjectName)
     mInput = iInput;
     Connect(mInput, 1);
 
-    unsigned short port = GetEnv("Port", 30000);
+    unsigned short port = config("Port", 30000);
     mFD = 0;
     mSocket.Listen(port, false);
     mAcceptMutex = mSocket.AcceptThread(1, &mFD);

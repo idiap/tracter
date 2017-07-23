@@ -30,11 +30,6 @@
 # include "tracter/ALSASource.h"
 #endif
 
-#ifdef _WIN32
-# include <windows.h>
-# define setenv(a, b, c) SetEnvironmentVariable(a, b)
-#endif
-
 using namespace Tracter;
 
 class SinkSucker : public Sink
@@ -91,15 +86,20 @@ int main(int argc, char** argv)
 {
     printf("Feature creature\n");
 
-    setenv("FileSource_FrameRate", "2000", 1);
-    setenv("Frame_Size", "64", 1);
-    setenv("Frame_Period", "32", 1);
-    setenv("Cepstrum_NCepstra", "8", 1);
-    setenv("Cepstrum_C0", "0", 1);
-    setenv("MelFilter_MaxHertz", "1000", 1);
-    setenv("MelFilter_NBins", "10", 1);
-    setenv("MelFilter_LoHertz", "0", 1);
-    setenv("MelFilter_HiHertz", "1000", 1);
+    lube::Config cnf;
+    cnf.configSection("FileSource");
+    cnf.configSet("FrameRate", "2000");
+    cnf.configSection("Frame");
+    cnf.configSet("Size", "64");
+    cnf.configSet("Period", "32");
+    cnf.configSection("Cepstrum");
+    cnf.configSet("NCepstra", "8");
+    cnf.configSet("C0", "0");
+    cnf.configSection("MelFilter");
+    cnf.configSet("MaxHertz", "1000");
+    cnf.configSet("NBins", "10");
+    cnf.configSet("LoHertz", "0");
+    cnf.configSet("HiHertz", "1000");
 
 #if 1
     FileSource<short>* a = new FileSource<short>;
@@ -123,7 +123,8 @@ int main(int argc, char** argv)
     s.Pull(0, 4);
     s.Pull(28, 5);
 
-    setenv("DeltaDelta_Theta", "3", 1);
+    cnf.configSection("DeltaDelta");
+    cnf.configSet("Theta", "3");
 
     printf("HTKSource...\n");
     HTKSource* h = new HTKSource();

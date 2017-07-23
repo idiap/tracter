@@ -48,11 +48,11 @@ namespace Tracter
             Source< CachedComponent<T> >::objectName(iObjectName);
             Source< CachedComponent<T> >::mAuxiliary = iAuxiliary;
             Source< CachedComponent<T> >::mFrame.size =
-                Source< CachedComponent<T> >::GetEnv("FrameSize", 1);
+                Source< CachedComponent<T> >::config("FrameSize", 1);
             Source< CachedComponent<T> >::mFrame.period =
-                Source< CachedComponent<T> >::GetEnv("FramePeriod", 1);
+                Source< CachedComponent<T> >::config("FramePeriod", 1);
             Source< CachedComponent<T> >::mFrameRate =
-                Source< CachedComponent<T> >::GetEnv("FrameRate", 48000.0f);
+                Source< CachedComponent<T> >::config("FrameRate", 48000.0f);
         }
         virtual ~SocketSource() throw () {}
         virtual void Open(

@@ -50,7 +50,7 @@ const char* Tracter::Object::getConfig(
  * Get value from configuration.
  * @returns the value, or the value in iDefault if not set.
  */
-float Tracter::Object::GetEnv(const char* iSuffix, float iDefault)
+float Tracter::Object::config(const char* iSuffix, float iDefault)
 {
     char def[256];
     if (sVerbose > 0)
@@ -65,7 +65,7 @@ float Tracter::Object::GetEnv(const char* iSuffix, float iDefault)
  * Get value from configuration.
  * @returns the value, or the value in iDefault if not set.
  */
-int Tracter::Object::GetEnv(const char* iSuffix, int iDefault)
+int Tracter::Object::config(const char* iSuffix, int iDefault)
 {
     char def[256];
     if (sVerbose > 0)
@@ -79,7 +79,7 @@ int Tracter::Object::GetEnv(const char* iSuffix, int iDefault)
  * Get value from configuration.
  * @returns the value, or the value in iDefault if not set.
  */
-const char* Tracter::Object::GetEnv(
+const char* Tracter::Object::config(
     const char* iSuffix, const char* iDefault
 )
 {
@@ -98,7 +98,7 @@ const char* Tracter::Object::GetEnv(
  * separately.  That way, the user sees all possible options when they
  * are echoed.
  */
-int Tracter::Object::GetEnv(const StringEnum* iStringEnum, int iDefault)
+int Tracter::Object::config(const StringEnum* iStringEnum, int iDefault)
 {
     const char* def[] = {"0", "1"};
 

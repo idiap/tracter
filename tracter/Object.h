@@ -50,10 +50,10 @@ namespace Tracter
         void objectName(const char* iName) { configSection(iName); }
 
     protected:
-        float GetEnv(const char* iSuffix, float iDefault);
-        int GetEnv(const char* iSuffix, int iDefault);
-        const char* GetEnv(const char* iSuffix, const char* iDefault);
-        int GetEnv(const StringEnum* iStringEnum, int iDefault);
+        float config(const char* iSuffix, float iDefault);
+        int config(const char* iSuffix, int iDefault);
+        const char* config(const char* iSuffix, const char* iDefault);
+        int config(const StringEnum* iStringEnum, int iDefault);
 
         void verbose(var iVerbose);
         void Verbose(int iLevel, const char* iString, ...) const;

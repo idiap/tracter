@@ -21,8 +21,8 @@ Tracter::SpectralSubtract::SpectralSubtract(
 
     mFrame.size = iInput1->Frame().size;
 
-    mAlpha = GetEnv("Alpha", 1.0f);
-    mBeta = GetEnv("Beta", 0.0f);
+    mAlpha = config("Alpha", 1.0f);
+    mBeta = config("Beta", 0.0f);
 }
 
 bool Tracter::SpectralSubtract::UnaryFetch(IndexType iIndex, float* oData)

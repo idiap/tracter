@@ -28,8 +28,8 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size >= 0);
 
-    mMeanType = (MeanType)GetEnv(cMeanType, MEAN_ADAPTIVE);
-    mPersistent = GetEnv("Persistent", 0);
+    mMeanType = (MeanType)config(cMeanType, MEAN_ADAPTIVE);
+    mPersistent = config("Persistent", 0);
 
     switch (mMeanType)
     {
@@ -55,7 +55,7 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     }
 
     // Initialise a prior variance from file or to zero
-    const char* priFile = GetEnv("PriorFile", (const char*)0);
+    const char* priFile = config("PriorFile", (const char*)0);
     if (priFile)
         Load(mPrior, "<MEAN>", priFile);
     else
@@ -65,7 +65,7 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     mMean.assign(mPrior.begin(), mPrior.end());
 
     // Time constant
-    SetTimeConstant(GetEnv("TimeConstant", 0.5f));
+    SetTimeConstant(config("TimeConstant", 0.5f));
 }
 
 void Tracter::Mean::SetTimeConstant(float iSeconds)

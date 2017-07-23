@@ -23,7 +23,7 @@ Tracter::TransverseFilter::TransverseFilter(
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size >= 0);
 
-    mRadius = GetEnv("Radius", 1);
+    mRadius = config("Radius", 1);
     if (mRadius < 0)
         throw Exception("Radius can't be negative");
 }

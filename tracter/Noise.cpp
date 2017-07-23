@@ -16,10 +16,10 @@ Tracter::Noise::Noise(Component<float>* iInput, const char* iObjectName)
     mFrame.size = iInput->Frame().size;
 
     mValid = false;
-    mNInit = GetEnv("NInit", 10);
-    mEnd = GetEnv("End", 0);
-    mSoftReset = GetEnv("SoftReset", 0);
-    mWrite = GetEnv("Write", 0);
+    mNInit = config("NInit", 10);
+    mEnd = config("End", 0);
+    mSoftReset = config("SoftReset", 0);
+    mWrite = config("Write", 0);
     if (mEnd)
         // Store everything - we'll read the end first
         Connect(iInput, ReadRange::INFINITE);

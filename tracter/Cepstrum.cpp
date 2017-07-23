@@ -21,11 +21,11 @@ Tracter::Cepstrum::Cepstrum(
 
     mNLogData = mInput->Frame().size;
 
-    mFloor = GetEnv("Floor", 1e-8f);
+    mFloor = config("Floor", 1e-8f);
     mLogFloor = logf(mFloor);
     mFloored = 0;
-    mC0 = GetEnv("C0", 1);
-    mNCepstra = GetEnv("NCepstra", 12);
+    mC0 = config("C0", 1);
+    mNCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? mNCepstra+1 : mNCepstra;
 
     assert(mNCepstra > 0);

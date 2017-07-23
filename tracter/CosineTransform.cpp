@@ -24,12 +24,12 @@ Tracter::CosineTransform::CosineTransform(
     mOData = 0;
     mDCT.Init(mFrame.size, &mIData, &mOData);
 
-    if (GetEnv("Window", 0))
+    if (config("Window", 0))
         mWindow = new Window(objectName(), mFrame.size);
     else
         mWindow = 0;
 
-    mCZeroIndex = GetEnv("CZeroIndex", 0);
+    mCZeroIndex = config("CZeroIndex", 0);
 }
 
 bool Tracter::CosineTransform::UnaryFetch(IndexType iIndex, float* oData)

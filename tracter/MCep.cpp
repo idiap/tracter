@@ -20,8 +20,8 @@ Tracter::MCep::MCep(
     Connect(mInput);
 
     // Array sizing
-    mC0 = GetEnv("C0", 1);
-    int nCepstra = GetEnv("NCepstra", 12);
+    mC0 = config("C0", 1);
+    int nCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? nCepstra+1 : nCepstra;
     assert(nCepstra > 0);
     mInData.resize(mInput->Frame().size);
@@ -29,13 +29,13 @@ Tracter::MCep::MCep(
     mCepstra2.resize(nCepstra+1);
 
     // Parameters, defaults from mcep executable
-    mAlpha = GetEnv("Alpha", 0.35f);
-    mGamma = GetEnv("Gamma", 1.0f);
-    mMinIter = GetEnv("MinIter", 2);
-    mMaxIter = GetEnv("MaxIter", 30);
-    mEndCondition = GetEnv("EndCondition", 0.001f);
-    mSmall = GetEnv("Small", 0.0f);
-    mDetMin = GetEnv("DetMin", 0.000001f);
+    mAlpha = config("Alpha", 0.35f);
+    mGamma = config("Gamma", 1.0f);
+    mMinIter = config("MinIter", 2);
+    mMaxIter = config("MaxIter", 30);
+    mEndCondition = config("EndCondition", 0.001f);
+    mSmall = config("Small", 0.0f);
+    mDetMin = config("DetMin", 0.000001f);
 
     // Check gamma
     if (mGamma > 0.0)

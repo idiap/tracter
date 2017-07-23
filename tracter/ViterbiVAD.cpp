@@ -18,12 +18,12 @@ Tracter::ViterbiVAD::ViterbiVAD(
 
     // Viterbi config - all time values are in frames
     mInput = iInput;
-    mLookAhead = GetEnv("Lookahead", 50);
-    mSilStates = GetEnv("MinSilDur",20);
-    mSpeechStates = GetEnv("MinSpeechDur",20);
-    mSilPrior = GetEnv("SilPrior",0.8f);
+    mLookAhead = config("Lookahead", 50);
+    mSilStates = config("MinSilDur",20);
+    mSpeechStates = config("MinSpeechDur",20);
+    mSilPrior = config("SilPrior",0.8f);
     mSpeechPrior = 1.0 - mSilPrior;
-    mInsPen = GetEnv("InsPen",-40);
+    mInsPen = config("InsPen",-40);
     
     // some sanity checks
     assert(mSilPrior > 0 && mSilPrior < 1);

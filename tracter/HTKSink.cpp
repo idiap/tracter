@@ -22,7 +22,7 @@ Tracter::HTKSink::HTKSink(
     Reset();
 
     mFile = 0;
-    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_BIG);
+    Endian endian = (Endian)config(cEndian, ENDIAN_BIG);
     mByteOrder.SetTarget(endian);
     if (mByteOrder.WrongEndian())
         mTemp.resize(mFrame.size);
@@ -44,16 +44,16 @@ Tracter::HTKSink::HTKSink(
         {"PLP",      11},
         {0,          -1}
     };
-    mParmKind = GetEnv(cParmKind, 9);
+    mParmKind = config(cParmKind, 9);
 
     /* Modifiers can be mixed */
-    if (GetEnv("E", 0)) mParmKind |= 0000100;
-    if (GetEnv("N", 0)) mParmKind |= 0000200;
-    if (GetEnv("D", 0)) mParmKind |= 0000400;
-    if (GetEnv("A", 0)) mParmKind |= 0001000;
-    if (GetEnv("Z", 0)) mParmKind |= 0004000;
-    if (GetEnv("0", 0)) mParmKind |= 0020000;
-    if (GetEnv("T", 0)) mParmKind |= 0100000;
+    if (config("E", 0)) mParmKind |= 0000100;
+    if (config("N", 0)) mParmKind |= 0000200;
+    if (config("D", 0)) mParmKind |= 0000400;
+    if (config("A", 0)) mParmKind |= 0001000;
+    if (config("Z", 0)) mParmKind |= 0004000;
+    if (config("0", 0)) mParmKind |= 0020000;
+    if (config("T", 0)) mParmKind |= 0100000;
 }
 
 void Tracter::HTKSink::WriteHeader(FILE* iFile)

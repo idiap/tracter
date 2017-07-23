@@ -30,9 +30,9 @@ Tracter::Gate::Gate(
     mOpen = false;
     mUpstreamEndOfData = false;
 
-    mEnabled = GetEnv("Enable", 1);
-    mSegmenting = GetEnv("Segmenting", 0);
-    mConcatenate = GetEnv("Concatenate", 0);
+    mEnabled = config("Enable", 1);
+    mSegmenting = config("Segmenting", 0);
+    mConcatenate = config("Concatenate", 0);
 }
 
 /**

@@ -31,9 +31,9 @@ Tracter::VADGate::VADGate(
     mState = SILENCE_CONFIRMED;
     mUpstreamEndOfData = false;
 
-    mEnabled = GetEnv("Enable", 1);
-    mSegmenting = GetEnv("Segmenting", 0);
-    mRemoveSilence = GetEnv("RemoveSilence", 0);
+    mEnabled = config("Enable", 1);
+    mSegmenting = config("Segmenting", 0);
+    mRemoveSilence = config("RemoveSilence", 0);
 }
 
 /**

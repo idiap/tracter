@@ -16,9 +16,9 @@ Tracter::ComplexPeriodogram::ComplexPeriodogram(
 {
     objectName(iObjectName);
     mInput = iInput;
-    mFrame.period = GetEnv("FramePeriod", 40);
+    mFrame.period = config("FramePeriod", 40);
     Connect(iInput);
-    mFrame.size = GetEnv("FrameSize", 128);
+    mFrame.size = config("FrameSize", 128);
     assert(mFrame.size > 0);
     assert(mFrame.period > 0);
 

@@ -22,21 +22,21 @@ Tracter::NoiseVAD::NoiseVAD(
     Connect(mNoiseInput);
     MinSize(mNoiseInput, 1);
 
-    mShowGuts = GetEnv("ShowGuts", 0);
+    mShowGuts = config("ShowGuts", 0);
 
     // Noise tracker
-    float noiseTimeConstant = GetEnv("NoiseTimeConstant", 0.5f);
+    float noiseTimeConstant = config("NoiseTimeConstant", 0.5f);
     float noiseTime = SecondsToFrames(noiseTimeConstant);
     mNoisePole = (noiseTime - 1.0f) / noiseTime;
     mNoiseElop = 1.0f - mNoisePole;
 
     // Threshold
-    float dBThres = GetEnv("Threshold", 0.0f);
+    float dBThres = config("Threshold", 0.0f);
     mThreshold = dBThres / 10; // decibels to bels
 
     // The state machine
-    float confirmSpeechTime = GetEnv("ConfirmSpeechTime", 0.3f);
-    float confirmSilenceTime = GetEnv("ConfirmSilenceTime", 0.3f);
+    float confirmSpeechTime = config("ConfirmSpeechTime", 0.3f);
+    float confirmSilenceTime = config("ConfirmSilenceTime", 0.3f);
     mConfirmSpeechTime = SecondsToFrames(confirmSpeechTime);
     mConfirmSilenceTime = SecondsToFrames(confirmSilenceTime);
 

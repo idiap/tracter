@@ -14,7 +14,7 @@ Tracter::Delta::Delta(Component<float>* iInput, const char* iObjectName)
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size > 0);
 
-    mTheta = GetEnv("Theta", 2);
+    mTheta = config("Theta", 2);
     assert(mTheta > 0);
 
     mWindow = mTheta*2 + 1;

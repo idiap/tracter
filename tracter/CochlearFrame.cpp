@@ -34,16 +34,16 @@ CochlearFrame::CochlearFrame(
 {
     objectName(iObjectName);
     mInput = iInput;
-    mSize = GetEnv("Size", 256);
+    mSize = config("Size", 256);
     mFrame.size = mInput->Frame().size;
-    mFrame.period = GetEnv("Period", 80);
+    mFrame.period = config("Period", 80);
 
     // Framers look ahead, not back
     Connect(mInput, mSize, mSize-1);
 
-    mMethod = GetEnv(cMethod, METHOD_ENERGY);
+    mMethod = config(cMethod, METHOD_ENERGY);
     mWindow = 0;
-    if (GetEnv("Window", 0))
+    if (config("Window", 0))
         mWindow = new Window(objectName(), mSize);
 
     assert(mSize > 0);

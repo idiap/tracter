@@ -21,7 +21,7 @@ Tracter::ScreenSink::ScreenSink(
     Initialise();
     Reset();
 
-    mMaxSize = GetEnv("MaxSize", 0);
+    mMaxSize = config("MaxSize", 0);
 }
 
 /**

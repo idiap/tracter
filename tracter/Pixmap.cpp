@@ -16,7 +16,7 @@ Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
     objectName(iObjectName);
     mInput = iInput;
 
-    mFrame.size = GetEnv("FrameSize", iInput->Frame().size);
+    mFrame.size = config("FrameSize", iInput->Frame().size);
     assert(mFrame.size >= 0);
 
     // Keep all the input
@@ -27,8 +27,8 @@ Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
     mMin = FLT_MAX;
     mMax = -FLT_MAX;
 
-    mLog = GetEnv("Log", 1);
-    mRange = GetEnv("Range", 90);
+    mLog = config("Log", 1);
+    mRange = config("Range", 90);
 }
 
 bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, float* oData)

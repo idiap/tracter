@@ -27,8 +27,8 @@ namespace Tracter
         FileSource(const char* iObjectName = "FileSource")
         {
             Component<T>::objectName(iObjectName);
-            this->mFrameRate = Component<T>::GetEnv("FrameRate", 8000.0f);
-            Component<T>::mFrame.size = Component<T>::GetEnv("FrameSize", 1);
+            this->mFrameRate = Component<T>::config("FrameRate", 8000.0f);
+            Component<T>::mFrame.size = Component<T>::config("FrameSize", 1);
             Component<T>::mFrame.period = 1;
         }
         virtual ~FileSource() throw() {}

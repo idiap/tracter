@@ -237,18 +237,18 @@ Tracter::Minima::Minima(Component<float>* iInput, const char* iObjectName)
     if (mFrame.size == 0)
         mFrame.size = 1;
 
-    mNWindow = SecondsToFrames( GetEnv("WindowTime", 1.0f) );
+    mNWindow = SecondsToFrames( config("WindowTime", 1.0f) );
     mNAhead = mNWindow/2;
     MinSize(mInput, mNWindow+1, mNAhead);
 
-    float gamma = GetEnv("Gamma", 0.2f);
+    float gamma = config("Gamma", 0.2f);
     int nGamma  = (int)(gamma * mNWindow);
 
     mWindow.resize(mFrame.size);
     for (int i=0; i<mFrame.size; i++)
         mWindow[i] = new MinimaWindow(mNWindow, nGamma);
 
-    mCorrection = GetEnv("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
+    mCorrection = config("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
 
     mLastIndex = -1;
     Verbose(1, "Window %d, %d ahead\n", mNWindow, mNAhead);

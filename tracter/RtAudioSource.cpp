@@ -13,15 +13,15 @@
 Tracter::RtAudioSource::RtAudioSource(const char* iObjectName)
 {
     objectName(iObjectName);
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
-    mFrame.size = GetEnv("FrameSize", 1);
+    mFrameRate = config("FrameRate", 8000.0f);
+    mFrame.size = config("FrameSize", 1);
     mFrame.period = 1;
 
-    mNChannels = GetEnv("NChannels", mFrame.size);
+    mNChannels = config("NChannels", mFrame.size);
     if ((mNChannels != mFrame.size) && (mFrame.size != 1))
         throw Exception("RtAudioSource: Frame size must be 1 or NChannels");
 
-    float seconds = GetEnv("BufferTime", 1.0f);
+    float seconds = config("BufferTime", 1.0f);
     SizeType samples = SecondsToFrames(seconds);
     MinSize(this, samples);
 

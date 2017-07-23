@@ -20,8 +20,8 @@ Tracter::TimedLatch::TimedLatch(
     Connect(iInput);
 
     // Minimum times
-    float confirmTrueTime = GetEnv("ConfirmTrueTime", 0.3f);
-    float confirmFalseTime = GetEnv("ConfirmFalseTime", 0.3f);
+    float confirmTrueTime = config("ConfirmTrueTime", 0.3f);
+    float confirmFalseTime = config("ConfirmFalseTime", 0.3f);
     mConfirmTrueTime = SecondsToFrames(confirmTrueTime);
     mConfirmFalseTime = SecondsToFrames(confirmFalseTime);
 

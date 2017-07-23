@@ -14,7 +14,7 @@ Tracter::ZeroFilter::ZeroFilter(
     objectName(iObjectName);
     mInput = iInput;
     Connect(mInput);
-    mZero = GetEnv("Zero", 0.97f);
+    mZero = config("Zero", 0.97f);
 }
 
 void Tracter::ZeroFilter::MinSize(

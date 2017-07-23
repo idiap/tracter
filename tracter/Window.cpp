@@ -31,7 +31,7 @@ Tracter::Window::Window(const char* iObjectName, int iSize)
     }
 
     // Discern the shape
-    const char* shape = GetEnv("Shape", "Hamming");
+    const char* shape = config("Shape", "Hamming");
     if (sShapeMap.count(shape) == 0)
         throw Exception("unknown window shape %s", shape);
     mShape = sShapeMap[shape];

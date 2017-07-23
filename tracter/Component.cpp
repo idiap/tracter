@@ -607,7 +607,7 @@ Tracter::ComponentBase::ContiguousFetch(
  */
 void Tracter::ComponentBase::Dot()
 {
-    bool lr = GetEnv("DotLR", false);
+    bool lr = config("DotLR", false);
     printf("digraph tracter {\n");
     if (lr)
         printf("rankdir=LR;\n");

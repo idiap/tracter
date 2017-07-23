@@ -34,10 +34,10 @@ CochlearFilter::CochlearFilter(
     mInput = iInput;
     Connect(mInput);
     mIndex = -1;
-    mFrame.size = GetEnv("Size", 23);
-    float loHertz = GetEnv("LoHertz", 64.0f);
-    float hiHertz = GetEnv("HiHertz", 4000.0f);
-    int type = GetEnv(cFilter, LYON);
+    mFrame.size = config("Size", 23);
+    float loHertz = config("LoHertz", 64.0f);
+    float hiHertz = config("HiHertz", 4000.0f);
+    int type = config(cFilter, LYON);
     switch (type)
     {
     case HOLDSWORTH:

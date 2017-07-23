@@ -150,7 +150,7 @@ Tracter::Component<float>* Tracter::ASRFactory::CreateSource(
 {
     Component<float> *component = 0;
 
-    const char* source = GetEnv("Source", "File");
+    const char* source = config("Source", "File");
     if (mSource[source])
         component = mSource[source]->Create(iSource);
     else
@@ -158,7 +158,7 @@ Tracter::Component<float>* Tracter::ASRFactory::CreateSource(
 
 #ifdef HAVE_RESAMPLE
     // Not sure if here is the right place...
-    if (GetEnv("Resample", 0))
+    if (config("Resample", 0))
         component = new Resample(component);
 #endif
 
@@ -174,7 +174,7 @@ Tracter::ASRFactory::CreateFrontend(Component<float>* iComponent)
 {
     Component<float> *component = 0;
 
-    const char* frontend = GetEnv("Frontend", "Null");
+    const char* frontend = config("Frontend", "Null");
     if (mFrontend[frontend])
         component = mFrontend[frontend]->Create(iComponent);
     else
@@ -288,7 +288,7 @@ Tracter::Component<float>*
 Tracter::GraphFactory::deltas(Component<float>* iComponent)
 {
     Component<float>* component = iComponent;
-    int deltaOrder = GetEnv("DeltaOrder", 0);
+    int deltaOrder = config("DeltaOrder", 0);
     if (deltaOrder > 0)
     {
         Concatenate* c = new Concatenate();
@@ -316,7 +316,7 @@ Tracter::Component<float>*
 Tracter::GraphFactory::normaliseMean(Component<float>* iComponent)
 {
     Component<float>* component = iComponent;
-    bool cmn = GetEnv("NormaliseMean", 1);
+    bool cmn = config("NormaliseMean", 1);
     if (cmn)
     {
         Mean* m = new Mean(iComponent);
@@ -333,7 +333,7 @@ Tracter::Component<float>*
 Tracter::GraphFactory::normaliseVariance(Component<float>* iComponent)
 {
     Component<float>* component = iComponent;
-    bool cvn = GetEnv("NormaliseVariance", 0);
+    bool cvn = config("NormaliseVariance", 0);
     if (cvn)
     {
         Component<float>* v = new Variance(iComponent);
@@ -366,7 +366,7 @@ Tracter::CMVNGraphFactory::Create(Component<float>* iComponent)
     p = normaliseVariance(p);
 
     // Doesn't really belong, but it's easy to "comment out" behind the option
-    if (GetEnv("LinearTransform", false))
+    if (config("LinearTransform", false))
         p = new LinearTransform(p);
     return p;
 }
@@ -447,7 +447,7 @@ Tracter::BasicVADGraphFactory::Create(Component<float>* iComponent)
     v = new Frame(v);
     v = new Energy(v);
     Modulation* m = new Modulation(v);
-    if (!GetEnv("MinimaVAD", 0))
+    if (!config("MinimaVAD", 0))
     {
         // Old VAD
         NoiseVAD* mv = new NoiseVAD(m, v);
@@ -505,7 +505,7 @@ Tracter::PLPVADGraphFactory::Create(Component<float>* iComponent)
     v = new Frame(v);
     v = new Energy(v);
     Modulation* m = new Modulation(v);
-    if (!GetEnv("MinimaVAD", 0))
+    if (!config("MinimaVAD", 0))
     {
         // Old VAD
         NoiseVAD* mv = new NoiseVAD(m, v);
@@ -547,7 +547,7 @@ Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
 Tracter::Component<float>*
 Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
 {
-    bool mel = GetEnv("Mel", 0);
+    bool mel = config("Mel", 0);
     Component<float>* p = iComponent;
     p = new ZeroFilter(p);
     p = new Frame(p);
@@ -559,7 +559,7 @@ Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
     p = new SNRSpectrum(p, m);
     if (!mel)
         p = new MelFilter(p);
-    if (GetEnv("PLP", 0))
+    if (config("PLP", 0))
         p = new LPCepstrum(p);
     else
         p = new Cepstrum(p);
@@ -600,7 +600,7 @@ Tracter::CochlearSNRGraphFactory::Create(Component<float>* iComponent)
     Component<float>* m = new Minima(p);
     //m = new TransverseFilter(m);
     p = new SNRSpectrum(p, m);
-    if (GetEnv("PLP", 0))
+    if (config("PLP", 0))
         p = new LPCepstrum(p);
     else
         p = new Cepstrum(p);

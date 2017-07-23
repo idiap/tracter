@@ -15,10 +15,10 @@ Tracter::SndFileSink::SndFileSink(
     mInput = iInput;
 
     mSndFile = 0;
-    mBlockSize = GetEnv("BlockSize", 256);
+    mBlockSize = config("BlockSize", 256);
     Connect(mInput, mBlockSize);
 
-    mFrameRate = GetEnv("FrameRate", FrameRate());
+    mFrameRate = config("FrameRate", FrameRate());
     mFrame.size = mInput->Frame().size;
     Initialise();
     Reset();
@@ -31,7 +31,7 @@ Tracter::SndFileSink::SndFileSink(
         {"FLAC", SF_FORMAT_FLAC},
         {0, -1}
     };
-    mFormat = GetEnv(cFormat, SF_FORMAT_WAV);
+    mFormat = config(cFormat, SF_FORMAT_WAV);
 }
 
 /**

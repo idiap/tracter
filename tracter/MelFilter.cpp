@@ -43,13 +43,13 @@ Tracter::MelFilter::MelFilter(
     mInput = iInput;
     Connect(mInput);
 
-    mMaxHertz = GetEnv("MaxHertz", 4000.0f);
-    mFrame.size = GetEnv("NBins", 23);
-    mLoHertz = GetEnv("LoHertz", 64.0f);
-    mHiHertz = GetEnv("HiHertz", mMaxHertz);
-    mLoWarp = GetEnv("LoWarp", 0.0f);
-    mHiWarp = GetEnv("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
-    mAlpha = GetEnv("Alpha", 1.0f);
+    mMaxHertz = config("MaxHertz", 4000.0f);
+    mFrame.size = config("NBins", 23);
+    mLoHertz = config("LoHertz", 64.0f);
+    mHiHertz = config("HiHertz", mMaxHertz);
+    mLoWarp = config("LoWarp", 0.0f);
+    mHiWarp = config("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
+    mAlpha = config("Alpha", 1.0f);
 
     // Initialise the transform
     mWeight.resize(mFrame.size);
@@ -59,7 +59,7 @@ Tracter::MelFilter::MelFilter(
     initSmoothBins();
 #endif
 
-    if (GetEnv("Normalise", 0))
+    if (config("Normalise", 0))
         normaliseBins();
 }
 

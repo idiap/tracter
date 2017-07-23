@@ -13,7 +13,7 @@
 namespace Tracter
 {
     /**
-     * Map endian strings to enumeration for GetEnv().  Final entry
+     * Map endian strings to enumeration for config().  Final entry
      * must be 0.
      */
     const StringEnum cEndian[] = {

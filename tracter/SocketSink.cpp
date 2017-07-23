@@ -35,8 +35,8 @@ Tracter::SocketSink::SocketSink(
     Initialise();
     Reset();
 
-    mPort = GetEnv("Port", 30000);
-    mHeader = GetEnv("Header", 1);
+    mPort = config("Port", 30000);
+    mHeader = config("Header", 1);
 
     // Get the file descriptor
     int sockFD = socket(AF_INET, SOCK_STREAM, 0);

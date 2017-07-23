@@ -25,7 +25,7 @@ Tracter::Periodogram::Periodogram(
     mComplexData = 0;
     mFourier.Init(frameSize, &mRealData, &mComplexData);
 
-    if (GetEnv("Window", 1))
+    if (config("Window", 1))
         mWindow = new Window(objectName(), frameSize);
     else
         mWindow = 0;

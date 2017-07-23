@@ -18,13 +18,13 @@
 Tracter::PulseAudioSource::PulseAudioSource(const char* iObjectName)
 {
     objectName(iObjectName);
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
-    mFrame.size = GetEnv("FrameSize", 1);
+    mFrameRate = config("FrameRate", 8000.0f);
+    mFrame.size = config("FrameSize", 1);
     mFrame.period = 1;
     mHandle = 0;
 
     /* Limit the time for which we can connect */
-    float maxTime = GetEnv("MaxTime", 0.0f);
+    float maxTime = config("MaxTime", 0.0f);
     mMaxIndex = SecondsToFrames(maxTime);
 }
 

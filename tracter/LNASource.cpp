@@ -14,14 +14,14 @@
 Tracter::LNASource::LNASource(const char* iObjectName)
 {
     objectName(iObjectName);
-    mFrame.size = GetEnv("FrameSize", 27);
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
-    mFrame.period = GetEnv("FramePeriod", 80);
+    mFrame.size = config("FrameSize", 27);
+    mFrameRate = config("FrameRate", 8000.0f);
+    mFrame.period = config("FramePeriod", 80);
     assert(mFrame.size > 0);
 
     mMapData = 0;
-    mLNA16 = GetEnv("LNA16", 0);
-    mCheckSum = GetEnv("CheckSum", 1);
+    mLNA16 = config("LNA16", 0);
+    mCheckSum = config("CheckSum", 1);
 
     /* Portability check */
     assert(sizeof(unsigned short) == 2);

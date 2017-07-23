@@ -12,13 +12,13 @@
 Tracter::HTKSource::HTKSource(const char* iObjectName)
 {
     objectName(iObjectName);
-    mFrame.size = GetEnv("FrameSize", 39);
-    mFrameRate = GetEnv("FrameRate", 100.0f);
-    mFrame.period = GetEnv("FramePeriod", 1);
+    mFrame.size = config("FrameSize", 39);
+    mFrameRate = config("FrameRate", 100.0f);
+    mFrame.period = config("FramePeriod", 1);
 
     mMapData = 0;
     mNSamples = 0;
-    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_BIG);
+    Endian endian = (Endian)config(cEndian, ENDIAN_BIG);
     mByteOrder.SetSource(endian);
 }
 

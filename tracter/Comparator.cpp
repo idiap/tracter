@@ -24,10 +24,10 @@ Tracter::Comparator::Comparator(
     Connect(iInput1);
     Connect(iInput2);
 
-    mShowGuts = GetEnv("ShowGuts", 0);
+    mShowGuts = config("ShowGuts", 0);
 
     // Threshold
-    float dBThres = GetEnv("Threshold", 0.0f);
+    float dBThres = config("Threshold", 0.0f);
     mThreshold = powf(10.0f, dBThres / 10.0f);
 }
 

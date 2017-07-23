@@ -18,7 +18,7 @@ Tracter::Normalise::Normalise(
     mFrame.size = mInput->Frame().size;
     Connect(mInput);
 
-    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_NATIVE);
+    Endian endian = (Endian)config(cEndian, ENDIAN_NATIVE);
     mByteOrder.SetSource(endian);
 }
 

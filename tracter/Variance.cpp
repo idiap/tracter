@@ -30,9 +30,9 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
 
     mAdaptStart = 0;
 
-    mVarianceType = (VarianceType)GetEnv(cVarianceType, VARIANCE_ADAPTIVE);
-    mBurnIn = GetEnv("BurnIn", 20);
-    mPersistent = GetEnv("Persistent", 0);
+    mVarianceType = (VarianceType)config(cVarianceType, VARIANCE_ADAPTIVE);
+    mBurnIn = config("BurnIn", 20);
+    mPersistent = config("Persistent", 0);
 
     switch (mVarianceType)
     {
@@ -58,12 +58,12 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
     }
 
     // Possibly initialise a prior variance
-    const char* priFile = GetEnv("PriorFile", (const char*)0);
+    const char* priFile = config("PriorFile", (const char*)0);
     if (priFile)
         Load(mPrior, "<VARIANCE>", priFile);
 
     // Initialise a target variance either from a file or to unity
-    const char* tgtFile = GetEnv("TargetFile", (const char*)0);
+    const char* tgtFile = config("TargetFile", (const char*)0);
     if (tgtFile)
         Load(mTarget, "<VARSCALE>", tgtFile);
     else
@@ -77,7 +77,7 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
         mVariance.assign(mTarget.begin(), mTarget.end());
 
     // Time constant
-    SetTimeConstant(GetEnv("TimeConstant", 1.0f));
+    SetTimeConstant(config("TimeConstant", 1.0f));
 }
 
 /**

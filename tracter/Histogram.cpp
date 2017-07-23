@@ -24,16 +24,16 @@ Tracter::Histogram::Histogram(Component<float>* iInput, const char* iObjectName)
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size >= 0);
 
-    mMin = GetEnv("Min", 0.0f);
-    mMax = GetEnv("Max", 1.0f);
-    mNBins = GetEnv("NBins", 10);
-    mPDF = GetEnv("PDF", 1);
+    mMin = config("Min", 0.0f);
+    mMax = config("Max", 1.0f);
+    mNBins = config("NBins", 10);
+    mPDF = config("PDF", 1);
     mScale = (float)mNBins/(mMax-mMin);
-    mPower = GetEnv("Power", 1.0f);
-    mUnPower = GetEnv("UnPower", 0);
+    mPower = config("Power", 1.0f);
+    mUnPower = config("UnPower", 0);
     mCount = 0;
-    mMinCount = GetEnv("MinCount", 1);
-    mMode = GetEnv("Mode", 0);
+    mMinCount = config("MinCount", 1);
+    mMode = config("Mode", 0);
 
     mBin.resize(mFrame.size);
     for (int i=0; i<mFrame.size; i++)

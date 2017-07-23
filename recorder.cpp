@@ -47,7 +47,7 @@ public:
             {"NewModulation", NEW_MODULATION},
             {0,               -1}
         };
-        int vad = GetEnv(cVAD, -1);
+        int vad = config(cVAD, -1);
 
         // Source
         p = fac.CreateSource(mSource);

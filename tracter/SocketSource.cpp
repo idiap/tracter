@@ -27,8 +27,8 @@
 Tracter::socketSource::socketSource(const char* iObjectName)
 {
     objectName(iObjectName);
-    mPort = GetEnv("Port", 30000);
-    mBufferSize = GetEnv("BufferSize", 0);
+    mPort = config("Port", 30000);
+    mBufferSize = config("BufferSize", 0);
     mFD = 0;
 }
 

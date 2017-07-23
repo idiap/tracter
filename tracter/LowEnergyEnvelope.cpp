@@ -16,11 +16,11 @@ Tracter::LowEnergyEnvelope::LowEnergyEnvelope(
     mInput = iInput;
     mFrame.size = iInput->Frame().size;
 
-    float gamma = GetEnv("Gamma", 0.2f);
-    float timeWindow = GetEnv("TimeWindow", 1.0f);
+    float gamma = config("Gamma", 0.2f);
+    float timeWindow = config("TimeWindow", 1.0f);
     mNWindow = (int)(timeWindow * FrameRate());
     mNGamma  = (int)(gamma * mNWindow);
-    mCorrection = GetEnv("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
+    mCorrection = config("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
 
     // Set up the sorting arrays
     mTmp.resize(mFrame.size);

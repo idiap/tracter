@@ -40,13 +40,13 @@ Tracter::FrequencyWarp::FrequencyWarp(const char* iObjectName)
 {
     objectName(iObjectName);
 
-    mMaxHertz = GetEnv("MaxHertz", 4000.0f);
-    mNBins = GetEnv("NBins", 23);
-    mLoHertz = GetEnv("LoHertz", 64.0f);
-    mHiHertz = GetEnv("HiHertz", mMaxHertz);
-    mLoWarp = GetEnv("LoWarp", 0.0f);
-    mHiWarp = GetEnv("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
-    mAlpha = GetEnv("Alpha", 1.0f);
+    mMaxHertz = config("MaxHertz", 4000.0f);
+    mNBins = config("NBins", 23);
+    mLoHertz = config("LoHertz", 64.0f);
+    mHiHertz = config("HiHertz", mMaxHertz);
+    mLoWarp = config("LoWarp", 0.0f);
+    mHiWarp = config("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
+    mAlpha = config("Alpha", 1.0f);
 }
 
 

@@ -11,8 +11,8 @@ Tracter::Select::Select(Component<float>* iInput, const char* iObjectName)
     objectName(iObjectName);
     mInput = iInput;
 
-    mLoIndex = GetEnv("Lo", 0);
-    mHiIndex = GetEnv("Hi", iInput->Frame().size-1);
+    mLoIndex = config("Lo", 0);
+    mHiIndex = config("Hi", iInput->Frame().size-1);
 
     mFrame.size = mHiIndex - mLoIndex + 1;
     assert(mFrame.size >= 0);

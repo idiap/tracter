@@ -17,7 +17,7 @@ Tracter::LinearTransform::LinearTransform(
     mInput = iInput;
     Connect(mInput);
 
-    const char* file = GetEnv("XFormFile", (const char*)0);
+    const char* file = config("XFormFile", (const char*)0);
     mFrame.size = LoadXForm(file);
     if (mFrame.size * mInput->Frame().size != (int)mMatrix.size())
         throw Exception("input dimension %d incompatible with matrix cols %d",

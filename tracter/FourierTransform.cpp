@@ -24,7 +24,7 @@ Tracter::FourierTransformR2C::FourierTransformR2C(
     mComplexData = 0;
     mFourier.Init(frameSize, &mRealData, &mComplexData);
 
-    if (GetEnv("Window", 1))
+    if (config("Window", 1))
         mWindow = new Window(objectName(), frameSize);
     else
         mWindow = 0;
@@ -82,7 +82,7 @@ Tracter::FourierTransformC2R::FourierTransformC2R(
     mComplexData = 0;
     mFourier.Init(mFrame.size, &mComplexData, &mRealData);
 
-    if (GetEnv("Window", 1))
+    if (config("Window", 1))
     {
         mWindow = new Window(objectName(), mFrame.size);
         mWindow->Scale(1.0f/mFrame.size);

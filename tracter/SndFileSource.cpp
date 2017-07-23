@@ -10,12 +10,12 @@
 Tracter::SndFileSource::SndFileSource(const char* iObjectName)
 {
     objectName(iObjectName);
-    mFrame.size = GetEnv("FrameSize", 1);
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    mFrame.size = config("FrameSize", 1);
+    mFrameRate = config("FrameRate", 8000.0f);
     mFrame.period = 1;
     mSndFile = 0;
     mNFrames = 0;
-    mSoxHack = GetEnv("SoxHack", 0);
+    mSoxHack = config("SoxHack", 0);
 }
 
 Tracter::SndFileSource::~SndFileSource() throw ()

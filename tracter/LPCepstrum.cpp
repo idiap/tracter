@@ -18,14 +18,14 @@ Tracter::LPCepstrum::LPCepstrum(
     Connect(mInput);
 
     mNCompressed = mInput->Frame().size;
-    mC0 = GetEnv("C0", 1);
-    mNCepstra = GetEnv("NCepstra", 12);
+    mC0 = config("C0", 1);
+    mNCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? mNCepstra+1 : mNCepstra;
     assert(mFrame.size > 0);
 
-    mOrder = GetEnv("Order", 14);
-    mCompressionPower = GetEnv("CompressionPower", 0.33f);
-    mRidge = GetEnv("Ridge", 0.0f);
+    mOrder = config("Order", 14);
+    mCompressionPower = config("CompressionPower", 0.33f);
+    mRidge = config("Ridge", 0.0f);
 
     // We get as many autocorrelation coeffs as input dimensions
     if (mOrder >= mNCompressed)

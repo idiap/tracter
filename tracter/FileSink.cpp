@@ -25,7 +25,7 @@ Tracter::FileSink::FileSink(
 
     if (mByteOrder.WrongEndian())
         mTemp.resize(mFrame.size);
-    mMaxSize = GetEnv("MaxSize", 0);
+    mMaxSize = config("MaxSize", 0);
 }
 
 /**

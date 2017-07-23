@@ -21,7 +21,7 @@ Tracter::Log::Log(Component<float>* iInput, const char* iObjectName)
     mFrame.size = iInput->Frame().size;
     assert(mFrame.size >= 0);
 
-    mFloor = GetEnv("Floor", 1e-8f);
+    mFloor = config("Floor", 1e-8f);
     mLogFloor = logf(mFloor);
     mFloored = 0;
 }

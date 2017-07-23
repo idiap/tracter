@@ -36,7 +36,7 @@ Tracter::Resample::Resample(
     objectName(iObjectName);
     mInput = iInput;
 
-    double targetRate = GetEnv("TargetRate", 16000);
+    double targetRate = config("TargetRate", 16000);
     mFrame.period = mInput->FrameRate() / targetRate;
     mResampleData = new ResampleData;
     ResampleData& r = *mResampleData;
