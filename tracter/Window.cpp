@@ -83,7 +83,7 @@ void Tracter::Window::resize(int iSize, bool iDivideN)
     }
 }
 
-float* Tracter::Window::Apply(const float* iData, float* oData) const
+float* Tracter::Window::apply(const float* iData, float* oData) const
 {
     for (int i=0; i<(int)mWeight.size(); i++)
         oData[i] = iData[i] * mWeight[i];

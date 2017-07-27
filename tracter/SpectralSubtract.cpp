@@ -33,12 +33,12 @@ bool Tracter::SpectralSubtract::unaryFetch(IndexType iIndex, float* oData)
 
     // Start with the second input, likely to be a cepstral or
     // spectral mean
-    if (mInput2->Read(inputArea, iIndex) == 0)
+    if (mInput2->read(inputArea, iIndex) == 0)
         return false;
     float *p2 = mInput2->getPointer(inputArea.offset);
 
     // Now the first input
-    if (mInput1->Read(inputArea, iIndex) == 0)
+    if (mInput1->read(inputArea, iIndex) == 0)
         return false;
     float *p1 = mInput1->getPointer(inputArea.offset);
 

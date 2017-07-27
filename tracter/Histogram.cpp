@@ -49,7 +49,7 @@ bool Tracter::Histogram::unaryFetch(IndexType iIndex, float* oData)
     assert(iIndex >= 0);
 
     CacheArea inputArea;
-    if (!mInput->Read(inputArea, iIndex))
+    if (!mInput->read(inputArea, iIndex))
         return false;
 
     // Copy input to output with limits check

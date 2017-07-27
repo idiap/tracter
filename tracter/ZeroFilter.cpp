@@ -33,7 +33,7 @@ void Tracter::ZeroFilter::minSize(
 }
 
 Tracter::SizeType
-Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::ZeroFilter::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -44,7 +44,7 @@ Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     // This makes the code afterwards identical for iIndex == 0 too.
     if (iIndex > 0)
     {
-        SizeType one = mInput->Read(inputArea, iIndex-1);
+        SizeType one = mInput->read(inputArea, iIndex-1);
         if (one == 0)
             return 0;
         input = mInput->getPointer();
@@ -52,7 +52,7 @@ Tracter::ZeroFilter::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     }
 
     // The usual read and offset initialisation
-    SizeType lenGot = mInput->Read(inputArea, iIndex, iOutputArea.length());
+    SizeType lenGot = mInput->read(inputArea, iIndex, iOutputArea.length());
     SizeType rOffset = inputArea.offset;
     SizeType wOffset = iOutputArea.offset;
     input = mInput->getPointer();

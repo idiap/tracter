@@ -27,13 +27,13 @@ namespace Tracter
         void dotHook()
         {
             CachedComponent<float>::dotHook();
-            dotRecord(1, "swap=%s", mByteOrder.WrongEndian() ? "yes" : "no");
+            dotRecord(1, "swap=%s", mByteOrder.wrongEndian() ? "yes" : "no");
         }
 
     protected:
         Component<short>* mInput;
         ByteOrder mByteOrder;
-        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
     };
 }
 

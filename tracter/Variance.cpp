@@ -60,12 +60,12 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
     // Possibly initialise a prior variance
     const char* priFile = config("PriorFile", (const char*)0);
     if (priFile)
-        Load(mPrior, "<VARIANCE>", priFile);
+        load(mPrior, "<VARIANCE>", priFile);
 
     // Initialise a target variance either from a file or to unity
     const char* tgtFile = config("TargetFile", (const char*)0);
     if (tgtFile)
-        Load(mTarget, "<VARSCALE>", tgtFile);
+        load(mTarget, "<VARSCALE>", tgtFile);
     else
         mTarget.assign(mFrame.size, 1.0);
 
@@ -77,7 +77,7 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
         mVariance.assign(mTarget.begin(), mTarget.end());
 
     // Time constant
-    SetTimeConstant(config("TimeConstant", 1.0f));
+    setTimeConstant(config("TimeConstant", 1.0f));
 }
 
 /**
@@ -86,7 +86,7 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
  * (n-1)/n, where n is in frames.  I've seen it written as (n-1)/(n+1)
  * too, but can't find a persuasive derivation.
  */
-void Tracter::Variance::SetTimeConstant(float iSeconds)
+void Tracter::Variance::setTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
     float n = secondsToFrames(iSeconds);
@@ -149,7 +149,7 @@ void Tracter::Variance::processAll()
     // Calculate variance over whole input range
     int frame = 0;
     CacheArea inputArea;
-    while(mInput->Read(inputArea, frame))
+    while(mInput->read(inputArea, frame))
     {
         assert(inputArea.length() == 1);
         float* p = mInput->getPointer(inputArea.offset);
@@ -182,7 +182,7 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
         mVariance.assign(mFrame.size, 0.0f);
         for (int i=iIndex; i<iIndex+mBurnIn; i++)
         {
-            if (mInput->Read(inputArea, i) == 0)
+            if (mInput->read(inputArea, i) == 0)
                 return false;
             assert(inputArea.length() == 1);
             float* p = mInput->getPointer(inputArea.offset);
@@ -198,7 +198,7 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
 
     if (iIndex >= mAdaptStart)
     {
-        if (mInput->Read(inputArea, iIndex) == 0)
+        if (mInput->read(inputArea, iIndex) == 0)
             return false;
         assert(inputArea.length() == 1);
         float* p = mInput->getPointer(inputArea.offset);
@@ -211,7 +211,7 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
     return true;
 }
 
-void Tracter::Variance::Load(
+void Tracter::Variance::load(
     std::vector<float>& iVariance, const char* iToken, const char* iFileName
 )
 {

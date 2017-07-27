@@ -10,7 +10,7 @@
 
 namespace Tracter
 {
-    void TrapFPE();
+    void trapFPE();
 }
 
 #endif /* FPE_H */

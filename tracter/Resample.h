@@ -35,7 +35,7 @@ namespace Tracter
         void minSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
 
     protected:
-        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
         Component<float>* mInput;

@@ -69,7 +69,7 @@ namespace Tracter
          * A simple fetch call.  Implemented as two calls to
          * Receive().
          */
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
             int getSize = Source< CachedComponent<T> >::mFrame.size;
             getSize = ((getSize == 0) ? 1 : getSize) * sizeof(T);

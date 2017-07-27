@@ -61,9 +61,9 @@ bool Tracter::LowEnergyEnvelope::unaryFetch(IndexType iIndex, float* oData)
     // Read the window first, but check that iIndex is available too
     CacheArea inputArea;
     CacheArea tmp;
-    if (!mInput->Read(inputArea, minIndex, maxIndex-minIndex+1))
+    if (!mInput->read(inputArea, minIndex, maxIndex-minIndex+1))
         return false;
-    if (!mInput->Read(tmp, iIndex))
+    if (!mInput->read(tmp, iIndex))
         return false;
 
     // Read the input window into local vectors

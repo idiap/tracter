@@ -48,8 +48,8 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
         throw Exception("Too many unqualified arguments");
 
     /* Use the factory for the source and front-end; add an HTK sink */
-    Component<float>* s = iFactory->CreateSource(mSource);
-    Component<float>* f = iFactory->CreateFrontend(s);
+    Component<float>* s = iFactory->createSource(mSource);
+    Component<float>* f = iFactory->createFrontend(s);
     mSink = new HTKSink(f);
 }
 

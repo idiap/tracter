@@ -103,7 +103,7 @@ bool Tracter::ViterbiVADGate::unaryFetch(IndexType iIndex, float* oData)
 
     // Copy input to output
     CacheArea inputArea;
-    if (mInput->Read(inputArea, iIndex) == 0)
+    if (mInput->read(inputArea, iIndex) == 0)
         return false;
 
     
@@ -185,7 +185,7 @@ bool Tracter::ViterbiVADGate::readVADState(IndexType iIndex)
     CacheArea vadArea;
     //printf("Reading VAD area at iIndex %i\n",iIndex);
     //printf("-----------> requested VAD input from %i\n",iIndex);
-    if (mVADInput->Read(vadArea, iIndex) == 0)
+    if (mVADInput->read(vadArea, iIndex) == 0)
     {
         verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
         mUpstreamEndOfData = true;

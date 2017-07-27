@@ -69,7 +69,7 @@ bool Tracter::MelFilter::unaryFetch(IndexType iIndex, float* oData)
     assert(oData);
 
     CacheArea inputArea;
-    int one = mInput->Read(inputArea, iIndex);
+    int one = mInput->read(inputArea, iIndex);
     if (!one)
         return false;
 

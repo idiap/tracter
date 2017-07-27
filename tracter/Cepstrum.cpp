@@ -33,7 +33,7 @@ Tracter::Cepstrum::Cepstrum(
 
     mLogData = 0;
     mCepstra = 0;
-    mFourier.Init(mNLogData, &mLogData, &mCepstra);
+    mFourier.init(mNLogData, &mLogData, &mCepstra);
 }
 
 Tracter::Cepstrum::~Cepstrum() throw()
@@ -62,7 +62,7 @@ bool Tracter::Cepstrum::unaryFetch(IndexType iIndex, float* oData)
         }
 
     // Do the DCT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Copy to output in HTK order (C0 last, if at all)
     for (int i=0; i<mNCepstra; i++)

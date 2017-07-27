@@ -19,7 +19,7 @@ Tracter::Normalise::Normalise(
     connect(mInput);
 
     Endian endian = (Endian)config(cEndian, ENDIAN_NATIVE);
-    mByteOrder.SetSource(endian);
+    mByteOrder.setSource(endian);
 }
 
 void Tracter::Normalise::minSize(
@@ -36,12 +36,12 @@ void Tracter::Normalise::minSize(
 }
 
 Tracter::SizeType
-Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::Normalise::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     assert(mFrame.size);
     CacheArea inputArea;
-    SizeType lenGot = mInput->Read(inputArea, iIndex, iOutputArea.length());
+    SizeType lenGot = mInput->read(inputArea, iIndex, iOutputArea.length());
     short* input = mInput->getPointer(inputArea.offset);
     float* output = getPointer(iOutputArea.offset);
 
@@ -60,12 +60,12 @@ Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             wOffset = 0;
         }
 
-        if (mByteOrder.WrongEndian())
+        if (mByteOrder.wrongEndian())
             for (int j=0; j<mFrame.size; j++)
             {
                 // Inefficient!
                 short s = input[rOffset++];
-                mByteOrder.Swap(&s, 2, 1);
+                mByteOrder.swap(&s, 2, 1);
                 output[wOffset++] = (float)s / 32768.0f;
             }
         else

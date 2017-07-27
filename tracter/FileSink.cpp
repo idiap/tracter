@@ -23,7 +23,7 @@ Tracter::FileSink::FileSink(
 
     mFile = 0;
 
-    if (mByteOrder.WrongEndian())
+    if (mByteOrder.wrongEndian())
         mTemp.resize(mFrame.size);
     mMaxSize = config("MaxSize", 0);
 }
@@ -43,15 +43,15 @@ void Tracter::FileSink::open(const char* iFile)
     /* Processing loop */
     int index = 0;
     CacheArea cache;
-    while (mInput->Read(cache, index++))
+    while (mInput->read(cache, index++))
     {
         float* f = mInput->getPointer(cache.offset);
-        if (mByteOrder.WrongEndian())
+        if (mByteOrder.wrongEndian())
         {
             for (int i=0; i<mFrame.size; i++)
                 mTemp[i] = f[i];
             f = &mTemp[0];
-            mByteOrder.Swap(f, sizeof(float), mFrame.size);
+            mByteOrder.swap(f, sizeof(float), mFrame.size);
         }
         if (fwrite(f, sizeof(float), mFrame.size, mFile) != (size_t)mFrame.size)
             throw Exception("FileSink: Failed to write to file %s", iFile);

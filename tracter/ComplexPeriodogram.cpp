@@ -26,7 +26,7 @@ Tracter::ComplexPeriodogram::ComplexPeriodogram(
 
     mInputData = 0;
     mOutputData = 0;
-    mFourier.Init(mFrame.size, &mInputData, &mOutputData);
+    mFourier.init(mFrame.size, &mInputData, &mOutputData);
 
     // Hardwire a Hamming window.  Could be generalised much better.
     // This one is symmetric.  Should it be asymmetric?
@@ -43,7 +43,7 @@ bool Tracter::ComplexPeriodogram::unaryFetch(IndexType iIndex, float* oData)
 
     // Read the input frame
     int readIndex = (int)(mFrame.period * iIndex);
-    int got = mInput->Read(inputArea, readIndex, mFrame.size);
+    int got = mInput->read(inputArea, readIndex, mFrame.size);
     if (got < mFrame.size)
         return false;
 
@@ -56,7 +56,7 @@ bool Tracter::ComplexPeriodogram::unaryFetch(IndexType iIndex, float* oData)
         pp[i+inputArea.len[0]] = p[i] * mWindow[i+inputArea.len[0]];
 
     // Do the DFT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Compute periodogram
     for (int i=0; i<mFrame.size; i++)

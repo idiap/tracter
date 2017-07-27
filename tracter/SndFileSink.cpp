@@ -55,7 +55,7 @@ void Tracter::SndFileSink::open(const char* iFile)
     /* Pull all data */
     int index = 0;
     CacheArea cache;
-    while (int nGot = mInput->Read(cache, index, mBlockSize))
+    while (int nGot = mInput->read(cache, index, mBlockSize))
     {
         float* ip = mInput->getPointer();
         int nPut = 0;

@@ -22,7 +22,7 @@ Tracter::FourierTransformR2C::FourierTransformR2C(
 
     mRealData = 0;
     mComplexData = 0;
-    mFourier.Init(frameSize, &mRealData, &mComplexData);
+    mFourier.init(frameSize, &mRealData, &mComplexData);
 
     if (config("Window", 1))
         mWindow = new Window(objectName(), frameSize);
@@ -49,14 +49,14 @@ bool Tracter::FourierTransformR2C::unaryFetch(IndexType iIndex, complex* oData)
 
     if (mWindow)
         // Copy the frame via the window
-        mWindow->Apply(p, mRealData);
+        mWindow->apply(p, mRealData);
     else
         // Raw copy
         for (int i=0; i<mInput->frame().size; i++)
             mRealData[i] = p[i];
 
     // Do the DFT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Copy to output
     for (int i=0; i<mFrame.size; i++)
@@ -80,12 +80,12 @@ Tracter::FourierTransformC2R::FourierTransformC2R(
 
     mRealData = 0;
     mComplexData = 0;
-    mFourier.Init(mFrame.size, &mComplexData, &mRealData);
+    mFourier.init(mFrame.size, &mComplexData, &mRealData);
 
     if (config("Window", 1))
     {
         mWindow = new Window(objectName(), mFrame.size);
-        mWindow->Scale(1.0f/mFrame.size);
+        mWindow->scale(1.0f/mFrame.size);
     }
     else
         mWindow = 0;
@@ -114,11 +114,11 @@ bool Tracter::FourierTransformC2R::unaryFetch(IndexType iIndex, float* oData)
         mComplexData[i] = p[i];
 
     // Do the DFT
-    mFourier.Transform();
+    mFourier.transform();
 
     if (mWindow)
         // Copy the frame via the window
-        mWindow->Apply(mRealData, oData);
+        mWindow->apply(mRealData, oData);
     else
         // Raw copy
         for (int i=0; i<mFrame.size; i++)

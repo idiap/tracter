@@ -31,7 +31,7 @@ void Tracter::ComplexSample::minSize(
 }
 
 Tracter::SizeType
-Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::ComplexSample::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -39,7 +39,7 @@ Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     // Read the input data
     IndexType readIndex = iIndex * 4;
     SizeType readLen = iOutputArea.length() * 4 - 2;
-    SizeType lenGot = mInput->Read(inputArea, readIndex, readLen);
+    SizeType lenGot = mInput->read(inputArea, readIndex, readLen);
 
     CacheIterator<float> input(mInput, inputArea);
     CacheIterator<complex> output(this, iOutputArea);

@@ -23,7 +23,7 @@
         {                                                       \
             objectName(iObjectName);                            \
         }                                                       \
-        Component<float>* Create(Component<float>* iComponent); \
+        Component<float>* create(Component<float>* iComponent); \
     };
 
 #define DECLARE_SOURCE_FACTORY(name)                            \
@@ -34,7 +34,7 @@
         {                                                       \
             objectName(iObjectName);                            \
         }                                                       \
-        Component<float>* Create(ISource*& iSource);            \
+        Component<float>* create(ISource*& iSource);            \
     };
 
 namespace Tracter
@@ -47,7 +47,7 @@ namespace Tracter
     {
     public:
         virtual ~SourceFactory() throw () {}
-        virtual Component<float>* Create(ISource*& iSource) = 0;
+        virtual Component<float>* create(ISource*& iSource) = 0;
     };
 
     /**
@@ -58,7 +58,7 @@ namespace Tracter
     {
     public:
         virtual ~GraphFactory() throw () {}
-        virtual Component<float>* Create(Component<float>* iComponent) = 0;
+        virtual Component<float>* create(Component<float>* iComponent) = 0;
 
     protected:
         Component<float>* deltas(Component<float>* iComponent);
@@ -107,17 +107,17 @@ namespace Tracter
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
         virtual ~ASRFactory() throw ();
-        Component<float>* CreateFrontend(Component<float>* iComponent);
-        Component<float>* CreateSource(ISource*& iSource);
+        Component<float>* createFrontend(Component<float>* iComponent);
+        Component<float>* createSource(ISource*& iSource);
 
         /** Register a source factory in the builder */
-        void RegisterSource(SourceFactory* iSource)
+        void registerSource(SourceFactory* iSource)
         {
             mSource[iSource->objectName()] = iSource;
         }
 
         /** Register a graph factory for front-ends in the builder */
-        void RegisterFrontend(GraphFactory* iFrontend)
+        void registerFrontend(GraphFactory* iFrontend)
         {
             mFrontend[iFrontend->objectName()] = iFrontend;
         }

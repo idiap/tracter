@@ -154,7 +154,7 @@ void Tracter::RtAudioSource::open(
 }
 
 Tracter::SizeType
-Tracter::RtAudioSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::RtAudioSource::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     verbose(3, "Fetch: requested: %d %d\n",
             iOutputArea.len[0], iOutputArea.len[1]);

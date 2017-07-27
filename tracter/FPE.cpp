@@ -15,15 +15,15 @@
 
 namespace Tracter
 {
-    void HandlerFPE(int iSignal);
-    void SigActionFPE(int iSignal, siginfo_t* iSigInfo, void* iAddr);
+    void handlerFPE(int iSignal);
+    void sigActionFPE(int iSignal, siginfo_t* iSigInfo, void* iAddr);
 }
 
 /**
  * Single argument signal handler
  * Not used anymore
  */
-void Tracter::HandlerFPE(int iSignal)
+void Tracter::handlerFPE(int iSignal)
 {
     throw Exception("Caught signal %d\n", iSignal);
 }
@@ -34,7 +34,7 @@ void Tracter::HandlerFPE(int iSignal)
  * Uses the 3 argument sigaction form to determine what kind of FPE
  * occured.  Turns it into a Tracter::Exception()
  */
-void Tracter::SigActionFPE(int iSignal, siginfo_t* iSigInfo, void* iAddr)
+void Tracter::sigActionFPE(int iSignal, siginfo_t* iSigInfo, void* iAddr)
 {
     if (iSignal != SIGFPE)
         throw Exception("FPE handler called with signal %d", iSignal);
@@ -84,7 +84,7 @@ void Tracter::SigActionFPE(int iSignal, siginfo_t* iSigInfo, void* iAddr)
 /**
  * Enable FPE trap
  */
-void Tracter::TrapFPE()
+void Tracter::trapFPE()
 {
     /*
      * From /usr/include/fpu_control.h
@@ -102,7 +102,7 @@ void Tracter::TrapFPE()
     _FPU_SETCW(cw);
 
     struct sigaction sa;
-    sa.sa_sigaction = SigActionFPE;
+    sa.sa_sigaction = sigActionFPE;
     sa.sa_flags = SA_SIGINFO;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGFPE, &sa, 0))

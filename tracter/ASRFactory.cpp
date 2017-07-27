@@ -87,42 +87,42 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     objectName(iObjectName);
 
     // List all sources
-    RegisterSource(new FileSourceFactory);
-    RegisterSource(new StreamSocketSourceFactory);
-    RegisterSource(new HTKSourceFactory);
-    RegisterSource(new LNASourceFactory);
+    registerSource(new FileSourceFactory);
+    registerSource(new StreamSocketSourceFactory);
+    registerSource(new HTKSourceFactory);
+    registerSource(new LNASourceFactory);
 #ifdef HAVE_ALSA
-    RegisterSource(new ALSASourceFactory);
+    registerSource(new ALSASourceFactory);
 #endif
 #ifdef HAVE_RTAUDIO
-    RegisterSource(new RtAudioSourceFactory);
+    registerSource(new RtAudioSourceFactory);
 #endif
 #ifdef HAVE_PULSEAUDIO
-    RegisterSource(new PulseAudioSourceFactory);
+    registerSource(new PulseAudioSourceFactory);
 #endif
 #ifdef HAVE_SNDFILE
-    RegisterSource(new SndFileSourceFactory);
+    registerSource(new SndFileSourceFactory);
 #endif
 
     // List all available front-ends
-    RegisterFrontend(new NullGraphFactory);
-    RegisterFrontend(new CMVNGraphFactory);
-    RegisterFrontend(new BasicGraphFactory);
-    RegisterFrontend(new BasicSpeechDetGraphFactory);
-    RegisterFrontend(new BasicVADGraphFactory);
-    RegisterFrontend(new PLPGraphFactory);
-    RegisterFrontend(new PLPVADGraphFactory);
+    registerFrontend(new NullGraphFactory);
+    registerFrontend(new CMVNGraphFactory);
+    registerFrontend(new BasicGraphFactory);
+    registerFrontend(new BasicSpeechDetGraphFactory);
+    registerFrontend(new BasicVADGraphFactory);
+    registerFrontend(new PLPGraphFactory);
+    registerFrontend(new PLPVADGraphFactory);
 
 #ifdef HAVE_SPTK
-    RegisterFrontend(new MCepGraphFactory);
+    registerFrontend(new MCepGraphFactory);
 #endif
 
 #ifdef HAVE_LIBSSP
-    RegisterFrontend(new CochlearGraphFactory);
-    RegisterFrontend(new CochlearSNRGraphFactory);
+    registerFrontend(new CochlearGraphFactory);
+    registerFrontend(new CochlearSNRGraphFactory);
 #endif
 
-    RegisterFrontend(new SNRGraphFactory);
+    registerFrontend(new SNRGraphFactory);
 }
 
 Tracter::ASRFactory::~ASRFactory() throw ()
@@ -144,7 +144,7 @@ Tracter::ASRFactory::~ASRFactory() throw ()
  * Instantiates a Source based on the ASRFactory_Source configuration
  * variable.
  */
-Tracter::Component<float>* Tracter::ASRFactory::CreateSource(
+Tracter::Component<float>* Tracter::ASRFactory::createSource(
     ISource*& iSource //< Returns the actual source component
 )
 {
@@ -152,7 +152,7 @@ Tracter::Component<float>* Tracter::ASRFactory::CreateSource(
 
     const char* source = config("Source", "File");
     if (mSource[source])
-        component = mSource[source]->Create(iSource);
+        component = mSource[source]->create(iSource);
     else
         throw Exception("ASRFactory: Unknown source %s\n", source);
 
@@ -170,13 +170,13 @@ Tracter::Component<float>* Tracter::ASRFactory::CreateSource(
  * configuration variable.
  */
 Tracter::Component<float>*
-Tracter::ASRFactory::CreateFrontend(Component<float>* iComponent)
+Tracter::ASRFactory::createFrontend(Component<float>* iComponent)
 {
     Component<float> *component = 0;
 
     const char* frontend = config("Frontend", "Null");
     if (mFrontend[frontend])
-        component = mFrontend[frontend]->Create(iComponent);
+        component = mFrontend[frontend]->create(iComponent);
     else
         throw Exception("ASRFactory: Unknown frontend %s\n", frontend);
 
@@ -187,7 +187,7 @@ Tracter::ASRFactory::CreateFrontend(Component<float>* iComponent)
  * Instantiates a FileSource<short> followed by a Normalise component
  */
 Tracter::Component<float>*
-Tracter::FileSourceFactory::Create(ISource*& iSource)
+Tracter::FileSourceFactory::create(ISource*& iSource)
 {
     FileSource<short>* s = new FileSource<short>();
     Normalise* n = new Normalise(s);
@@ -200,7 +200,7 @@ Tracter::FileSourceFactory::Create(ISource*& iSource)
  * Instantiates a SndFileSource component
  */
 Tracter::Component<float>*
-Tracter::SndFileSourceFactory::Create(ISource*& iSource)
+Tracter::SndFileSourceFactory::create(ISource*& iSource)
 {
     SndFileSource* s = new SndFileSource();
     iSource = s;
@@ -213,7 +213,7 @@ Tracter::SndFileSourceFactory::Create(ISource*& iSource)
  * Instantiates an ALSASource followed by a Normalise component
  */
 Tracter::Component<float>*
-Tracter::ALSASourceFactory::Create(ISource*& iSource)
+Tracter::ALSASourceFactory::create(ISource*& iSource)
 {
     ALSASource* s = new ALSASource();
     Normalise* n = new Normalise(s);
@@ -227,7 +227,7 @@ Tracter::ALSASourceFactory::Create(ISource*& iSource)
  * Instantiates an RtAudioSource followed by a Normalise component
  */
 Tracter::Component<float>*
-Tracter::RtAudioSourceFactory::Create(ISource*& iSource)
+Tracter::RtAudioSourceFactory::create(ISource*& iSource)
 {
     RtAudioSource* s = new RtAudioSource();
     iSource = s;
@@ -240,7 +240,7 @@ Tracter::RtAudioSourceFactory::Create(ISource*& iSource)
  * Instantiates an PulseAudioSource followed by a Normalise component
  */
 Tracter::Component<float>*
-Tracter::PulseAudioSourceFactory::Create(ISource*& iSource)
+Tracter::PulseAudioSourceFactory::create(ISource*& iSource)
 {
     PulseAudioSource* s = new PulseAudioSource();
     iSource = s;
@@ -252,7 +252,7 @@ Tracter::PulseAudioSourceFactory::Create(ISource*& iSource)
  * Instantiates a StreamSocketSource component
  */
 Tracter::Component<float>*
-Tracter::StreamSocketSourceFactory::Create(ISource*& iSource)
+Tracter::StreamSocketSourceFactory::create(ISource*& iSource)
 {
     StreamSocketSource* s = new StreamSocketSource();
     iSource = s;
@@ -263,7 +263,7 @@ Tracter::StreamSocketSourceFactory::Create(ISource*& iSource)
  * Instantiates an HTKSource component
  */
 Tracter::Component<float>*
-Tracter::HTKSourceFactory::Create(ISource*& iSource)
+Tracter::HTKSourceFactory::create(ISource*& iSource)
 {
     HTKSource* s = new HTKSource();
     iSource = s;
@@ -274,7 +274,7 @@ Tracter::HTKSourceFactory::Create(ISource*& iSource)
  * Instantiates an LNASource component
  */
 Tracter::Component<float>*
-Tracter::LNASourceFactory::Create(ISource*& iSource)
+Tracter::LNASourceFactory::create(ISource*& iSource)
 {
     LNASource* s = new LNASource();
     iSource = s;
@@ -292,7 +292,7 @@ Tracter::GraphFactory::deltas(Component<float>* iComponent)
     if (deltaOrder > 0)
     {
         Concatenate* c = new Concatenate();
-        c->Add(component);
+        c->add(component);
         for (int i=0; i<deltaOrder; i++)
         {
             // For the moment, there is a bug where the components don't
@@ -301,7 +301,7 @@ Tracter::GraphFactory::deltas(Component<float>* iComponent)
             //sprintf(str, "Delta%d", i+1);
             //Delta* d = new Delta(component, str); 
             Delta* d = new Delta(component);
-            c->Add(d);
+            c->add(d);
             component = d;
         }
         component = c;
@@ -348,7 +348,7 @@ Tracter::GraphFactory::normaliseVariance(Component<float>* iComponent)
  * direct connection to the source.
  */
 Tracter::Component<float>*
-Tracter::NullGraphFactory::Create(Component<float>* iComponent)
+Tracter::NullGraphFactory::create(Component<float>* iComponent)
 {
     return iComponent;
 }
@@ -358,7 +358,7 @@ Tracter::NullGraphFactory::Create(Component<float>* iComponent)
  * a feature level source.
  */
 Tracter::Component<float>*
-Tracter::CMVNGraphFactory::Create(Component<float>* iComponent)
+Tracter::CMVNGraphFactory::create(Component<float>* iComponent)
 {
     Component<float>* p = iComponent;
     p = normaliseMean(p);
@@ -375,7 +375,7 @@ Tracter::CMVNGraphFactory::Create(Component<float>* iComponent)
  * Instantiates a basic MFCC frontend.
  */
 Tracter::Component<float>*
-Tracter::BasicGraphFactory::Create(Component<float>* iComponent)
+Tracter::BasicGraphFactory::create(Component<float>* iComponent)
 {
     Component<float>* p = iComponent;
     p = new ZeroFilter(p);
@@ -393,7 +393,7 @@ Tracter::BasicGraphFactory::Create(Component<float>* iComponent)
  * Instantiates a basic MFCC frontend with speech/sil detection.
  */
 Tracter::Component<float>*
-Tracter::BasicSpeechDetGraphFactory::Create(Component<float>* iComponent)
+Tracter::BasicSpeechDetGraphFactory::create(Component<float>* iComponent)
 {
     // Features pipeline
     Component<float>* p = iComponent;
@@ -418,8 +418,8 @@ Tracter::BasicSpeechDetGraphFactory::Create(Component<float>* iComponent)
     
     // Concatenation
     Concatenate* c = new Concatenate();
-    c->Add(p);
-    c->Add(f);
+    c->add(p);
+    c->add(f);
 
     return c;
 }
@@ -429,7 +429,7 @@ Tracter::BasicSpeechDetGraphFactory::Create(Component<float>* iComponent)
  * VADGate components.
  */
 Tracter::Component<float>*
-Tracter::BasicVADGraphFactory::Create(Component<float>* iComponent)
+Tracter::BasicVADGraphFactory::create(Component<float>* iComponent)
 {
     /* Basic signal processing chain */
     Component<float>* p = iComponent;
@@ -469,7 +469,7 @@ Tracter::BasicVADGraphFactory::Create(Component<float>* iComponent)
  * Instantiates a PLP frontend.
  */
 Tracter::Component<float>*
-Tracter::PLPGraphFactory::Create(Component<float>* iComponent)
+Tracter::PLPGraphFactory::create(Component<float>* iComponent)
 {
     Component<float>* p = iComponent;
     p = new ZeroFilter(p);
@@ -488,7 +488,7 @@ Tracter::PLPGraphFactory::Create(Component<float>* iComponent)
  * VADGate components.
  */
 Tracter::Component<float>*
-Tracter::PLPVADGraphFactory::Create(Component<float>* iComponent)
+Tracter::PLPVADGraphFactory::create(Component<float>* iComponent)
 {
     Component<float>* p = iComponent;
     p = new ZeroFilter(p);
@@ -528,7 +528,7 @@ Tracter::PLPVADGraphFactory::Create(Component<float>* iComponent)
  * Instantiates a SPTK based mcep frontend.
  */
 Tracter::Component<float>*
-Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
+Tracter::MCepGraphFactory::create(Component<float>* iComponent)
 {
     Component<float>* p = iComponent;
     p = new Frame(p);
@@ -545,7 +545,7 @@ Tracter::MCepGraphFactory::Create(Component<float>* iComponent)
  * Instantiates a "basic MFCC" frontend with SNR spectral features.
  */
 Tracter::Component<float>*
-Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
+Tracter::SNRGraphFactory::create(Component<float>* iComponent)
 {
     bool mel = config("Mel", 0);
     Component<float>* p = iComponent;
@@ -574,7 +574,7 @@ Tracter::SNRGraphFactory::Create(Component<float>* iComponent)
  * Instantiates a libssp based cochlear frontend.
  */
 Tracter::Component<float>*
-Tracter::CochlearGraphFactory::Create(Component<float>* iComponent)
+Tracter::CochlearGraphFactory::create(Component<float>* iComponent)
 {
     Component<float>* p = iComponent;
     p = new ZeroFilter(p);
@@ -591,7 +591,7 @@ Tracter::CochlearGraphFactory::Create(Component<float>* iComponent)
  * Instantiates a cochlear frontend with SNR spectral features.
  */
 Tracter::Component<float>*
-Tracter::CochlearSNRGraphFactory::Create(Component<float>* iComponent)
+Tracter::CochlearSNRGraphFactory::create(Component<float>* iComponent)
 {
     Component<float>* p = iComponent;
     p = new ZeroFilter(p);

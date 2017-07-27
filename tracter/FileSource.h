@@ -88,7 +88,7 @@ namespace Tracter
             return;
         }
 
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
             // If this gets called by the base, it probably means
             // we're out of data

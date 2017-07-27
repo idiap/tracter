@@ -57,7 +57,7 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     // Initialise a prior variance from file or to zero
     const char* priFile = config("PriorFile", (const char*)0);
     if (priFile)
-        Load(mPrior, "<MEAN>", priFile);
+        load(mPrior, "<MEAN>", priFile);
     else
         mPrior.assign(mFrame.size, 0.0f);
 
@@ -65,10 +65,10 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     mMean.assign(mPrior.begin(), mPrior.end());
 
     // Time constant
-    SetTimeConstant(config("TimeConstant", 0.5f));
+    setTimeConstant(config("TimeConstant", 0.5f));
 }
 
-void Tracter::Mean::SetTimeConstant(float iSeconds)
+void Tracter::Mean::setTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
     float n = secondsToFrames(iSeconds);
@@ -135,7 +135,7 @@ void Tracter::Mean::processAll()
     // Calculate mean over whole input range
     int frame = 0;
     CacheArea inputArea;
-    while(mInput->Read(inputArea, frame))
+    while(mInput->read(inputArea, frame))
     {
         assert(inputArea.length() == 1);
         float* p = mInput->getPointer(inputArea.offset);
@@ -160,7 +160,7 @@ bool Tracter::Mean::adaptFrame(IndexType iIndex)
     assert(iIndex >= 0);
 
     CacheArea inputArea;
-    if (mInput->Read(inputArea, iIndex) == 0)
+    if (mInput->read(inputArea, iIndex) == 0)
         return false;
     assert(inputArea.length() == 1);
     float* p = mInput->getPointer(inputArea.offset);
@@ -185,7 +185,7 @@ bool Tracter::Mean::adaptFrame(IndexType iIndex)
     return true;
 }
 
-void Tracter::Mean::Load(
+void Tracter::Mean::load(
     std::vector<float>& iVector, const char* iToken, const char* iFileName
 )
 {

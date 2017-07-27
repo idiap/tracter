@@ -34,7 +34,7 @@ namespace Tracter
         MMap mMap;
         float* mMapData;
         IndexType mNSamples;
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
 
         IndexType mBeginFrame;
         IndexType mEndFrame;

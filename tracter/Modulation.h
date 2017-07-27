@@ -23,8 +23,8 @@ namespace Tracter
     class SlidingDFT
     {
     public:
-        void SetRotation(int iBin, int iNBins);
-        const complex& Transform(float iNew, float iOld);
+        void setRotation(int iBin, int iNBins);
+        const complex& transform(float iNew, float iOld);
         void reset()
         {
             mState = complex(0.0f, 0.0f);

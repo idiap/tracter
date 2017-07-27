@@ -32,7 +32,7 @@ namespace Tracter
         void dotHook()
         {
             Sink::dotHook();
-            dotRecord(1, "swap=%s", mByteOrder.WrongEndian() ? "yes" : "no");
+            dotRecord(1, "swap=%s", mByteOrder.wrongEndian() ? "yes" : "no");
             dotRecord(1, "parm=0x%x", mParmKind);
         }
 

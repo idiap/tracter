@@ -46,10 +46,10 @@ public:
         reset();
     }
 
-    void Pull(IndexType iIndex, SizeType len)
+    void pull(IndexType iIndex, SizeType len)
     {
         CacheArea br;
-        SizeType got = mInput->Read(br, iIndex, len);
+        SizeType got = mInput->read(br, iIndex, len);
         if (got != len)
             printf("Asked for %ld, got %ld\n", len, got);
         printf("Suck: len %ld br %ld %ld %ld\n",
@@ -120,8 +120,8 @@ int main(int argc, char** argv)
     s.reset(true);
 
     //a.Start();
-    s.Pull(0, 4);
-    s.Pull(28, 5);
+    s.pull(0, 4);
+    s.pull(28, 5);
 
     cnf.configSection("DeltaDelta");
     cnf.configSet("Theta", "3");
@@ -131,19 +131,19 @@ int main(int argc, char** argv)
     Delta* d1 = new Delta(h);
     Delta* d2 = new Delta(d1, "DeltaDelta");
     Concatenate* f = new Concatenate();
-    f->Add(h);
-    f->Add(d1);
-    f->Add(d2);
+    f->add(h);
+    f->add(d1);
+    f->add(d2);
     //Mean* m = new Mean(h);
     SinkSucker as(f);
 
     as.reset();
     h->open(TEST_DIR "/test1.htk");
-    as.Pull(0, 10);
+    as.pull(0, 10);
 
     as.reset();
     h->open(TEST_DIR "/test2.htk");
-    as.Pull(0, 10);
+    as.pull(0, 10);
 
     printf("FrameSink...\n");
     FileSource<short>* hh = new FileSource<short>();

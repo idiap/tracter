@@ -34,10 +34,10 @@ namespace Tracter
     {
     public:
         ByteOrder();
-        void Swap(void* iData, size_t iDataSize, int iDataCount);
+        void swap(void* iData, size_t iDataSize, int iDataCount);
 
         /** Set the source byte order */
-        void SetSource(Endian iEndian)
+        void setSource(Endian iEndian)
         {
             mSource = iEndian;
             if (mSource == ENDIAN_NATIVE)
@@ -45,7 +45,7 @@ namespace Tracter
         }
 
         /** Set the target byte order */
-        void SetTarget(Endian iEndian)
+        void setTarget(Endian iEndian)
         {
             mTarget = iEndian;
             if (mTarget == ENDIAN_NATIVE)
@@ -53,7 +53,7 @@ namespace Tracter
         }
 
         /** returns true if the source and target byte order are different */
-        bool WrongEndian()
+        bool wrongEndian()
         {
             assert(mSource != ENDIAN_NATIVE);
             assert(mTarget != ENDIAN_NATIVE);

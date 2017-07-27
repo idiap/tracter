@@ -34,7 +34,7 @@ namespace Tracter
         );
 
     protected:
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
         static int staticCallback(

@@ -50,7 +50,7 @@ public:
         int vad = config(cVAD, -1);
 
         // Source
-        p = fac.CreateSource(mSource);
+        p = fac.createSource(mSource);
 
         switch (vad)
         {

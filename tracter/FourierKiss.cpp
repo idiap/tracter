@@ -70,7 +70,7 @@ Tl* Allocate(int iSize, Tc** ioCData, void** ioLData, bool* iMyData)
 
 
 /* C to C */
-void Tracter::Fourier::Init(
+void Tracter::Fourier::init(
     int iOrder, complex** ioIData, complex** ioOData, bool iInverse
 )
 {
@@ -100,7 +100,7 @@ void Tracter::Fourier::Init(
 /**
  * Real to Complex transform
  */
-void Tracter::Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
+void Tracter::Fourier::init(int iOrder, float** ioIData, complex** ioOData)
 {
     assert(ioIData);
     assert(ioOData);
@@ -124,7 +124,7 @@ void Tracter::Fourier::Init(int iOrder, float** ioIData, complex** ioOData)
 /**
  * Complex to Real transform
  */
-void Tracter::Fourier::Init(int iOrder, complex** ioIData, float** ioOData)
+void Tracter::Fourier::init(int iOrder, complex** ioIData, float** ioOData)
 {
     assert(ioIData);
     assert(ioOData);
@@ -149,7 +149,7 @@ void Tracter::Fourier::Init(int iOrder, complex** ioIData, float** ioOData)
  * Real to Real transform, a.k.a. cosine transform
  * Wired to do DFT2 right now.
  */
-void Tracter::Fourier::Init(int iOrder, float** ioIData, float** ioOData)
+void Tracter::Fourier::init(int iOrder, float** ioIData, float** ioOData)
 {
     assert(ioIData);
     assert(ioOData);
@@ -198,7 +198,7 @@ Tracter::Fourier::~Fourier()
  * Run the actual transform based on the parameters set up in the
  * constructor.
  */
-void Tracter::Fourier::Transform()
+void Tracter::Fourier::transform()
 {
     assert(mFourierData);
     FourierData& m = *mFourierData;

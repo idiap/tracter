@@ -234,14 +234,6 @@ void* Tracter::ComponentBase::initialise(
             mMinReadBehind, mMaxReadBehind, mMinReadAhead, mMaxReadAhead,
             mTotalReadBehind, mTotalReadAhead);
 
-#if 0
-    mGlobalReadAhead.Update(iReadAhead);
-    mGlobalReadBehind.Update(iReadBehind);
-    verbose(2, " grb: [%d,%d]  gra [%d,%d]\n",
-            mGlobalReadBehind.min, mGlobalReadBehind.max,
-            mGlobalReadAhead.min, mGlobalReadAhead.max);
-#endif
-
     // If the accumulation is complete, then recurse the call
     if ((mNOutputs == 0) || (++mNInitialised == mNOutputs))
     {
@@ -387,14 +379,14 @@ void Tracter::ComponentBase::movePointer(CachePointer& iPointer, SizeType iLen)
 /**
  * Read data from an input Component.  This is the core of the cached
  * component concept.  If data already exists it just returns the cache
- * location.  Otherwise it calls the Fetch() method to actually
+ * location.  Otherwise it calls the fetch() method to actually
  * calculate new data.
  *
  * @returns the number of data actually available.  It may be less
  * than the number requested.
  */
 Tracter::SizeType
-Tracter::ComponentBase::Read(
+Tracter::ComponentBase::read(
     CacheArea& oRange, IndexType iIndex, SizeType iLength
 )
 {
@@ -529,12 +521,12 @@ Tracter::ComponentBase::Read(
 }
 
 /**
- * A Fetch() wrapper.  Read() will call this rather blindly.  Here we
+ * A fetch() wrapper.  Read() will call this rather blindly.  Here we
  * take care of the EOD flag, preventing unnecessary reads past EOD.
  * This way, components only need to return EOD once.
  *
- * A Read() will never actually pass on a request past EOD to the
- * Fetch() because, in finding out EOD is reached, data up until then
+ * A read() will never actually pass on a request past EOD to the
+ * fetch() because, in finding out EOD is reached, data up until then
  * should have been read (TODO: unless it's non-contiguous, but we can
  * deal with that with a flag later).  So, if EOD is set, all requests
  * here will be after it.
@@ -549,7 +541,7 @@ Tracter::ComponentBase::fetchWrapper(
     if ((mEndOfData >= 0) && (iIndex >= mEndOfData))
         return 0;
 
-    SizeType len = Fetch(iIndex, iOutputArea);
+    SizeType len = fetch(iIndex, iOutputArea);
     if (len < iOutputArea.length())
     {
         mEndOfData = iIndex + len;
@@ -560,14 +552,14 @@ Tracter::ComponentBase::fetchWrapper(
 }
 
 /**
- * Fetch() is called when a downstream component requests data via
- * Read(), and the requested data is not cached.
+ * fetch() is called when a downstream component requests data via
+ * read(), and the requested data is not cached.
  *
  * If not overridden by a derived class, ComponentBase supplies a
- * Fetch() that that breaks down a single call for contiguous data in
+ * fetch() that that breaks down a single call for contiguous data in
  * data space into two distinct calls to contiguousFetch() (contiguous
  * in memory).  Each component has the choice about whether to override
- * Fetch() or implement contiguousFetch() or unaryFetch().  It is
+ * fetch() or implement contiguousFetch() or unaryFetch().  It is
  * generally easier to implement one of the latter two, but it may be
  * quite inefficient for high frequency samples.
  *
@@ -575,7 +567,7 @@ Tracter::ComponentBase::fetchWrapper(
  * than the number requested, implying end of data (EOD).
  */
 Tracter::SizeType
-Tracter::ComponentBase::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::ComponentBase::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
 

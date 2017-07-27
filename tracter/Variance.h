@@ -32,7 +32,7 @@ namespace Tracter
         Variance(Component<float>* iInput, const char* iObjectName = "Variance");
         virtual ~Variance() throw() {}
         virtual void reset(bool iPropagate);
-        void SetTimeConstant(float iSeconds);
+        void setTimeConstant(float iSeconds);
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);
@@ -61,7 +61,7 @@ namespace Tracter
         void processAll();
         bool adaptFrame(IndexType iIndex);
 
-        void Load(
+        void load(
             std::vector<float>& iVariance,
             const char* iToken,
             const char* iFileName

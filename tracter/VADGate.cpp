@@ -16,8 +16,8 @@ Tracter::VADGate::VADGate(
     objectName(iObjectName);
     mFrame.size = iInput->frame().size;
 
-    int max = std::max(iVADInput->ConfirmSpeechTime(),
-                       iVADInput->ConfirmSilenceTime());
+    int max = std::max(iVADInput->confirmSpeechTime(),
+                       iVADInput->confirmSilenceTime());
     connect(iInput);
     connect(iVADInput, max);
 
@@ -97,7 +97,7 @@ bool Tracter::VADGate::unaryFetch(IndexType iIndex, float* oData)
 
     // Copy input to output
     CacheArea inputArea;
-    if (mInput->Read(inputArea, iIndex) == 0)
+    if (mInput->read(inputArea, iIndex) == 0)
         return false;
 
     float* input = mInput->getPointer(inputArea.offset);
@@ -169,7 +169,7 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
 {
     assert(iIndex >= 0);
     CacheArea vadArea;
-    if (mVADInput->Read(vadArea, iIndex) == 0)
+    if (mVADInput->read(vadArea, iIndex) == 0)
     {
         verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
         mUpstreamEndOfData = true;

@@ -38,7 +38,7 @@ bool Tracter::Tokenise::unaryFetch(IndexType iIndex, Token* oData)
 
     // Read the input
     CacheArea inputArea;
-    while (mInput->Read(inputArea, mIndex, BLOCK_SIZE))
+    while (mInput->read(inputArea, mIndex, BLOCK_SIZE))
     {
         CacheIterator<char> mIterator(mInput, inputArea);
         for (SizeType i=0; i<inputArea.length(); ++i, ++mIterator, ++mIndex)

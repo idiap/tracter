@@ -22,7 +22,7 @@ int main()
     for (int i=0; i<n; i++)
         fidata[i] = (float)i+1;
 
-    fft.Transform();
+    fft.transform();
 
     for (int i=0; i<n/2+1; i++)
     {
@@ -37,7 +37,7 @@ int main()
     for (int i=0; i<n; i++)
         cidata[i] = (float)i+1;
 
-    dct.Transform();
+    dct.transform();
 
     for (int i=0; i<n; i++)
     {

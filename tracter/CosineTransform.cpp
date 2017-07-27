@@ -22,7 +22,7 @@ Tracter::CosineTransform::CosineTransform(
 
     mIData = 0;
     mOData = 0;
-    mDCT.Init(mFrame.size, &mIData, &mOData);
+    mDCT.init(mFrame.size, &mIData, &mOData);
 
     if (config("Window", 0))
         mWindow = new Window(objectName(), mFrame.size);
@@ -41,14 +41,14 @@ bool Tracter::CosineTransform::unaryFetch(IndexType iIndex, float* oData)
 
     if (mWindow)
         // Copy the frame via the window
-        mWindow->Apply(ip, mIData);
+        mWindow->apply(ip, mIData);
     else
         // Raw copy
         for (int i=0; i<mFrame.size; i++)
             mIData[i] = ip[i];
 
     // DCT
-    mDCT.Transform();
+    mDCT.transform();
 
     // Copy to output
     if (mCZeroIndex)

@@ -53,7 +53,7 @@ bool Tracter::Delta::unaryFetch(IndexType iIndex, float* oData)
         wanted = mWindow;
         readIndex = iIndex - mTheta;
     }
-    int lenGot = mInput->Read(inputArea, readIndex, wanted);
+    int lenGot = mInput->read(inputArea, readIndex, wanted);
     if (lenGot == 0)
         return false;
 

@@ -36,7 +36,7 @@ Tracter::LPCepstrum::LPCepstrum(
     mAlpha1.resize(mOrder);
     mCompressed = 0;
     mAutoCorrelation = 0;
-    mFourier.Init(mNCompressed, &mCompressed, &mAutoCorrelation);
+    mFourier.init(mNCompressed, &mCompressed, &mAutoCorrelation);
 }
 
 bool Tracter::LPCepstrum::unaryFetch(IndexType iIndex, float* oData)
@@ -45,7 +45,7 @@ bool Tracter::LPCepstrum::unaryFetch(IndexType iIndex, float* oData)
     CacheArea inputArea;
 
     // Read the input frame
-    if (mInput->Read(inputArea, iIndex) < 1)
+    if (mInput->read(inputArea, iIndex) < 1)
         return false;
 
     // Copy the frame though a compression function
@@ -54,7 +54,7 @@ bool Tracter::LPCepstrum::unaryFetch(IndexType iIndex, float* oData)
         mCompressed[i] = powf(p[i], mCompressionPower);
 
     // Do the DCT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Levinson / Durbin recursion
     // Indexes are C style from 0, but the books use 1

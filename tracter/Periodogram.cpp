@@ -23,7 +23,7 @@ Tracter::Periodogram::Periodogram(
 
     mRealData = 0;
     mComplexData = 0;
-    mFourier.Init(frameSize, &mRealData, &mComplexData);
+    mFourier.init(frameSize, &mRealData, &mComplexData);
 
     if (config("Window", 1))
         mWindow = new Window(objectName(), frameSize);
@@ -48,14 +48,14 @@ bool Tracter::Periodogram::unaryFetch(IndexType iIndex, float* oData)
 
     if (mWindow)
         // Copy the frame via the window
-        mWindow->Apply(p, mRealData);
+        mWindow->apply(p, mRealData);
     else
         // Raw copy
         for (int i=0; i<mInput->frame().size; i++)
             mRealData[i] = p[i];
 
     // Do the DFT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Compute periodogram
     for (int i=0; i<mFrame.size; i++)

@@ -86,7 +86,7 @@ bool Tracter::ViterbiVAD::getVADState(IndexType iIndex)
       // first get the lookahead working
       for (int i = 0; i < mLookAhead-1; i++){
 	//printf("Read input %i\n",i); fflush(stdout);
-	if (mInput->Read(inputArea, i) == 0){
+	if (mInput->read(inputArea, i) == 0){
 	  verbose(2, "getVADState: End Of Data at %ld\n", i);
 	  return false;
 	}
@@ -104,7 +104,7 @@ bool Tracter::ViterbiVAD::getVADState(IndexType iIndex)
     //printf("Read input %i\n",iIndex+mLookAhead-1); fflush(stdout);
     if (mEndOfData >= 0){
       // do nothing
-    }else if (mInput->Read(inputArea, iIndex+mLookAhead-1) == 0){
+    }else if (mInput->read(inputArea, iIndex+mLookAhead-1) == 0){
       verbose(2, "getVADState: End Of Data at %ld\n", iIndex+mLookAhead-1);
       mEndOfData = iIndex+mLookAhead-1;
     }else{

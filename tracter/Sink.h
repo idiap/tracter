@@ -46,8 +46,8 @@ namespace Tracter
         }
         virtual ~Sink() throw () { destruct(); }
 
-        /** Fetch() should not be called on a sink */
-        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)
+        /** fetch() should not be called on a sink */
+        SizeType fetch(IndexType iIndex, CacheArea& iOutputArea)
         {
             assert(iIndex >= 0);
             assert(0);

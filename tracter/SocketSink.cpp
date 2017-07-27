@@ -131,7 +131,7 @@ void Tracter::SocketSink::Pull()
     int index = 0;
     int total = 0;
     int arraySize = mFrame.size == 0 ? 1 : mFrame.size;
-    while(mInput->Read(ca, index++))
+    while(mInput->read(ca, index++))
     {
         float* data = mInput->getPointer(ca.offset);
         ssize_t nSend = arraySize*sizeof(float);

@@ -69,7 +69,7 @@ bool Tracter::Noise::unaryFetch(IndexType iIndex, float* oData)
         CacheArea ca;
         for (int j=0; j<mNInit; j++)
         {
-            if (!mInput->Read(ca, j))
+            if (!mInput->read(ca, j))
                 return false;
 
             float* input = mInput->getPointer(ca.offset);
@@ -80,14 +80,14 @@ bool Tracter::Noise::unaryFetch(IndexType iIndex, float* oData)
         {
             // Read to the end
             int frameCount = mNInit;
-            while (mInput->Read(ca, frameCount++)) {
+            while (mInput->read(ca, frameCount++)) {
                 // No operation
             }
 
             // Accumulate over the final samples
             for (int j=frameCount-mNInit; j<frameCount-1; j++)
             {
-                if (!mInput->Read(ca, j))
+                if (!mInput->read(ca, j))
                 {
                     verbose(1, "out of data\n");
                     return false;

@@ -69,7 +69,7 @@ namespace Tracter
         {0, 0}
     };
 
-    /** Range that a Read() can access */
+    /** Range that a read() can access */
     class ReadRange
     {
     public:
@@ -124,7 +124,7 @@ namespace Tracter
         ComponentBase(void);
         virtual ~ComponentBase(void) throw () {};
 
-        SizeType Read(CacheArea& oArea, IndexType iIndex, SizeType iLength = 1);
+        SizeType read(CacheArea& oArea, IndexType iIndex, SizeType iLength = 1);
         virtual void reset(bool iPropagate = true);
         void destruct();
 
@@ -231,7 +231,7 @@ namespace Tracter
             SizeType iMinSize, SizeType iReadBehind, SizeType iReadAhead
         );
         virtual void resize(SizeType iSize) = 0;
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
         virtual SizeType contiguousFetch(
             IndexType iIndex, SizeType iLength, SizeType iOffset
         );
@@ -315,9 +315,9 @@ namespace Tracter
         {
             assert(iIndex >= 0);
 
-            // Convert to a full Read(), return null pointer on failure
+            // Convert to a full read(), return null pointer on failure
             CacheArea inputArea;
-            SizeType got = Read(inputArea, iIndex);
+            SizeType got = read(inputArea, iIndex);
             if (!got)
                 return 0;
 
@@ -328,7 +328,7 @@ namespace Tracter
         /**
          * Contiguous read
          *
-         * Many components can work well by breaking down a Read()
+         * Many components can work well by breaking down a read()
          * into a pair of contiguous reads.  In this case, we can
          * return a pointer straight away as with the unaryRead().  It
          * must be called twice.
@@ -337,9 +337,9 @@ namespace Tracter
         {
             assert(iIndex >= 0);
 
-            // Convert to a full Read(), return null pointer on failure
+            // Convert to a full read(), return null pointer on failure
             CacheArea inputArea;
-            SizeType got = Read(inputArea, iIndex, ioLength);
+            SizeType got = read(inputArea, iIndex, ioLength);
             if (!got)
                 return 0;
 
@@ -352,7 +352,7 @@ namespace Tracter
 
         /**
          * contiguousFetch() is called by ComponentBase's
-         * implementation of Fetch().  In turn, contiguousFetch()
+         * implementation of fetch().  In turn, contiguousFetch()
          * calls unaryFetch().  A component should implement one of
          * these, depending on how it wishes to operate.  The latter
          * two are easier in that they are typed and supply pointers
@@ -381,10 +381,10 @@ namespace Tracter
         }
 
         /**
-         * unaryFetch()   If a component does not implement Fetch() then it
+         * unaryFetch()   If a component does not implement fetch() then it
          * must implement unaryFetch().  A unaryFetch() is only
          * required to return a single datum, but it may need to
-         * Read() several input data to do so.
+         * read() several input data to do so.
          *
          * @returns true if the fetch was successful, false otherwise,
          * implying end of data (EOD).

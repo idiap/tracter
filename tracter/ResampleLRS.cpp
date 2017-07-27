@@ -92,7 +92,7 @@ void Tracter::Resample::reset(bool iPropagate)
 }
 
 Tracter::SizeType
-Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::Resample::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iOutputArea.length() > 0);
     assert(iIndex >= 0);
@@ -101,7 +101,7 @@ Tracter::Resample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     ResampleData& r = *mResampleData;
     IndexType index = (IndexType)((double)iIndex / r.ratio);
     SizeType nGet = (SizeType)((double)iOutputArea.length() / r.ratio);
-    SizeType nGot = mInput->Read(inputArea, index, nGet);
+    SizeType nGot = mInput->read(inputArea, index, nGet);
     SizeType nOut = (SizeType)((double)nGot * r.ratio + 0.5);
     verbose(3, "i=%ld Get=%d Got=%d Out=%d len0=%d len1=%d\n",
             index, nGet, nGot, nOut, inputArea.len[0], inputArea.len[1]);

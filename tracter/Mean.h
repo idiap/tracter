@@ -32,7 +32,7 @@ namespace Tracter
         Mean(Component<float>* iInput, const char* iObjectName = "Mean");
         virtual ~Mean() throw() {}
         virtual void reset(bool iPropagate);
-        void SetTimeConstant(float iSeconds);
+        void setTimeConstant(float iSeconds);
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);
@@ -58,7 +58,7 @@ namespace Tracter
         void processAll();
         bool adaptFrame(IndexType iIndex);
 
-        void Load(
+        void load(
             std::vector<float>& iVector,
             const char* iToken,
             const char* iFileName

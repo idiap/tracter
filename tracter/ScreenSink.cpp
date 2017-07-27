@@ -33,7 +33,7 @@ void Tracter::ScreenSink::open(const char* iFile)
     /* Processing loop */
     int index = 0;
     CacheArea cache;
-    while (mInput->Read(cache, index))
+    while (mInput->read(cache, index))
     {
         float* f = mInput->getPointer(cache.offset);
         printf("%d: ", index++ );

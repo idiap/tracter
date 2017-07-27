@@ -59,7 +59,7 @@ Tracter::ByteOrder::ByteOrder()
  * Swaps byte order unconditionally for an array of even sized
  * elements.
  */
-void Tracter::ByteOrder::Swap(
+void Tracter::ByteOrder::swap(
     void* iData,      ///< Pointer to data to swap
     size_t iDataSize, ///< Size of each datum
     int iDataCount    ///< Number of data

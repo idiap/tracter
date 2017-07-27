@@ -285,7 +285,7 @@ bool Tracter::Minima::uFetch(IndexType iIndex, float* oData)
     CacheArea ca;
     IndexType getIndex = std::max((IndexType)0, iIndex + mNAhead - mNWindow);
     int nGet = (int)std::min((IndexType)mNWindow + 1, iIndex + mNAhead + 1);
-    int nGot = mInput->Read(ca, getIndex, nGet);
+    int nGot = mInput->read(ca, getIndex, nGet);
     verbose(4, "Got %d of %d from %ld\n", nGot, nGet, getIndex);
 
     // This means iIndex is off the end - we're done

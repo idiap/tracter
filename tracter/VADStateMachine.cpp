@@ -26,12 +26,12 @@ void Tracter::VADStateMachine::reset(bool iPropagate)
     CachedComponent<VADState>::reset(iPropagate);
 }
 
-void Tracter::VADStateMachine::ConfirmSilence()
+void Tracter::VADStateMachine::confirmSilence()
 {
     mState = SILENCE_CONFIRMED;
 }
 
-void Tracter::VADStateMachine::Update(bool iSpeech)
+void Tracter::VADStateMachine::update(bool iSpeech)
 {
     switch (mState)
     {

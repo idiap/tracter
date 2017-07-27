@@ -23,8 +23,8 @@ Tracter::HTKSink::HTKSink(
 
     mFile = 0;
     Endian endian = (Endian)config(cEndian, ENDIAN_BIG);
-    mByteOrder.SetTarget(endian);
-    if (mByteOrder.WrongEndian())
+    mByteOrder.setTarget(endian);
+    if (mByteOrder.wrongEndian())
         mTemp.resize(mFrame.size);
 
     /* Initial header values */
@@ -65,12 +65,12 @@ void Tracter::HTKSink::WriteHeader(FILE* iFile)
     short parmKind = mParmKind;
 
     /* Byte swap if necessary */
-    if (mByteOrder.WrongEndian())
+    if (mByteOrder.wrongEndian())
     {
-        mByteOrder.Swap(&nSamples, 4, 1);
-        mByteOrder.Swap(&sampPeriod, 4, 1);
-        mByteOrder.Swap(&sampSize, 2, 1);
-        mByteOrder.Swap(&parmKind, 2, 1);
+        mByteOrder.swap(&nSamples, 4, 1);
+        mByteOrder.swap(&sampPeriod, 4, 1);
+        mByteOrder.swap(&sampSize, 2, 1);
+        mByteOrder.swap(&parmKind, 2, 1);
     }
 
     /* Write */
@@ -101,19 +101,19 @@ void Tracter::HTKSink::open(const char* iFile)
     /* Processing loop */
     int index = 0;
     CacheArea cache;
-    while (mInput->Read(cache, index++))
+    while (mInput->read(cache, index++))
     {
         float* f = mInput->getPointer(cache.offset);
         for (int i=0; i<mFrame.size; i++)
             if (!std::isfinite(f[i]))
                 throw Exception("HTKSink: !finite at %s frame %d index %d",
                                 iFile, index, i);
-        if (mByteOrder.WrongEndian())
+        if (mByteOrder.wrongEndian())
         {
             for (int i=0; i<mFrame.size; i++)
                 mTemp[i] = f[i];
             f = &mTemp[0];
-            mByteOrder.Swap(f, sizeof(float), mFrame.size);
+            mByteOrder.swap(f, sizeof(float), mFrame.size);
         }
         if ((int)fwrite(f, sizeof(float), mFrame.size, mFile) != mFrame.size)
             throw Exception("HTKSink: Failed to write to file %s", iFile);

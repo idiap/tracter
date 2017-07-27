@@ -19,7 +19,7 @@ Tracter::HTKSource::HTKSource(const char* iObjectName)
     mMapData = 0;
     mNSamples = 0;
     Endian endian = (Endian)config(cEndian, ENDIAN_BIG);
-    mByteOrder.SetSource(endian);
+    mByteOrder.setSource(endian);
 }
 
 
@@ -56,23 +56,23 @@ void Tracter::HTKSource::open(
     assert(data);
 
     nSamples = *(int*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&nSamples, 4, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&nSamples, 4, 1);
     data += 4;
 
     sampPeriod = *(int*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&sampPeriod, 4, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&sampPeriod, 4, 1);
     data += 4;
 
     sampSize = *(short*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&sampSize, 2, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&sampSize, 2, 1);
     data += 2;
 
     parmKind = *(short*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&parmKind, 2, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&parmKind, 2, 1);
     data += 2;
 
     // This comparison is a little tricky as it's floating point
@@ -114,7 +114,7 @@ void Tracter::HTKSource::open(
  * The Fetch call is necessary to byte swap the data
  */
 Tracter::SizeType
-Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::HTKSource::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     iIndex += mBeginFrame;
 
@@ -131,8 +131,8 @@ Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         float* cache = getPointer(offset);
         for (int j=0; j<mFrame.size; j++)
             cache[j] = mMapData[iIndex*mFrame.size + j];
-        if (mByteOrder.WrongEndian())
-            mByteOrder.Swap(cache, 4, mFrame.size);
+        if (mByteOrder.wrongEndian())
+            mByteOrder.swap(cache, 4, mFrame.size);
         iIndex++;
         offset++;
     }

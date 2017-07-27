@@ -207,7 +207,7 @@ snd_pcm_uframes_t Tracter::ALSASource::setHardwareParameters()
 }
 
 Tracter::SizeType
-Tracter::ALSASource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::ALSASource::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     verbose(3, "Fetch: requested: %d %d\n",
             iOutputArea.len[0], iOutputArea.len[1]);

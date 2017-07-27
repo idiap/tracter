@@ -76,7 +76,7 @@ bool Tracter::NoiseVAD::unaryFetch(IndexType iIndex, VADState* oData)
     const float* input = mInput->unaryRead(iIndex);
     if (!input)
         return false;
-    Update(log10f(*input) > mNoise+mThreshold);
+    update(log10f(*input) > mNoise+mThreshold);
     *oData = mState;
 
     /* Given the (new) state, update the noise estimate */

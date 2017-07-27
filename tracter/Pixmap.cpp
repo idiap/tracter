@@ -39,7 +39,7 @@ bool Tracter::Pixmap::unaryFetch(IndexType iIndex, float* oData)
         mLoIndex = iIndex;
 
     CacheArea inputArea;
-    if (mInput->Read(inputArea, iIndex) != 1)
+    if (mInput->read(inputArea, iIndex) != 1)
     {
         write();
         return false;
@@ -101,7 +101,7 @@ void Tracter::Pixmap::write()
     CacheArea inputArea;
     for (int f=mLoIndex; f<=mHiIndex; f++)
     {
-        mInput->Read(inputArea, f);
+        mInput->read(inputArea, f);
         assert(inputArea.length() == 1);
         float* p = mInput->getPointer(inputArea.offset);
         for (int i=0; i<mFrame.size; i++)

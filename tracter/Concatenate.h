@@ -20,7 +20,7 @@ namespace Tracter
     public:
         Concatenate(const char* iObjectName = "Concatenate");
         virtual ~Concatenate() throw() {}
-        void Add(Component<float>* iInput);
+        void add(Component<float>* iInput);
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

@@ -9,7 +9,7 @@
 
 #include "Modulation.h"
 
-void Tracter::SlidingDFT::SetRotation(int iBin, int iNBins)
+void Tracter::SlidingDFT::setRotation(int iBin, int iNBins)
 {
     float a = 2.0f * M_PI * iBin / iNBins;
     float r = cos(a);
@@ -17,7 +17,7 @@ void Tracter::SlidingDFT::SetRotation(int iBin, int iNBins)
     mRotation = complex(r, i);
 }
 
-const Tracter::complex& Tracter::SlidingDFT::Transform(float iNew, float iOld)
+const Tracter::complex& Tracter::SlidingDFT::transform(float iNew, float iOld)
 {
     float tmp = iNew - iOld;
     complex ctmp = mState + tmp;
@@ -41,7 +41,7 @@ Tracter::Modulation::Modulation(
     float freq = config("Freq", 4.0f);
     int bin = config("Bin", 1);
     mNBins = (int)(frameRate() / freq + 0.5f);
-    mDFT.SetRotation(bin, mNBins);
+    mDFT.setRotation(bin, mNBins);
     mLookAhead = mNBins / 2; // Round down
     mLookBehind = mNBins - mLookAhead - 1;
     minSize(mInput, mNBins, mLookAhead);
@@ -80,13 +80,13 @@ bool Tracter::Modulation::unaryFetch(IndexType iIndex, float* oData)
 
         /* Prime with the first sample for all the missing ones */
         for (SizeType i=0; i<mLookBehind+1; i++)
-            mDFT.Transform(p[0], 0.0f);
+            mDFT.transform(p[0], 0.0f);
 
         /* Prime the rest with the look-ahead; this includes the first
          * sample once more, so there are 14 copies of the first
          * sample */
         for (SizeType i=0; i<mLookAhead; i++)
-            mDFT.Transform(p[i], 0.0f);
+            mDFT.transform(p[i], 0.0f);
     }
 
     /* Read the old value - the one just behind the DFT window.  This
@@ -113,7 +113,7 @@ bool Tracter::Modulation::unaryFetch(IndexType iIndex, float* oData)
     }
 
     /* Do the transform */
-    complex tmp = mDFT.Transform(*newVal, *oldVal);
+    complex tmp = mDFT.transform(*newVal, *oldVal);
     float filter = abs(tmp);
     filter /= mNBins;
     *oData = filter;
