@@ -25,7 +25,7 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     objectName(iObjectName);
     mInput = iInput;
 
-    mFrame.size = iInput->Frame().size;
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
 
     mMeanType = (MeanType)config(cMeanType, MEAN_ADAPTIVE);
@@ -35,18 +35,18 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
     {
     case MEAN_STATIC:
         // Set the input buffer to store everything
-        Connect(mInput, ReadRange::INFINITE);
+        connect(mInput, ReadRange::INFINITE);
         mValid = false;
         break;
 
     case MEAN_ADAPTIVE:
-        Connect(mInput, 1);
+        connect(mInput, 1);
         mValid = false;
         break;
 
     case MEAN_FIXED:
         // In fact, the input will never be read
-        Connect(mInput, 1);
+        connect(mInput, 1);
         mValid = true;
         break;
 
@@ -71,16 +71,16 @@ Tracter::Mean::Mean(Component<float>* iInput, const char* iObjectName)
 void Tracter::Mean::SetTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
-    float n = SecondsToFrames(iSeconds);
+    float n = secondsToFrames(iSeconds);
     mPole = (n-1.0f) / n;
     mElop = 1.0f - mPole;
 
     assert(mPole > 0.0f);
     assert(mPole < 1.0f);
-    Verbose(1, "Mean: pole is %f\n", mPole);
+    verbose(1, "Mean: pole is %f\n", mPole);
 }
 
-void Tracter::Mean::Reset(bool iPropagate)
+void Tracter::Mean::reset(bool iPropagate)
 {
     // Zero the mean
     if (!mPersistent || (mMeanType != MEAN_ADAPTIVE))
@@ -91,10 +91,10 @@ void Tracter::Mean::Reset(bool iPropagate)
     }
 
     // Call the base class
-    CachedComponent<float>::Reset(iPropagate);
+    CachedComponent<float>::reset(iPropagate);
 }
 
-bool Tracter::Mean::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Mean::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     switch (mMeanType)
@@ -102,9 +102,9 @@ bool Tracter::Mean::UnaryFetch(IndexType iIndex, float* oData)
     case MEAN_STATIC:
         if (!mValid)
         {
-            Verbose(1, "Reading whole stream at %ld\n", iIndex);
+            verbose(1, "Reading whole stream at %ld\n", iIndex);
             processAll();
-            Verbose(1, "Read.\n");
+            verbose(1, "Read.\n");
         }
         break;
 
@@ -137,8 +137,8 @@ void Tracter::Mean::processAll()
     CacheArea inputArea;
     while(mInput->Read(inputArea, frame))
     {
-        assert(inputArea.Length() == 1);
-        float* p = mInput->GetPointer(inputArea.offset);
+        assert(inputArea.length() == 1);
+        float* p = mInput->getPointer(inputArea.offset);
         for (int i=0; i<mFrame.size; i++)
             mMean[i] += p[i];
         frame++;
@@ -162,8 +162,8 @@ bool Tracter::Mean::adaptFrame(IndexType iIndex)
     CacheArea inputArea;
     if (mInput->Read(inputArea, iIndex) == 0)
         return false;
-    assert(inputArea.Length() == 1);
-    float* p = mInput->GetPointer(inputArea.offset);
+    assert(inputArea.length() == 1);
+    float* p = mInput->getPointer(inputArea.offset);
     if (mValid)
     {
         // Combine the new observation into the mean
@@ -189,7 +189,7 @@ void Tracter::Mean::Load(
     std::vector<float>& iVector, const char* iToken, const char* iFileName
 )
 {
-    Verbose(1, "Loading %s from %s\n", iToken, iFileName);
+    verbose(1, "Loading %s from %s\n", iToken, iFileName);
     FILE* fp = fopen(iFileName, "r");
     if (!fp)
         throw Exception("Failed to open file %s", iFileName);

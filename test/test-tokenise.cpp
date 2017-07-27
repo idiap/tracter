@@ -22,7 +22,7 @@ int main()
     const char* file = TEST_DIR "/testfile.c";
     // Not appropriate for testing as the path will vary across machines
     //printf("Opening file %s\n", file);
-    f->Open(file);
+    f->open(file);
 
     int index = 0;
     while (const Token* p = sink.Read(index++))

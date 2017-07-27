@@ -161,8 +161,8 @@ namespace Tracter
         virtual ~Minima() throw ();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
-        void Reset(bool iPropagate);
+        bool unaryFetch(IndexType iIndex, float* oData);
+        void reset(bool iPropagate);
 
     private:
         Component<float>* mInput;
@@ -171,7 +171,7 @@ namespace Tracter
         float mCorrection;
         IndexType mLastIndex;
         std::vector< MinimaWindow* > mWindow;
-        bool unaryFetch(IndexType iIndex, float* oData);
+        bool uFetch(IndexType iIndex, float* oData);
     };
 }
 

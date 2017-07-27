@@ -28,11 +28,11 @@ namespace Tracter
         {
             objectName(iObjectName);
             mInput = iInput;
-            Connect(mInput, 21);
-            mFrame.size = iInput->Frame().size;
-            Initialise();
-            Reset();
-            Verbose(1, "frame rate %f\n", FrameRate());
+            connect(mInput, 21);
+            mFrame.size = iInput->frame().size;
+            initialise();
+            reset();
+            verbose(1, "frame rate %f\n", frameRate());
         }
 
         virtual ~FrameSink() throw () {}
@@ -42,7 +42,7 @@ namespace Tracter
             int iIndex  ///< Index of the required array
         )
         {
-            return mInput->UnaryRead(iIndex);
+            return mInput->unaryRead(iIndex);
         }
 
     private:

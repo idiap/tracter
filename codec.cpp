@@ -54,9 +54,9 @@ public:
                 "(and don't forget to set your environment variables!)\n"
             );
 
-        Verbose(0, "%s -> %s\n", argv[1], argv[2]);
-        mSource->Open(argv[1]);
-        mSink->Open(argv[2]);
+        verbose(0, "%s -> %s\n", argv[1], argv[2]);
+        mSource->open(argv[1]);
+        mSink->open(argv[2]);
     }
 
 private:

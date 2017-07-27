@@ -16,11 +16,11 @@ Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
     objectName(iObjectName);
     mInput = iInput;
 
-    mFrame.size = config("FrameSize", iInput->Frame().size);
+    mFrame.size = config("FrameSize", iInput->frame().size);
     assert(mFrame.size >= 0);
 
     // Keep all the input
-    Connect(iInput, ReadRange::INFINITE);
+    connect(iInput, ReadRange::INFINITE);
 
     mLoIndex = -1;
     mHiIndex = -1;
@@ -31,7 +31,7 @@ Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
     mRange = config("Range", 90);
 }
 
-bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Pixmap::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -46,7 +46,7 @@ bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, float* oData)
     }
 
     // Copy input to output with limits check
-    float* input  = mInput->GetPointer(inputArea.offset);
+    float* input  = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
     {
         oData[i] = input[i];
@@ -86,8 +86,8 @@ void Tracter::Pixmap::write()
         min = log10f(mMin);
         max = log10f(mMax);
         range = std::min(max - min, mRange/10.0f);
-        Verbose(1, "Range: %.2f dB raw\n", 10.0*(max-min));
-        Verbose(1, "Range: %.2f dB floored\n", 10.0*(range));
+        verbose(1, "Range: %.2f dB raw\n", 10.0*(max-min));
+        verbose(1, "Range: %.2f dB floored\n", 10.0*(range));
     }
     else
     {
@@ -102,8 +102,8 @@ void Tracter::Pixmap::write()
     for (int f=mLoIndex; f<=mHiIndex; f++)
     {
         mInput->Read(inputArea, f);
-        assert(inputArea.Length() == 1);
-        float* p = mInput->GetPointer(inputArea.offset);
+        assert(inputArea.length() == 1);
+        float* p = mInput->getPointer(inputArea.offset);
         for (int i=0; i<mFrame.size; i++)
         {
             int val = (int)std::max(

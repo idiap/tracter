@@ -21,7 +21,7 @@ namespace Tracter
     public:
         socketSource(const char* iObjectName = "SocketSource");
         virtual ~socketSource() throw ();
-        virtual void Open(const char* iHostName);
+        virtual void open(const char* iHostName);
         int Receive(int iNBytes, char* iBuffer);
         void Send(int iNBytes, char* iBuffer);
 
@@ -55,13 +55,13 @@ namespace Tracter
                 Source< CachedComponent<T> >::config("FrameRate", 48000.0f);
         }
         virtual ~SocketSource() throw () {}
-        virtual void Open(
+        virtual void open(
             const char* iHostName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
         )
         {
-            mSocket.Open(iHostName);
+            mSocket.open(iHostName);
         }
 
     protected:
@@ -75,7 +75,7 @@ namespace Tracter
             getSize = ((getSize == 0) ? 1 : getSize) * sizeof(T);
 
             // First chunk of circular array
-            char* cache = (char*)Source< CachedComponent<T> >::GetPointer(
+            char* cache = (char*)Source< CachedComponent<T> >::getPointer(
                 iOutputArea.offset
             );
             SizeType nGet = getSize * iOutputArea.len[0];
@@ -86,7 +86,7 @@ namespace Tracter
             if (iOutputArea.len[1])
             {
                 // Second chunk of circular array
-                cache = (char*)Source< CachedComponent<T> >::GetPointer();
+                cache = (char*)Source< CachedComponent<T> >::getPointer();
                 nGet = getSize * iOutputArea.len[1];
                 int nGot1 = mSocket.Receive(nGet, cache);
                 if (nGot1 < nGet)
@@ -94,7 +94,7 @@ namespace Tracter
             }
 
             // If we get here, all was well
-            return iOutputArea.Length();
+            return iOutputArea.length();
         }
 
         socketSource mSocket;

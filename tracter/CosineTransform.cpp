@@ -16,9 +16,9 @@ Tracter::CosineTransform::CosineTransform(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mFrame.size = mInput->Frame().size;
+    mFrame.size = mInput->frame().size;
 
     mIData = 0;
     mOData = 0;
@@ -32,10 +32,10 @@ Tracter::CosineTransform::CosineTransform(
     mCZeroIndex = config("CZeroIndex", 0);
 }
 
-bool Tracter::CosineTransform::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::CosineTransform::unaryFetch(IndexType iIndex, float* oData)
 {
     // Read the input frame
-    const float* ip = mInput->UnaryRead(iIndex);
+    const float* ip = mInput->unaryRead(iIndex);
     if (!ip)
         return false;
 

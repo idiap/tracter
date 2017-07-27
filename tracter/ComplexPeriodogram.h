@@ -28,7 +28,7 @@ namespace Tracter
         virtual ~ComplexPeriodogram() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<complex>* mInput;

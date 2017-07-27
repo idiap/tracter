@@ -25,7 +25,7 @@ namespace Tracter
     public:
         void SetRotation(int iBin, int iNBins);
         const complex& Transform(float iNew, float iOld);
-        void Reset()
+        void reset()
         {
             mState = complex(0.0f, 0.0f);
         }
@@ -49,15 +49,15 @@ namespace Tracter
 
     protected:
 
-        bool UnaryFetch(IndexType iIndex, float* oData);
-        virtual void Reset(bool iPropagate);
+        bool unaryFetch(IndexType iIndex, float* oData);
+        virtual void reset(bool iPropagate);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<float>::DotHook();
-            DotRecord(1, "nBins=%d", mNBins);
-            DotRecord(1, "ahead=%d", mLookAhead);
-            DotRecord(1, "behind=%d", mLookBehind);
+            CachedComponent<float>::dotHook();
+            dotRecord(1, "nBins=%d", mNBins);
+            dotRecord(1, "ahead=%d", mLookAhead);
+            dotRecord(1, "behind=%d", mLookBehind);
         }
 
     private:

@@ -20,7 +20,7 @@ namespace Tracter
         virtual ~LinearTransform() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
         int LoadXForm(const char* iFileName);
 
     private:

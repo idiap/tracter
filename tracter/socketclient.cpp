@@ -18,14 +18,14 @@ int main(int argc, char** argv)
 
     StreamSocketSource* ss = new StreamSocketSource;
     FrameSink<float> as(ss);
-    ss->Open("localhost");
-    as.Reset();
+    ss->open("localhost");
+    as.reset();
     int index = 0;
     while(const float* frame = as.Read(index))
     {
         printf("Val: %.3f ", frame[0] * 32768);
         printf("Time: %lld = %.3f s\n",
-               as.TimeStamp(index), as.Seconds(index));
+               as.timeStamp(index), as.seconds(index));
         index++;
         if (index >= 1000)
             break;

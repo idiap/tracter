@@ -41,7 +41,7 @@ Tracter::MelFilter::MelFilter(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
     mMaxHertz = config("MaxHertz", 4000.0f);
     mFrame.size = config("NBins", 23);
@@ -63,7 +63,7 @@ Tracter::MelFilter::MelFilter(
         normaliseBins();
 }
 
-bool Tracter::MelFilter::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::MelFilter::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -73,7 +73,7 @@ bool Tracter::MelFilter::UnaryFetch(IndexType iIndex, float* oData)
     if (!one)
         return false;
 
-    float* p = mInput->GetPointer(inputArea.offset);
+    float* p = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
     {
         //assert(mBin[i+2]-mBin[i]+1 == mWeight[i].size());
@@ -101,7 +101,7 @@ void Tracter::MelFilter::initAlignedBins()
     // Triangles aligned with bins
     float loMel = hertzToMel(mLoHertz);
     float hiMel = hertzToMel(mHiHertz);
-    int nPSD = mInput->Frame().size;
+    int nPSD = mInput->frame().size;
     mBin.resize(mFrame.size+2);
     for (int i=0; i<mFrame.size+2; i++)
     {
@@ -142,7 +142,7 @@ void Tracter::MelFilter::initSmoothBins()
     mBin.resize(mFrame.size);
     float loMel = hertzToMel(mLoHertz);
     float hiMel = hertzToMel(mHiHertz);
-    int nPSD = mInput->Frame().size;
+    int nPSD = mInput->frame().size;
 
     // Get a list of mel bin centers in hertz
     for (int i=0; i<mFrame.size+2; i++)
@@ -257,7 +257,7 @@ void Tracter::MelFilter::DumpBins()
 {
     // Build a fully expanded array
     std::vector< std::vector<float> > output;
-    int psdSize = mInput->Frame().size;
+    int psdSize = mInput->frame().size;
     output.resize(psdSize);
     for (int i=0; i<psdSize; i++)
     {

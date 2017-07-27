@@ -23,7 +23,7 @@ namespace Tracter
         void Add(Component<float>* iInput);
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         std::vector< Component<float>* > mInput;

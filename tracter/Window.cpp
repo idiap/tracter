@@ -38,7 +38,7 @@ Tracter::Window::Window(const char* iObjectName, int iSize)
 
     // Must be after shape check
     if (iSize)
-        Resize(iSize);
+        resize(iSize);
 }
 
 /**
@@ -46,7 +46,7 @@ Tracter::Window::Window(const char* iObjectName, int iSize)
  * iDivideN is true, the window is made asymmetrical
  * (see http://en.wikipedia.org/wiki/Window_function)
  */
-void Tracter::Window::Resize(int iSize, bool iDivideN)
+void Tracter::Window::resize(int iSize, bool iDivideN)
 {
     const float PI = 3.14159265358979323846;
     mWeight.resize(iSize);

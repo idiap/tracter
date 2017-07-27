@@ -17,12 +17,12 @@ Tracter::ComplexPeriodogram::ComplexPeriodogram(
     objectName(iObjectName);
     mInput = iInput;
     mFrame.period = config("FramePeriod", 40);
-    Connect(iInput);
+    connect(iInput);
     mFrame.size = config("FrameSize", 128);
     assert(mFrame.size > 0);
     assert(mFrame.period > 0);
 
-    ComponentBase::MinSize(mInput, mFrame.size, mFrame.size-1);
+    ComponentBase::minSize(mInput, mFrame.size, mFrame.size-1);
 
     mInputData = 0;
     mOutputData = 0;
@@ -36,7 +36,7 @@ Tracter::ComplexPeriodogram::ComplexPeriodogram(
         mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (mFrame.size - 1));
 }
 
-bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::ComplexPeriodogram::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -48,7 +48,7 @@ bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, float* oData)
         return false;
 
     // Copy the frame into the contiguous array
-    complex* p = mInput->GetPointer();
+    complex* p = mInput->getPointer();
     complex* pp = reinterpret_cast<complex*>(mInputData);
     for (int i=0; i<inputArea.len[0]; i++)
         pp[i] = p[inputArea.offset+i] * mWindow[i];

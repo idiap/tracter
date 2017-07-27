@@ -39,7 +39,7 @@ namespace Tracter
      * name.  It also allows debugging to identify which object gave rise to
      * which behaviour.
      *
-     * Tracter::Object also defines an option: Verbose is a numerical value
+     * Tracter::Object also defines an option: verbose is a numerical value
      * corresponding to a verbosity level.
      */
     class Object : public lube::Config
@@ -56,7 +56,7 @@ namespace Tracter
         int config(const StringEnum* iStringEnum, int iDefault);
 
         void verbose(var iVerbose);
-        void Verbose(int iLevel, const char* iString, ...) const;
+        void verbose(int iLevel, const char* iString, ...) const;
 
     private:
         const char* getConfig(

@@ -25,12 +25,12 @@ namespace Tracter
     public:
         Noise(Component<float>* iInput, const char* iObjectName = "Noise");
         virtual ~Noise() throw ();
-        virtual void Reset(bool iPropagate);
+        virtual void reset(bool iPropagate);
 
     protected:
         std::vector<float> mAccumulator;
         int mNAccumulated;
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
         /**
          * Really basic accumulator.  However, it can be overridden by a

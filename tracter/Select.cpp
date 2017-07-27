@@ -12,23 +12,23 @@ Tracter::Select::Select(Component<float>* iInput, const char* iObjectName)
     mInput = iInput;
 
     mLoIndex = config("Lo", 0);
-    mHiIndex = config("Hi", iInput->Frame().size-1);
+    mHiIndex = config("Hi", iInput->frame().size-1);
 
     mFrame.size = mHiIndex - mLoIndex + 1;
     assert(mFrame.size >= 0);
-    assert(mHiIndex < iInput->Frame().size);
+    assert(mHiIndex < iInput->frame().size);
     assert(mLoIndex >= 0);
-    Verbose(1, "passing indexes %d-%d of %d\n",
-            mLoIndex, mHiIndex, iInput->Frame().size);
+    verbose(1, "passing indexes %d-%d of %d\n",
+            mLoIndex, mHiIndex, iInput->frame().size);
 
-    Connect(iInput, 1);
+    connect(iInput, 1);
 }
 
-bool Tracter::Select::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Select::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
-    const float* input = mInput->UnaryRead(iIndex);
+    const float* input = mInput->unaryRead(iIndex);
     if (!input)
         return false;
 

@@ -26,14 +26,14 @@ namespace Tracter
     public:
         HTKSink(Component<float>* iInput, const char* iObjectName = "HTKSink");
         virtual ~HTKSink() throw() {}
-        void Open(const char* iFile);
+        void open(const char* iFile);
 
     protected:
-        void DotHook()
+        void dotHook()
         {
-            Sink::DotHook();
-            DotRecord(1, "swap=%s", mByteOrder.WrongEndian() ? "yes" : "no");
-            DotRecord(1, "parm=0x%x", mParmKind);
+            Sink::dotHook();
+            dotRecord(1, "swap=%s", mByteOrder.WrongEndian() ? "yes" : "no");
+            dotRecord(1, "parm=0x%x", mParmKind);
         }
 
     private:

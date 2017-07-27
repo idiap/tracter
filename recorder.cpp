@@ -85,7 +85,7 @@ public:
         }
 
         default:
-            Verbose(1, "No VAD, or not compiled in\n");
+            verbose(1, "No VAD, or not compiled in\n");
         }
 
         // Sink
@@ -107,9 +107,9 @@ public:
                 "(and don't forget to set your environment variables!)\n"
             );
 
-        Verbose(1, "%s -> %s\n", argv[1], argv[2]);
-        mSource->Open(argv[1]);
-        mSink->Open(argv[2]);
+        verbose(1, "%s -> %s\n", argv[1], argv[2]);
+        mSource->open(argv[1]);
+        mSink->open(argv[2]);
     }
 
 private:

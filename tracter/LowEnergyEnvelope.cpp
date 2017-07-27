@@ -14,11 +14,11 @@ Tracter::LowEnergyEnvelope::LowEnergyEnvelope(
 {
     objectName(iObjectName);
     mInput = iInput;
-    mFrame.size = iInput->Frame().size;
+    mFrame.size = iInput->frame().size;
 
     float gamma = config("Gamma", 0.2f);
     float timeWindow = config("TimeWindow", 1.0f);
-    mNWindow = (int)(timeWindow * FrameRate());
+    mNWindow = (int)(timeWindow * frameRate());
     mNGamma  = (int)(gamma * mNWindow);
     mCorrection = config("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
 
@@ -28,10 +28,10 @@ Tracter::LowEnergyEnvelope::LowEnergyEnvelope(
         mTmp[i].resize(mNWindow);
 
     // Store enough for the initialisation
-    Connect(mInput, mNWindow, mNGamma-1);
+    connect(mInput, mNWindow, mNGamma-1);
 }
 
-bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::LowEnergyEnvelope::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -68,7 +68,7 @@ bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, float* oData)
 
     // Read the input window into local vectors
     CacheIterator<float> iter(mInput, inputArea);
-    for (int i=0; i<inputArea.Length(); i++, ++iter)
+    for (int i=0; i<inputArea.length(); i++, ++iter)
         for (int j=0; j<mFrame.size; j++)
             mTmp[j][i] = iter[j];
 
@@ -78,7 +78,7 @@ bool Tracter::LowEnergyEnvelope::UnaryFetch(IndexType iIndex, float* oData)
         std::partial_sort(
             mTmp[j].begin(),
             mTmp[j].begin()+mNGamma,
-            mTmp[j].begin()+inputArea.Length()
+            mTmp[j].begin()+inputArea.length()
         );
         float sum = 0.0f;
         for (int g=0; g<mNGamma; g++)

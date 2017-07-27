@@ -21,8 +21,8 @@ Tracter::Comparator::Comparator(
     objectName(iObjectName);
     mInput1 = iInput1;
     mInput2 = iInput2;
-    Connect(iInput1);
-    Connect(iInput2);
+    connect(iInput1);
+    connect(iInput2);
 
     mShowGuts = config("ShowGuts", 0);
 
@@ -31,15 +31,15 @@ Tracter::Comparator::Comparator(
     mThreshold = powf(10.0f, dBThres / 10.0f);
 }
 
-bool Tracter::Comparator::UnaryFetch(IndexType iIndex, BoolType* oData)
+bool Tracter::Comparator::unaryFetch(IndexType iIndex, BoolType* oData)
 {
-    Verbose(3, "iIndex %ld\n", iIndex);
+    verbose(3, "iIndex %ld\n", iIndex);
 
     /* Read and compare */
-    const float* input1 = mInput1->UnaryRead(iIndex);
+    const float* input1 = mInput1->unaryRead(iIndex);
     if (!input1)
         return false;
-    const float* input2 = mInput2->UnaryRead(iIndex);
+    const float* input2 = mInput2->unaryRead(iIndex);
     if (!input2)
         return false;
 
@@ -48,7 +48,7 @@ bool Tracter::Comparator::UnaryFetch(IndexType iIndex, BoolType* oData)
 
     /* Feedback */
     if (sVerbose >= 4) // ie, dont always do the log calculations
-        Verbose(4, "plot %ld %e %e %e %d\n",
+        verbose(4, "plot %ld %e %e %e %d\n",
                 iIndex,
                 10.0*log10f(*input1),
                 10.0*log10f(*input2),

@@ -35,9 +35,9 @@ int main(int argc, char** argv)
     //Resample* r = new Resample(n);
     FileSink sink(n);
 #endif
-    source->Open(argv[1]);
-    sink.Reset();
-    sink.Open("alsa.raw");
+    source->open(argv[1]);
+    sink.reset();
+    sink.open("alsa.raw");
 
     printf("Done\n");
     return 0;

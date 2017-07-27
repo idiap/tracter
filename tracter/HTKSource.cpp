@@ -26,7 +26,7 @@ Tracter::HTKSource::HTKSource(const char* iObjectName)
 /**
  * Maps the HTK parameter file and reads the header
  */
-void Tracter::HTKSource::Open(
+void Tracter::HTKSource::open(
     const char* iFileName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -97,17 +97,17 @@ void Tracter::HTKSource::Open(
             nSamples * sampSize + 12, mMap.Size()
         );
 
-    Verbose(1, "nSamples: %d  parm: %ho\n", nSamples, parmKind);
+    verbose(1, "nSamples: %d  parm: %ho\n", nSamples, parmKind);
     mNSamples = nSamples;
     mMapData = (float*)data;
 
     mBeginFrame = 0;
     mEndFrame = -1;
     if (iBeginTime >= 0)
-        mBeginFrame = FrameIndex(iBeginTime);
+        mBeginFrame = frameIndex(iBeginTime);
     if (iEndTime >= 0)
-        mEndFrame = FrameIndex(iEndTime);
-    Verbose(1, "Begin frame %ld  End frame %ld\n", mBeginFrame, mEndFrame);
+        mEndFrame = frameIndex(iEndTime);
+    verbose(1, "Begin frame %ld  End frame %ld\n", mBeginFrame, mEndFrame);
 }
 
 /**
@@ -120,7 +120,7 @@ Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 
     SizeType i;
     SizeType offset = iOutputArea.offset;
-    for (i=0; i<iOutputArea.Length(); i++)
+    for (i=0; i<iOutputArea.length(); i++)
     {
         if (iIndex >= mNSamples)
             break;
@@ -128,7 +128,7 @@ Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             break;
         if (i == iOutputArea.len[0])
             offset = 0;
-        float* cache = GetPointer(offset);
+        float* cache = getPointer(offset);
         for (int j=0; j<mFrame.size; j++)
             cache[j] = mMapData[iIndex*mFrame.size + j];
         if (mByteOrder.WrongEndian())

@@ -16,10 +16,10 @@ Tracter::HTKSink::HTKSink(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = mInput->Frame().size;
-    Initialise();
-    Reset();
+    connect(mInput);
+    mFrame.size = mInput->frame().size;
+    initialise();
+    reset();
 
     mFile = 0;
     Endian endian = (Endian)config(cEndian, ENDIAN_BIG);
@@ -28,7 +28,7 @@ Tracter::HTKSink::HTKSink(
         mTemp.resize(mFrame.size);
 
     /* Initial header values */
-    float period = 1.0f / FrameRate();
+    float period = 1.0f / frameRate();
     mNSamples = 0;
     mSampPeriod = (int)(period * 1e7f + 0.5);
     mSampSize = mFrame.size * sizeof(float);
@@ -86,12 +86,12 @@ void Tracter::HTKSink::WriteHeader(FILE* iFile)
 /**
  * Opens the given file and sucks data into it.
  */
-void Tracter::HTKSink::Open(const char* iFile)
+void Tracter::HTKSink::open(const char* iFile)
 {
     assert(iFile);
     assert(!mFile);
 
-    Verbose(1, "%s\n", iFile);
+    verbose(1, "%s\n", iFile);
     mFile = fopen(iFile, "w");
     if (!mFile)
         throw Exception("HTKSink: Failed to open file %s", iFile);
@@ -103,7 +103,7 @@ void Tracter::HTKSink::Open(const char* iFile)
     CacheArea cache;
     while (mInput->Read(cache, index++))
     {
-        float* f = mInput->GetPointer(cache.offset);
+        float* f = mInput->getPointer(cache.offset);
         for (int i=0; i<mFrame.size; i++)
             if (!std::isfinite(f[i]))
                 throw Exception("HTKSink: !finite at %s frame %d index %d",
@@ -125,5 +125,5 @@ void Tracter::HTKSink::Open(const char* iFile)
     if (fclose(mFile) != 0)
         throw Exception("HTKSink: Could not close file %s", iFile);
     mFile = 0;
-    Verbose(1, "Wrote %d frames\n", mNSamples);
+    verbose(1, "Wrote %d frames\n", mNSamples);
 }

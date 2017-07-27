@@ -25,7 +25,7 @@ namespace Tracter
         virtual ~Histogram() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         void writeMode();

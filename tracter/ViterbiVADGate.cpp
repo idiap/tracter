@@ -14,7 +14,7 @@ Tracter::ViterbiVADGate::ViterbiVADGate(
 )
 {
     objectName(iObjectName);
-    mFrame.size = iInput->Frame().size;
+    mFrame.size = iInput->frame().size;
 
     mInput = iInput;
     mVADInput = iVADInput;
@@ -33,9 +33,9 @@ Tracter::ViterbiVADGate::ViterbiVADGate(
 
     assert(mCollar >= 0);
 
-    Connect(iInput,mCollar+1);
-    //Connect(iVADInput, mCollar+1);
-    Connect(iVADInput, mCollar+10);
+    connect(iInput,mCollar+1);
+    //connect(iVADInput, mCollar+1);
+    connect(iVADInput, mCollar+10);
 }
 
 /**
@@ -43,9 +43,9 @@ Tracter::ViterbiVADGate::ViterbiVADGate(
  * mode, it shouldn't be passed on, but when the input is a sequence
  * of files it should be.
  */
-void Tracter::ViterbiVADGate::Reset(bool iPropagate)
+void Tracter::ViterbiVADGate::reset(bool iPropagate)
 {
-    Verbose(2, "Resetting\n");
+    verbose(2, "Resetting\n");
     if (mSegmenting)
     {
         if (mSilenceConfirmed >= 0)
@@ -60,7 +60,7 @@ void Tracter::ViterbiVADGate::Reset(bool iPropagate)
     mSpeechRemoved = 0;
 
     // Propagate reset upstream under these conditions
-    CachedComponent<float>::Reset(
+    CachedComponent<float>::reset(
         mUpstreamEndOfData ||  // Always after EOD
         !mSegmenting ||        // If not segmenting
         !mEnabled              // If disabled
@@ -68,7 +68,7 @@ void Tracter::ViterbiVADGate::Reset(bool iPropagate)
     mUpstreamEndOfData = false;
 }
 
-bool Tracter::ViterbiVADGate::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::ViterbiVADGate::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -79,7 +79,7 @@ bool Tracter::ViterbiVADGate::UnaryFetch(IndexType iIndex, float* oData)
     // upstream point of view.
     if (mEnabled && !gate(iIndex))
     {
-        Verbose(2, "gate() returned at index %ld, silConf %ld\n",
+        verbose(2, "gate() returned at index %ld, silConf %ld\n",
                 iIndex, mSilenceConfirmed);
         if ( mSegmenting &&
              (mSilenceConfirmed >= 0) &&
@@ -107,7 +107,7 @@ bool Tracter::ViterbiVADGate::UnaryFetch(IndexType iIndex, float* oData)
         return false;
 
     
-    float* input = mInput->GetPointer(inputArea.offset);
+    float* input = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
         oData[i] = input[i];
 
@@ -187,11 +187,11 @@ bool Tracter::ViterbiVADGate::readVADState(IndexType iIndex)
     //printf("-----------> requested VAD input from %i\n",iIndex);
     if (mVADInput->Read(vadArea, iIndex) == 0)
     {
-        Verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
+        verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
         mUpstreamEndOfData = true;
         return false;
     }
-    VADState* state = mVADInput->GetPointer(vadArea.offset);\
+    VADState* state = mVADInput->getPointer(vadArea.offset);\
     assert(*state == SPEECH_TRIGGERED || *state == SILENCE_TRIGGERED);
     
     if (*state == SPEECH_TRIGGERED){
@@ -216,7 +216,7 @@ bool Tracter::ViterbiVADGate::readVADState(IndexType iIndex)
  */
 bool Tracter::ViterbiVADGate::confirmSpeech(IndexType iIndex)
 {
-  Verbose(2, "Attempting to confirm speech\n");
+  verbose(2, "Attempting to confirm speech\n");
   assert(iIndex >= 0);
   assert(mState == SILENCE_CONFIRMED);
 
@@ -232,11 +232,11 @@ bool Tracter::ViterbiVADGate::confirmSpeech(IndexType iIndex)
   while (mState == SILENCE_CONFIRMED || mState == SILENCE_TRIGGERED);
   assert(mState == SPEECH_TRIGGERED);
   mSpeechTriggered = index;
-  Verbose(2, "confirmSpeech: speech triggered at %ld\n", mSpeechTriggered);
+  verbose(2, "confirmSpeech: speech triggered at %ld\n", mSpeechTriggered);
 
   mState = SPEECH_CONFIRMED;
   mSpeechConfirmed = index - mCollar >= 0 ? index-mCollar : 0;
-  Verbose(2, "confirmSpeech: speech confirmed at %ld\n", mSpeechConfirmed);
+  verbose(2, "confirmSpeech: speech confirmed at %ld\n", mSpeechConfirmed);
   return true;
 }
 
@@ -247,7 +247,7 @@ bool Tracter::ViterbiVADGate::confirmSpeech(IndexType iIndex)
  */
 bool Tracter::ViterbiVADGate::reconfirmSpeech(IndexType iIndex)
 {
-  Verbose(2, "Attempting to reconfirm speech at %ld\n",iIndex);
+  verbose(2, "Attempting to reconfirm speech at %ld\n",iIndex);
   assert(iIndex >= 0);
   assert(mState == SILENCE_TRIGGERED);
   IndexType mIndex = iIndex;
@@ -264,13 +264,13 @@ bool Tracter::ViterbiVADGate::reconfirmSpeech(IndexType iIndex)
     mState = SPEECH_CONFIRMED;
     //mSpeechConfirmed = iIndex-1 - mCollar >= 0 ? iIndex-1 - mCollar : 0 ;
     mSpeechTriggered = iIndex-1;
-    Verbose(2, "reconfirmSpeech: speech reconfirmed at %ld\n", mSpeechTriggered);
+    verbose(2, "reconfirmSpeech: speech reconfirmed at %ld\n", mSpeechTriggered);
     return true;
   }
 
   mState=SILENCE_CONFIRMED;
   mSilenceConfirmed = iIndex-mCollar-1;
-  Verbose(2, "reconfirmSpeech: silence confirmed at %ld\n",
+  verbose(2, "reconfirmSpeech: silence confirmed at %ld\n",
 	  mSilenceConfirmed);
 
   return false;

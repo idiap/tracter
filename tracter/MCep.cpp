@@ -17,14 +17,14 @@ Tracter::MCep::MCep(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
     // Array sizing
     mC0 = config("C0", 1);
     int nCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? nCepstra+1 : nCepstra;
     assert(nCepstra > 0);
-    mInData.resize(mInput->Frame().size);
+    mInData.resize(mInput->frame().size);
     mCepstra1.resize(nCepstra+1);
     mCepstra2.resize(nCepstra+1);
 
@@ -39,20 +39,20 @@ Tracter::MCep::MCep(
 
     // Check gamma
     if (mGamma > 0.0)
-        Verbose(1, "Gamma > 0.0; using mcep()\n");
+        verbose(1, "Gamma > 0.0; using mcep()\n");
     else
         if (mGamma != 0.0)
-            Verbose(1, "Gamma < 0.0; using mgcep() and mgc2mgc()\n");
+            verbose(1, "Gamma < 0.0; using mgcep() and mgc2mgc()\n");
         else
-            Verbose(1, "Gamma == 0.0; using mgcep() only\n");
+            verbose(1, "Gamma == 0.0; using mgcep() only\n");
 }
 
-bool Tracter::MCep::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::MCep::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame - a periodogram
-    const float* p = mInput->UnaryRead(iIndex);
+    const float* p = mInput->unaryRead(iIndex);
     if (!p)
         return false;
 

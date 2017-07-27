@@ -22,8 +22,8 @@ Tracter::RtAudioSource::RtAudioSource(const char* iObjectName)
         throw Exception("RtAudioSource: Frame size must be 1 or NChannels");
 
     float seconds = config("BufferTime", 1.0f);
-    SizeType samples = SecondsToFrames(seconds);
-    MinSize(this, samples);
+    SizeType samples = secondsToFrames(seconds);
+    minSize(this, samples);
 
     /* Tell the ComponentBase that we will take care of the pointers */
     mAsync = true;
@@ -46,7 +46,7 @@ int Tracter::RtAudioSource::Callback(
     double iStreamTime, RtAudioStreamStatus iStatus
 )
 {
-    Verbose(3, "Callback: iNFrames = %u\n", iNFrames);
+    verbose(3, "Callback: iNFrames = %u\n", iNFrames);
 
     assert(!mIndefinite);
     if (mSize < (SizeType)iNFrames)
@@ -61,7 +61,7 @@ int Tracter::RtAudioSource::Callback(
     SizeType len0 = mSize - head.offset;
     len0 = std::min((SizeType)iNFrames, len0);
     float* input = (float*)iInputBuffer;
-    float* cache = GetPointer(head.offset);
+    float* cache = getPointer(head.offset);
     for (SizeType i=0; i<len0; i++)
         if (mFrame.size == mNChannels)
             for (int j=0; j<mNChannels; j++)
@@ -79,7 +79,7 @@ int Tracter::RtAudioSource::Callback(
         xrun = head.offset + len0 - tail.offset;
 
     SizeType len1 = iNFrames - len0;
-    cache = GetPointer(0);
+    cache = getPointer(0);
     for (SizeType i=0; i<len1; i++)
         // Code is dupped from above
         if (mFrame.size == mNChannels)
@@ -101,9 +101,9 @@ int Tracter::RtAudioSource::Callback(
     //       mSize, head.offset, head.index, tail.offset, tail.index,
     //       len0, len1, xrun);
 
-    MovePointer(head, iNFrames);
+    movePointer(head, iNFrames);
     if (xrun > 0)
-        MovePointer(tail, xrun);
+        movePointer(tail, xrun);
 
     return 0;
 }
@@ -111,7 +111,7 @@ int Tracter::RtAudioSource::Callback(
 /**
  * Open an RtAudio device.
  */
-void Tracter::RtAudioSource::Open(
+void Tracter::RtAudioSource::open(
     const char* iDeviceName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -121,12 +121,12 @@ void Tracter::RtAudioSource::Open(
     int device = -1;
     int nDevices = mRtAudio.getDeviceCount();
 
-    Verbose(1, "Device requested (length: %d): %s\n",
+    verbose(1, "Device requested (length: %d): %s\n",
             strlen(iDeviceName), iDeviceName);
     for (int i=0; i<nDevices; i++)
     {
         RtAudio::DeviceInfo di = mRtAudio.getDeviceInfo(i);
-        Verbose(1, "Device detected  (length: %d): %s\n",
+        verbose(1, "Device detected  (length: %d): %s\n",
                 strlen(di.name.c_str()), di.name.c_str());
         if (di.name == iDeviceName)
         {
@@ -146,7 +146,7 @@ void Tracter::RtAudioSource::Open(
     mRtAudio.openStream(
         0, &sp, RTAUDIO_FLOAT32, mFrameRate, &bufSize, staticCallback, this
     );
-    Verbose(1, "RtAudio buffer size %u, Tracter buffer size %d\n",
+    verbose(1, "RtAudio buffer size %u, Tracter buffer size %d\n",
             bufSize, mSize);
 
     /* Start the stream */
@@ -156,7 +156,7 @@ void Tracter::RtAudioSource::Open(
 Tracter::SizeType
 Tracter::RtAudioSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
-    Verbose(3, "Fetch: requested: %d %d\n",
+    verbose(3, "Fetch: requested: %d %d\n",
             iOutputArea.len[0], iOutputArea.len[1]);
 
     /* The fetch is actually completely asynchronous, so just sleep
@@ -165,12 +165,12 @@ Tracter::RtAudioSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     req.tv_sec = 0;
     req.tv_nsec = 100000;
     CachePointer& head = mCluster[0].head;
-    while (head.index < iIndex + iOutputArea.Length())
+    while (head.index < iIndex + iOutputArea.length())
     {
         struct timespec rem;
         nanosleep(&req, &rem);
     }
 
     // Done
-    return iOutputArea.Length();
+    return iOutputArea.length();
 }

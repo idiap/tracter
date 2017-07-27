@@ -14,12 +14,12 @@ Tracter::FileSink::FileSink(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(iInput);
-    mFrame.size = mInput->Frame().size;
+    connect(iInput);
+    mFrame.size = mInput->frame().size;
     if (mFrame.size == 0)
         mFrame.size = 1;
-    Initialise();
-    Reset();
+    initialise();
+    reset();
 
     mFile = 0;
 
@@ -31,7 +31,7 @@ Tracter::FileSink::FileSink(
 /**
  * Opens the given file and sucks data into it.
  */
-void Tracter::FileSink::Open(const char* iFile)
+void Tracter::FileSink::open(const char* iFile)
 {
     assert(iFile);
     assert(!mFile);
@@ -45,7 +45,7 @@ void Tracter::FileSink::Open(const char* iFile)
     CacheArea cache;
     while (mInput->Read(cache, index++))
     {
-        float* f = mInput->GetPointer(cache.offset);
+        float* f = mInput->getPointer(cache.offset);
         if (mByteOrder.WrongEndian())
         {
             for (int i=0; i<mFrame.size; i++)

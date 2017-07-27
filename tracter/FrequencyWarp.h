@@ -24,7 +24,7 @@ namespace Tracter
         FrequencyWarp(const char* iObjectName = "FrequencyWarp");
         virtual ~FrequencyWarp() throw () {};
 
-        void Initialise(int iNPSD);
+        void initialise(int iNPSD);
         void DumpBins();
         float Weight(int iBin);
         int BinSize(int iBin) { return mWeight[iBin].size(); }

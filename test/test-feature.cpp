@@ -40,10 +40,10 @@ public:
     {
         objectName(iObjectName);
         mInput = iInput;
-        Connect(mInput, 10);
-        mFrame.size = iInput->Frame().size;
-        Initialise();
-        Reset();
+        connect(mInput, 10);
+        mFrame.size = iInput->frame().size;
+        initialise();
+        reset();
     }
 
     void Pull(IndexType iIndex, SizeType len)
@@ -55,9 +55,9 @@ public:
         printf("Suck: len %ld br %ld %ld %ld\n",
                len, br.len[0], br.len[1], br.offset);
         SizeType offset = br.offset;
-        for (SizeType i=0; i<br.Length(); i++)
+        for (SizeType i=0; i<br.length(); i++)
         {
-            float* f = mInput->GetPointer(offset);
+            float* f = mInput->getPointer(offset);
             if (i == br.len[0])
             {
                 offset = 0;
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 
 #if 1
     FileSource<short>* a = new FileSource<short>;
-    a->Open("testfile.dat");
+    a->open("testfile.dat");
 #endif
 
 #if 0
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
     MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
     SinkSucker s(c);
-    s.Reset(true);
+    s.reset(true);
 
     //a.Start();
     s.Pull(0, 4);
@@ -137,20 +137,20 @@ int main(int argc, char** argv)
     //Mean* m = new Mean(h);
     SinkSucker as(f);
 
-    as.Reset();
-    h->Open(TEST_DIR "/test1.htk");
+    as.reset();
+    h->open(TEST_DIR "/test1.htk");
     as.Pull(0, 10);
 
-    as.Reset();
-    h->Open(TEST_DIR "/test2.htk");
+    as.reset();
+    h->open(TEST_DIR "/test2.htk");
     as.Pull(0, 10);
 
     printf("FrameSink...\n");
     FileSource<short>* hh = new FileSource<short>();
     Normalise* nn = new Normalise(hh);
     FrameSink<float> fs(nn);
-    hh->Open("testfile.dat");
-    fs.Reset();
+    hh->open("testfile.dat");
+    fs.reset();
     IndexType index = 0;
     while(const float* frame = fs.Read(index++))
     {
@@ -162,8 +162,8 @@ int main(int argc, char** argv)
     printf("LNA...\n");
     LNASource* lna = new LNASource();
     FrameSink<float> ls(lna);
-    lna->Open(TEST_DIR "/test.lna");
-    ls.Reset();
+    lna->open(TEST_DIR "/test.lna");
+    ls.reset();
     index=0;
     while(const float* frame = ls.Read(index++))
     {
@@ -178,8 +178,8 @@ int main(int argc, char** argv)
     ComplexSample* ccs = new ComplexSample(cn);
     //ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
     FrameSink<complex> csink(ccs);
-    cs->Open("testfile.dat");
-    csink.Reset();
+    cs->open("testfile.dat");
+    csink.reset();
     index = 0;
     while(const complex* cframe = csink.Read(index++))
     {

@@ -23,14 +23,14 @@ namespace Tracter
     public:
         PulseAudioSource(const char* iObjectName = "PulseAudioSource");
         ~PulseAudioSource() throw();
-        void Open(
+        void open(
             const char* iDeviceName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
         );
 
     protected:
-        virtual SizeType ContiguousFetch(
+        virtual SizeType contiguousFetch(
             IndexType iIndex, SizeType iLength, SizeType iOffset
         );
 

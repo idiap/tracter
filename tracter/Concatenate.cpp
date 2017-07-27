@@ -16,12 +16,12 @@ Tracter::Concatenate::Concatenate(const char* iObjectName)
 void Tracter::Concatenate::Add(Component<float>* iInput)
 {
     mInput.push_back(iInput);
-    mLength.push_back(iInput->Frame().size);
-    mFrame.size += iInput->Frame().size;
-    Connect(iInput);
+    mLength.push_back(iInput->frame().size);
+    mFrame.size += iInput->frame().size;
+    connect(iInput);
 }
 
-bool Tracter::Concatenate::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Concatenate::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -36,7 +36,7 @@ bool Tracter::Concatenate::UnaryFetch(IndexType iIndex, float* oData)
             return false;
         arrayPos -= mLength[i];
         assert(arrayPos >= 0);
-        float* p = mInput[i]->GetPointer(inputArea.offset);
+        float* p = mInput[i]->getPointer(inputArea.offset);
         for (int j=0; j<mLength[i]; j++)
             oData[arrayPos+j] = p[j];
     }

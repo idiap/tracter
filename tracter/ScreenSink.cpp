@@ -14,12 +14,12 @@ Tracter::ScreenSink::ScreenSink(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = mInput->Frame().size;
+    connect(mInput);
+    mFrame.size = mInput->frame().size;
     if (mFrame.size == 0)
         mFrame.size = 1;
-    Initialise();
-    Reset();
+    initialise();
+    reset();
 
     mMaxSize = config("MaxSize", 0);
 }
@@ -27,7 +27,7 @@ Tracter::ScreenSink::ScreenSink(
 /**
  * Suck data onto screen.
  */
-void Tracter::ScreenSink::Open(const char* iFile)
+void Tracter::ScreenSink::open(const char* iFile)
 {
 
     /* Processing loop */
@@ -35,7 +35,7 @@ void Tracter::ScreenSink::Open(const char* iFile)
     CacheArea cache;
     while (mInput->Read(cache, index))
     {
-        float* f = mInput->GetPointer(cache.offset);
+        float* f = mInput->getPointer(cache.offset);
         printf("%d: ", index++ );
         for (int i = 0 ; i < mFrame.size ; i++ ){
             printf( "%.3f ",f[i]);

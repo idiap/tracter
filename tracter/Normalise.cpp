@@ -15,24 +15,24 @@ Tracter::Normalise::Normalise(
 {
     objectName(iObjectName);
     mInput = iInput;
-    mFrame.size = mInput->Frame().size;
-    Connect(mInput);
+    mFrame.size = mInput->frame().size;
+    connect(mInput);
 
     Endian endian = (Endian)config(cEndian, ENDIAN_NATIVE);
     mByteOrder.SetSource(endian);
 }
 
-void Tracter::Normalise::MinSize(
+void Tracter::Normalise::minSize(
     SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
 )
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
+    ComponentBase::minSize(iSize, iReadBehind, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
     assert(mInput);
-    ComponentBase::MinSize(mInput, iSize, 0, 0);
+    ComponentBase::minSize(mInput, iSize, 0, 0);
 }
 
 Tracter::SizeType
@@ -41,9 +41,9 @@ Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     assert(iIndex >= 0);
     assert(mFrame.size);
     CacheArea inputArea;
-    SizeType lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
-    short* input = mInput->GetPointer(inputArea.offset);
-    float* output = GetPointer(iOutputArea.offset);
+    SizeType lenGot = mInput->Read(inputArea, iIndex, iOutputArea.length());
+    short* input = mInput->getPointer(inputArea.offset);
+    float* output = getPointer(iOutputArea.offset);
 
     SizeType rOffset = 0;
     SizeType wOffset = 0;
@@ -51,12 +51,12 @@ Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     {
         if (i == inputArea.len[0])
         {
-            input = mInput->GetPointer(0);
+            input = mInput->getPointer(0);
             rOffset = 0;
         }
         if (i == iOutputArea.len[0])
         {
-            output = GetPointer(0);
+            output = getPointer(0);
             wOffset = 0;
         }
 

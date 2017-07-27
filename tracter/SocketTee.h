@@ -87,7 +87,7 @@ namespace Tracter
         virtual ~SocketTee() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<float>* mInput;

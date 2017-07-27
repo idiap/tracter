@@ -33,7 +33,7 @@ namespace Tracter
         }
         virtual ~FileSource() throw() {}
 
-        virtual void Open(
+        virtual void open(
             const char* iFileName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
@@ -45,10 +45,10 @@ namespace Tracter
 
             // Convert times to frames
             IndexType begin =
-                (iBeginTime >= 0) ? Component<T>::FrameIndex(iBeginTime) : 0;
+                (iBeginTime >= 0) ? Component<T>::frameIndex(iBeginTime) : 0;
             IndexType end =
-                (iEndTime   >= 0) ? Component<T>::FrameIndex(iEndTime) : -1;
-            Component<T>::Verbose(1, "Begin: %ld  end: %ld\n", begin, end);
+                (iEndTime   >= 0) ? Component<T>::frameIndex(iEndTime) : -1;
+            Component<T>::verbose(1, "Begin: %ld  end: %ld\n", begin, end);
 
             // Fix the cache pointers to the given range
             assert(Component<T>::mFrame.size);
@@ -66,13 +66,13 @@ namespace Tracter
 
         }
 
-        T* GetPointer(SizeType iOffset = 0)
+        T* getPointer(SizeType iOffset = 0)
         {
             assert(Component<T>::mFrame.size);
             return &mCache[iOffset * Component<T>::mFrame.size];
         }
 
-        virtual void Reset(bool iPropagate)
+        virtual void reset(bool iPropagate)
         {
             // Don't call the base class, don't reset the pointers
             return;
@@ -83,7 +83,7 @@ namespace Tracter
         T* mCache;
 
         /** It makes no sense to Resize a file source */
-        void Resize(SizeType iSize)
+        void resize(SizeType iSize)
         {
             return;
         }

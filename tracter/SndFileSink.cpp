@@ -16,12 +16,12 @@ Tracter::SndFileSink::SndFileSink(
 
     mSndFile = 0;
     mBlockSize = config("BlockSize", 256);
-    Connect(mInput, mBlockSize);
+    connect(mInput, mBlockSize);
 
-    mFrameRate = config("FrameRate", FrameRate());
-    mFrame.size = mInput->Frame().size;
-    Initialise();
-    Reset();
+    mFrameRate = config("FrameRate", frameRate());
+    mFrame.size = mInput->frame().size;
+    initialise();
+    reset();
 
     // There are lots; see: http://www.mega-nerd.com/libsndfile/api.html
     const StringEnum cFormat[] = {
@@ -37,7 +37,7 @@ Tracter::SndFileSink::SndFileSink(
 /**
  * Opens the given file and sucks data into it.
  */
-void Tracter::SndFileSink::Open(const char* iFile)
+void Tracter::SndFileSink::open(const char* iFile)
 {
     assert(iFile);
     assert(!mSndFile);
@@ -47,7 +47,7 @@ void Tracter::SndFileSink::Open(const char* iFile)
     sfInfo.format = mFormat | SF_FORMAT_PCM_16 | SF_ENDIAN_FILE;
     sfInfo.samplerate = (int)mFrameRate;
     sfInfo.channels = mFrame.size;
-    Verbose(1, "%s\n", iFile);
+    verbose(1, "%s\n", iFile);
     mSndFile = sf_open(iFile, SFM_WRITE, &sfInfo);
     if (!mSndFile)
         throw Exception("SndFileSink::Open: failed on %s", iFile);
@@ -57,7 +57,7 @@ void Tracter::SndFileSink::Open(const char* iFile)
     CacheArea cache;
     while (int nGot = mInput->Read(cache, index, mBlockSize))
     {
-        float* ip = mInput->GetPointer();
+        float* ip = mInput->getPointer();
         int nPut = 0;
         nPut += (int)sf_writef_float(mSndFile, ip+cache.offset, cache.len[0]);
         nPut += (int)sf_writef_float(mSndFile, ip, cache.len[1]);

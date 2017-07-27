@@ -21,7 +21,7 @@ namespace Tracter
                 const char* iObjectName = "Unframe");
 
     protected:
-        SizeType ContiguousFetch(IndexType iIndex,
+        SizeType contiguousFetch(IndexType iIndex,
                             SizeType iLength, SizeType iOffset);
 
     private:        Component<float>* mInput;

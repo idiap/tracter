@@ -33,16 +33,16 @@ namespace Tracter
          *
          * We need to adjust for the segmenting effect
          */
-        TimeType TimeStamp(IndexType iIndex) const
+        TimeType timeStamp(IndexType iIndex) const
         {
-            return ComponentBase::TimeStamp(
+            return ComponentBase::timeStamp(
                 iIndex + std::max<IndexType>(mSpeechTriggered, (IndexType)0)
             );
         }
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
-        virtual void Reset(bool iPropagate);
+        bool unaryFetch(IndexType iIndex, float* oData);
+        virtual void reset(bool iPropagate);
 
     private:
         Component<float>* mInput;

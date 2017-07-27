@@ -23,9 +23,9 @@ int main(int argc, char** argv)
     LNASource* source = new LNASource();
     ScreenSink sink(source);
 
-    source->Open(argv[1]);
-    sink.Reset();
-    sink.Open();
+    source->open(argv[1]);
+    sink.reset();
+    sink.open();
 
     printf("Done\n");
     return 0;

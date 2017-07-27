@@ -28,12 +28,12 @@ int main(int argc, char** argv)
 
     /* Processing chain */
     FileSource<short>* fs = new FileSource<short>;
-    fs->SetTime(time);
+    fs->setTime(time);
     Normalise* n = new Normalise(fs);
     SocketSink ss(n);
 
     /* Run */
-    fs->Open("testfile.dat");
+    fs->open("testfile.dat");
     ss.Pull();
 
     printf("Done\n");

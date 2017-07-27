@@ -35,11 +35,11 @@ CochlearFrame::CochlearFrame(
     objectName(iObjectName);
     mInput = iInput;
     mSize = config("Size", 256);
-    mFrame.size = mInput->Frame().size;
+    mFrame.size = mInput->frame().size;
     mFrame.period = config("Period", 80);
 
     // Framers look ahead, not back
-    Connect(mInput, mSize, mSize-1);
+    connect(mInput, mSize, mSize-1);
 
     mMethod = config(cMethod, METHOD_ENERGY);
     mWindow = 0;
@@ -58,7 +58,7 @@ CochlearFrame::~CochlearFrame() throw ()
     mWindow = 0;
 }
 
-bool CochlearFrame::UnaryFetch(IndexType iIndex, float* oData)
+bool CochlearFrame::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -72,7 +72,7 @@ bool CochlearFrame::UnaryFetch(IndexType iIndex, float* oData)
     while (nRead < mSize)
     {
         SizeType n = mSize-nRead;
-        const float* ip = mInput->ContiguousRead(readIndex, n);
+        const float* ip = mInput->contiguousRead(readIndex, n);
         if (!ip)
             return false;
         for (int i=0; i<n; i++)

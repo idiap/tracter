@@ -16,16 +16,16 @@ Tracter::SpectralSubtract::SpectralSubtract(
     objectName(iObjectName);
     mInput1 = iInput1;
     mInput2 = iInput2;
-    Connect(iInput1);
-    Connect(iInput2);
+    connect(iInput1);
+    connect(iInput2);
 
-    mFrame.size = iInput1->Frame().size;
+    mFrame.size = iInput1->frame().size;
 
     mAlpha = config("Alpha", 1.0f);
     mBeta = config("Beta", 0.0f);
 }
 
-bool Tracter::SpectralSubtract::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::SpectralSubtract::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -35,12 +35,12 @@ bool Tracter::SpectralSubtract::UnaryFetch(IndexType iIndex, float* oData)
     // spectral mean
     if (mInput2->Read(inputArea, iIndex) == 0)
         return false;
-    float *p2 = mInput2->GetPointer(inputArea.offset);
+    float *p2 = mInput2->getPointer(inputArea.offset);
 
     // Now the first input
     if (mInput1->Read(inputArea, iIndex) == 0)
         return false;
-    float *p1 = mInput1->GetPointer(inputArea.offset);
+    float *p1 = mInput1->getPointer(inputArea.offset);
 
     // Do the subtraction
     for (int i=0; i<mFrame.size; i++)

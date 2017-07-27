@@ -39,7 +39,7 @@ Tracter::ViterbiVAD::ViterbiVAD(
     score.resize(mSilStates+mSpeechStates,0.0);
     tmp_score.resize(mSilStates+mSpeechStates,0.0);
     
-    Connect(iInput,mLookAhead);
+    connect(iInput,mLookAhead);
 }
 
 
@@ -48,9 +48,9 @@ Tracter::ViterbiVAD::ViterbiVAD(
  * mode, it shouldn't be passed on, but when the input is a sequence
  * of files it should be.
  */
-void Tracter::ViterbiVAD::Reset(bool iPropagate)
+void Tracter::ViterbiVAD::reset(bool iPropagate)
 {
-    Verbose(2, "Resetting\n");
+    verbose(2, "Resetting\n");
 
     mIndex = 0;
     mLookAheadIndex = -1;
@@ -59,7 +59,7 @@ void Tracter::ViterbiVAD::Reset(bool iPropagate)
     traceback.clear();
 }
 
-bool Tracter::ViterbiVAD::UnaryFetch(IndexType iIndex, VADState* oData)
+bool Tracter::ViterbiVAD::unaryFetch(IndexType iIndex, VADState* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -87,11 +87,11 @@ bool Tracter::ViterbiVAD::getVADState(IndexType iIndex)
       for (int i = 0; i < mLookAhead-1; i++){
 	//printf("Read input %i\n",i); fflush(stdout);
 	if (mInput->Read(inputArea, i) == 0){
-	  Verbose(2, "getVADState: End Of Data at %ld\n", i);
+	  verbose(2, "getVADState: End Of Data at %ld\n", i);
 	  return false;
 	}
-	assert(inputArea.Length() == 1);
-	float* p = mInput->GetPointer(inputArea.offset);
+	assert(inputArea.length() == 1);
+	float* p = mInput->getPointer(inputArea.offset);
 	//printf("SilProb[%i] %f\n",i,*p);
 	doForward(i,*p);
 	VADState v;
@@ -105,11 +105,11 @@ bool Tracter::ViterbiVAD::getVADState(IndexType iIndex)
     if (mEndOfData >= 0){
       // do nothing
     }else if (mInput->Read(inputArea, iIndex+mLookAhead-1) == 0){
-      Verbose(2, "getVADState: End Of Data at %ld\n", iIndex+mLookAhead-1);
+      verbose(2, "getVADState: End Of Data at %ld\n", iIndex+mLookAhead-1);
       mEndOfData = iIndex+mLookAhead-1;
     }else{
-      assert(inputArea.Length() == 1);
-      float* p = mInput->GetPointer(inputArea.offset);
+      assert(inputArea.length() == 1);
+      float* p = mInput->getPointer(inputArea.offset);
       //printf("SilProb[%i] %f\n",iIndex+mLookAhead-1,*p);
       doForward(iIndex+mLookAhead-1,*p);
     }

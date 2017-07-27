@@ -33,7 +33,7 @@ namespace Tracter
     {
     public:
         VADStateMachine();
-        void Reset(bool iPropagate);
+        void reset(bool iPropagate);
         void ConfirmSilence();
 
         int ConfirmSpeechTime() { return mConfirmSpeechTime; };

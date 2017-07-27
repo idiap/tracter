@@ -13,37 +13,37 @@ Tracter::Unframe::Unframe(Component<float>* iInput, const char* iObjectName)
 {
     objectName(iObjectName);
 
-    mFrame.period = 1.0f/iInput->Frame().size;
+    mFrame.period = 1.0f/iInput->frame().size;
     assert(mFrame.period > 0);
 
     // Framers look ahead, not back
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 }
 
 Tracter::SizeType
-Tracter::Unframe::ContiguousFetch(
+Tracter::Unframe::contiguousFetch(
     IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
     assert(iIndex >= 0);
 
     // Limits
-    int inSize = mInput->Frame().size;
+    int inSize = mInput->frame().size;
     IndexType loIndex = iIndex / inSize;
     IndexType hiIndex = (iIndex + iLength) / inSize;
     int loOffset = iIndex % inSize;
     int hiOffset = (iIndex + iLength) % inSize;
 
-    Verbose(3, "Reading %d from %d of %ld to %d of %ld\n",
+    verbose(3, "Reading %d from %d of %ld to %d of %ld\n",
             iLength, loOffset, loIndex, hiOffset, hiIndex);
 
     // First frame
     int nRead = 0;
-    const float* ip = mInput->UnaryRead(loIndex);
+    const float* ip = mInput->unaryRead(loIndex);
     if (!ip)
         return nRead;
-    float* oData = GetPointer(iOffset);
+    float* oData = getPointer(iOffset);
     int hi = (loIndex == hiIndex) ? hiOffset : inSize;
     for (int i=loOffset; i<hi; i++)
         oData[nRead++] = ip[i];
@@ -51,7 +51,7 @@ Tracter::Unframe::ContiguousFetch(
     // Middle frames
     for (IndexType j=loIndex+1; j<hiIndex; j++)
     {
-        ip = mInput->UnaryRead(j);
+        ip = mInput->unaryRead(j);
         if (!ip)
             return nRead;
         for (int i=0; i<inSize; i++)
@@ -61,7 +61,7 @@ Tracter::Unframe::ContiguousFetch(
     // Last frame
     if (nRead != iLength)
     {
-        ip = mInput->UnaryRead(hiIndex);
+        ip = mInput->unaryRead(hiIndex);
         if (!ip)
             return nRead;
         for (int i=0; i<hiOffset; i++)

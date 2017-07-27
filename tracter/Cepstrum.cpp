@@ -17,9 +17,9 @@ Tracter::Cepstrum::Cepstrum(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(iInput);
+    connect(iInput);
 
-    mNLogData = mInput->Frame().size;
+    mNLogData = mInput->frame().size;
 
     mFloor = config("Floor", 1e-8f);
     mLogFloor = logf(mFloor);
@@ -39,15 +39,15 @@ Tracter::Cepstrum::Cepstrum(
 Tracter::Cepstrum::~Cepstrum() throw()
 {
     if (mFloored > 0)
-        Verbose(1, "floored %d values < %e\n", mFloored, mFloor);
+        verbose(1, "floored %d values < %e\n", mFloored, mFloor);
 }
 
-bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Cepstrum::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame
-    const float* p = mInput->UnaryRead(iIndex);
+    const float* p = mInput->unaryRead(iIndex);
     if (!p)
         return false;
 

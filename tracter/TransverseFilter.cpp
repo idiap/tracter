@@ -19,8 +19,8 @@ Tracter::TransverseFilter::TransverseFilter(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = iInput->Frame().size;
+    connect(mInput);
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
 
     mRadius = config("Radius", 1);
@@ -28,12 +28,12 @@ Tracter::TransverseFilter::TransverseFilter(
         throw Exception("Radius can't be negative");
 }
 
-bool Tracter::TransverseFilter::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::TransverseFilter::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame
-    const float* ip = mInput->UnaryRead(iIndex);
+    const float* ip = mInput->unaryRead(iIndex);
     if (!ip)
         return false;
 

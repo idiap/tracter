@@ -35,7 +35,7 @@ Tracter::Extract::Extract(int iArgc, char** iArgv, ASRFactory* iFactory)
     if (o['l'].defined())
         mLoop = true;
     if (o['d'].defined())
-        mSink->Dot();
+        mSink->dot();
 
     // Unqualified arguments are then filenames
     var argv = o.args();
@@ -81,15 +81,15 @@ void Tracter::Extract::File(
 {
     assert(iFile1);
     assert(iFile2);
-    Verbose(1, "file1 %s, file2 %s\n", iFile1, iFile2);
-    mSource->Open(iFile1);
+    verbose(1, "file1 %s, file2 %s\n", iFile1, iFile2);
+    mSource->open(iFile1);
     FilePath path;
     path.SetName(iFile2);
     path.MakePath();
     do
     {
-        mSink->Open(iFile2);
-        mSink->Reset();
+        mSink->open(iFile2);
+        mSink->reset();
     }
     while (iLoop);
 }
@@ -101,7 +101,7 @@ void Tracter::Extract::File(
 void Tracter::Extract::List(const char* iFileList)
 {
     assert(iFileList);
-    Verbose(1, "filelist %s\n", iFileList);
+    verbose(1, "filelist %s\n", iFileList);
     FILE* list = fopen(iFileList, "r");
     if (!list)
         throw Exception("Failed to open %s", iFileList);
@@ -112,13 +112,13 @@ void Tracter::Extract::List(const char* iFileList)
     FilePath path;
     while (fscanf(list, "%s %s", file1, file2) == 2)
     {
-        Verbose(1, "raw: %s\n", file1);
-        Verbose(1, "htk: %s\n", file2);
-        mSink->Reset();
-        mSource->Open(file1);
+        verbose(1, "raw: %s\n", file1);
+        verbose(1, "htk: %s\n", file2);
+        mSink->reset();
+        mSource->open(file1);
         path.SetName(file2);
         path.MakePath();
-        mSink->Open(file2);
+        mSink->open(file2);
     }
     fclose(list);
 }

@@ -32,7 +32,7 @@ namespace Tracter
         };
         Window(const char* iObjectName = "Window", int iSize = 0);
         virtual ~Window() throw () {}
-        void Resize(int iSize, bool iDivideN = false);
+        void resize(int iSize, bool iDivideN = false);
         float* Apply(const float* iData, float* oData) const;
         const float operator[](int iIndex) { return mWeight[iIndex]; }
         const float at(int iIndex) { return mWeight.at(iIndex); }

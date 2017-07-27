@@ -29,7 +29,7 @@ namespace Tracter
         virtual ~FourierTransformR2C() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, complex* oData);
+        bool unaryFetch(IndexType iIndex, complex* oData);
 
     private:
         Component<float>* mInput;
@@ -55,7 +55,7 @@ namespace Tracter
         virtual ~FourierTransformC2R() throw();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<complex>* mInput;

@@ -21,7 +21,7 @@ namespace Tracter
         ZeroFilter(
             Component<float>* iInput, const char* iObjectName = "ZeroFilter"
         );
-        void MinSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
+        void minSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
 
     protected:
         SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);

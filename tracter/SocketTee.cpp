@@ -186,10 +186,10 @@ void Tracter::Socket::start()
 Tracter::SocketTee::SocketTee(Component<float>* iInput, const char* iObjectName)
 {
     objectName(iObjectName);
-    mFrame.size = iInput->Frame().size;
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
     mInput = iInput;
-    Connect(mInput, 1);
+    connect(mInput, 1);
 
     unsigned short port = config("Port", 30000);
     mFD = 0;
@@ -197,7 +197,7 @@ Tracter::SocketTee::SocketTee(Component<float>* iInput, const char* iObjectName)
     mAcceptMutex = mSocket.AcceptThread(1, &mFD);
 }
 
-bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::SocketTee::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -206,7 +206,7 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
         return false;
 
     // Copy input to output
-    float* input  = mInput->GetPointer(inputArea.offset);
+    float* input  = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
         oData[i] = input[i];
 

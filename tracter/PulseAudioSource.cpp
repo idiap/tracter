@@ -25,7 +25,7 @@ Tracter::PulseAudioSource::PulseAudioSource(const char* iObjectName)
 
     /* Limit the time for which we can connect */
     float maxTime = config("MaxTime", 0.0f);
-    mMaxIndex = SecondsToFrames(maxTime);
+    mMaxIndex = secondsToFrames(maxTime);
 }
 
 Tracter::PulseAudioSource::~PulseAudioSource() throw()
@@ -38,7 +38,7 @@ Tracter::PulseAudioSource::~PulseAudioSource() throw()
 /**
  * Open a PulseAudio device.
  */
-void Tracter::PulseAudioSource::Open(
+void Tracter::PulseAudioSource::open(
     const char* iDeviceName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -90,7 +90,7 @@ void Tracter::PulseAudioSource::Open(
  * The simple API is blocking, which is perfect for tracter.  Fab.
  */
 Tracter::SizeType
-Tracter::PulseAudioSource::ContiguousFetch(
+Tracter::PulseAudioSource::contiguousFetch(
     IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
@@ -102,7 +102,7 @@ Tracter::PulseAudioSource::ContiguousFetch(
     int error;
     int ret = pa_simple_read(
         mHandle,
-        GetPointer(iOffset),
+        getPointer(iOffset),
         iLength * sizeof(float),
         &error
     );

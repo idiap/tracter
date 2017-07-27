@@ -29,11 +29,11 @@ Tracter::SocketSink::SocketSink(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mFrame.size = mInput->Frame().size;
-    Initialise();
-    Reset();
+    mFrame.size = mInput->frame().size;
+    initialise();
+    reset();
 
     mPort = config("Port", 30000);
     mHeader = config("Header", 1);
@@ -77,7 +77,7 @@ Tracter::SocketSink::SocketSink(
                         objectName(), mPort);
     }
 
-    Verbose(1, "waiting for connection\n");
+    verbose(1, "waiting for connection\n");
     struct sockaddr_in client;
 #ifdef _WIN32
     int clientSize = sizeof(client);
@@ -91,7 +91,7 @@ Tracter::SocketSink::SocketSink(
         throw Exception("%s: accept() failed for port %hu\n",
                         objectName(), mPort);
     }
-    Verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
+    verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
 #ifdef _WIN32
     closesocket(sockFD);
 #else
@@ -100,7 +100,7 @@ Tracter::SocketSink::SocketSink(
 
     if (mHeader)
     {
-        TimeType time = TimeStamp() / ONEe6;
+        TimeType time = timeStamp() / ONEe6;
         ssize_t nSent = send(mFD, &time, sizeof(TimeType), 0);
         if (nSent == -1)
         {
@@ -108,7 +108,7 @@ Tracter::SocketSink::SocketSink(
             throw Exception("%s: send() failed for port %hu\n",
                             objectName(), mPort);
         }
-        Verbose(1, "Sent time %lld\n", time);
+        verbose(1, "Sent time %lld\n", time);
     }
 }
 
@@ -133,14 +133,14 @@ void Tracter::SocketSink::Pull()
     int arraySize = mFrame.size == 0 ? 1 : mFrame.size;
     while(mInput->Read(ca, index++))
     {
-        float* data = mInput->GetPointer(ca.offset);
+        float* data = mInput->getPointer(ca.offset);
         ssize_t nSend = arraySize*sizeof(float);
 #ifdef _WIN32
         ssize_t nSent = send(mFD, (char*)data, nSend, 0);
 #else
         ssize_t nSent = send(mFD, data, nSend, 0);
 #endif
-        Verbose(2, "Send %d  sent %d  total %d\n",
+        verbose(2, "Send %d  sent %d  total %d\n",
                 (int)nSend, (int)nSent, total++);
         if (nSent == -1)
         {

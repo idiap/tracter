@@ -19,8 +19,8 @@ int Tracter::sVerbose = 0;
 void Tracter::Object::verbose(var iVerbose)
 {
     sVerbose = iVerbose.cast<int>();
-    Verbose(1, "verbosity set to %d\n", sVerbose);
-    Verbose(1, "library version %s\n", PACKAGE_VERSION);
+    verbose(1, "verbosity set to %d\n", sVerbose);
+    verbose(1, "library version %s\n", PACKAGE_VERSION);
 }
 
 
@@ -136,7 +136,7 @@ int Tracter::Object::config(const StringEnum* iStringEnum, int iDefault)
 
 
 /**
- * Verbose output.  Prints output to stdout depending on the verbosity
+ * verbose output.  Prints output to stdout depending on the verbosity
  * level.  Written using cstdarg such that printf like parameter lists
  * can be passed.
  *
@@ -149,7 +149,7 @@ int Tracter::Object::config(const StringEnum* iStringEnum, int iDefault)
  *  - 4 Once per frame (but not audio frequency)
  *  - 5 Per frame, unlimited frequency
  */
-void Tracter::Object::Verbose(int iLevel, const char* iString, ...) const
+void Tracter::Object::verbose(int iLevel, const char* iString, ...) const
 {
     if (iLevel > sVerbose)
         return;

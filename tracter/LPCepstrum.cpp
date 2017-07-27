@@ -15,9 +15,9 @@ Tracter::LPCepstrum::LPCepstrum(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mNCompressed = mInput->Frame().size;
+    mNCompressed = mInput->frame().size;
     mC0 = config("C0", 1);
     mNCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? mNCepstra+1 : mNCepstra;
@@ -39,7 +39,7 @@ Tracter::LPCepstrum::LPCepstrum(
     mFourier.Init(mNCompressed, &mCompressed, &mAutoCorrelation);
 }
 
-bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::LPCepstrum::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -49,7 +49,7 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
         return false;
 
     // Copy the frame though a compression function
-    float* p = mInput->GetPointer(inputArea.offset);
+    float* p = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mNCompressed; i++)
         mCompressed[i] = powf(p[i], mCompressionPower);
 
@@ -66,7 +66,7 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
 
     if (error < 1e-8f)
     {
-        Verbose(2, "error too small at index %ld\n", iIndex);
+        verbose(2, "error too small at index %ld\n", iIndex);
         return bailOut(oData);
     }
 
@@ -80,7 +80,7 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
         a0[i] = sum / error;
         if (!std::isfinite(a0[i]))
         {
-            Verbose(2, "a0[%d] = %f at index %ld\n", i, a0[i], iIndex);
+            verbose(2, "a0[%d] = %f at index %ld\n", i, a0[i], iIndex);
             return bailOut(oData);
         }
         error *= 1.0f - a0[i] * a0[i];

@@ -13,7 +13,7 @@ Tracter::Noise::Noise(Component<float>* iInput, const char* iObjectName)
 {
     objectName(iObjectName);
     mInput = iInput;
-    mFrame.size = iInput->Frame().size;
+    mFrame.size = iInput->frame().size;
 
     mValid = false;
     mNInit = config("NInit", 10);
@@ -22,10 +22,10 @@ Tracter::Noise::Noise(Component<float>* iInput, const char* iObjectName)
     mWrite = config("Write", 0);
     if (mEnd)
         // Store everything - we'll read the end first
-        Connect(iInput, ReadRange::INFINITE);
+        connect(iInput, ReadRange::INFINITE);
     else
         // Store enough for the initialisation
-        Connect(iInput, 1, mNInit-1);
+        connect(iInput, 1, mNInit-1);
 
     mAccumulator.resize(mFrame.size, 0.0f);
     mNAccumulated = 0;
@@ -34,7 +34,7 @@ Tracter::Noise::Noise(Component<float>* iInput, const char* iObjectName)
 Tracter::Noise::~Noise() throw ()
 {
     if (mSoftReset)
-        Verbose(1, "accumulated %d samples\n", mNAccumulated);
+        verbose(1, "accumulated %d samples\n", mNAccumulated);
     if (mWrite)
     {
         Calculate(&mAccumulator.front());  // Overwrite!
@@ -43,7 +43,7 @@ Tracter::Noise::~Noise() throw ()
     }
 }
 
-void Tracter::Noise::Reset(bool iPropagate)
+void Tracter::Noise::reset(bool iPropagate)
 {
     // Invalidate the estimate
     mValid = false;
@@ -55,10 +55,10 @@ void Tracter::Noise::Reset(bool iPropagate)
     }
 
     // Call the base class
-    CachedComponent<float>::Reset(iPropagate);
+    CachedComponent<float>::reset(iPropagate);
 }
 
-bool Tracter::Noise::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Noise::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(mSize == 1);
@@ -72,7 +72,7 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, float* oData)
             if (!mInput->Read(ca, j))
                 return false;
 
-            float* input = mInput->GetPointer(ca.offset);
+            float* input = mInput->getPointer(ca.offset);
             Accumulate(input);
         }
 
@@ -89,11 +89,11 @@ bool Tracter::Noise::UnaryFetch(IndexType iIndex, float* oData)
             {
                 if (!mInput->Read(ca, j))
                 {
-                    Verbose(1, "out of data\n");
+                    verbose(1, "out of data\n");
                     return false;
                 }
 
-                float* input = mInput->GetPointer(ca.offset);
+                float* input = mInput->getPointer(ca.offset);
                 Accumulate(input);
             }
         }

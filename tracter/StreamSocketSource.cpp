@@ -7,12 +7,12 @@
 
 #include "StreamSocketSource.h"
 
-void Tracter::StreamSocketSource::Open(
+void Tracter::StreamSocketSource::open(
     const char* iHostName, TimeType iBeginTime, TimeType iEndTime
 )
 {
     /* Call the base class */
-    SocketSource<float>::Open(iHostName);
+    SocketSource<float>::open(iHostName);
 
     /* Get the timestamp */
     if (mSocket.Receive(sizeof(TimeType), (char*)&mTime) != sizeof(TimeType))
@@ -20,5 +20,5 @@ void Tracter::StreamSocketSource::Open(
 
     /* The communication is ms, but we store ns */
     mTime *= ONEe6;
-    Verbose(2, "Time set to %lld\n", mTime);
+    verbose(2, "Time set to %lld\n", mTime);
 }

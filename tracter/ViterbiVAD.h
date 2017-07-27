@@ -55,9 +55,9 @@ namespace Tracter
     virtual ~ViterbiVAD() throw(){}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, VADState* oData);
+        bool unaryFetch(IndexType iIndex, VADState* oData);
 
-        virtual void Reset(bool iPropagate);
+        virtual void reset(bool iPropagate);
 
     private:
 	Component<float>* mInput;

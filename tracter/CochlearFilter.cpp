@@ -32,7 +32,7 @@ CochlearFilter::CochlearFilter(
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
     mIndex = -1;
     mFrame.size = config("Size", 23);
     float loHertz = config("LoHertz", 64.0f);
@@ -42,17 +42,17 @@ CochlearFilter::CochlearFilter(
     {
     case HOLDSWORTH:
         mCochlea = new ssp::Holdsworth(
-            loHertz, hiHertz, mFrame.size, 1.0f / FrameRate()
+            loHertz, hiHertz, mFrame.size, 1.0f / frameRate()
         );
         break;
     case LYON:
         mCochlea = new ssp::Lyon(
-            loHertz, hiHertz, mFrame.size, 1.0f / FrameRate()
+            loHertz, hiHertz, mFrame.size, 1.0f / frameRate()
         );
         break;
     case CASCADE:
         mCochlea = new ssp::Cascade(
-            loHertz, hiHertz, mFrame.size, 1.0f / FrameRate()
+            loHertz, hiHertz, mFrame.size, 1.0f / frameRate()
         );
         break;
     }
@@ -65,27 +65,27 @@ CochlearFilter::~CochlearFilter() throw()
     mCochlea = 0;
 }
 
-void Tracter::CochlearFilter::MinSize(
+void Tracter::CochlearFilter::minSize(
     SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
 )
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
+    ComponentBase::minSize(iSize, iReadBehind, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
     assert(mInput);
-    ComponentBase::MinSize(mInput, iSize, 0, 0);
+    ComponentBase::minSize(mInput, iSize, 0, 0);
 }
 
-void CochlearFilter::Reset(bool iPropagate)
+void CochlearFilter::reset(bool iPropagate)
 {
     mCochlea->reset();
     mIndex = -1;
-    CachedComponent<float>::Reset(iPropagate);
+    CachedComponent<float>::reset(iPropagate);
 }
 
-SizeType CochlearFilter::ContiguousFetch(
+SizeType CochlearFilter::contiguousFetch(
     IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
@@ -96,12 +96,12 @@ SizeType CochlearFilter::ContiguousFetch(
     else
         assert(iIndex == mIndex);
 
-    float* op = GetPointer(iOffset);
+    float* op = getPointer(iOffset);
     int nRead = 0;
     while (nRead < iLength)
     {
         SizeType n = iLength-nRead;
-        const float* ip = mInput->ContiguousRead(mIndex, n);
+        const float* ip = mInput->contiguousRead(mIndex, n);
         if (!ip)
             return nRead;
         for (int i=0; i<n; i++)

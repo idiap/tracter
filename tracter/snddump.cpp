@@ -23,8 +23,8 @@ int main(int argc, char** argv)
     SndFileSource* source = new SndFileSource();
     ScreenSink sink(source);
 
-    source->Open(argv[1]);
-    sink.Open();
+    source->open(argv[1]);
+    sink.open();
 
     return 0;
 }

@@ -14,20 +14,20 @@ Tracter::ComplexSample::ComplexSample(
     objectName(iObjectName);
     mInput = iInput;
     mFrame.period = 4;
-    Connect(mInput);
+    connect(mInput);
 }
 
-void Tracter::ComplexSample::MinSize(
+void Tracter::ComplexSample::minSize(
     SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
 )
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
+    ComponentBase::minSize(iSize, iReadBehind, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
     assert(mInput);
-    ComponentBase::MinSize(mInput, iSize * 4 - 2, 0, 0);
+    ComponentBase::minSize(mInput, iSize * 4 - 2, 0, 0);
 }
 
 Tracter::SizeType
@@ -38,7 +38,7 @@ Tracter::ComplexSample::Fetch(IndexType iIndex, CacheArea& iOutputArea)
 
     // Read the input data
     IndexType readIndex = iIndex * 4;
-    SizeType readLen = iOutputArea.Length() * 4 - 2;
+    SizeType readLen = iOutputArea.length() * 4 - 2;
     SizeType lenGot = mInput->Read(inputArea, readIndex, readLen);
 
     CacheIterator<float> input(mInput, inputArea);

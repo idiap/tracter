@@ -31,10 +31,10 @@ namespace Tracter
          * forget otherwise.
          *
          * " N.B., there is no destructor in this base class.  In
-         * particular, it does not call Delete() as that function
+         * particular, it does not call destruct() as that function
          * requires inputs to be defined.  Classes derived from this,
          * however, can choose to implement a destructor that calls
-         * Delete(). "
+         * destruct(). "
          */
     public:
         Sink()
@@ -44,7 +44,7 @@ namespace Tracter
             mMinReadAhead = 0;
             mMaxReadAhead = 0;
         }
-        virtual ~Sink() throw () { Delete(); }
+        virtual ~Sink() throw () { destruct(); }
 
         /** Fetch() should not be called on a sink */
         SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea)
@@ -53,8 +53,8 @@ namespace Tracter
             assert(0);
         }
 
-        /** Resize() should not be called on a sink */
-        void Resize(SizeType iSize)
+        /** resize() should not be called on a sink */
+        void resize(SizeType iSize)
         {
             assert(iSize >= 0);
             assert(0);

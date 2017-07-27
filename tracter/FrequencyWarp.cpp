@@ -61,7 +61,7 @@ Tracter::FrequencyWarp::FrequencyWarp(const char* iObjectName)
  * DSR frontend, and the bins seem to be a little wide in that the
  * triangles overlap a little at the bottom.
  */
-void Tracter::FrequencyWarp::Initialise(int iNPSD)
+void Tracter::FrequencyWarp::initialise(int iNPSD)
 {
     assert(iNPSD > 0);
     mNPSD = iNPSD;
@@ -103,7 +103,7 @@ void Tracter::FrequencyWarp::Initialise(int iNPSD)
  * not obviously triangular, but are properly spaced and probably
  * respond better to VTLN.  This is similar to the way HTK does it.
  */
-void Tracter::FrequencyWarp::Initialise(int iNPSD)
+void Tracter::FrequencyWarp::initialise(int iNPSD)
 {
     assert(iNPSD > 0);
     mNPSD = iNPSD;

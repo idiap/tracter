@@ -32,7 +32,7 @@ Tracter::LNASource::LNASource(const char* iObjectName)
 /**
  * Maps the LNA file
  */
-void Tracter::LNASource::Open(
+void Tracter::LNASource::open(
     const char* iFileName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -41,14 +41,14 @@ void Tracter::LNASource::Open(
     mMapSize = mMap.Size() / (mFrame.size+1);
     if (mLNA16)
         mMapSize /= 2;
-    Verbose(1, "LNA Size %d\n", mMapSize);
+    verbose(1, "LNA Size %d\n", mMapSize);
 }
 
 /**
  * The fetch call is necessary to convert from integer to floating
  * point form.
  */
-bool Tracter::LNASource::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::LNASource::unaryFetch(IndexType iIndex, float* oData)
 {
     if (iIndex >= mMapSize)
         return false;

@@ -20,8 +20,8 @@ Tracter::Histogram::Histogram(Component<float>* iInput, const char* iObjectName)
 {
     objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = iInput->Frame().size;
+    connect(mInput);
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
 
     mMin = config("Min", 0.0f);
@@ -44,7 +44,7 @@ Tracter::Histogram::Histogram(Component<float>* iInput, const char* iObjectName)
     }
 }
 
-bool Tracter::Histogram::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Histogram::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -53,7 +53,7 @@ bool Tracter::Histogram::UnaryFetch(IndexType iIndex, float* oData)
         return false;
 
     // Copy input to output with limits check
-    float* input  = mInput->GetPointer(inputArea.offset);
+    float* input  = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
     {
         // Update histogram. Round down to closest bin

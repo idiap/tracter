@@ -27,7 +27,7 @@ namespace Tracter
             Component<float>* iInput, const char* iObjectName = "ScreenSink"
         );
         virtual ~ScreenSink() throw() {}
-        void Open(const char* iFile=0);
+        void open(const char* iFile=0);
 
     private:
         Component<float>* mInput;

@@ -46,7 +46,7 @@ Tracter::socketSource::~socketSource() throw()
 /**
  * Connects to a socket.
  */
-void Tracter::socketSource::Open(const char* iHostName)
+void Tracter::socketSource::open(const char* iHostName)
 {
     assert(iHostName);
 
@@ -101,11 +101,11 @@ void Tracter::socketSource::Open(const char* iHostName)
         throw Exception("%s: getsockopt() failed for %s\n",
                         objectName(), iHostName);
     }
-    Verbose(1, "SO_KEEPALIVE is %s\n", (optVal ? "ON" : "OFF"));
+    verbose(1, "SO_KEEPALIVE is %s\n", (optVal ? "ON" : "OFF"));
 
     if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &optVal, &optLen))
         throw Exception("getsockopt failed");
-    Verbose(1, "recvbuf is size %d\n", optVal);
+    verbose(1, "recvbuf is size %d\n", optVal);
 
     if (mBufferSize > 0)
     {
@@ -113,7 +113,7 @@ void Tracter::socketSource::Open(const char* iHostName)
             throw Exception("setsockopt failed");
         if (getsockopt(mFD, SOL_SOCKET, SO_RCVBUF, &optVal, &optLen))
             throw Exception("getsockopt failed");
-        Verbose(1, "resize: requested %d granted %d\n", mBufferSize, optVal);
+        verbose(1, "resize: requested %d granted %d\n", mBufferSize, optVal);
     }
 
     // Connect using the host address, port and file descriptor
@@ -156,7 +156,7 @@ int Tracter::socketSource::Receive(int iNBytes, char* iBuffer)
         }
         if (n == 0)
         {
-            Verbose(1, "Read 0\n");
+            verbose(1, "Read 0\n");
             return (int)nGot;
         }
     }
