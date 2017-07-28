@@ -36,7 +36,7 @@ Tracter::Cepstrum::Cepstrum(
     mFourier.init(mNLogData, &mLogData, &mCepstra);
 }
 
-Tracter::Cepstrum::~Cepstrum() throw()
+Tracter::Cepstrum::~Cepstrum()
 {
     if (mFloored > 0)
         verbose(1, "floored %d values < %e\n", mFloored, mFloor);

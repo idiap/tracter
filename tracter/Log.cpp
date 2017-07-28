@@ -26,7 +26,7 @@ Tracter::Log::Log(Component<float>* iInput, const char* iObjectName)
     mFloored = 0;
 }
 
-Tracter::Log::~Log() throw()
+Tracter::Log::~Log()
 {
     if (mFloored > 0)
         verbose(1, "floored %d values < %e\n", mFloored, mFloor);

@@ -22,7 +22,6 @@ namespace Tracter
     {
     public:
         HTKSource(const char* iObjectName = "HTKSource");
-        virtual ~HTKSource() throw() {}
         void open(
             const char* iFileName,
             TimeType iBeginTime = -1,

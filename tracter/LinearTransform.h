@@ -17,11 +17,10 @@ namespace Tracter
     public:
         LinearTransform(Component<float>* iInput,
                         const char* iObjectName = "LinearTransform");
-        virtual ~LinearTransform() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);
-        int LoadXForm(const char* iFileName);
+        int loadXForm(const char* iFileName);
 
     private:
         Component<float>* mInput;

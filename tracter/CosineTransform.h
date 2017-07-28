@@ -21,7 +21,6 @@ namespace Tracter
             Component<float>* iInput,
             const char* iObjectName = "CosineTransform"
         );
-        virtual ~CosineTransform() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

@@ -22,7 +22,7 @@ namespace Tracter
     {
     public:
         Extract(int iArgc, char** iArgv, ASRFactory* iFactory);
-        virtual ~Extract() throw ();
+        virtual ~Extract();
         void All();
 
     private:

@@ -23,11 +23,6 @@ namespace Tracter
     class CachedComponent : public Component<T>
     {
     public:
-        virtual ~CachedComponent<T>() throw()
-        {
-            // Nothing to do
-        }
-
         /**
          * Get a pointer to the cache
          * returns a reference.
@@ -40,11 +35,6 @@ namespace Tracter
         }
 
     protected:
-        CachedComponent<T>()
-        {
-            // Nothing to do
-        }
-
         virtual void resize(SizeType iSize)
         {
             assert(iSize > 0);

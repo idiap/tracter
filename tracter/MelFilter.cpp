@@ -253,7 +253,7 @@ float Tracter::MelFilter::warpHertz(
  * Dumps the bin weights to gnuplot's (trivial) data format so they
  * can be plotted.
  */
-void Tracter::MelFilter::DumpBins()
+void Tracter::MelFilter::dumpBins()
 {
     // Build a fully expanded array
     std::vector< std::vector<float> > output;

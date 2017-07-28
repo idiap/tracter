@@ -31,7 +31,6 @@ namespace Tracter
             Component<T>::mFrame.size = Component<T>::config("FrameSize", 1);
             Component<T>::mFrame.period = 1;
         }
-        virtual ~FileSource() throw() {}
 
         virtual void open(
             const char* iFileName,

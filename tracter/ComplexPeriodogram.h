@@ -25,7 +25,6 @@ namespace Tracter
     public:
         ComplexPeriodogram(Component<complex>* iInput,
                            const char* iObjectName = "ComplexPeriodogram");
-        virtual ~ComplexPeriodogram() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

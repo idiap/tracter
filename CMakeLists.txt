@@ -16,7 +16,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # This is required for ssp headers
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++14")
 
 # Find boost.  The commented part gets rid of the version number; this can help
 # with nonhomegeneous clusters.

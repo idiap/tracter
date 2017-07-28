@@ -46,7 +46,7 @@ namespace Tracter
     class SourceFactory : public Tracter::Object
     {
     public:
-        virtual ~SourceFactory() throw () {}
+        virtual ~SourceFactory() {}
         virtual Component<float>* create(ISource*& iSource) = 0;
     };
 
@@ -57,7 +57,7 @@ namespace Tracter
     class GraphFactory : public Tracter::Object
     {
     public:
-        virtual ~GraphFactory() throw () {}
+        virtual ~GraphFactory() {}
         virtual Component<float>* create(Component<float>* iComponent) = 0;
 
     protected:
@@ -106,7 +106,7 @@ namespace Tracter
     {
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
-        virtual ~ASRFactory() throw ();
+        virtual ~ASRFactory();
         Component<float>* createFrontend(Component<float>* iComponent);
         Component<float>* createSource(ISource*& iSource);
 

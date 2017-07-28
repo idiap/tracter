@@ -22,7 +22,6 @@ namespace Tracter
     {
     public:
         FrequencyWarp(const char* iObjectName = "FrequencyWarp");
-        virtual ~FrequencyWarp() throw () {};
 
         void initialise(int iNPSD);
         void DumpBins();

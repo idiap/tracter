@@ -28,7 +28,7 @@ Tracter::PulseAudioSource::PulseAudioSource(const char* iObjectName)
     mMaxIndex = secondsToFrames(maxTime);
 }
 
-Tracter::PulseAudioSource::~PulseAudioSource() throw()
+Tracter::PulseAudioSource::~PulseAudioSource()
 {
     if (mHandle)
         pa_simple_free(mHandle);

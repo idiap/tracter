@@ -18,7 +18,7 @@ Tracter::LinearTransform::LinearTransform(
     connect(mInput);
 
     const char* file = config("XFormFile", (const char*)0);
-    mFrame.size = LoadXForm(file);
+    mFrame.size = loadXForm(file);
     if (mFrame.size * mInput->frame().size != (int)mMatrix.size())
         throw Exception("input dimension %d incompatible with matrix cols %d",
                         mInput->frame().size, (int)mMatrix.size()/mFrame.size);
@@ -46,7 +46,7 @@ bool Tracter::LinearTransform::unaryFetch(IndexType iIndex, float* oData)
     return true;
 }
 
-int Tracter::LinearTransform::LoadXForm(const char* iFileName)
+int Tracter::LinearTransform::loadXForm(const char* iFileName)
 {
     if (!iFileName)
         throw Exception("Null file name");

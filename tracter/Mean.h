@@ -30,7 +30,6 @@ namespace Tracter
     {
     public:
         Mean(Component<float>* iInput, const char* iObjectName = "Mean");
-        virtual ~Mean() throw() {}
         virtual void reset(bool iPropagate);
         void setTimeConstant(float iSeconds);
 

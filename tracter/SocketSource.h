@@ -20,7 +20,7 @@ namespace Tracter
     {
     public:
         socketSource(const char* iObjectName = "SocketSource");
-        virtual ~socketSource() throw ();
+        virtual ~socketSource();
         virtual void open(const char* iHostName);
         int Receive(int iNBytes, char* iBuffer);
         void Send(int iNBytes, char* iBuffer);
@@ -54,7 +54,6 @@ namespace Tracter
             Source< CachedComponent<T> >::mFrameRate =
                 Source< CachedComponent<T> >::config("FrameRate", 48000.0f);
         }
-        virtual ~SocketSource() throw () {}
         virtual void open(
             const char* iHostName,
             TimeType iBeginTime = -1,

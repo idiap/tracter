@@ -125,7 +125,7 @@ Tracter::ASRFactory::ASRFactory(const char* iObjectName)
     registerFrontend(new SNRGraphFactory);
 }
 
-Tracter::ASRFactory::~ASRFactory() throw ()
+Tracter::ASRFactory::~ASRFactory()
 {
     std::map<std::string, SourceFactory*>::iterator s;
     for (s = mSource.begin(); s != mSource.end(); ++s)

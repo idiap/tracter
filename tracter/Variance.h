@@ -29,8 +29,8 @@ namespace Tracter
     class Variance : public CachedComponent<float>
     {
     public:
-        Variance(Component<float>* iInput, const char* iObjectName = "Variance");
-        virtual ~Variance() throw() {}
+        Variance(Component<float>* iInput,
+                 const char* iObjectName = "Variance");
         virtual void reset(bool iPropagate);
         void setTimeConstant(float iSeconds);
 

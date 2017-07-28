@@ -24,8 +24,6 @@ namespace Tracter
     public:
     	BoolToFloat(Component<BoolType>* iInput, 
                     const char* iObjectName = "BoolToFloat");
-        
-        virtual ~BoolToFloat() throw() {};
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

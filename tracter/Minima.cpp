@@ -254,7 +254,7 @@ Tracter::Minima::Minima(Component<float>* iInput, const char* iObjectName)
     verbose(1, "Window %d, %d ahead\n", mNWindow, mNAhead);
 }
 
-Tracter::Minima::~Minima() throw ()
+Tracter::Minima::~Minima()
 {
     for (int i=0; i<mFrame.size; i++)
         delete mWindow[i];

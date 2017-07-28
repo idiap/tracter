@@ -52,7 +52,7 @@ Tracter::Resample::Resample(
 /**
  * Deletes the sample rate converter
  */
-Tracter::Resample::~Resample() throw()
+Tracter::Resample::~Resample()
 {
     ResampleData& r = *mResampleData;
     resample_close(r.handle);

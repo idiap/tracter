@@ -26,7 +26,6 @@ namespace Tracter
         SndFileSink(
             Component<float>* iInput, const char* iObjectName = "SndFileSink"
         );
-        virtual ~SndFileSink() throw() {}
         void open(const char* iFile);
 
     private:

@@ -31,7 +31,6 @@ namespace Tracter
             GAUSS
         };
         Window(const char* iObjectName = "Window", int iSize = 0);
-        virtual ~Window() throw () {}
         void resize(int iSize, bool iDivideN = false);
         float* apply(const float* iData, float* oData) const;
         const float operator[](int iIndex) { return mWeight[iIndex]; }

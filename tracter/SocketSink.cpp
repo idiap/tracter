@@ -112,7 +112,7 @@ Tracter::SocketSink::SocketSink(
     }
 }
 
-Tracter::SocketSink::~SocketSink() throw()
+Tracter::SocketSink::~SocketSink()
 {
     if (mFD)
     {
@@ -125,7 +125,7 @@ Tracter::SocketSink::~SocketSink() throw()
     }
 }
 
-void Tracter::SocketSink::Pull()
+void Tracter::SocketSink::pull()
 {
     CacheArea ca;
     int index = 0;

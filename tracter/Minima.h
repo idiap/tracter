@@ -158,7 +158,7 @@ namespace Tracter
     {
     public:
         Minima(Component<float>* iInput, const char* iObjectName = "Minima");
-        virtual ~Minima() throw ();
+        virtual ~Minima();
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

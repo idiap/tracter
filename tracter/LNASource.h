@@ -21,7 +21,6 @@ namespace Tracter
     {
     public:
         LNASource(const char* iObjectName = "LNASource");
-        virtual ~LNASource() throw() {}
         void open(
             const char* iFileName,
             TimeType iBeginTime = -1,

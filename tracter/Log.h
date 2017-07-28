@@ -21,7 +21,7 @@ namespace Tracter
         Log(
             Component<float>* iInput, const char* iObjectName = "Log"
         );
-        virtual ~Log() throw();
+        virtual ~Log();
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

@@ -189,7 +189,7 @@ int main(int argc, char** argv)
     }
 
     FilePath path;
-#define FILETEST(p) printf("Test:" p "\n"); path.SetName(p); path.Dump()
+#define FILETEST(p) printf("Test:" p "\n"); path.setName(p); path.dump()
     FILETEST("hello");
     FILETEST("hello.ext");
     FILETEST("path/hello");
@@ -198,7 +198,7 @@ int main(int argc, char** argv)
     FILETEST("./hello.ext1.ext2");
     FILETEST("./hello.ext1.ext2/file/");
     FILETEST("./very/long/path/name/file-name.ext");
-    //path.MakePath();
+    //path.makePath();
 
     printf("Done\n");
     return 0;

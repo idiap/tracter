@@ -22,7 +22,7 @@ namespace Tracter
     {
     public:
         SndFileSource(const char* iObjectName = "SndFileSource");
-        virtual ~SndFileSource() throw();
+        virtual ~SndFileSource();
         void open(
             const char* iFileName,
             TimeType iBeginTime = -1,

@@ -24,7 +24,7 @@ namespace Tracter
         CochlearFilter(
             Component<float>* iInput, const char* iObjectName = "CochlearFilter"
         );
-        virtual ~CochlearFilter() throw();
+        virtual ~CochlearFilter();
         void minSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
 
     protected:

@@ -31,7 +31,7 @@ Tracter::Periodogram::Periodogram(
         mWindow = 0;
 }
 
-Tracter::Periodogram::~Periodogram() throw ()
+Tracter::Periodogram::~Periodogram()
 {
     delete mWindow;
     mWindow = 0;

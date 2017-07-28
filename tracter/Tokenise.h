@@ -45,7 +45,6 @@ namespace Tracter
     {
     public:
         Tokenise(Component<char>* iInput, const char* iObjectName = "Tokenise");
-        virtual ~Tokenise() throw() {}
 
     protected:
         std::string mQuote;

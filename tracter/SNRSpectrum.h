@@ -22,7 +22,6 @@ namespace Tracter
             Component<float>* iPowerInput, Component<float>* iNoiseInput,
             const char* iObjectName = "SNRSpectrum"
         );
-        virtual ~SNRSpectrum() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

@@ -41,7 +41,7 @@ Tracter::Mutex::Mutex()
     pthread_mutex_init(&mMutex, 0);
 }
 
-Tracter::Mutex::~Mutex() throw ()
+Tracter::Mutex::~Mutex()
 {
     pthread_mutex_destroy(&mMutex);
 }
@@ -73,7 +73,7 @@ Tracter::Socket::Socket()
     }
 }
 
-Tracter::Socket::~Socket() throw ()
+Tracter::Socket::~Socket()
 {
     if (mFD)
         close(mFD);
@@ -244,7 +244,7 @@ bool Tracter::SocketTee::unaryFetch(IndexType iIndex, float* oData)
     return true;
 }
 
-Tracter::SocketTee::~SocketTee() throw()
+Tracter::SocketTee::~SocketTee()
 {
     if (mFD)
         close(mFD);

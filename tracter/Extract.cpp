@@ -66,7 +66,7 @@ void Tracter::Extract::All()
     }
 }
 
-Tracter::Extract::~Extract() throw ()
+Tracter::Extract::~Extract()
 {
     delete mSink;
 }
@@ -84,8 +84,8 @@ void Tracter::Extract::File(
     verbose(1, "file1 %s, file2 %s\n", iFile1, iFile2);
     mSource->open(iFile1);
     FilePath path;
-    path.SetName(iFile2);
-    path.MakePath();
+    path.setName(iFile2);
+    path.makePath();
     do
     {
         mSink->open(iFile2);
@@ -116,8 +116,8 @@ void Tracter::Extract::List(const char* iFileList)
         verbose(1, "htk: %s\n", file2);
         mSink->reset();
         mSource->open(file1);
-        path.SetName(file2);
-        path.MakePath();
+        path.setName(file2);
+        path.makePath();
         mSink->open(file2);
     }
     fclose(list);

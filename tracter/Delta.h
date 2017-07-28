@@ -21,7 +21,6 @@ namespace Tracter
     {
     public:
         Delta(Component<float>* iInput, const char* iObjectName = "Delta");
-        virtual ~Delta() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

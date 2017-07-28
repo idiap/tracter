@@ -55,7 +55,7 @@ Tracter::ALSASource::ALSASource(const char* iObjectName)
     mMaxIndex = secondsToFrames(maxTime);
 }
 
-Tracter::ALSASource::~ALSASource() throw()
+Tracter::ALSASource::~ALSASource()
 {
     snd_pcm_close(mHandle);
     snd_pcm_status_free(mStatus);

@@ -32,7 +32,7 @@ Tracter::socketSource::socketSource(const char* iObjectName)
     mFD = 0;
 }
 
-Tracter::socketSource::~socketSource() throw()
+Tracter::socketSource::~socketSource()
 {
 #ifdef _WIN32
     closesocket(mFD);

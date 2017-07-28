@@ -22,7 +22,6 @@ namespace Tracter
             Component<float>* iInput,
             const char* iObjectName = "LowEnergyEnvelope"
         );
-        virtual ~LowEnergyEnvelope() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

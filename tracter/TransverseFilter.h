@@ -22,7 +22,6 @@ namespace Tracter
             Component<float>* iInput, const
             char* iObjectName = "TransverseFilter"
         );
-        virtual ~TransverseFilter() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

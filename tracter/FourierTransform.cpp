@@ -32,7 +32,7 @@ Tracter::FourierTransformR2C::FourierTransformR2C(
     verbose(1, "R x %d to C x %d\n", frameSize, mFrame.size);
 }
 
-Tracter::FourierTransformR2C::~FourierTransformR2C() throw ()
+Tracter::FourierTransformR2C::~FourierTransformR2C()
 {
     delete mWindow;
     mWindow = 0;
@@ -93,7 +93,7 @@ Tracter::FourierTransformC2R::FourierTransformC2R(
     verbose(1, "R x %d to C x %d\n", frameSize, mFrame.size);
 }
 
-Tracter::FourierTransformC2R::~FourierTransformC2R() throw ()
+Tracter::FourierTransformC2R::~FourierTransformC2R()
 {
     delete mWindow;
     mWindow = 0;

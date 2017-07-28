@@ -22,7 +22,6 @@ namespace Tracter
         LPCepstrum(
             Component<float>* iInput, const char* iObjectName = "LPCepstrum"
         );
-        virtual ~LPCepstrum() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

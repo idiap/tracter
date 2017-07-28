@@ -19,7 +19,6 @@ namespace Tracter
     {
     public:
         Concatenate(const char* iObjectName = "Concatenate");
-        virtual ~Concatenate() throw() {}
         void add(Component<float>* iInput);
 
     protected:

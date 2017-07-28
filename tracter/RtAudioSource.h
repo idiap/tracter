@@ -26,7 +26,6 @@ namespace Tracter
     {
     public:
         RtAudioSource(const char* iObjectName = "RtAudioSource");
-        ~RtAudioSource() throw() {}
         void open(
             const char* iDeviceName,
             TimeType iBeginTime = -1,

@@ -23,7 +23,6 @@ namespace Tracter
     {
     public:
         Thread();
-        virtual ~Thread() throw () {}
         void Start();
         virtual void start() = 0;
 
@@ -40,7 +39,7 @@ namespace Tracter
     {
     public:
         Mutex();
-        virtual ~Mutex() throw ();
+        virtual ~Mutex();
         void Lock();
         void Unlock();
 
@@ -56,7 +55,7 @@ namespace Tracter
     {
     public:
         Socket();
-        virtual ~Socket() throw ();
+        virtual ~Socket();
         void Listen(unsigned short iPort, bool iNonBlock = false);
         int Accept();
         Mutex* AcceptThread(int iNFD, int* iFD);
@@ -84,7 +83,7 @@ namespace Tracter
         SocketTee(
             Component<float>* iInput, const char* iObjectName = "SocketTee"
         );
-        virtual ~SocketTee() throw();
+        virtual ~SocketTee();
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

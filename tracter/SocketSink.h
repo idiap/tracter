@@ -22,8 +22,8 @@ namespace Tracter
         SocketSink(
             Component<float>* iInput, const char* iObjectName = "SocketSink"
         );
-        virtual ~SocketSink() throw();
-        void Pull();
+        virtual ~SocketSink();
+        void pull();
 
     private:
         Component<float>* mInput;

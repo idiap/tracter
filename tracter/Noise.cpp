@@ -31,7 +31,7 @@ Tracter::Noise::Noise(Component<float>* iInput, const char* iObjectName)
     mNAccumulated = 0;
 }
 
-Tracter::Noise::~Noise() throw ()
+Tracter::Noise::~Noise()
 {
     if (mSoftReset)
         verbose(1, "accumulated %d samples\n", mNAccumulated);

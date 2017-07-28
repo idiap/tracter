@@ -75,7 +75,7 @@ bool Tracter::Histogram::unaryFetch(IndexType iIndex, float* oData)
     return true;
 }
 
-Tracter::Histogram::~Histogram() throw()
+Tracter::Histogram::~Histogram()
 {
     if (mMode)
         writeMode();

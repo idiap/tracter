@@ -58,7 +58,7 @@ CochlearFilter::CochlearFilter(
     }
 }
 
-CochlearFilter::~CochlearFilter() throw()
+CochlearFilter::~CochlearFilter()
 {
     if (mCochlea)
         delete mCochlea;

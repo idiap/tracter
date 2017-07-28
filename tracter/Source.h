@@ -48,7 +48,6 @@ namespace Tracter
         // moved to a type independent class.
     public:
         Source() { mTime = 0; mFrameRate = 0.0f; }
-        virtual ~Source() throw () {}
 
         virtual void setTime(TimeType iTime)
         {

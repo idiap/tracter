@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 
     /* Run */
     fs->open("testfile.dat");
-    ss.Pull();
+    ss.pull();
 
     printf("Done\n");
     return 0;

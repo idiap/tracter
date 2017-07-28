@@ -122,7 +122,7 @@ namespace Tracter
     {
     public:
         ComponentBase(void);
-        virtual ~ComponentBase(void) throw () {};
+        virtual ~ComponentBase(void) {};
 
         SizeType read(CacheArea& oArea, IndexType iIndex, SizeType iLength = 1);
         virtual void reset(bool iPropagate = true);

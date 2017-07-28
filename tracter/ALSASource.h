@@ -20,7 +20,7 @@ namespace Tracter
     {
     public:
         ALSASource(const char* iObjectName = "ALSASource");
-        ~ALSASource() throw();
+        ~ALSASource();
         void open(
             const char* iDeviceName,
             TimeType iBeginTime = -1,

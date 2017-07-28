@@ -24,7 +24,7 @@ namespace Tracter
     {
     public:
         Noise(Component<float>* iInput, const char* iObjectName = "Noise");
-        virtual ~Noise() throw ();
+        virtual ~Noise();
         virtual void reset(bool iPropagate);
 
     protected:

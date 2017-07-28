@@ -44,7 +44,7 @@ namespace Tracter
             mMinReadAhead = 0;
             mMaxReadAhead = 0;
         }
-        virtual ~Sink() throw () { destruct(); }
+        virtual ~Sink() { destruct(); }
 
         /** fetch() should not be called on a sink */
         SizeType fetch(IndexType iIndex, CacheArea& iOutputArea)

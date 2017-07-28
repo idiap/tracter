@@ -18,7 +18,7 @@ namespace Tracter
     public:
         CochlearFrame(Component<float>* iInput,
                       const char* iObjectName = "CochlearFrame");
-        virtual ~CochlearFrame() throw();
+        virtual ~CochlearFrame();
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

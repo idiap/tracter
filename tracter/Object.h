@@ -45,7 +45,6 @@ namespace Tracter
     class Object : public lube::Config
     {
     public:
-        virtual ~Object() throw () {} // Stops destructors throwing exceptions
         const char* objectName() const { return configStr(); }
         void objectName(const char* iName) { configSection(iName); }
 
@@ -69,7 +68,7 @@ namespace Tracter
     {
     public:
         Exception(const char* iString, ...);
-        virtual const char* what() const throw()
+        virtual const char* what() const noexcept
         {
             return mString;
         }

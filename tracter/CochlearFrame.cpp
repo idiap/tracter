@@ -51,7 +51,7 @@ CochlearFrame::CochlearFrame(
     assert(mFrame.period > 0);
 }
 
-CochlearFrame::~CochlearFrame() throw ()
+CochlearFrame::~CochlearFrame()
 {
     if (mWindow)
         delete mWindow;

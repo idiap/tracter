@@ -24,7 +24,7 @@ namespace Tracter
     public:
         Periodogram(Component<float>* iInput,
                     const char* iObjectName = "Periodogram");
-        virtual ~Periodogram() throw();
+        virtual ~Periodogram();
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

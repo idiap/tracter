@@ -18,7 +18,7 @@ Tracter::SndFileSource::SndFileSource(const char* iObjectName)
     mSoxHack = config("SoxHack", 0);
 }
 
-Tracter::SndFileSource::~SndFileSource() throw ()
+Tracter::SndFileSource::~SndFileSource()
 {
     if (mSndFile)
         sf_close(mSndFile);

@@ -22,7 +22,7 @@ namespace Tracter
     {
     public:
         PulseAudioSource(const char* iObjectName = "PulseAudioSource");
-        ~PulseAudioSource() throw();
+        ~PulseAudioSource();
         void open(
             const char* iDeviceName,
             TimeType iBeginTime = -1,

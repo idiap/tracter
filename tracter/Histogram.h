@@ -22,7 +22,7 @@ namespace Tracter
         Histogram(
             Component<float>* iInput, const char* iObjectName = "Histogram"
         );
-        virtual ~Histogram() throw();
+        virtual ~Histogram();
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);

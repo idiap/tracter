@@ -26,7 +26,6 @@ namespace Tracter
         ScreenSink(
             Component<float>* iInput, const char* iObjectName = "ScreenSink"
         );
-        virtual ~ScreenSink() throw() {}
         void open(const char* iFile=0);
 
     private:

@@ -23,7 +23,6 @@ namespace Tracter
     {
     public:
         MCep(Component<float>* iInput, const char* iObjectName = "MCep");
-        virtual ~MCep() throw() {}
 
     protected:
         bool unaryFetch(IndexType iIndex, float* oData);
