@@ -16,7 +16,24 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # This is required for ssp headers
-set(CMAKE_CXX_FLAGS "-std=c++14")
+set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++14")
+
+if (NOT EXISTS "${CMAKE_MODULE_PATH}/FindLibUBE.cmake")
+  message(STATUS "Downloading FindLibUBE.cmake")
+  file(DOWNLOAD
+    "https://github.com/pgarner/libube/raw/master/cmake/FindLibUBE.cmake"
+    "${CMAKE_MODULE_PATH}/FindLibUBE.cmake"
+    )
+endif()
+
+if (NOT EXISTS "${CMAKE_MODULE_PATH}/FindLibSSP.cmake")
+  message(STATUS "Downloading FindLibSSP.cmake")
+  file(DOWNLOAD
+    "https://github.com/Idiap/libssp/raw/master/cmake/FindLibSSP.cmake"
+    "${CMAKE_MODULE_PATH}/FindLibSSP.cmake"
+    )
+endif()
+
 
 # Find boost.  The commented part gets rid of the version number; this can help
 # with nonhomegeneous clusters.
