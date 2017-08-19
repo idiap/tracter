@@ -8,7 +8,7 @@
 #include <cstdio>
 
 #include "SndFileSource.h"
-#include "ScreenSink.h"
+#include "FileSink.h"
 
 using namespace Tracter;
 
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     }
 
     SndFileSource* source = new SndFileSource();
-    ScreenSink sink(source);
+    FileSink sink(source);
 
     source->open(argv[1]);
     sink.open();
