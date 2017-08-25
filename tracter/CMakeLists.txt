@@ -48,7 +48,6 @@ set(SOURCES
   LinearTransform.cpp
   LNASource.cpp
   Log.cpp
-  LowEnergyEnvelope.cpp
   LPCepstrum.cpp
   Mean.cpp
   MelFilter.cpp
