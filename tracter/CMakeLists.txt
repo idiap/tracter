@@ -145,6 +145,8 @@ if(SNDFILE_FOUND)
   include_directories(${SNDFILE_INCLUDE_DIRS})
   list(APPEND TARGET_LIBS ${SNDFILE_LIBRARIES})
   list(APPEND PKGCONFIG_REQUIRES sndfile)
+  add_executable(snddump snddump.cpp)
+  target_link_libraries(snddump static-lib)
 endif(SNDFILE_FOUND)
 
 # libresample
@@ -224,13 +226,11 @@ endif (USE_SHARED)
 add_executable(socketserver socketserver.cpp)
 add_executable(socketclient socketclient.cpp)
 add_executable(lnadump lnadump.cpp)
-add_executable(snddump snddump.cpp)
 
 # These link static for the time being.  Could be changed.
 target_link_libraries(socketserver static-lib)
 target_link_libraries(socketclient static-lib)
 target_link_libraries(lnadump static-lib)
-target_link_libraries(snddump static-lib)
 
 # CMake install line
 install(
