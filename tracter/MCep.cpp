@@ -73,7 +73,7 @@ bool Tracter::MCep::UnaryFetch(IndexType iIndex, float* oData)
             c, m,
             mAlpha,
             mMinIter, mMaxIter,
-            mEndCondition, mSmall, mDetMin,
+            mEndCondition, 1, mSmall, mDetMin,
             4 // = Periodogram
         );
     }
@@ -84,7 +84,7 @@ bool Tracter::MCep::UnaryFetch(IndexType iIndex, float* oData)
             b, m,
             mAlpha, mGamma, l - 1,
             mMinIter, mMaxIter,
-            mEndCondition, mSmall, mDetMin,
+            mEndCondition, 1, mSmall, mDetMin,
             4 // = Periodogram
         );
         ignorm(b, b, m, mGamma);      // K, b'r --> br
