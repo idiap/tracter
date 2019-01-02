@@ -12,7 +12,7 @@ find_path(
 )
 
 find_library(
-  LIBRESAMPLE_LIBRARY NAMES libresample.a
+  LIBRESAMPLE_LIBRARY NAMES libresample.so libresample.a
 )
 
 include(FindPackageHandleStandardArgs)
