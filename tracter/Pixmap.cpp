@@ -13,25 +13,25 @@
 
 Tracter::Pixmap::Pixmap(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
 
-    mFrame.size = GetEnv("FrameSize", iInput->Frame().size);
+    mFrame.size = config("FrameSize", iInput->frame().size);
     assert(mFrame.size >= 0);
 
     // Keep all the input
-    Connect(iInput, ReadRange::INFINITE);
+    connect(iInput, ReadRange::INFINITE);
 
     mLoIndex = -1;
     mHiIndex = -1;
     mMin = FLT_MAX;
     mMax = -FLT_MAX;
 
-    mLog = GetEnv("Log", 1);
-    mRange = GetEnv("Range", 90);
+    mLog = config("Log", 1);
+    mRange = config("Range", 90);
 }
 
-bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Pixmap::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
@@ -39,14 +39,14 @@ bool Tracter::Pixmap::UnaryFetch(IndexType iIndex, float* oData)
         mLoIndex = iIndex;
 
     CacheArea inputArea;
-    if (mInput->Read(inputArea, iIndex) != 1)
+    if (mInput->read(inputArea, iIndex) != 1)
     {
         write();
         return false;
     }
 
     // Copy input to output with limits check
-    float* input  = mInput->GetPointer(inputArea.offset);
+    float* input  = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
     {
         oData[i] = input[i];
@@ -74,7 +74,7 @@ void Tracter::Pixmap::write()
     // Body
     if (mLog && (mMin < 0.0f))
         throw Exception("%s: Minimum value is < 0, can't use log scaling\n",
-                        mObjectName);
+                        objectName());
 
     // Scale the available range to 0-255.  Can be floored.
     float min;
@@ -86,8 +86,8 @@ void Tracter::Pixmap::write()
         min = log10f(mMin);
         max = log10f(mMax);
         range = std::min(max - min, mRange/10.0f);
-        Verbose(1, "Range: %.2f dB raw\n", 10.0*(max-min));
-        Verbose(1, "Range: %.2f dB floored\n", 10.0*(range));
+        verbose(1, "Range: %.2f dB raw\n", 10.0*(max-min));
+        verbose(1, "Range: %.2f dB floored\n", 10.0*(range));
     }
     else
     {
@@ -101,9 +101,9 @@ void Tracter::Pixmap::write()
     CacheArea inputArea;
     for (int f=mLoIndex; f<=mHiIndex; f++)
     {
-        mInput->Read(inputArea, f);
-        assert(inputArea.Length() == 1);
-        float* p = mInput->GetPointer(inputArea.offset);
+        mInput->read(inputArea, f);
+        assert(inputArea.length() == 1);
+        float* p = mInput->getPointer(inputArea.offset);
         for (int i=0; i<mFrame.size; i++)
         {
             int val = (int)std::max(

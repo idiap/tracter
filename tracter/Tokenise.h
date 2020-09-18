@@ -45,7 +45,6 @@ namespace Tracter
     {
     public:
         Tokenise(Component<char>* iInput, const char* iObjectName = "Tokenise");
-        virtual ~Tokenise() throw() {}
 
     protected:
         std::string mQuote;
@@ -67,7 +66,7 @@ namespace Tracter
 
     private:
         Component<char>* mInput;
-        bool UnaryFetch(IndexType iIndex, Token* oData);
+        bool unaryFetch(IndexType iIndex, Token* oData);
         bool inStr(const char& iChar, const std::string& mStr) const
         {
             size_t pos = mStr.find(iChar);

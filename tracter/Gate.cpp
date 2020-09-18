@@ -15,11 +15,11 @@ Tracter::Gate::Gate(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
-    mFrame.size = iInput->Frame().size;
+    objectName(iObjectName);
+    mFrame.size = iInput->frame().size;
 
-    Connect(iInput);
-    Connect(iControlInput);
+    connect(iInput);
+    connect(iControlInput);
 
     mInput = iInput;
     mControlInput = iControlInput;
@@ -30,9 +30,9 @@ Tracter::Gate::Gate(
     mOpen = false;
     mUpstreamEndOfData = false;
 
-    mEnabled = GetEnv("Enable", 1);
-    mSegmenting = GetEnv("Segmenting", 0);
-    mConcatenate = GetEnv("Concatenate", 0);
+    mEnabled = config("Enable", 1);
+    mSegmenting = config("Segmenting", 0);
+    mConcatenate = config("Concatenate", 0);
 }
 
 /**
@@ -40,9 +40,9 @@ Tracter::Gate::Gate(
  * mode, it shouldn't be passed on, but when the input is a sequence
  * of files it should be.
  */
-void Tracter::Gate::Reset(bool iPropagate)
+void Tracter::Gate::reset(bool iPropagate)
 {
-    Verbose(2, "Resetting\n");
+    verbose(2, "Resetting\n");
     if (mSegmenting)
     {
         if (mClosedIndex >= 0)
@@ -56,7 +56,7 @@ void Tracter::Gate::Reset(bool iPropagate)
     mRemoved = 0;
 
     // Propagate reset upstream under these conditions
-    CachedComponent<float>::Reset(
+    CachedComponent<float>::reset(
         mUpstreamEndOfData ||  // Always after EOD
         !mSegmenting ||        // If not segmenting
         !mEnabled              // If disabled
@@ -64,7 +64,7 @@ void Tracter::Gate::Reset(bool iPropagate)
     mUpstreamEndOfData = false;
 }
 
-bool Tracter::Gate::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Gate::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -73,7 +73,7 @@ bool Tracter::Gate::UnaryFetch(IndexType iIndex, float* oData)
     // upstream point of view.
     if (mEnabled && !gate(iIndex))
     {
-        Verbose(2, "gate() returned at Index %ld, ClosedIndex %ld\n",
+        verbose(2, "gate() returned at Index %ld, ClosedIndex %ld\n",
                 iIndex, mClosedIndex);
 
         // If all went well, mClosedIndex should be equal to iIndex
@@ -93,7 +93,7 @@ bool Tracter::Gate::UnaryFetch(IndexType iIndex, float* oData)
     }
 
     // Copy input to output
-    const float* ip = mInput->UnaryRead(iIndex);
+    const float* ip = mInput->unaryRead(iIndex);
     if (!ip)
         return false;
     for (int i=0; i<mFrame.size; i++)
@@ -171,10 +171,10 @@ bool Tracter::Gate::readControl(IndexType iIndex)
 {
     assert(iIndex >= 0);
 
-    const BoolType* open = mControlInput->UnaryRead(iIndex);
+    const BoolType* open = mControlInput->unaryRead(iIndex);
     if (!open)
     {
-        Verbose(2, "readControl: End Of Data at %ld\n", iIndex);
+        verbose(2, "readControl: End Of Data at %ld\n", iIndex);
         mUpstreamEndOfData = true;
         return false;
     }
@@ -190,7 +190,7 @@ bool Tracter::Gate::readControl(IndexType iIndex)
  */
 bool Tracter::Gate::openGate(IndexType iIndex)
 {
-    Verbose(2, "Attempting to open gate\n");
+    verbose(2, "Attempting to open gate\n");
     assert(iIndex >= 0);
     assert(mOpen == false);
 
@@ -204,6 +204,6 @@ bool Tracter::Gate::openGate(IndexType iIndex)
 
     assert(mOpen == true);
     mOpenedIndex = index;
-    Verbose(2, "openGate: opened at %ld\n", mOpenedIndex);
+    verbose(2, "openGate: opened at %ld\n", mOpenedIndex);
     return true;
 }

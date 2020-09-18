@@ -12,9 +12,9 @@ const int BLOCK_SIZE = 16;
 
 Tracter::Tokenise::Tokenise(Component<char>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(iInput, BLOCK_SIZE);
+    connect(iInput, BLOCK_SIZE);
 
     mWhite = " \n\t";
     mQuote = "\"\'";
@@ -25,7 +25,7 @@ Tracter::Tokenise::Tokenise(Component<char>* iInput, const char* iObjectName)
     mLine = 1;
 }
 
-bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, Token* oData)
+bool Tracter::Tokenise::unaryFetch(IndexType iIndex, Token* oData)
 {
     assert(iIndex >= 0);
 
@@ -38,10 +38,10 @@ bool Tracter::Tokenise::UnaryFetch(IndexType iIndex, Token* oData)
 
     // Read the input
     CacheArea inputArea;
-    while (mInput->Read(inputArea, mIndex, BLOCK_SIZE))
+    while (mInput->read(inputArea, mIndex, BLOCK_SIZE))
     {
         CacheIterator<char> mIterator(mInput, inputArea);
-        for (SizeType i=0; i<inputArea.Length(); ++i, ++mIterator, ++mIndex)
+        for (SizeType i=0; i<inputArea.length(); ++i, ++mIterator, ++mIndex)
         {
             char c = *mIterator;
 

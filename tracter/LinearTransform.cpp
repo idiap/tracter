@@ -13,29 +13,29 @@ Tracter::LinearTransform::LinearTransform(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    const char* file = GetEnv("XFormFile", (const char*)0);
-    mFrame.size = LoadXForm(file);
-    if (mFrame.size * mInput->Frame().size != (int)mMatrix.size())
+    const char* file = config("XFormFile", (const char*)0);
+    mFrame.size = loadXForm(file);
+    if (mFrame.size * mInput->frame().size != (int)mMatrix.size())
         throw Exception("input dimension %d incompatible with matrix cols %d",
-                        mInput->Frame().size, (int)mMatrix.size()/mFrame.size);
+                        mInput->frame().size, (int)mMatrix.size()/mFrame.size);
 }
 
-bool Tracter::LinearTransform::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::LinearTransform::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(mMatrix.size() > 0);
 
     // Read the input frame
-    const float* p = mInput->UnaryRead(iIndex);
+    const float* p = mInput->unaryRead(iIndex);
     if (!p)
         return false;
 
     /* Multiply, with due disregard to cache and BLAS */
-    int nCols = mInput->Frame().size;
+    int nCols = mInput->frame().size;
     for (int r=0; r<mFrame.size; r++)
     {
         oData[r] = 0.0f;
@@ -46,7 +46,7 @@ bool Tracter::LinearTransform::UnaryFetch(IndexType iIndex, float* oData)
     return true;
 }
 
-int Tracter::LinearTransform::LoadXForm(const char* iFileName)
+int Tracter::LinearTransform::loadXForm(const char* iFileName)
 {
     if (!iFileName)
         throw Exception("Null file name");

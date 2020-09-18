@@ -2,25 +2,20 @@
 #
 # This is an example based on what I use to configure tracter under
 # linux.  You can probably delete most of the SETSHELL lines and these
-# comments; all but kiss-fft are optional.
+# comments.
 #
 # Phil Garner
 # February 2010
 #
 
 # This is Idiap specific.  Replace *ROOT with your installation roots
-SETSHELL kissfft
 SETSHELL libresample
 SETSHELL rtaudio
-SETSHELL torch3
-export KISSFFT_DIR=$KISSFFTROOT
 export LIBRESAMPLE_DIR=$LIBRESAMPLEROOT
 export RTAUDIO_DIR=$RTAUDIOROOT
 
 # This is more generic
 software=/idiap/resource/software
-export HTK_DIR=$software/HTK/HTK_V3.4/src/htk
-export BSAPI_DIR=$HOME/build/bsapi/bsapi.vtln.sfeacat.v2
 
 # For things that have a configured install to a non-standard place
 export CMAKE_PREFIX_PATH=$HOME/local

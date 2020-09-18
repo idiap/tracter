@@ -21,9 +21,9 @@
     public:                                                     \
         name##GraphFactory(const char* iObjectName = #name)     \
         {                                                       \
-            mObjectName = iObjectName;                          \
+            objectName(iObjectName);                            \
         }                                                       \
-        Component<float>* Create(Component<float>* iComponent); \
+        Component<float>* create(Component<float>* iComponent); \
     };
 
 #define DECLARE_SOURCE_FACTORY(name)                            \
@@ -32,9 +32,9 @@
     public:                                                     \
         name##SourceFactory(const char* iObjectName = #name)    \
         {                                                       \
-            mObjectName = iObjectName;                          \
+            objectName(iObjectName);                            \
         }                                                       \
-        Component<float>* Create(ISource*& iSource);            \
+        Component<float>* create(ISource*& iSource);            \
     };
 
 namespace Tracter
@@ -46,8 +46,8 @@ namespace Tracter
     class SourceFactory : public Tracter::Object
     {
     public:
-        virtual ~SourceFactory() throw () {}
-        virtual Component<float>* Create(ISource*& iSource) = 0;
+        virtual ~SourceFactory() {}
+        virtual Component<float>* create(ISource*& iSource) = 0;
     };
 
     /**
@@ -57,8 +57,8 @@ namespace Tracter
     class GraphFactory : public Tracter::Object
     {
     public:
-        virtual ~GraphFactory() throw () {}
-        virtual Component<float>* Create(Component<float>* iComponent) = 0;
+        virtual ~GraphFactory() {}
+        virtual Component<float>* create(Component<float>* iComponent) = 0;
 
     protected:
         Component<float>* deltas(Component<float>* iComponent);
@@ -70,7 +70,6 @@ namespace Tracter
     DECLARE_SOURCE_FACTORY(SndFile)
     DECLARE_SOURCE_FACTORY(ALSA)
     DECLARE_SOURCE_FACTORY(StreamSocket)
-    DECLARE_SOURCE_FACTORY(HTKLib)
     DECLARE_SOURCE_FACTORY(HTK)
     DECLARE_SOURCE_FACTORY(LNA)
     DECLARE_SOURCE_FACTORY(RtAudio)
@@ -81,19 +80,12 @@ namespace Tracter
     DECLARE_GRAPH_FACTORY(Basic)
     DECLARE_GRAPH_FACTORY(BasicSpeechDet)
     DECLARE_GRAPH_FACTORY(BasicVAD)
-    DECLARE_GRAPH_FACTORY(BasicMLPVAD)
-    DECLARE_GRAPH_FACTORY(MLPVAD)
     DECLARE_GRAPH_FACTORY(PLP)
     DECLARE_GRAPH_FACTORY(PLPVAD)
-    DECLARE_GRAPH_FACTORY(HTK)
-    DECLARE_GRAPH_FACTORY(PLPPosterior)
-    DECLARE_GRAPH_FACTORY(PLPvtln)
-    DECLARE_GRAPH_FACTORY(BSAPI)
     DECLARE_GRAPH_FACTORY(MCep)
     DECLARE_GRAPH_FACTORY(Cochlear)
     DECLARE_GRAPH_FACTORY(CochlearSNR)
     DECLARE_GRAPH_FACTORY(SNR)
-    DECLARE_GRAPH_FACTORY(BSAPIMLPVAD)
 
     /**
      * Factory class for Automatic Speech Recognition.
@@ -114,20 +106,20 @@ namespace Tracter
     {
     public:
         ASRFactory(const char* iObjectName = "ASRFactory");
-        virtual ~ASRFactory() throw ();
-        Component<float>* CreateFrontend(Component<float>* iComponent);
-        Component<float>* CreateSource(ISource*& iSource);
+        virtual ~ASRFactory();
+        Component<float>* createFrontend(Component<float>* iComponent);
+        Component<float>* createSource(ISource*& iSource);
 
         /** Register a source factory in the builder */
-        void RegisterSource(SourceFactory* iSource)
+        void registerSource(SourceFactory* iSource)
         {
-            mSource[iSource->ObjectName()] = iSource;
+            mSource[iSource->objectName()] = iSource;
         }
 
         /** Register a graph factory for front-ends in the builder */
-        void RegisterFrontend(GraphFactory* iFrontend)
+        void registerFrontend(GraphFactory* iFrontend)
         {
-            mFrontend[iFrontend->ObjectName()] = iFrontend;
+            mFrontend[iFrontend->objectName()] = iFrontend;
         }
 
     protected:

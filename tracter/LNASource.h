@@ -21,8 +21,7 @@ namespace Tracter
     {
     public:
         LNASource(const char* iObjectName = "LNASource");
-        virtual ~LNASource() throw() {}
-        void Open(
+        void open(
             const char* iFileName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
@@ -34,7 +33,7 @@ namespace Tracter
         int mMapSize;
         bool mLNA16;
         bool mCheckSum;
-        virtual bool UnaryFetch(IndexType iIndex, float* oData);
+        virtual bool unaryFetch(IndexType iIndex, float* oData);
     };
 }
 

@@ -41,7 +41,7 @@ Tracter::Mutex::Mutex()
     pthread_mutex_init(&mMutex, 0);
 }
 
-Tracter::Mutex::~Mutex() throw ()
+Tracter::Mutex::~Mutex()
 {
     pthread_mutex_destroy(&mMutex);
 }
@@ -73,7 +73,7 @@ Tracter::Socket::Socket()
     }
 }
 
-Tracter::Socket::~Socket() throw ()
+Tracter::Socket::~Socket()
 {
     if (mFD)
         close(mFD);
@@ -185,28 +185,28 @@ void Tracter::Socket::start()
  */
 Tracter::SocketTee::SocketTee(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
-    mFrame.size = iInput->Frame().size;
+    objectName(iObjectName);
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
     mInput = iInput;
-    Connect(mInput, 1);
+    connect(mInput, 1);
 
-    unsigned short port = GetEnv("Port", 30000);
+    unsigned short port = config("Port", 30000);
     mFD = 0;
     mSocket.Listen(port, false);
     mAcceptMutex = mSocket.AcceptThread(1, &mFD);
 }
 
-bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::SocketTee::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     CacheArea inputArea;
-    if (!mInput->Read(inputArea, iIndex))
+    if (!mInput->read(inputArea, iIndex))
         return false;
 
     // Copy input to output
-    float* input  = mInput->GetPointer(inputArea.offset);
+    float* input  = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
         oData[i] = input[i];
 
@@ -235,8 +235,8 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
                 mFD = 0;
                 break;
             default:
-                perror(mObjectName);
-                throw Exception("%s: Failed to write()", mObjectName);
+                perror(objectName());
+                throw Exception("%s: Failed to write()", objectName());
             }
     }
     mAcceptMutex->Unlock();
@@ -244,7 +244,7 @@ bool Tracter::SocketTee::UnaryFetch(IndexType iIndex, float* oData)
     return true;
 }
 
-Tracter::SocketTee::~SocketTee() throw()
+Tracter::SocketTee::~SocketTee()
 {
     if (mFD)
         close(mFD);

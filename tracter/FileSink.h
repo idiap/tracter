@@ -25,20 +25,15 @@ namespace Tracter
         FileSink(
             Component<float>* iInput, const char* iObjectName = "FileSink"
         );
-        virtual ~FileSink() throw() {}
-        void Open(const char* iFile);
-        
-        void setFeatureIndice(int indice) {
-            mFeatureIndice = indice;
-        }
+        void open(const char* iFile=0);
 
     private:
         Component<float>* mInput;
         FILE* mFile;
+        bool mBinary;
         ByteOrder mByteOrder;
         std::vector<float> mTemp;
         int mMaxSize;
-        int mFeatureIndice;
     };
 }
 

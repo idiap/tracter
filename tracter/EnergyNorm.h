@@ -22,7 +22,7 @@ namespace Tracter
                  const char* iObjectName = "EnergyNorm");
 
     protected:
-      bool UnaryFetch(IndexType iIndex, float* oData);
+      bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
       Component<float>* mInput1;

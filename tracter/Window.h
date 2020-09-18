@@ -31,9 +31,8 @@ namespace Tracter
             GAUSS
         };
         Window(const char* iObjectName = "Window", int iSize = 0);
-        virtual ~Window() throw () {}
-        void Resize(int iSize, bool iDivideN = false);
-        float* Apply(const float* iData, float* oData) const;
+        void resize(int iSize, bool iDivideN = false);
+        float* apply(const float* iData, float* oData) const;
         const float operator[](int iIndex) { return mWeight[iIndex]; }
         const float at(int iIndex) { return mWeight.at(iIndex); }
 
@@ -42,7 +41,7 @@ namespace Tracter
          * (perhaps only) useful to divide through by N in an inverse
          * transform.
          */
-        void Scale(float iScale) {
+        void scale(float iScale) {
             for (unsigned int i=0; i<mWeight.size(); i++)
                 mWeight[i] *= iScale;
         }

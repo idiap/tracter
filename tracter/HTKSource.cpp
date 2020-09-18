@@ -11,22 +11,22 @@
 
 Tracter::HTKSource::HTKSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
-    mFrame.size = GetEnv("FrameSize", 39);
-    mFrameRate = GetEnv("FrameRate", 100.0f);
-    mFrame.period = GetEnv("FramePeriod", 1);
+    objectName(iObjectName);
+    mFrame.size = config("FrameSize", 39);
+    mFrameRate = config("FrameRate", 100.0f);
+    mFrame.period = config("FramePeriod", 1);
 
     mMapData = 0;
     mNSamples = 0;
-    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_BIG);
-    mByteOrder.SetSource(endian);
+    Endian endian = (Endian)config(cEndian, ENDIAN_BIG);
+    mByteOrder.setSource(endian);
 }
 
 
 /**
  * Maps the HTK parameter file and reads the header
  */
-void Tracter::HTKSource::Open(
+void Tracter::HTKSource::open(
     const char* iFileName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -56,23 +56,23 @@ void Tracter::HTKSource::Open(
     assert(data);
 
     nSamples = *(int*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&nSamples, 4, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&nSamples, 4, 1);
     data += 4;
 
     sampPeriod = *(int*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&sampPeriod, 4, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&sampPeriod, 4, 1);
     data += 4;
 
     sampSize = *(short*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&sampSize, 2, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&sampSize, 2, 1);
     data += 2;
 
     parmKind = *(short*)data;
-    if (mByteOrder.WrongEndian())
-        mByteOrder.Swap(&parmKind, 2, 1);
+    if (mByteOrder.wrongEndian())
+        mByteOrder.swap(&parmKind, 2, 1);
     data += 2;
 
     // This comparison is a little tricky as it's floating point
@@ -97,30 +97,30 @@ void Tracter::HTKSource::Open(
             nSamples * sampSize + 12, mMap.Size()
         );
 
-    Verbose(1, "nSamples: %d  parm: %ho\n", nSamples, parmKind);
+    verbose(1, "nSamples: %d  parm: %ho\n", nSamples, parmKind);
     mNSamples = nSamples;
     mMapData = (float*)data;
 
     mBeginFrame = 0;
     mEndFrame = -1;
     if (iBeginTime >= 0)
-        mBeginFrame = FrameIndex(iBeginTime);
+        mBeginFrame = frameIndex(iBeginTime);
     if (iEndTime >= 0)
-        mEndFrame = FrameIndex(iEndTime);
-    Verbose(1, "Begin frame %ld  End frame %ld\n", mBeginFrame, mEndFrame);
+        mEndFrame = frameIndex(iEndTime);
+    verbose(1, "Begin frame %ld  End frame %ld\n", mBeginFrame, mEndFrame);
 }
 
 /**
  * The Fetch call is necessary to byte swap the data
  */
 Tracter::SizeType
-Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::HTKSource::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     iIndex += mBeginFrame;
 
     SizeType i;
     SizeType offset = iOutputArea.offset;
-    for (i=0; i<iOutputArea.Length(); i++)
+    for (i=0; i<iOutputArea.length(); i++)
     {
         if (iIndex >= mNSamples)
             break;
@@ -128,11 +128,11 @@ Tracter::HTKSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
             break;
         if (i == iOutputArea.len[0])
             offset = 0;
-        float* cache = GetPointer(offset);
+        float* cache = getPointer(offset);
         for (int j=0; j<mFrame.size; j++)
             cache[j] = mMapData[iIndex*mFrame.size + j];
-        if (mByteOrder.WrongEndian())
-            mByteOrder.Swap(cache, 4, mFrame.size);
+        if (mByteOrder.wrongEndian())
+            mByteOrder.swap(cache, 4, mFrame.size);
         iIndex++;
         offset++;
     }

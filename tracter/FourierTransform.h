@@ -26,10 +26,10 @@ namespace Tracter
          */
         FourierTransformR2C(Component<float>* iInput,
                          const char* iObjectName = "FourierTransform");
-        virtual ~FourierTransformR2C() throw();
+        virtual ~FourierTransformR2C();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, complex* oData);
+        bool unaryFetch(IndexType iIndex, complex* oData);
 
     private:
         Component<float>* mInput;
@@ -52,10 +52,10 @@ namespace Tracter
          */
         FourierTransformC2R(Component<complex>* iInput,
                          const char* iObjectName = "FourierTransform");
-        virtual ~FourierTransformC2R() throw();
+        virtual ~FourierTransformC2R();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<complex>* mInput;

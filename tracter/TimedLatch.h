@@ -29,8 +29,8 @@ namespace Tracter
                    const char* iObjectName = "TimedLatch");
 
     protected:
-        bool UnaryFetch(IndexType iIndex, BoolType* oData);
-        void Reset(bool iPropagate);
+        bool unaryFetch(IndexType iIndex, BoolType* oData);
+        void reset(bool iPropagate);
 
     private:
         Component<BoolType>* mInput;

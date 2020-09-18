@@ -17,10 +17,3 @@ then
     tar zxf $KISSDIR.tar.gz
     ln -sf $KISSDIR kissfft
 fi
-
-# CMake finders
-if [ ! -e cmake/FindLibSSP.cmake ]
-then
-    curl -L https://github.com/idiap/libssp/raw/master/cmake/FindLibSSP.cmake \
-         -o cmake/FindLibSSP.cmake
-fi

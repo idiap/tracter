@@ -23,17 +23,17 @@ namespace Tracter
         virtual ~ISource() {}
 
         /** Open a source with the given name */
-        virtual void Open(
+        virtual void open(
             const char* iName,        ///< Name of file or device
             TimeType iBeginTime = -1, ///< Time for 0'th frame
             TimeType iEndTime = -1    ///< Time for last frame
         ) = 0;
 
         /** Associate a time with index 0 of the source */
-        virtual void SetTime(TimeType iTime) = 0;
+        virtual void setTime(TimeType iTime) = 0;
 
     protected:
-        virtual TimeType TimeStamp(IndexType iIndex = 0) const = 0;
+        virtual TimeType timeStamp(IndexType iIndex = 0) const = 0;
     };
 
     /**
@@ -48,9 +48,8 @@ namespace Tracter
         // moved to a type independent class.
     public:
         Source() { mTime = 0; mFrameRate = 0.0f; }
-        virtual ~Source() throw () {}
 
-        virtual void SetTime(TimeType iTime)
+        virtual void setTime(TimeType iTime)
         {
             assert(iTime >= 0);
             mTime = iTime;
@@ -58,15 +57,15 @@ namespace Tracter
 
     protected:
 
-        virtual TimeType TimeStamp(IndexType iIndex) const
+        virtual TimeType timeStamp(IndexType iIndex) const
         {
             TimeType time = mTime;
             if (iIndex)
-                time += ComponentBase::TimeOffset(iIndex);
+                time += ComponentBase::timeOffset(iIndex);
             return time;
         }
 
-        virtual ExactRateType ExactFrameRate() const
+        virtual ExactRateType exactFrameRate() const
         {
             ExactRateType r;
             r.rate = mFrameRate;

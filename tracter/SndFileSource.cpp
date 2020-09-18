@@ -9,16 +9,16 @@
 
 Tracter::SndFileSource::SndFileSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
-    mFrame.size = GetEnv("FrameSize", 1);
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
+    objectName(iObjectName);
+    mFrame.size = config("FrameSize", 1);
+    mFrameRate = config("FrameRate", 8000.0f);
     mFrame.period = 1;
     mSndFile = 0;
     mNFrames = 0;
-    mSoxHack = GetEnv("SoxHack", 0);
+    mSoxHack = config("SoxHack", 0);
 }
 
-Tracter::SndFileSource::~SndFileSource() throw ()
+Tracter::SndFileSource::~SndFileSource()
 {
     if (mSndFile)
         sf_close(mSndFile);
@@ -29,7 +29,7 @@ Tracter::SndFileSource::~SndFileSource() throw ()
 /**
  * Open a SndFile source
  */
-void Tracter::SndFileSource::Open(
+void Tracter::SndFileSource::open(
     const char* iFileName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -40,16 +40,16 @@ void Tracter::SndFileSource::Open(
     mSndFile = 0;
     mNFrames = 0;
 
-    Verbose(1, "%s\n", iFileName);
+    verbose(1, "%s\n", iFileName);
     if (mSoxHack)
     {
         // Run the file through sox first
         char tmp[1024];
         snprintf(tmp, 1024, "sox %s /tmp/soxfile.wav", iFileName);
-        Verbose(1, "%s\n", tmp);
+        verbose(1, "%s\n", tmp);
         int ret = system(tmp);
         if (ret)
-            Verbose(1, "returned %d\n", ret);
+            verbose(1, "returned %d\n", ret);
         iFileName = "/tmp/soxfile.wav";
     }
     SF_INFO sfInfo;
@@ -59,12 +59,12 @@ void Tracter::SndFileSource::Open(
         throw Exception("Failed to open file %s", iFileName);
 
     mNFrames = sfInfo.frames;
-    Verbose(1, "samplerate = %f\n", (double)sfInfo.samplerate);
-    Verbose(1, "frames =     %d\n", mNFrames);
+    verbose(1, "samplerate = %f\n", (double)sfInfo.samplerate);
+    verbose(1, "frames =     %d\n", mNFrames);
 }
 
 Tracter::SizeType
-Tracter::SndFileSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::SndFileSource::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     // Seek to the right point, unless it's off the end
     if (iIndex > mNFrames)
@@ -73,7 +73,7 @@ Tracter::SndFileSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
         throw Exception("Seek failed at index %ld", iIndex);
 
     // First circular block
-    float* cache = GetPointer(iOutputArea.offset);
+    float* cache = getPointer(iOutputArea.offset);
     int nGot = sf_readf_float(mSndFile, cache, iOutputArea.len[0]);
     if (nGot < iOutputArea.len[0])
         return nGot;
@@ -81,12 +81,12 @@ Tracter::SndFileSource::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     // Second circular block
     if (iOutputArea.len[1])
     {
-        cache = GetPointer();
+        cache = getPointer();
         nGot = sf_readf_float(mSndFile, cache, iOutputArea.len[1]);
         if (nGot < iOutputArea.len[1])
             return nGot + iOutputArea.len[0];
     }
 
     // Done
-    return iOutputArea.Length();
+    return iOutputArea.length();
 }

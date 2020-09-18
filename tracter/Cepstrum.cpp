@@ -15,17 +15,17 @@ Tracter::Cepstrum::Cepstrum(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(iInput);
+    connect(iInput);
 
-    mNLogData = mInput->Frame().size;
+    mNLogData = mInput->frame().size;
 
-    mFloor = GetEnv("Floor", 1e-8f);
+    mFloor = config("Floor", 1e-8f);
     mLogFloor = logf(mFloor);
     mFloored = 0;
-    mC0 = GetEnv("C0", 1);
-    mNCepstra = GetEnv("NCepstra", 12);
+    mC0 = config("C0", 1);
+    mNCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? mNCepstra+1 : mNCepstra;
 
     assert(mNCepstra > 0);
@@ -33,21 +33,21 @@ Tracter::Cepstrum::Cepstrum(
 
     mLogData = 0;
     mCepstra = 0;
-    mFourier.Init(mNLogData, &mLogData, &mCepstra);
+    mFourier.init(mNLogData, &mLogData, &mCepstra);
 }
 
-Tracter::Cepstrum::~Cepstrum() throw()
+Tracter::Cepstrum::~Cepstrum()
 {
     if (mFloored > 0)
-        Verbose(1, "floored %d values < %e\n", mFloored, mFloor);
+        verbose(1, "floored %d values < %e\n", mFloored, mFloor);
 }
 
-bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Cepstrum::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame
-    const float* p = mInput->UnaryRead(iIndex);
+    const float* p = mInput->unaryRead(iIndex);
     if (!p)
         return false;
 
@@ -62,7 +62,7 @@ bool Tracter::Cepstrum::UnaryFetch(IndexType iIndex, float* oData)
         }
 
     // Do the DCT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Copy to output in HTK order (C0 last, if at all)
     for (int i=0; i<mNCepstra; i++)

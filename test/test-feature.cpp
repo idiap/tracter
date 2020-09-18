@@ -30,11 +30,6 @@
 # include "tracter/ALSASource.h"
 #endif
 
-#ifdef _WIN32
-# include <windows.h>
-# define setenv(a, b, c) SetEnvironmentVariable(a, b)
-#endif
-
 using namespace Tracter;
 
 class SinkSucker : public Sink
@@ -43,26 +38,26 @@ public:
 
     SinkSucker(Component<float>* iInput, const char* iObjectName = "SinkSucker")
     {
-        mObjectName = iObjectName;
+        objectName(iObjectName);
         mInput = iInput;
-        Connect(mInput, 10);
-        mFrame.size = iInput->Frame().size;
-        Initialise();
-        Reset();
+        connect(mInput, 10);
+        mFrame.size = iInput->frame().size;
+        initialise();
+        reset();
     }
 
-    void Pull(IndexType iIndex, SizeType len)
+    void pull(IndexType iIndex, SizeType len)
     {
         CacheArea br;
-        SizeType got = mInput->Read(br, iIndex, len);
+        SizeType got = mInput->read(br, iIndex, len);
         if (got != len)
             printf("Asked for %ld, got %ld\n", len, got);
         printf("Suck: len %ld br %ld %ld %ld\n",
                len, br.len[0], br.len[1], br.offset);
         SizeType offset = br.offset;
-        for (SizeType i=0; i<br.Length(); i++)
+        for (SizeType i=0; i<br.length(); i++)
         {
-            float* f = mInput->GetPointer(offset);
+            float* f = mInput->getPointer(offset);
             if (i == br.len[0])
             {
                 offset = 0;
@@ -91,19 +86,24 @@ int main(int argc, char** argv)
 {
     printf("Feature creature\n");
 
-    setenv("FileSource_FrameRate", "2000", 1);
-    setenv("Frame_Size", "64", 1);
-    setenv("Frame_Period", "32", 1);
-    setenv("Cepstrum_NCepstra", "8", 1);
-    setenv("Cepstrum_C0", "0", 1);
-    setenv("MelFilter_MaxHertz", "1000", 1);
-    setenv("MelFilter_NBins", "10", 1);
-    setenv("MelFilter_LoHertz", "0", 1);
-    setenv("MelFilter_HiHertz", "1000", 1);
+    lube::Config cnf;
+    cnf.configSection("FileSource");
+    cnf.configSet("FrameRate", "2000");
+    cnf.configSection("Frame");
+    cnf.configSet("Size", "64");
+    cnf.configSet("Period", "32");
+    cnf.configSection("Cepstrum");
+    cnf.configSet("NCepstra", "8");
+    cnf.configSet("C0", "0");
+    cnf.configSection("MelFilter");
+    cnf.configSet("MaxHertz", "1000");
+    cnf.configSet("NBins", "10");
+    cnf.configSet("LoHertz", "0");
+    cnf.configSet("HiHertz", "1000");
 
 #if 1
     FileSource<short>* a = new FileSource<short>;
-    a->Open("testfile.dat");
+    a->open("testfile.dat");
 #endif
 
 #if 0
@@ -117,39 +117,40 @@ int main(int argc, char** argv)
     MelFilter* mf = new MelFilter(p);
     Cepstrum* c = new Cepstrum(mf);
     SinkSucker s(c);
-    s.Reset(true);
+    s.reset(true);
 
     //a.Start();
-    s.Pull(0, 4);
-    s.Pull(28, 5);
+    s.pull(0, 4);
+    s.pull(28, 5);
 
-    setenv("DeltaDelta_Theta", "3", 1);
+    cnf.configSection("DeltaDelta");
+    cnf.configSet("Theta", "3");
 
     printf("HTKSource...\n");
     HTKSource* h = new HTKSource();
     Delta* d1 = new Delta(h);
     Delta* d2 = new Delta(d1, "DeltaDelta");
     Concatenate* f = new Concatenate();
-    f->Add(h);
-    f->Add(d1);
-    f->Add(d2);
+    f->add(h);
+    f->add(d1);
+    f->add(d2);
     //Mean* m = new Mean(h);
     SinkSucker as(f);
 
-    as.Reset();
-    h->Open(TEST_DIR "/test1.htk");
-    as.Pull(0, 10);
+    as.reset();
+    h->open(TEST_DIR "/test1.htk");
+    as.pull(0, 10);
 
-    as.Reset();
-    h->Open(TEST_DIR "/test2.htk");
-    as.Pull(0, 10);
+    as.reset();
+    h->open(TEST_DIR "/test2.htk");
+    as.pull(0, 10);
 
     printf("FrameSink...\n");
     FileSource<short>* hh = new FileSource<short>();
     Normalise* nn = new Normalise(hh);
     FrameSink<float> fs(nn);
-    hh->Open("testfile.dat");
-    fs.Reset();
+    hh->open("testfile.dat");
+    fs.reset();
     IndexType index = 0;
     while(const float* frame = fs.Read(index++))
     {
@@ -161,8 +162,8 @@ int main(int argc, char** argv)
     printf("LNA...\n");
     LNASource* lna = new LNASource();
     FrameSink<float> ls(lna);
-    lna->Open(TEST_DIR "/test.lna");
-    ls.Reset();
+    lna->open(TEST_DIR "/test.lna");
+    ls.reset();
     index=0;
     while(const float* frame = ls.Read(index++))
     {
@@ -177,8 +178,8 @@ int main(int argc, char** argv)
     ComplexSample* ccs = new ComplexSample(cn);
     //ComplexPeriodogram* cp = new ComplexPeriodogram(ccs);
     FrameSink<complex> csink(ccs);
-    cs->Open("testfile.dat");
-    csink.Reset();
+    cs->open("testfile.dat");
+    csink.reset();
     index = 0;
     while(const complex* cframe = csink.Read(index++))
     {
@@ -188,7 +189,7 @@ int main(int argc, char** argv)
     }
 
     FilePath path;
-#define FILETEST(p) printf("Test:" p "\n"); path.SetName(p); path.Dump()
+#define FILETEST(p) printf("Test:" p "\n"); path.setName(p); path.dump()
     FILETEST("hello");
     FILETEST("hello.ext");
     FILETEST("path/hello");
@@ -197,7 +198,7 @@ int main(int argc, char** argv)
     FILETEST("./hello.ext1.ext2");
     FILETEST("./hello.ext1.ext2/file/");
     FILETEST("./very/long/path/name/file-name.ext");
-    //path.MakePath();
+    //path.makePath();
 
     printf("Done\n");
     return 0;

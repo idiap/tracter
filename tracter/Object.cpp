@@ -14,138 +14,105 @@
 
 #include "tracter/Object.h"
 
-bool Tracter::sInitialised = false;
-bool Tracter::sShConfig = false;
-bool Tracter::sCshConfig = false;
 int Tracter::sVerbose = 0;
 
-/**
- * Constructor.  Initialises static verbosity and config output
- * options, or returns immediately if they are set.
- */
-Tracter::Object::Object()
+void Tracter::Object::verbose(var iVerbose)
 {
-    mObjectName = "Tracter";
-
-    if (Tracter::sInitialised)
-        return;
-
-    // else... set up the parameter echoing
-    sShConfig  = GetEnv("shConfig", 0);
-    sCshConfig = GetEnv("cshConfig", 0);
-
-    // Do it again to get the output :-)
-    if (sShConfig)
-        GetEnv("shConfig", 0);
-    if (sCshConfig)
-        GetEnv("cshConfig", 0);
-
-    // And the verbosity
-    sVerbose = GetEnv("Verbose", 0);
-    Verbose(1, "version %s\n", PACKAGE_VERSION);
-    sInitialised = true;
+    sVerbose = iVerbose.cast<int>();
+    verbose(1, "verbosity set to %d\n", sVerbose);
+    verbose(1, "library version %s\n", PACKAGE_VERSION);
 }
 
 
 /**
  * Uses the name of the object as a prefix and iSuffix as a suffix to
- * construct an environment variable.
+ * construct a configuration.
  *
- * @returns The value of the environment variable, or 0 if it was not
+ * @returns The value of the configuration, or 0 if it was not
  * set.
  */
-const char* Tracter::Object::getEnv(
+const char* Tracter::Object::getConfig(
     const char* iSuffix, const char* iDefault, bool iEcho
 )
 {
-    assert(mObjectName);
-    char env[256];
-    snprintf(env, 256, "%s_%s", mObjectName, iSuffix);
-    const char* ret = getenv(env);
-    if (iEcho && (sShConfig || sCshConfig))
+    assert(objectName());
+    const char* ret = Config::config(iSuffix, (const char*)0);
+    if (iEcho && (sVerbose > 0))
     {
-        if (sShConfig)
-            snprintf(env, 256, "export %s_%s=%s", mObjectName, iSuffix,
-                     ret ? ret : iDefault);
-        if (sCshConfig)
-            snprintf(env, 256, "setenv %s_%s %s", mObjectName, iSuffix,
-                     ret ? ret : iDefault);
-        printf("%-50s", env);
-        if (ret)
-            printf("# Environment\n");
-        else
-            printf("# Default\n");
+        if (!ret)
+            printf("# ");
+        printf("[%s] %s = %s\n", objectName(), iSuffix, ret ? ret : iDefault);
     }
     return ret;
 }
 
 /**
- * Get value from environment variable.
+ * Get value from configuration.
  * @returns the value, or the value in iDefault if not set.
  */
-float Tracter::Object::GetEnv(const char* iSuffix, float iDefault)
+float Tracter::Object::config(const char* iSuffix, float iDefault)
 {
     char def[256];
-    if (sShConfig || sCshConfig)
+    if (sVerbose > 0)
         snprintf(def, 256,
                  (fabs(iDefault) < 1e-2) ? "%.3e" : "%.3f", iDefault);
-    if (const char* env = getEnv(iSuffix, def))
+    if (const char* env = getConfig(iSuffix, def))
         return atof(env);
     return iDefault;
 }
 
 /**
- * Get value from environment variable.
+ * Get value from configuration.
  * @returns the value, or the value in iDefault if not set.
  */
-int Tracter::Object::GetEnv(const char* iSuffix, int iDefault)
+int Tracter::Object::config(const char* iSuffix, int iDefault)
 {
     char def[256];
-    if (sShConfig || sCshConfig)
+    if (sVerbose > 0)
         snprintf(def, 256, "%d", iDefault);
-    if (const char* env = getEnv(iSuffix, def))
+    if (const char* env = getConfig(iSuffix, def))
         return atoi(env);
     return iDefault;
 }
 
 /**
- * Get value from environment variable.
+ * Get value from configuration.
  * @returns the value, or the value in iDefault if not set.
  */
-const char* Tracter::Object::GetEnv(
+const char* Tracter::Object::config(
     const char* iSuffix, const char* iDefault
 )
 {
     char def[256];
-    if (sShConfig || sCshConfig)
+    if (sVerbose > 0)
         snprintf(def, 256, "%s", iDefault);
-    if (const char* env = getEnv(iSuffix, def))
+    if (const char* env = getConfig(iSuffix, def))
         return env;
     return iDefault;
 }
 
 /**
- * Get an enumeration from an environment variable.
+ * Get an enumeration from a configuration.
  *
  * The idea here is that all the possible enumerations are requested
  * separately.  That way, the user sees all possible options when they
  * are echoed.
  */
-int Tracter::Object::GetEnv(const StringEnum* iStringEnum, int iDefault)
+int Tracter::Object::config(const StringEnum* iStringEnum, int iDefault)
 {
     const char* def[] = {"0", "1"};
 
     /*
      * This is a bit tricky.  We need two passes; the first is to find
      * out whether anything is set, the second echos the setting, be
-     * it default or environment.
+     * it default or configuration.
      */
     int i = -1;
     int match = 0;
     while (iStringEnum[++i].str)
     {
         // Suppress echo; just count
-        if (const char* r = getEnv(iStringEnum[i].str, def[0], false))
+        if (const char* r = getConfig(iStringEnum[i].str, def[0], false))
             if (strcmp(r, def[0]) != 0)
                 match++;
     }
@@ -156,12 +123,12 @@ int Tracter::Object::GetEnv(const StringEnum* iStringEnum, int iDefault)
     while (iStringEnum[++i].str)
     {
         int d = (useDefault && (iStringEnum[i].val == iDefault)) ? 1 : 0;
-        if (const char* r = getEnv(iStringEnum[i].str, def[d]))
+        if (const char* r = getConfig(iStringEnum[i].str, def[d]))
             if (strcmp(r, def[0]) != 0)
                 ret = iStringEnum[i].val;
     }
     if (match > 1)
-        throw Exception("%s: enumeration with multiple values", mObjectName);
+        throw Exception("%s: enumeration with multiple values", objectName());
     if (useDefault)
         return iDefault;
     return ret;
@@ -169,7 +136,7 @@ int Tracter::Object::GetEnv(const StringEnum* iStringEnum, int iDefault)
 
 
 /**
- * Verbose output.  Prints output to stdout depending on the verbosity
+ * verbose output.  Prints output to stdout depending on the verbosity
  * level.  Written using cstdarg such that printf like parameter lists
  * can be passed.
  *
@@ -182,12 +149,12 @@ int Tracter::Object::GetEnv(const StringEnum* iStringEnum, int iDefault)
  *  - 4 Once per frame (but not audio frequency)
  *  - 5 Per frame, unlimited frequency
  */
-void Tracter::Object::Verbose(int iLevel, const char* iString, ...) const
+void Tracter::Object::verbose(int iLevel, const char* iString, ...) const
 {
     if (iLevel > sVerbose)
         return;
 
-    printf("%s: ", mObjectName);
+    printf("%s: ", objectName());
     va_list ap;
     va_start(ap, iString);
     vprintf(iString, ap);

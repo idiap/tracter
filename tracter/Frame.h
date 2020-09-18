@@ -19,7 +19,7 @@ namespace Tracter
                const char* iObjectName = "Frame");
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<float>* mInput;

@@ -23,16 +23,11 @@ namespace Tracter
     class CachedComponent : public Component<T>
     {
     public:
-        virtual ~CachedComponent<T>() throw()
-        {
-            // Nothing to do
-        }
-
         /**
          * Get a pointer to the cache
          * returns a reference.
          */
-        T* GetPointer(SizeType iOffset = 0)
+        T* getPointer(SizeType iOffset = 0)
         {
             return &mCache[Component<T>::mFrame.size
                            ? iOffset * Component<T>::mFrame.size
@@ -40,12 +35,7 @@ namespace Tracter
         }
 
     protected:
-        CachedComponent<T>()
-        {
-            // Nothing to do
-        }
-
-        virtual void Resize(SizeType iSize)
+        virtual void resize(SizeType iSize)
         {
             assert(iSize > 0);
             assert(iSize > Component<T>::mSize);
@@ -53,14 +43,14 @@ namespace Tracter
                           ? iSize * Component<T>::mFrame.size
                           : iSize);
             Component<T>::mSize = iSize;
-            this->Verbose(2, "CachedComponent::Resize: %d to %d\n",
+            this->verbose(2, "CachedComponent::Resize: %d to %d\n",
                           Component<T>::mSize, iSize);
         }
 
-        virtual void DotHook()
+        virtual void dotHook()
         {
-            Component<T>::DotHook();
-            this->DotRecord(2, "cache.size=%d", Component<T>::mSize);
+            Component<T>::dotHook();
+            this->dotRecord(2, "cache.size=%d", Component<T>::mSize);
         }
 
     private:

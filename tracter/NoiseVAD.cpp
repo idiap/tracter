@@ -13,49 +13,49 @@ Tracter::NoiseVAD::NoiseVAD(
     Component<float>* iInput, Component<float>* iNoiseInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(iInput);
-    MinSize(mInput, 1);
+    connect(iInput);
+    minSize(mInput, 1);
 
     mNoiseInput = iNoiseInput;
-    Connect(mNoiseInput);
-    MinSize(mNoiseInput, 1);
+    connect(mNoiseInput);
+    minSize(mNoiseInput, 1);
 
-    mShowGuts = GetEnv("ShowGuts", 0);
+    mShowGuts = config("ShowGuts", 0);
 
     // Noise tracker
-    float noiseTimeConstant = GetEnv("NoiseTimeConstant", 0.5f);
-    float noiseTime = SecondsToFrames(noiseTimeConstant);
+    float noiseTimeConstant = config("NoiseTimeConstant", 0.5f);
+    float noiseTime = secondsToFrames(noiseTimeConstant);
     mNoisePole = (noiseTime - 1.0f) / noiseTime;
     mNoiseElop = 1.0f - mNoisePole;
 
     // Threshold
-    float dBThres = GetEnv("Threshold", 0.0f);
+    float dBThres = config("Threshold", 0.0f);
     mThreshold = dBThres / 10; // decibels to bels
 
     // The state machine
-    float confirmSpeechTime = GetEnv("ConfirmSpeechTime", 0.3f);
-    float confirmSilenceTime = GetEnv("ConfirmSilenceTime", 0.3f);
-    mConfirmSpeechTime = SecondsToFrames(confirmSpeechTime);
-    mConfirmSilenceTime = SecondsToFrames(confirmSilenceTime);
+    float confirmSpeechTime = config("ConfirmSpeechTime", 0.3f);
+    float confirmSilenceTime = config("ConfirmSilenceTime", 0.3f);
+    mConfirmSpeechTime = secondsToFrames(confirmSpeechTime);
+    mConfirmSilenceTime = secondsToFrames(confirmSilenceTime);
 
     mIndex = -1;
 
-    Verbose(2, "ConfirmSpeech=%d ConfirmSilence=%d\n",
+    verbose(2, "ConfirmSpeech=%d ConfirmSilence=%d\n",
             mConfirmSpeechTime, mConfirmSilenceTime);
 }
 
-void Tracter::NoiseVAD::Reset(bool iPropagate)
+void Tracter::NoiseVAD::reset(bool iPropagate)
 {
-    Verbose(2, "Reset\n");
+    verbose(2, "Reset\n");
     mIndex = -1;
-    VADStateMachine::Reset(iPropagate);
+    VADStateMachine::reset(iPropagate);
 }
 
-bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, VADState* oData)
+bool Tracter::NoiseVAD::unaryFetch(IndexType iIndex, VADState* oData)
 {
-    Verbose(3, "iIndex %lld\n", iIndex);
+    verbose(3, "iIndex %lld\n", iIndex);
     if (iIndex != mIndex+1)
         throw Exception(
             "NoiseVAD::UnaryFetch: Index %lld requested; %lld expected\n",
@@ -66,21 +66,21 @@ bool Tracter::NoiseVAD::UnaryFetch(IndexType iIndex, VADState* oData)
     /* Prime the noise smoother */
     if (iIndex == 0)
     {
-        const float* p = mNoiseInput->UnaryRead(iIndex);
+        const float* p = mNoiseInput->unaryRead(iIndex);
         if (!p)
             return false;
         mNoise = log10f(*p);
     }
 
     /* Update the state machine */
-    const float* input = mInput->UnaryRead(iIndex);
+    const float* input = mInput->unaryRead(iIndex);
     if (!input)
         return false;
-    Update(log10f(*input) > mNoise+mThreshold);
+    update(log10f(*input) > mNoise+mThreshold);
     *oData = mState;
 
     /* Given the (new) state, update the noise estimate */
-    const float* noise = mNoiseInput->UnaryRead(iIndex);
+    const float* noise = mNoiseInput->unaryRead(iIndex);
     if (!noise)
         return false;
     if (mState == SILENCE_CONFIRMED)

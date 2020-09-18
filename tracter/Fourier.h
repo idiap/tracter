@@ -52,11 +52,11 @@ namespace Tracter
         )
         {
             mFourierData = 0;
-            Init(iOrder, ioIData, ioOData, iInverse);
+            init(iOrder, ioIData, ioOData, iInverse);
         }
 
         /** Initialise a complex to complex transform */
-        void Init(
+        void init(
             int iOrder, complex** ioIData, complex** ioOData,
             bool iInverse=false
         );
@@ -66,35 +66,35 @@ namespace Tracter
         Fourier(int iOrder, float** ioIData, complex** ioOData)
         {
             mFourierData = 0;
-            Init(iOrder, ioIData, ioOData);
+            init(iOrder, ioIData, ioOData);
         }
 
         /** Initialise a real to complex transform */
-        void Init(int iOrder, float** ioIData, complex** ioOData);
+        void init(int iOrder, float** ioIData, complex** ioOData);
 
         /** Constructor, including initialisation of complex to real
          * transform */
         Fourier(int iOrder, complex** ioIData, float** ioOData)
         {
             mFourierData = 0;
-            Init(iOrder, ioIData, ioOData);
+            init(iOrder, ioIData, ioOData);
         }
 
         /** Initialise a complex to real transform */
-        void Init(int iOrder, complex** ioIData, float** ioOData);
+        void init(int iOrder, complex** ioIData, float** ioOData);
 
         /** Constructor, including initialisation of real to real transform */
         Fourier(int iOrder, float** ioIData, float** ioOData)
         {
             mFourierData = 0;
-            Init(iOrder, ioIData, ioOData);
+            init(iOrder, ioIData, ioOData);
         }
 
         /** Initialise real to real transform (DCT2) */
-        void Init(int iOrder, float** ioIData, float** ioOData);
+        void init(int iOrder, float** ioIData, float** ioOData);
 
         /** Run the actual transform */
-        void Transform();
+        void transform();
 
     private:
         /** Implementation specific data */

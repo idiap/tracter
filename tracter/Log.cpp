@@ -15,29 +15,29 @@
  */
 Tracter::Log::Log(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = iInput->Frame().size;
+    connect(mInput);
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
 
-    mFloor = GetEnv("Floor", 1e-8f);
+    mFloor = config("Floor", 1e-8f);
     mLogFloor = logf(mFloor);
     mFloored = 0;
 }
 
-Tracter::Log::~Log() throw()
+Tracter::Log::~Log()
 {
     if (mFloored > 0)
-        Verbose(1, "floored %d values < %e\n", mFloored, mFloor);
+        verbose(1, "floored %d values < %e\n", mFloored, mFloor);
 }
 
-bool Tracter::Log::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Log::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame
-    const float* ip = mInput->UnaryRead(iIndex);
+    const float* ip = mInput->unaryRead(iIndex);
     if (!ip)
         return false;
 

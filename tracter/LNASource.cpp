@@ -13,15 +13,15 @@
 /** Constructor */
 Tracter::LNASource::LNASource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
-    mFrame.size = GetEnv("FrameSize", 27);
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
-    mFrame.period = GetEnv("FramePeriod", 80);
+    objectName(iObjectName);
+    mFrame.size = config("FrameSize", 27);
+    mFrameRate = config("FrameRate", 8000.0f);
+    mFrame.period = config("FramePeriod", 80);
     assert(mFrame.size > 0);
 
     mMapData = 0;
-    mLNA16 = GetEnv("LNA16", 0);
-    mCheckSum = GetEnv("CheckSum", 1);
+    mLNA16 = config("LNA16", 0);
+    mCheckSum = config("CheckSum", 1);
 
     /* Portability check */
     assert(sizeof(unsigned short) == 2);
@@ -32,7 +32,7 @@ Tracter::LNASource::LNASource(const char* iObjectName)
 /**
  * Maps the LNA file
  */
-void Tracter::LNASource::Open(
+void Tracter::LNASource::open(
     const char* iFileName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -41,14 +41,14 @@ void Tracter::LNASource::Open(
     mMapSize = mMap.Size() / (mFrame.size+1);
     if (mLNA16)
         mMapSize /= 2;
-    Verbose(1, "LNA Size %d\n", mMapSize);
+    verbose(1, "LNA Size %d\n", mMapSize);
 }
 
 /**
  * The fetch call is necessary to convert from integer to floating
  * point form.
  */
-bool Tracter::LNASource::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::LNASource::unaryFetch(IndexType iIndex, float* oData)
 {
     if (iIndex >= mMapSize)
         return false;

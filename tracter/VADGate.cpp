@@ -13,13 +13,13 @@ Tracter::VADGate::VADGate(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
-    mFrame.size = iInput->Frame().size;
+    objectName(iObjectName);
+    mFrame.size = iInput->frame().size;
 
-    int max = std::max(iVADInput->ConfirmSpeechTime(),
-                       iVADInput->ConfirmSilenceTime());
-    Connect(iInput);
-    Connect(iVADInput, max);
+    int max = std::max(iVADInput->confirmSpeechTime(),
+                       iVADInput->confirmSilenceTime());
+    connect(iInput);
+    connect(iVADInput, max);
 
     mInput = iInput;
     mVADInput = iVADInput;
@@ -31,9 +31,9 @@ Tracter::VADGate::VADGate(
     mState = SILENCE_CONFIRMED;
     mUpstreamEndOfData = false;
 
-    mEnabled = GetEnv("Enable", 1);
-    mSegmenting = GetEnv("Segmenting", 0);
-    mRemoveSilence = GetEnv("RemoveSilence", 0);
+    mEnabled = config("Enable", 1);
+    mSegmenting = config("Segmenting", 0);
+    mRemoveSilence = config("RemoveSilence", 0);
 }
 
 /**
@@ -41,9 +41,9 @@ Tracter::VADGate::VADGate(
  * mode, it shouldn't be passed on, but when the input is a sequence
  * of files it should be.
  */
-void Tracter::VADGate::Reset(bool iPropagate)
+void Tracter::VADGate::reset(bool iPropagate)
 {
-    Verbose(2, "Resetting\n");
+    verbose(2, "Resetting\n");
     if (mSegmenting)
     {
         if (mSilenceConfirmed >= 0)
@@ -58,7 +58,7 @@ void Tracter::VADGate::Reset(bool iPropagate)
     mSpeechRemoved = 0;
 
     // Propagate reset upstream under these conditions
-    CachedComponent<float>::Reset(
+    CachedComponent<float>::reset(
         mUpstreamEndOfData ||  // Always after EOD
         !mSegmenting ||        // If not segmenting
         !mEnabled              // If disabled
@@ -66,7 +66,7 @@ void Tracter::VADGate::Reset(bool iPropagate)
     mUpstreamEndOfData = false;
 }
 
-bool Tracter::VADGate::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::VADGate::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -75,7 +75,7 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, float* oData)
     // upstream point of view.
     if (mEnabled && !gate(iIndex))
     {
-        Verbose(2, "gate() returned at index %ld, silConf %ld\n",
+        verbose(2, "gate() returned at index %ld, silConf %ld\n",
                 iIndex, mSilenceConfirmed);
         if ( mSegmenting &&
              (mSilenceConfirmed >= 0) &&
@@ -97,10 +97,10 @@ bool Tracter::VADGate::UnaryFetch(IndexType iIndex, float* oData)
 
     // Copy input to output
     CacheArea inputArea;
-    if (mInput->Read(inputArea, iIndex) == 0)
+    if (mInput->read(inputArea, iIndex) == 0)
         return false;
 
-    float* input = mInput->GetPointer(inputArea.offset);
+    float* input = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
         oData[i] = input[i];
 
@@ -169,13 +169,13 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
 {
     assert(iIndex >= 0);
     CacheArea vadArea;
-    if (mVADInput->Read(vadArea, iIndex) == 0)
+    if (mVADInput->read(vadArea, iIndex) == 0)
     {
-        Verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
+        verbose(2, "readVADState: End Of Data at %ld\n", iIndex);
         mUpstreamEndOfData = true;
         return false;
     }
-    VADState* state = mVADInput->GetPointer(vadArea.offset);
+    VADState* state = mVADInput->getPointer(vadArea.offset);
     mState = *state;
     return true;
 }
@@ -188,7 +188,7 @@ bool Tracter::VADGate::readVADState(IndexType iIndex)
  */
 bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
 {
-    Verbose(2, "Attempting to confirm speech\n");
+    verbose(2, "Attempting to confirm speech\n");
     assert(iIndex >= 0);
     assert(mState == SILENCE_CONFIRMED);
 
@@ -205,7 +205,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
         while (mState == SILENCE_CONFIRMED);
         assert(mState == SPEECH_TRIGGERED);
         mSpeechTriggered = index;
-        Verbose(2, "confirmSpeech: triggered at %ld\n", mSpeechTriggered);
+        verbose(2, "confirmSpeech: triggered at %ld\n", mSpeechTriggered);
 
         do
         {
@@ -217,7 +217,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
     while (mState != SPEECH_CONFIRMED);
     mSpeechConfirmed = index;
 
-    Verbose(2, "confirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
+    verbose(2, "confirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
     return true;
 }
 
@@ -228,7 +228,7 @@ bool Tracter::VADGate::confirmSpeech(IndexType iIndex)
  */
 bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
 {
-    Verbose(2, "Attempting to reconfirm speech\n");
+    verbose(2, "Attempting to reconfirm speech\n");
     assert(iIndex >= 0);
     assert(mState == SILENCE_TRIGGERED);
     do
@@ -244,13 +244,13 @@ bool Tracter::VADGate::reconfirmSpeech(IndexType iIndex)
     if (mState == SPEECH_CONFIRMED)
     {
         mSpeechConfirmed = iIndex;
-        Verbose(2, "reconfirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
+        verbose(2, "reconfirmSpeech: confirmed at %ld\n", mSpeechConfirmed);
         return true;
     }
 
     assert(mState == SILENCE_CONFIRMED);
     mSilenceConfirmed = iIndex;
-    Verbose(2, "reconfirmSpeech: Silence confirmed at %ld\n",
+    verbose(2, "reconfirmSpeech: Silence confirmed at %ld\n",
             mSilenceConfirmed);
 
     return false;

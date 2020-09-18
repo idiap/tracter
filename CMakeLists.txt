@@ -5,48 +5,44 @@
 # March 2009
 #
 
-# Version 2.4 might work, but it won't find static libraries with odd names
-cmake_minimum_required(VERSION 2.6)
-
-# CMake used to complain without this
-#if(COMMAND cmake_policy)
-#  cmake_policy(SET CMP0003 NEW)
-#endif(COMMAND cmake_policy)
+# Idiap's Debian; essentially the oldest version that I use
+cmake_minimum_required(VERSION 3.6)
 
 # Top level project information
 project(tracter)
-set(VERSION 1.1)
+set(VERSION 2.0a)
 
-# Find boost, get rid of the version number
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
-message(STATUS "Boost lib is ${Boost_LIBRARIES}")
-
-# Find other packages
-#
-# To build *totally* static, comment out ALSA, SndFile, PulseAudio and
-# RtAudio.  Pulse on Ubuntu doesn't have static libraries; the others
-# use dynamic loading (maybe...)
-#
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(KISSFFT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/kissfft")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-find_package(Torch3)
-find_package(HTK)
-find_package(BSAPI)
-find_package(ALSA)
-find_package(SndFile)
-find_package(PulseAudio)
-
-find_package(LibResample)
-find_package(RtAudio)
-find_package(SPTK)
-if (NOT LIBSSP_FOUND)
-  find_package(LibSSP)
-endif (NOT LIBSSP_FOUND)
 
 # This is required for ssp headers
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++14")
+
+if (NOT EXISTS "${CMAKE_MODULE_PATH}/FindLibUBE.cmake")
+  message(STATUS "Downloading FindLibUBE.cmake")
+  file(DOWNLOAD
+    "https://github.com/pgarner/libube/raw/master/cmake/FindLibUBE.cmake"
+    "${CMAKE_MODULE_PATH}/FindLibUBE.cmake"
+    )
+endif()
+
+if (NOT EXISTS "${CMAKE_MODULE_PATH}/FindLibSSP.cmake")
+  message(STATUS "Downloading FindLibSSP.cmake")
+  file(DOWNLOAD
+    "https://github.com/Idiap/libssp/raw/master/cmake/FindLibSSP.cmake"
+    "${CMAKE_MODULE_PATH}/FindLibSSP.cmake"
+    )
+endif()
+
+
+# Find boost.  The commented part gets rid of the version number; this can help
+# with nonhomegeneous clusters.
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+# string(REGEX REPLACE "'.'so.*" ".so" Boost_LIBRARIES "${Boost_LIBRARIES}")
+message(STATUS "Boost lib is ${Boost_LIBRARIES}")
+
+find_package(LibUBE REQUIRED)
+include_directories(${LIBUBE_INCLUDE_DIRS})
 
 add_subdirectory(bin)
 add_subdirectory(tracter)
@@ -58,6 +54,7 @@ set(INSTALL_TARGETS
   extracter
 )
 
+find_package(SndFile)
 if(SNDFILE_FOUND)
   # codec and recorder rely on SndFile
   add_executable(codec codec.cpp)

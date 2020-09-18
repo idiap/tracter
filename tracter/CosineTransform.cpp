@@ -14,41 +14,41 @@ Tracter::CosineTransform::CosineTransform(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mFrame.size = mInput->Frame().size;
+    mFrame.size = mInput->frame().size;
 
     mIData = 0;
     mOData = 0;
-    mDCT.Init(mFrame.size, &mIData, &mOData);
+    mDCT.init(mFrame.size, &mIData, &mOData);
 
-    if (GetEnv("Window", 0))
-        mWindow = new Window(mObjectName, mFrame.size);
+    if (config("Window", 0))
+        mWindow = new Window(objectName(), mFrame.size);
     else
         mWindow = 0;
 
-    mCZeroIndex = GetEnv("CZeroIndex", 0);
+    mCZeroIndex = config("CZeroIndex", 0);
 }
 
-bool Tracter::CosineTransform::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::CosineTransform::unaryFetch(IndexType iIndex, float* oData)
 {
     // Read the input frame
-    const float* ip = mInput->UnaryRead(iIndex);
+    const float* ip = mInput->unaryRead(iIndex);
     if (!ip)
         return false;
 
     if (mWindow)
         // Copy the frame via the window
-        mWindow->Apply(ip, mIData);
+        mWindow->apply(ip, mIData);
     else
         // Raw copy
         for (int i=0; i<mFrame.size; i++)
             mIData[i] = ip[i];
 
     // DCT
-    mDCT.Transform();
+    mDCT.transform();
 
     // Copy to output
     if (mCZeroIndex)

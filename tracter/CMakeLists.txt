@@ -43,13 +43,11 @@ set(SOURCES
   Frame.cpp
   Gate.cpp
   Histogram.cpp
-  HTKLib.cpp
   HTKSink.cpp
   HTKSource.cpp
   LinearTransform.cpp
   LNASource.cpp
   Log.cpp
-  LowEnergyEnvelope.cpp
   LPCepstrum.cpp
   Mean.cpp
   MelFilter.cpp
@@ -64,12 +62,10 @@ set(SOURCES
   Periodogram.cpp
   Pixmap.cpp
   SNRSpectrum.cpp
-  ScreenSink.cpp
   Select.cpp
   SocketSink.cpp
   SocketSource.cpp
   SocketTee.cpp
-  SpeakerIDSocketSource.cpp
   SpectralSubtract.cpp
   StreamSocketSource.cpp
   Subtract.cpp
@@ -109,8 +105,15 @@ set(TARGET_LIBS
   ${Boost_LIBRARIES}
 )
 
+# Find other packages
+#
+# To build *totally* static, comment out ALSA, SndFile, PulseAudio and
+# RtAudio.  Pulse on Ubuntu doesn't have static libraries; the others
+# use dynamic loading (maybe...)
+
 # Kiss is compulsory for now
 # The library is not supplied built, so we add in the sources explicitly.
+set(KISSFFT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../kissfft")
 list(APPEND SOURCES
   FourierKiss.cpp
   ${KISSFFT_DIR}/tools/kiss_fftr.c
@@ -118,55 +121,12 @@ list(APPEND SOURCES
   )
 include_directories(${KISSFFT_DIR} ${KISSFFT_DIR}/tools)
 
-# HTK is optional
-if(HTK_FOUND)
-  list(APPEND SOURCES HCopyWrapper.cpp HTKLibSource.cpp)
-  list(APPEND HEADERS HCopyWrapper.h   HTKLibSource.h  )
-  add_definitions(-DHAVE_HTKLIB)
-  include_directories(${HTK_INCLUDE_DIRS})
-  list(APPEND TARGET_LIBS ${HTK_LIBRARIES})
-endif(HTK_FOUND)
-
-# Torch3 is optional
-if(TORCH3_FOUND)
-  list(APPEND SOURCES
-    BlasLinear.cpp
-    SKMLP.cpp
-    MLP.cpp
-    MLPVAD.cpp
-    )
-  list(APPEND HEADERS
-    BlasLinear.h
-    SKMLP.h
-    MLP.h
-    MLPVAD.h
-    )
-  add_definitions(-DHAVE_TORCH3)
-  include_directories(${TORCH3_INCLUDE_DIRS})
-  link_directories(${TORCH3_LIBRARY_DIRS})
-  list(APPEND TARGET_LIBS ${TORCH3_LIBRARIES})
-endif(TORCH3_FOUND)
-
-# BSAPI comes as a shared library
-if(BSAPI_FOUND)
-  list(APPEND SOURCES
-    BSAPITransform.cpp
-    BSAPIFrontEnd.cpp
-    BSAPIFilterBank.cpp
-    BSAPIFastVTLN.cpp
-    )
-  list(APPEND HEADERS
-    BSAPITransform.h
-    BSAPIFrontEnd.h
-    BSAPIFilterBank.h
-    BSAPIFastVTLN.h
-    )
-  add_definitions(-DHAVE_BSAPI)
-  include_directories(${BSAPI_INCLUDE_DIRS})
-  list(APPEND TARGET_LIBS ${BSAPI_LIBRARIES})
-endif(BSAPI_FOUND)
+find_package(LibUBE REQUIRED)
+include_directories(${LIBUBE_INCLUDE_DIRS})
+list(APPEND TARGET_LIBS ${LIBUBE_LIBRARIES})
 
 # ALSA is a system thing, depends on whether pkgconfig found it
+find_package(ALSA)
 if(ALSA_FOUND)
   list(APPEND SOURCES ALSASource.cpp)
   list(APPEND HEADERS ALSASource.h  )
@@ -177,6 +137,7 @@ if(ALSA_FOUND)
 endif(ALSA_FOUND)
 
 # SndFile pretty much like ALSA
+find_package(SndFile)
 if(SNDFILE_FOUND)
   list(APPEND SOURCES SndFileSource.cpp SndFileSink.cpp)
   list(APPEND HEADERS SndFileSource.h   SndFileSink.h  )
@@ -184,9 +145,12 @@ if(SNDFILE_FOUND)
   include_directories(${SNDFILE_INCLUDE_DIRS})
   list(APPEND TARGET_LIBS ${SNDFILE_LIBRARIES})
   list(APPEND PKGCONFIG_REQUIRES sndfile)
+  add_executable(snddump snddump.cpp)
+  target_link_libraries(snddump static-lib)
 endif(SNDFILE_FOUND)
 
 # libresample
+find_package(LibResample)
 if(LIBRESAMPLE_FOUND) 
   list(APPEND SOURCES ResampleLRS.cpp)
   add_definitions(-DHAVE_RESAMPLE)
@@ -195,6 +159,7 @@ if(LIBRESAMPLE_FOUND)
 endif(LIBRESAMPLE_FOUND)
 
 # RtAudio
+find_package(RtAudio)
 if(RTAUDIO_FOUND)
   list(APPEND SOURCES RtAudioSource.cpp)
   list(APPEND HEADERS RtAudioSource.h  )
@@ -204,6 +169,7 @@ if(RTAUDIO_FOUND)
 endif(RTAUDIO_FOUND)
 
 # SPTK
+find_package(SPTK)
 if(SPTK_FOUND)
   list(APPEND SOURCES MCep.cpp)
   list(APPEND HEADERS MCep.h  )
@@ -213,6 +179,7 @@ if(SPTK_FOUND)
 endif(SPTK_FOUND)
 
 # PulseAudio is another pkgconfig one
+find_package(PulseAudio)
 if(PULSEAUDIO_FOUND)
   list(APPEND SOURCES PulseAudioSource.cpp) # PulseAudioSink.cpp)
   list(APPEND HEADERS PulseAudioSource.h)   # PulseAudioSink.h  )
@@ -222,7 +189,10 @@ if(PULSEAUDIO_FOUND)
   list(APPEND PKGCONFIG_REQUIRES libpulse-simple)
 endif(PULSEAUDIO_FOUND)
 
-# LibSSP
+# LibSSP (why the if?)
+if (NOT LIBSSP_FOUND)
+  find_package(LibSSP)
+endif (NOT LIBSSP_FOUND)
 if(LIBSSP_FOUND)
   list(APPEND SOURCES CochlearFilter.cpp CochlearFrame.cpp)
   list(APPEND HEADERS CochlearFilter.h   CochlearFrame.h  )
@@ -272,8 +242,7 @@ install(
   )
 
 # This feels like a hack.
-string(REGEX REPLACE ";" " -I" TORCH3_CFLAGS "-I${TORCH3_INCLUDE_DIRS}")
-string(REGEX REPLACE ";" "," TRACTER_REQUIRES "${PKGCONFIG_REQUIRES}")
+#string(REGEX REPLACE ";" "," TRACTER_REQUIRES "${PKGCONFIG_REQUIRES}")
 
 # pkgconfig install lines
 set(prefix ${CMAKE_INSTALL_PREFIX})

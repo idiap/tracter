@@ -14,19 +14,19 @@ Tracter::ComplexPeriodogram::ComplexPeriodogram(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    mFrame.period = GetEnv("FramePeriod", 40);
-    Connect(iInput);
-    mFrame.size = GetEnv("FrameSize", 128);
+    mFrame.period = config("FramePeriod", 40);
+    connect(iInput);
+    mFrame.size = config("FrameSize", 128);
     assert(mFrame.size > 0);
     assert(mFrame.period > 0);
 
-    ComponentBase::MinSize(mInput, mFrame.size, mFrame.size-1);
+    ComponentBase::minSize(mInput, mFrame.size, mFrame.size-1);
 
     mInputData = 0;
     mOutputData = 0;
-    mFourier.Init(mFrame.size, &mInputData, &mOutputData);
+    mFourier.init(mFrame.size, &mInputData, &mOutputData);
 
     // Hardwire a Hamming window.  Could be generalised much better.
     // This one is symmetric.  Should it be asymmetric?
@@ -36,19 +36,19 @@ Tracter::ComplexPeriodogram::ComplexPeriodogram(
         mWindow[i] = 0.54f - 0.46f * cosf(PI * 2.0f * i / (mFrame.size - 1));
 }
 
-bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::ComplexPeriodogram::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
 
     // Read the input frame
     int readIndex = (int)(mFrame.period * iIndex);
-    int got = mInput->Read(inputArea, readIndex, mFrame.size);
+    int got = mInput->read(inputArea, readIndex, mFrame.size);
     if (got < mFrame.size)
         return false;
 
     // Copy the frame into the contiguous array
-    complex* p = mInput->GetPointer();
+    complex* p = mInput->getPointer();
     complex* pp = reinterpret_cast<complex*>(mInputData);
     for (int i=0; i<inputArea.len[0]; i++)
         pp[i] = p[inputArea.offset+i] * mWindow[i];
@@ -56,7 +56,7 @@ bool Tracter::ComplexPeriodogram::UnaryFetch(IndexType iIndex, float* oData)
         pp[i+inputArea.len[0]] = p[i] * mWindow[i+inputArea.len[0]];
 
     // Do the DFT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Compute periodogram
     for (int i=0; i<mFrame.size; i++)

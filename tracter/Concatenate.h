@@ -19,11 +19,10 @@ namespace Tracter
     {
     public:
         Concatenate(const char* iObjectName = "Concatenate");
-        virtual ~Concatenate() throw() {}
-        void Add(Component<float>* iInput);
+        void add(Component<float>* iInput);
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         std::vector< Component<float>* > mInput;

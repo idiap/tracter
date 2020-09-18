@@ -11,19 +11,19 @@ Tracter::OverlapAdd::OverlapAdd(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput, 2);
+    connect(mInput, 2);
 }
 
-Tracter::SizeType Tracter::OverlapAdd::ContiguousFetch(
+Tracter::SizeType Tracter::OverlapAdd::contiguousFetch(
     IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
     assert(iIndex >= 0);
 
     /* The lap is the "period"; half the window size */
-    int lap = mInput->Frame().size / 2;
+    int lap = mInput->frame().size / 2;
     IndexType in = iIndex / lap; // Round down!
     int fi = iIndex - (in * lap);
 
@@ -31,10 +31,10 @@ Tracter::SizeType Tracter::OverlapAdd::ContiguousFetch(
     const float* lo = 0;
     const float* hi = 0;
     if (in > 0)
-        lo = mInput->UnaryRead(in-1);
-    hi = mInput->UnaryRead(in);
+        lo = mInput->unaryRead(in-1);
+    hi = mInput->unaryRead(in);
 
-    float* op = GetPointer(iOffset);
+    float* op = getPointer(iOffset);
     for(int i=0; i<iLength; i++)
     {
         /* End? */
@@ -54,7 +54,7 @@ Tracter::SizeType Tracter::OverlapAdd::ContiguousFetch(
         {
             fi = 0;
             lo = hi;
-            hi = mInput->UnaryRead(++in);
+            hi = mInput->unaryRead(++in);
         }
     }
 

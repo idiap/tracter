@@ -13,48 +13,48 @@ Tracter::LPCepstrum::LPCepstrum(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mNCompressed = mInput->Frame().size;
-    mC0 = GetEnv("C0", 1);
-    mNCepstra = GetEnv("NCepstra", 12);
+    mNCompressed = mInput->frame().size;
+    mC0 = config("C0", 1);
+    mNCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? mNCepstra+1 : mNCepstra;
     assert(mFrame.size > 0);
 
-    mOrder = GetEnv("Order", 14);
-    mCompressionPower = GetEnv("CompressionPower", 0.33f);
-    mRidge = GetEnv("Ridge", 0.0f);
+    mOrder = config("Order", 14);
+    mCompressionPower = config("CompressionPower", 0.33f);
+    mRidge = config("Ridge", 0.0f);
 
     // We get as many autocorrelation coeffs as input dimensions
     if (mOrder >= mNCompressed)
         throw Exception("%s: Order(%d) must be less than input dimension(%d)",
-                        mObjectName, mOrder, mNCompressed);
+                        objectName(), mOrder, mNCompressed);
 
     mAlpha0.resize(mOrder);
     mAlpha1.resize(mOrder);
     mCompressed = 0;
     mAutoCorrelation = 0;
-    mFourier.Init(mNCompressed, &mCompressed, &mAutoCorrelation);
+    mFourier.init(mNCompressed, &mCompressed, &mAutoCorrelation);
 }
 
-bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::LPCepstrum::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
 
     // Read the input frame
-    if (mInput->Read(inputArea, iIndex) < 1)
+    if (mInput->read(inputArea, iIndex) < 1)
         return false;
 
     // Copy the frame though a compression function
-    float* p = mInput->GetPointer(inputArea.offset);
+    float* p = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mNCompressed; i++)
         mCompressed[i] = powf(p[i], mCompressionPower);
 
     // Do the DCT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Levinson / Durbin recursion
     // Indexes are C style from 0, but the books use 1
@@ -66,7 +66,7 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
 
     if (error < 1e-8f)
     {
-        Verbose(2, "error too small at index %ld\n", iIndex);
+        verbose(2, "error too small at index %ld\n", iIndex);
         return bailOut(oData);
     }
 
@@ -80,7 +80,7 @@ bool Tracter::LPCepstrum::UnaryFetch(IndexType iIndex, float* oData)
         a0[i] = sum / error;
         if (!std::isfinite(a0[i]))
         {
-            Verbose(2, "a0[%d] = %f at index %ld\n", i, a0[i], iIndex);
+            verbose(2, "a0[%d] = %f at index %ld\n", i, a0[i], iIndex);
             return bailOut(oData);
         }
         error *= 1.0f - a0[i] * a0[i];

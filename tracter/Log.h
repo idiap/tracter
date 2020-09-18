@@ -21,16 +21,16 @@ namespace Tracter
         Log(
             Component<float>* iInput, const char* iObjectName = "Log"
         );
-        virtual ~Log() throw();
+        virtual ~Log();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<float>::DotHook();
-            DotRecord(1, "floor=%.1e", mFloor);
-            DotRecord(1, "log(floor)=%.1f", mLogFloor);
+            CachedComponent<float>::dotHook();
+            dotRecord(1, "floor=%.1e", mFloor);
+            dotRecord(1, "log(floor)=%.1f", mLogFloor);
         }
 
     private:

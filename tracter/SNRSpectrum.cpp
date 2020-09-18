@@ -14,27 +14,27 @@ Tracter::SNRSpectrum::SNRSpectrum(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
-    mFrame.size = iPowerInput->Frame().size;
+    objectName(iObjectName);
+    mFrame.size = iPowerInput->frame().size;
 
     mPowerInput = iPowerInput;
     mNoiseInput = iNoiseInput;
 
-    Connect(iPowerInput, 1);
-    Connect(iNoiseInput, 1);
+    connect(iPowerInput, 1);
+    connect(iNoiseInput, 1);
 }
 
-bool Tracter::SNRSpectrum::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::SNRSpectrum::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Start with the noise input
-    const float* ni = mNoiseInput->UnaryRead(iIndex);
+    const float* ni = mNoiseInput->unaryRead(iIndex);
     if (!ni)
         return false;
 
     // Now the power input
-    const float* pi = mPowerInput->UnaryRead(iIndex);
+    const float* pi = mPowerInput->unaryRead(iIndex);
     if (!pi)
         return false;
 

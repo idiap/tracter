@@ -27,23 +27,23 @@ Tracter::SocketSink::SocketSink(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mFrame.size = mInput->Frame().size;
-    Initialise();
-    Reset();
+    mFrame.size = mInput->frame().size;
+    initialise();
+    reset();
 
-    mPort = GetEnv("Port", 30000);
-    mHeader = GetEnv("Header", 1);
+    mPort = config("Port", 30000);
+    mHeader = config("Header", 1);
 
     // Get the file descriptor
     int sockFD = socket(AF_INET, SOCK_STREAM, 0);
     if (sockFD < 0)
     {
-        perror(mObjectName);
-        throw Exception("%s: socket() failed\n", mObjectName);
+        perror(objectName());
+        throw Exception("%s: socket() failed\n", objectName());
     }
 
 #ifdef _WIN32
@@ -53,8 +53,8 @@ Tracter::SocketSink::SocketSink(
 #endif
     if (setsockopt(sockFD, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
-        perror(mObjectName);
-        throw Exception("%s: setsockopt() failed\n", mObjectName);
+        perror(objectName());
+        throw Exception("%s: setsockopt() failed\n", objectName());
     }
 
     struct sockaddr_in server;
@@ -65,19 +65,19 @@ Tracter::SocketSink::SocketSink(
 
     if (bind(sockFD, (struct sockaddr *)&server, sizeof(server)) == -1)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: bind() failed for port %hu\n",
-                        mObjectName, mPort);
+                        objectName(), mPort);
     }
 
     if (listen(sockFD, 1) == -1)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: listen() failed for port %hu\n",
-                        mObjectName, mPort);
+                        objectName(), mPort);
     }
 
-    Verbose(1, "waiting for connection\n");
+    verbose(1, "waiting for connection\n");
     struct sockaddr_in client;
 #ifdef _WIN32
     int clientSize = sizeof(client);
@@ -87,11 +87,11 @@ Tracter::SocketSink::SocketSink(
     mFD = accept(sockFD, (struct sockaddr *)&client, &clientSize);
     if (mFD == -1)
     {
-        perror(mObjectName);
+        perror(objectName());
         throw Exception("%s: accept() failed for port %hu\n",
-                        mObjectName, mPort);
+                        objectName(), mPort);
     }
-    Verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
+    verbose(1, "got connection from %s\n", inet_ntoa(client.sin_addr));
 #ifdef _WIN32
     closesocket(sockFD);
 #else
@@ -100,19 +100,19 @@ Tracter::SocketSink::SocketSink(
 
     if (mHeader)
     {
-        TimeType time = TimeStamp() / ONEe6;
+        TimeType time = timeStamp() / ONEe6;
         ssize_t nSent = send(mFD, &time, sizeof(TimeType), 0);
         if (nSent == -1)
         {
-            perror(mObjectName);
+            perror(objectName());
             throw Exception("%s: send() failed for port %hu\n",
-                            mObjectName, mPort);
+                            objectName(), mPort);
         }
-        Verbose(1, "Sent time %lld\n", time);
+        verbose(1, "Sent time %lld\n", time);
     }
 }
 
-Tracter::SocketSink::~SocketSink() throw()
+Tracter::SocketSink::~SocketSink()
 {
     if (mFD)
     {
@@ -125,28 +125,28 @@ Tracter::SocketSink::~SocketSink() throw()
     }
 }
 
-void Tracter::SocketSink::Pull()
+void Tracter::SocketSink::pull()
 {
     CacheArea ca;
     int index = 0;
     int total = 0;
     int arraySize = mFrame.size == 0 ? 1 : mFrame.size;
-    while(mInput->Read(ca, index++))
+    while(mInput->read(ca, index++))
     {
-        float* data = mInput->GetPointer(ca.offset);
+        float* data = mInput->getPointer(ca.offset);
         ssize_t nSend = arraySize*sizeof(float);
 #ifdef _WIN32
         ssize_t nSent = send(mFD, (char*)data, nSend, 0);
 #else
         ssize_t nSent = send(mFD, data, nSend, 0);
 #endif
-        Verbose(2, "Send %d  sent %d  total %d\n",
+        verbose(2, "Send %d  sent %d  total %d\n",
                 (int)nSend, (int)nSent, total++);
         if (nSent == -1)
         {
-            perror(mObjectName);
+            perror(objectName());
             throw Exception("%s: send() failed for port %hu\n",
-                            mObjectName, mPort);
+                            objectName(), mPort);
         }
     }
 #ifdef _WIN32

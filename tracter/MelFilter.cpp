@@ -39,17 +39,17 @@ Tracter::MelFilter::MelFilter(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mMaxHertz = GetEnv("MaxHertz", 4000.0f);
-    mFrame.size = GetEnv("NBins", 23);
-    mLoHertz = GetEnv("LoHertz", 64.0f);
-    mHiHertz = GetEnv("HiHertz", mMaxHertz);
-    mLoWarp = GetEnv("LoWarp", 0.0f);
-    mHiWarp = GetEnv("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
-    mAlpha = GetEnv("Alpha", 1.0f);
+    mMaxHertz = config("MaxHertz", 4000.0f);
+    mFrame.size = config("NBins", 23);
+    mLoHertz = config("LoHertz", 64.0f);
+    mHiHertz = config("HiHertz", mMaxHertz);
+    mLoWarp = config("LoWarp", 0.0f);
+    mHiWarp = config("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
+    mAlpha = config("Alpha", 1.0f);
 
     // Initialise the transform
     mWeight.resize(mFrame.size);
@@ -59,21 +59,21 @@ Tracter::MelFilter::MelFilter(
     initSmoothBins();
 #endif
 
-    if (GetEnv("Normalise", 0))
+    if (config("Normalise", 0))
         normaliseBins();
 }
 
-bool Tracter::MelFilter::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::MelFilter::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
 
     CacheArea inputArea;
-    int one = mInput->Read(inputArea, iIndex);
+    int one = mInput->read(inputArea, iIndex);
     if (!one)
         return false;
 
-    float* p = mInput->GetPointer(inputArea.offset);
+    float* p = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
     {
         //assert(mBin[i+2]-mBin[i]+1 == mWeight[i].size());
@@ -101,7 +101,7 @@ void Tracter::MelFilter::initAlignedBins()
     // Triangles aligned with bins
     float loMel = hertzToMel(mLoHertz);
     float hiMel = hertzToMel(mHiHertz);
-    int nPSD = mInput->Frame().size;
+    int nPSD = mInput->frame().size;
     mBin.resize(mFrame.size+2);
     for (int i=0; i<mFrame.size+2; i++)
     {
@@ -142,7 +142,7 @@ void Tracter::MelFilter::initSmoothBins()
     mBin.resize(mFrame.size);
     float loMel = hertzToMel(mLoHertz);
     float hiMel = hertzToMel(mHiHertz);
-    int nPSD = mInput->Frame().size;
+    int nPSD = mInput->frame().size;
 
     // Get a list of mel bin centers in hertz
     for (int i=0; i<mFrame.size+2; i++)
@@ -253,11 +253,11 @@ float Tracter::MelFilter::warpHertz(
  * Dumps the bin weights to gnuplot's (trivial) data format so they
  * can be plotted.
  */
-void Tracter::MelFilter::DumpBins()
+void Tracter::MelFilter::dumpBins()
 {
     // Build a fully expanded array
     std::vector< std::vector<float> > output;
-    int psdSize = mInput->Frame().size;
+    int psdSize = mInput->frame().size;
     output.resize(psdSize);
     for (int i=0; i<psdSize; i++)
     {

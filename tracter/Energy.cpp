@@ -14,26 +14,26 @@ Tracter::Energy::Energy(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(iInput);
+    connect(iInput);
 }
 
-bool Tracter::Energy::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Energy::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame
-    const float* p = mInput->UnaryRead(iIndex);
+    const float* p = mInput->unaryRead(iIndex);
     if (!p)
         return false;
 
     // Calculate energy
     *oData = 0.0f;
-    for (int i=0; i<mInput->Frame().size; i++)
+    for (int i=0; i<mInput->frame().size; i++)
         *oData += p[i] * p[i];
 
     // Done
-    Verbose(4, "plot %ld %e\n", iIndex, 10.0*log10(*oData));
+    verbose(4, "plot %ld %e\n", iIndex, 10.0*log10(*oData));
     return true;
 }

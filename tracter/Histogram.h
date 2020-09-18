@@ -22,10 +22,10 @@ namespace Tracter
         Histogram(
             Component<float>* iInput, const char* iObjectName = "Histogram"
         );
-        virtual ~Histogram() throw();
+        virtual ~Histogram();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         void writeMode();

@@ -35,12 +35,12 @@ namespace Tracter
         SizeType offset;
         SizeType len[2];
 
-        SizeType Length() const
+        SizeType length() const
         {
             return len[0] + len[1];
         };
 
-        void Set(SizeType iLength, SizeType iOffset, SizeType iSize);
+        void set(SizeType iLength, SizeType iOffset, SizeType iSize);
     };
 
     /** Information about frame size and period */
@@ -69,32 +69,7 @@ namespace Tracter
         {0, 0}
     };
 
-#if 0
-    /** Storage of minimum / maximum */
-    class MinMax
-    {
-    public:
-        /* Storage */
-        int min;
-        int max;
-
-        /** Constructor */
-        MinMax()
-        {
-            min = INT_MAX;
-            max = INT_MIN;
-        }
-
-        /** Add new datum */
-        void Update(int iVal)
-        {
-            min = std::min(min, iVal);
-            max = std::max(max, iVal);
-        }
-    };
-#endif
-
-    /** Range that a Read() can access */
+    /** Range that a read() can access */
     class ReadRange
     {
     public:
@@ -113,9 +88,9 @@ namespace Tracter
             mSize = iSize;
             mReadAhead = iReadAhead;
         }
-        SizeType Size() const { return mSize; }
-        SizeType Ahead() const { return mReadAhead; }
-        SizeType Behind() const
+        SizeType size() const { return mSize; }
+        SizeType ahead() const { return mReadAhead; }
+        SizeType behind() const
         {
             return mSize == INFINITE ? INFINITE : mSize - mReadAhead - 1;
         }
@@ -147,20 +122,20 @@ namespace Tracter
     {
     public:
         ComponentBase(void);
-        virtual ~ComponentBase(void) throw () {};
+        virtual ~ComponentBase(void) {};
 
-        SizeType Read(CacheArea& oArea, IndexType iIndex, SizeType iLength = 1);
-        virtual void Reset(bool iPropagate = true);
-        void Delete();
+        SizeType read(CacheArea& oArea, IndexType iIndex, SizeType iLength = 1);
+        virtual void reset(bool iPropagate = true);
+        void destruct();
 
         /** Access the Frame structure */
-        const FrameInfo& Frame() const
+        const FrameInfo& frame() const
         {
             return mFrame;
         };
 
         /** Call a recursive chain that outputs a dot graph */
-        void Dot();
+        void dot();
 
         /**
          * Frame rate as a float
@@ -178,34 +153,34 @@ namespace Tracter
          * simple recursion, or more complicated components could faff
          * with it more.
          */
-        virtual float FrameRate() const
+        virtual float frameRate() const
         {
-            ExactRateType r = ExactFrameRate();
+            ExactRateType r = exactFrameRate();
             return r.rate / r.period;
         }
 
         /** Exact frame rate as a source rate plus divisor */
-        virtual ExactRateType ExactFrameRate() const
+        virtual ExactRateType exactFrameRate() const
         {
             if (mInput.size() <= 0)
-                throw Exception("%s: ExactFrameRate: No inputs", mObjectName);
+                throw Exception("%s: ExactFrameRate: No inputs", objectName());
             assert(mInput[0]);
-            ExactRateType r = mInput[0]->ExactFrameRate();
-            r.period *= mInput[0]->Frame().period;
+            ExactRateType r = mInput[0]->exactFrameRate();
+            r.period *= mInput[0]->frame().period;
             return r;
         }
 
         /** Time stamp for a given frame */
-        virtual TimeType TimeStamp(IndexType iIndex = 0) const;
+        virtual TimeType timeStamp(IndexType iIndex = 0) const;
 
         /**
          * Time in seconds
          *
-         * Calls TimeStamp(), which will return an absolute time.
+         * Calls timeStamp(), which will return an absolute time.
          */
-        double Seconds(IndexType iIndex) const
+        double seconds(IndexType iIndex) const
         {
-            return (double)TimeStamp(iIndex) * 1.0e-9;
+            return (double)timeStamp(iIndex) * 1.0e-9;
         };
 
         /**
@@ -213,9 +188,9 @@ namespace Tracter
          *
          * This is a relative call; time zero is frame zero.
          */
-        IndexType FrameIndex(TimeType iTime)
+        IndexType frameIndex(TimeType iTime)
         {
-            return (IndexType)(iTime * FrameRate() / ONEe9);
+            return (IndexType)(iTime * frameRate() / ONEe9);
         }
 
     protected:
@@ -226,43 +201,43 @@ namespace Tracter
          * This should be called by the derived class, which doesn't
          * have permission to call the input component directly.
          */
-        void SetReadRange(ComponentBase* iInput, const ReadRange& iReadRange)
+        void setReadRange(ComponentBase* iInput, const ReadRange& iReadRange)
         {
             assert(iInput);
-            iInput->MinSize(
-                iReadRange.Size(), iReadRange.Behind(), iReadRange.Ahead()
+            iInput->minSize(
+                iReadRange.size(), iReadRange.behind(), iReadRange.ahead()
             );
         }
 
-        void SetClusterSize(int iSize);
+        void setClusterSize(int iSize);
 
-        void MinSize(
+        void minSize(
             ComponentBase* iObject, SizeType iMinSize, SizeType iReadAhead = 0
         );
-        void MinSize(
+        void minSize(
             ComponentBase* iInput, SizeType iMinSize,
             SizeType iReadBehind, SizeType iReadAhead
         );
-        void* Initialise(
+        void* initialise(
             const ComponentBase* iDownStream = 0,
             SizeType iReadBehind = 0, SizeType iReadAhead = 0
         );
-        ComponentBase* Connect(ComponentBase* iInput, SizeType iSize = 1);
-        ComponentBase* Connect(ComponentBase* iInput,
+        ComponentBase* connect(ComponentBase* iInput, SizeType iSize = 1);
+        ComponentBase* connect(ComponentBase* iInput,
                               SizeType iSize, SizeType iReadAhead);
-        void MovePointer(CachePointer& iPointer, SizeType iLen);
+        void movePointer(CachePointer& iPointer, SizeType iLen);
 
-        virtual void MinSize(
+        virtual void minSize(
             SizeType iMinSize, SizeType iReadBehind, SizeType iReadAhead
         );
-        virtual void Resize(SizeType iSize) = 0;
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
-        virtual SizeType ContiguousFetch(
+        virtual void resize(SizeType iSize) = 0;
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType contiguousFetch(
             IndexType iIndex, SizeType iLength, SizeType iOffset
         );
 
         /*
-         * float mSampleFreq -> mFrame.rate -> FrameRate()
+         * float mSampleFreq -> mFrame.rate -> frameRate()
          * int mSamplePeriod -> mFrame.period
          * int mArraySize    -> mFrame.size
          */
@@ -277,7 +252,7 @@ namespace Tracter
         bool mAsync;          ///< Flag that the cache is updated asynchronously
         void* mAuxiliary;     ///< Common object for each component chain
         IndexType mEndOfData; ///< Index of the last datum available
-        int mNInitialised;    ///< No. of outputs that have called Initialise()
+        int mNInitialised;    ///< No. of outputs that have called initialise()
 
         SizeType mMinSize;         ///< Maximum requested minimum size
         SizeType mMaxReadAhead;    ///< Maximum read-ahead of output buffers
@@ -286,27 +261,23 @@ namespace Tracter
         SizeType mMinReadBehind;
         SizeType mTotalReadAhead;
         SizeType mTotalReadBehind;
-#if 0
-        MinMax mGlobalReadAhead;
-        MinMax mGlobalReadBehind;
-#endif
 
-        virtual void DotHook() {}
-        void DotRecord(int iVerbose, const char* iString, ...);
+        virtual void dotHook() {}
+        void dotRecord(int iverbose, const char* iString, ...);
 
         /** Does exactly what it says on the tin */
-        SizeType SecondsToFrames(float iSeconds) const
+        SizeType secondsToFrames(float iSeconds) const
         {
-            float samples = iSeconds * FrameRate();
+            float samples = iSeconds * frameRate();
             return (SizeType)(samples + 0.5);
         }
 
-        TimeType TimeOffset(IndexType iIndex) const;
+        TimeType timeOffset(IndexType iIndex) const;
 
     private:
-        SizeType FetchWrapper(IndexType iIndex, CacheArea& iOutputArea);
-        void Reset(ComponentBase* iDownStream);
-        bool Delete(ComponentBase* iDownStream);
+        SizeType fetchWrapper(IndexType iIndex, CacheArea& iOutputArea);
+        void reset(ComponentBase* iDownStream);
+        bool destruct(ComponentBase* iDownStream);
 
         const ComponentBase* mDownStream;
 
@@ -316,7 +287,7 @@ namespace Tracter
             int index; ///< Index of this component
             int max;   ///< Maximum upstream index
         };
-        DotInfo Dot(int iDot);
+        DotInfo dot(int iDot);
     };
 
 
@@ -332,7 +303,7 @@ namespace Tracter
          * Get a pointer to the storage
          * returns a reference.
          */
-        virtual T* GetPointer(SizeType iIndex = 0) = 0;
+        virtual T* getPointer(SizeType iIndex = 0) = 0;
 
         /**
          * Unary read
@@ -340,49 +311,49 @@ namespace Tracter
          * If we only want to read one item, the syntax can be rather
          * more simple.
          */
-        const T* UnaryRead(IndexType iIndex)
+        const T* unaryRead(IndexType iIndex)
         {
             assert(iIndex >= 0);
 
-            // Convert to a full Read(), return null pointer on failure
+            // Convert to a full read(), return null pointer on failure
             CacheArea inputArea;
-            SizeType got = Read(inputArea, iIndex);
+            SizeType got = read(inputArea, iIndex);
             if (!got)
                 return 0;
 
             // If successful, return the pointer
-            return GetPointer(inputArea.offset);
+            return getPointer(inputArea.offset);
         }
 
         /**
          * Contiguous read
          *
-         * Many components can work well by breaking down a Read()
+         * Many components can work well by breaking down a read()
          * into a pair of contiguous reads.  In this case, we can
-         * return a pointer straight away as with the UnaryRead().  It
+         * return a pointer straight away as with the unaryRead().  It
          * must be called twice.
          */
-        const T* ContiguousRead(IndexType iIndex, SizeType& ioLength)
+        const T* contiguousRead(IndexType iIndex, SizeType& ioLength)
         {
             assert(iIndex >= 0);
 
-            // Convert to a full Read(), return null pointer on failure
+            // Convert to a full read(), return null pointer on failure
             CacheArea inputArea;
-            SizeType got = Read(inputArea, iIndex, ioLength);
+            SizeType got = read(inputArea, iIndex, ioLength);
             if (!got)
                 return 0;
 
             // If successful, return the pointer and the length
             ioLength = inputArea.len[0];
-            return GetPointer(inputArea.offset);
+            return getPointer(inputArea.offset);
         }
 
     protected:
 
         /**
-         * ContiguousFetch() is called by ComponentBase's
-         * implementation of Fetch().  In turn, ContiguousFetch()
-         * calls UnaryFetch().  A component should implement one of
+         * contiguousFetch() is called by ComponentBase's
+         * implementation of fetch().  In turn, contiguousFetch()
+         * calls unaryFetch().  A component should implement one of
          * these, depending on how it wishes to operate.  The latter
          * two are easier in that they are typed and supply pointers
          * directly.
@@ -390,7 +361,7 @@ namespace Tracter
          * @returns the number of frames successfully fetched.  Fewer
          * than asked for indicates end of data (EOD).
          */
-        virtual SizeType ContiguousFetch(
+        virtual SizeType contiguousFetch(
             IndexType iIndex, SizeType iLength, SizeType iOffset
         )
         {
@@ -401,8 +372,8 @@ namespace Tracter
             // Break the contiguous fetch into unary fetches
             for (SizeType i=0; i<iLength; i++)
             {
-                T* output = GetPointer(iOffset+i);
-                if (!UnaryFetch(iIndex+i, output))
+                T* output = getPointer(iOffset+i);
+                if (!unaryFetch(iIndex+i, output))
                     return i;
             }
 
@@ -410,18 +381,18 @@ namespace Tracter
         }
 
         /**
-         * UnaryFetch()   If a component does not implement Fetch() then it
-         * must implement UnaryFetch().  A UnaryFetch() is only
+         * unaryFetch()   If a component does not implement fetch() then it
+         * must implement unaryFetch().  A unaryFetch() is only
          * required to return a single datum, but it may need to
-         * Read() several input data to do so.
+         * read() several input data to do so.
          *
          * @returns true if the fetch was successful, false otherwise,
          * implying end of data (EOD).
          */
-        virtual bool UnaryFetch(IndexType iIndex, T* oData)
+        virtual bool unaryFetch(IndexType iIndex, T* oData)
         {
             throw Exception("Component::UnaryFetch called."
-                            " %s missing fetch method?", mObjectName);
+                            " %s missing fetch method?", objectName());
             return false;
         }
     };
@@ -453,7 +424,7 @@ namespace Tracter
         {
             assert( mOffset >= mCacheArea.offset ||
                     mOffset <  mCacheArea.len[1] );
-            return mComponent->GetPointer(mOffset)[iIndex];
+            return mComponent->getPointer(mOffset)[iIndex];
         }
 
         /**
@@ -463,7 +434,7 @@ namespace Tracter
         {
             assert( mOffset >= mCacheArea.offset ||
                     mOffset <  mCacheArea.len[1] );
-            return *(mComponent->GetPointer(mOffset));
+            return *(mComponent->getPointer(mOffset));
         }
 
         /**
@@ -489,7 +460,7 @@ namespace Tracter
             return old;
         }
 
-        void Reset()
+        void reset()
         {
             mOffset = mCacheArea.offset;
         }

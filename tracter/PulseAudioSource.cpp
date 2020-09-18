@@ -17,18 +17,18 @@
  */
 Tracter::PulseAudioSource::PulseAudioSource(const char* iObjectName)
 {
-    mObjectName = iObjectName;
-    mFrameRate = GetEnv("FrameRate", 8000.0f);
-    mFrame.size = GetEnv("FrameSize", 1);
+    objectName(iObjectName);
+    mFrameRate = config("FrameRate", 8000.0f);
+    mFrame.size = config("FrameSize", 1);
     mFrame.period = 1;
     mHandle = 0;
 
     /* Limit the time for which we can connect */
-    float maxTime = GetEnv("MaxTime", 0.0f);
-    mMaxIndex = SecondsToFrames(maxTime);
+    float maxTime = config("MaxTime", 0.0f);
+    mMaxIndex = secondsToFrames(maxTime);
 }
 
-Tracter::PulseAudioSource::~PulseAudioSource() throw()
+Tracter::PulseAudioSource::~PulseAudioSource()
 {
     if (mHandle)
         pa_simple_free(mHandle);
@@ -38,7 +38,7 @@ Tracter::PulseAudioSource::~PulseAudioSource() throw()
 /**
  * Open a PulseAudio device.
  */
-void Tracter::PulseAudioSource::Open(
+void Tracter::PulseAudioSource::open(
     const char* iDeviceName, TimeType iBeginTime, TimeType iEndTime
 )
 {
@@ -69,10 +69,10 @@ void Tracter::PulseAudioSource::Open(
     /* Connect to the device */
     mHandle = pa_simple_new(
         server,           // Server name
-        mObjectName,      // Application name
+        objectName(),      // Application name
         PA_STREAM_RECORD, // Stream direction
         0,                // Device
-        mObjectName,      // Stream name
+        objectName(),      // Stream name
         &spec,            // Sample format
         0,                // Channel map
         0,                // Buffering attributes
@@ -82,7 +82,7 @@ void Tracter::PulseAudioSource::Open(
     /* Die if it failed */
     if (!mHandle)
         throw Exception("%s: Failed to connect to device %s. %s",
-                        mObjectName, iDeviceName, pa_strerror(error));
+                        objectName(), iDeviceName, pa_strerror(error));
 }
 
 /**
@@ -90,7 +90,7 @@ void Tracter::PulseAudioSource::Open(
  * The simple API is blocking, which is perfect for tracter.  Fab.
  */
 Tracter::SizeType
-Tracter::PulseAudioSource::ContiguousFetch(
+Tracter::PulseAudioSource::contiguousFetch(
     IndexType iIndex, SizeType iLength, SizeType iOffset
 )
 {
@@ -102,13 +102,13 @@ Tracter::PulseAudioSource::ContiguousFetch(
     int error;
     int ret = pa_simple_read(
         mHandle,
-        GetPointer(iOffset),
+        getPointer(iOffset),
         iLength * sizeof(float),
         &error
     );
     if (ret < 0)
         throw Exception("%s: Failed to read %d samples. %s",
-                        mObjectName, iLength, pa_strerror(error));
+                        objectName(), iLength, pa_strerror(error));
 
     if (mMaxIndex)
         if (iIndex + iLength > mMaxIndex)

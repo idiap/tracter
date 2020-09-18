@@ -216,9 +216,9 @@ void Tracter::SlidingWindow::setData(
 float Tracter::SlidingWindow::get(IndexType iIndex)
 {
     assert(iIndex >= mMinIndex);
-    assert(iIndex < mMinIndex + mCacheArea.Length());
+    assert(iIndex < mMinIndex + mCacheArea.length());
     int offset = (int)(iIndex - mMinIndex);
-    float* data = mInput->GetPointer(
+    float* data = mInput->getPointer(
         (offset < mCacheArea.len[0])
         ? mCacheArea.offset + offset
         : offset - mCacheArea.len[0]
@@ -229,48 +229,48 @@ float Tracter::SlidingWindow::get(IndexType iIndex)
 
 Tracter::Minima::Minima(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    mFrame.size = mInput->Frame().size;
+    mFrame.size = mInput->frame().size;
     if (mFrame.size == 0)
         mFrame.size = 1;
 
-    mNWindow = SecondsToFrames( GetEnv("WindowTime", 1.0f) );
+    mNWindow = secondsToFrames( config("WindowTime", 1.0f) );
     mNAhead = mNWindow/2;
-    MinSize(mInput, mNWindow+1, mNAhead);
+    minSize(mInput, mNWindow+1, mNAhead);
 
-    float gamma = GetEnv("Gamma", 0.2f);
+    float gamma = config("Gamma", 0.2f);
     int nGamma  = (int)(gamma * mNWindow);
 
     mWindow.resize(mFrame.size);
     for (int i=0; i<mFrame.size; i++)
         mWindow[i] = new MinimaWindow(mNWindow, nGamma);
 
-    mCorrection = GetEnv("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
+    mCorrection = config("Correction", 1.0f / (1.5f * gamma) / (1.5f * gamma));
 
     mLastIndex = -1;
-    Verbose(1, "Window %d, %d ahead\n", mNWindow, mNAhead);
+    verbose(1, "Window %d, %d ahead\n", mNWindow, mNAhead);
 }
 
-Tracter::Minima::~Minima() throw ()
+Tracter::Minima::~Minima()
 {
     for (int i=0; i<mFrame.size; i++)
         delete mWindow[i];
 }
 
 /**
- * This is just a wrapper for the unaryFetch().  It enforces the
- * sequential constraint by read samples that have been skipped.  This
- * sort of thing ought to be in the framework rather than here.
+ * This is just a wrapper for uFetch().  It enforces the sequential constraint
+ * by read samples that have been skipped.  This sort of thing ought to be in
+ * the framework rather than here.
  */
-bool Tracter::Minima::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Minima::unaryFetch(IndexType iIndex, float* oData)
 {
     IndexType index = mLastIndex < 0 ? iIndex : mLastIndex + 1;
     for (IndexType i = index; i<=iIndex; i++)
     {
-        if (!unaryFetch(i, oData))
+        if (!uFetch(i, oData))
             return false;
     }
     return true;
@@ -279,14 +279,14 @@ bool Tracter::Minima::UnaryFetch(IndexType iIndex, float* oData)
 /**
  * The real unary fetch.
  */
-bool Tracter::Minima::unaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Minima::uFetch(IndexType iIndex, float* oData)
 {
     // Read the window, plus the one datum before it that we're removing
     CacheArea ca;
     IndexType getIndex = std::max((IndexType)0, iIndex + mNAhead - mNWindow);
     int nGet = (int)std::min((IndexType)mNWindow + 1, iIndex + mNAhead + 1);
-    int nGot = mInput->Read(ca, getIndex, nGet);
-    Verbose(4, "Got %d of %d from %ld\n", nGot, nGet, getIndex);
+    int nGot = mInput->read(ca, getIndex, nGet);
+    verbose(4, "Got %d of %d from %ld\n", nGot, nGet, getIndex);
 
     // This means iIndex is off the end - we're done
     if (nGet - nGot > mNAhead)
@@ -297,7 +297,7 @@ bool Tracter::Minima::unaryFetch(IndexType iIndex, float* oData)
     {
         IndexType dataSize = getIndex + nGot;
         mEndOfData = getIndex + nGot;
-        Verbose(2, "EOD at %ld\n", getIndex + nGot);
+        verbose(2, "EOD at %ld\n", getIndex + nGot);
         for (int i=0; i<mFrame.size; i++)
             mWindow[i]->setDataSize(dataSize);
     }
@@ -311,7 +311,7 @@ bool Tracter::Minima::unaryFetch(IndexType iIndex, float* oData)
         // Shift in the first few samples
         for (int a=0; a<nGot-1; a++)
         {
-            Verbose(4, "Priming %d\n", a);
+            verbose(4, "Priming %d\n", a);
             for (int i=0; i<mFrame.size; i++)
             {
                 mWindow[i]->shift();
@@ -326,7 +326,7 @@ bool Tracter::Minima::unaryFetch(IndexType iIndex, float* oData)
             throw Exception("Sequencing error %ld != %ld", iIndex, mLastIndex);
     }
 
-    Verbose(4, "Shifting\n");
+    verbose(4, "Shifting\n");
     for (int i=0; i<mFrame.size; i++)
     {
         mWindow[i]->setData(mInput, i, getIndex, ca);
@@ -337,11 +337,11 @@ bool Tracter::Minima::unaryFetch(IndexType iIndex, float* oData)
     return true;
 }
 
-void Tracter::Minima::Reset(bool iPropagate)
+void Tracter::Minima::reset(bool iPropagate)
 {
-    Verbose(2, "Reset\n");
+    verbose(2, "Reset\n");
     mLastIndex = -1;
     for (int i=0; i<mFrame.size; i++)
         mWindow[i]->reset();
-    CachedComponent<float>::Reset(iPropagate);
+    CachedComponent<float>::reset(iPropagate);
 }

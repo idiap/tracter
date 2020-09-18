@@ -22,18 +22,18 @@ namespace Tracter
         Normalise(
             Component<short>* iInput, const char* iObjectName = "Normalise"
         );
-        void MinSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
+        void minSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<float>::DotHook();
-            DotRecord(1, "swap=%s", mByteOrder.WrongEndian() ? "yes" : "no");
+            CachedComponent<float>::dotHook();
+            dotRecord(1, "swap=%s", mByteOrder.wrongEndian() ? "yes" : "no");
         }
 
     protected:
         Component<short>* mInput;
         ByteOrder mByteOrder;
-        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
     };
 }
 

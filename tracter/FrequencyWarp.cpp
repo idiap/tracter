@@ -38,15 +38,15 @@ float Tracter::FrequencyWarp::binToHertz(int iBin)
 
 Tracter::FrequencyWarp::FrequencyWarp(const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
 
-    mMaxHertz = GetEnv("MaxHertz", 4000.0f);
-    mNBins = GetEnv("NBins", 23);
-    mLoHertz = GetEnv("LoHertz", 64.0f);
-    mHiHertz = GetEnv("HiHertz", mMaxHertz);
-    mLoWarp = GetEnv("LoWarp", 0.0f);
-    mHiWarp = GetEnv("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
-    mAlpha = GetEnv("Alpha", 1.0f);
+    mMaxHertz = config("MaxHertz", 4000.0f);
+    mNBins = config("NBins", 23);
+    mLoHertz = config("LoHertz", 64.0f);
+    mHiHertz = config("HiHertz", mMaxHertz);
+    mLoWarp = config("LoWarp", 0.0f);
+    mHiWarp = config("HiWarp", mHiHertz * 0.85f);  // 4000 -> 3400
+    mAlpha = config("Alpha", 1.0f);
 }
 
 
@@ -61,7 +61,7 @@ Tracter::FrequencyWarp::FrequencyWarp(const char* iObjectName)
  * DSR frontend, and the bins seem to be a little wide in that the
  * triangles overlap a little at the bottom.
  */
-void Tracter::FrequencyWarp::Initialise(int iNPSD)
+void Tracter::FrequencyWarp::initialise(int iNPSD)
 {
     assert(iNPSD > 0);
     mNPSD = iNPSD;
@@ -103,7 +103,7 @@ void Tracter::FrequencyWarp::Initialise(int iNPSD)
  * not obviously triangular, but are properly spaced and probably
  * respond better to VTLN.  This is similar to the way HTK does it.
  */
-void Tracter::FrequencyWarp::Initialise(int iNPSD)
+void Tracter::FrequencyWarp::initialise(int iNPSD)
 {
     assert(iNPSD > 0);
     mNPSD = iNPSD;

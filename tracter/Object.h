@@ -10,14 +10,14 @@
 
 #include <exception>
 
+#include <lube.h>
+#include <lube/config.h>
+
 /**
  * Tracter namespace
  */
 namespace Tracter
 {
-    extern bool sInitialised;
-    extern bool sShConfig;
-    extern bool sCshConfig;
     extern int sVerbose;
 
     /** String to enumerated value mapping */
@@ -31,39 +31,34 @@ namespace Tracter
     /**
      * Root of all tracter objects.
      *
-     * This class defines basic functionality for tracter objects.  Right
-     * now, this is just exceptions and the environment variable parameter
-     * mechanism.
+     * This class defines basic functionality for tracter objects.  Right now,
+     * this is just exceptions and the configuration parameter mechanism.
      *
-     * A tracter object is an object with a name.  The name allows
-     * parameters for the object to be picked up from an environment
-     * variable prefixed with that name.  It also allows debugging to
-     * identify which object gave rise to which behaviour.
+     * A tracter object is an object with a name.  The name allows parameters
+     * for the object to be picked up from an configuration prefixed with that
+     * name.  It also allows debugging to identify which object gave rise to
+     * which behaviour.
      *
-     * Tracter::Object also defines two global options: Verbose is a
-     * numerical value corresponding to a verbosity level.  ShowConfig is
-     * a boolean defining whether to output the configuration (parameters)
-     * as it is consulted.
+     * Tracter::Object also defines an option: verbose is a numerical value
+     * corresponding to a verbosity level.
      */
-    class Object
+    class Object : public lube::Config
     {
     public:
-        Object();
-        virtual ~Object() throw () {} // Stops destructors throwing exceptions
-        const char* ObjectName() const { return mObjectName; }
+        const char* objectName() const { return configStr(); }
+        void objectName(const char* iName) { configSection(iName); }
 
     protected:
-        const char* mObjectName; ///< Name of this object
+        float config(const char* iSuffix, float iDefault);
+        int config(const char* iSuffix, int iDefault);
+        const char* config(const char* iSuffix, const char* iDefault);
+        int config(const StringEnum* iStringEnum, int iDefault);
 
-        float GetEnv(const char* iSuffix, float iDefault);
-        int GetEnv(const char* iSuffix, int iDefault);
-        const char* GetEnv(const char* iSuffix, const char* iDefault);
-        int GetEnv(const StringEnum* iStringEnum, int iDefault);
-
-        void Verbose(int iLevel, const char* iString, ...) const;
+        void verbose(var iVerbose);
+        void verbose(int iLevel, const char* iString, ...) const;
 
     private:
-        const char* getEnv(
+        const char* getConfig(
             const char* iSuffix, const char* iDefault, bool iEcho = true
         );
     };
@@ -73,7 +68,7 @@ namespace Tracter
     {
     public:
         Exception(const char* iString, ...);
-        virtual const char* what() const throw()
+        virtual const char* what() const noexcept
         {
             return mString;
         }

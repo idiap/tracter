@@ -23,33 +23,33 @@ namespace Tracter
 
 Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    mFrame.size = iInput->Frame().size;
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
 
     mAdaptStart = 0;
 
-    mVarianceType = (VarianceType)GetEnv(cVarianceType, VARIANCE_ADAPTIVE);
-    mBurnIn = GetEnv("BurnIn", 20);
-    mPersistent = GetEnv("Persistent", 0);
+    mVarianceType = (VarianceType)config(cVarianceType, VARIANCE_ADAPTIVE);
+    mBurnIn = config("BurnIn", 20);
+    mPersistent = config("Persistent", 0);
 
     switch (mVarianceType)
     {
     case VARIANCE_STATIC:
         // Set the input buffer to store everything
-        Connect(mInput, ReadRange::INFINITE);
+        connect(mInput, ReadRange::INFINITE);
         mValid = false;
         break;
 
     case VARIANCE_ADAPTIVE:
-        Connect(mInput, std::max(mBurnIn, 1));
+        connect(mInput, std::max(mBurnIn, 1));
         mValid = false;
         break;
 
     case VARIANCE_FIXED:
         // In fact, the input will never be read
-        Connect(mInput, 1);
+        connect(mInput, 1);
         mValid = true;
         break;
 
@@ -58,14 +58,14 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
     }
 
     // Possibly initialise a prior variance
-    const char* priFile = GetEnv("PriorFile", (const char*)0);
+    const char* priFile = config("PriorFile", (const char*)0);
     if (priFile)
-        Load(mPrior, "<VARIANCE>", priFile);
+        load(mPrior, "<VARIANCE>", priFile);
 
     // Initialise a target variance either from a file or to unity
-    const char* tgtFile = GetEnv("TargetFile", (const char*)0);
+    const char* tgtFile = config("TargetFile", (const char*)0);
     if (tgtFile)
-        Load(mTarget, "<VARSCALE>", tgtFile);
+        load(mTarget, "<VARSCALE>", tgtFile);
     else
         mTarget.assign(mFrame.size, 1.0);
 
@@ -77,7 +77,7 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
         mVariance.assign(mTarget.begin(), mTarget.end());
 
     // Time constant
-    SetTimeConstant(GetEnv("TimeConstant", 1.0f));
+    setTimeConstant(config("TimeConstant", 1.0f));
 }
 
 /**
@@ -86,19 +86,19 @@ Tracter::Variance::Variance(Component<float>* iInput, const char* iObjectName)
  * (n-1)/n, where n is in frames.  I've seen it written as (n-1)/(n+1)
  * too, but can't find a persuasive derivation.
  */
-void Tracter::Variance::SetTimeConstant(float iSeconds)
+void Tracter::Variance::setTimeConstant(float iSeconds)
 {
     assert(iSeconds > 0);
-    float n = SecondsToFrames(iSeconds);
+    float n = secondsToFrames(iSeconds);
     mPole = (n-1.0f) / n;
     mElop = 1.0f - mPole;
 
     assert(mPole > 0.0f);
     assert(mPole < 1.0f);
-    Verbose(1, "Pole is %f\n", mPole);
+    verbose(1, "Pole is %f\n", mPole);
 }
 
-void Tracter::Variance::Reset(bool iPropagate)
+void Tracter::Variance::reset(bool iPropagate)
 {
     // Reset the variance to the target
     if (!mPersistent || (mVarianceType != VARIANCE_ADAPTIVE))
@@ -112,10 +112,10 @@ void Tracter::Variance::Reset(bool iPropagate)
     }
 
     // Call the base class
-    CachedComponent<float>::Reset(iPropagate);
+    CachedComponent<float>::reset(iPropagate);
 }
 
-bool Tracter::Variance::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Variance::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     switch (mVarianceType)
@@ -149,10 +149,10 @@ void Tracter::Variance::processAll()
     // Calculate variance over whole input range
     int frame = 0;
     CacheArea inputArea;
-    while(mInput->Read(inputArea, frame))
+    while(mInput->read(inputArea, frame))
     {
-        assert(inputArea.Length() == 1);
-        float* p = mInput->GetPointer(inputArea.offset);
+        assert(inputArea.length() == 1);
+        float* p = mInput->getPointer(inputArea.offset);
         for (int i=0; i<mFrame.size; i++)
             mVariance[i] += p[i] * p[i];
         frame++;
@@ -182,26 +182,26 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
         mVariance.assign(mFrame.size, 0.0f);
         for (int i=iIndex; i<iIndex+mBurnIn; i++)
         {
-            if (mInput->Read(inputArea, i) == 0)
+            if (mInput->read(inputArea, i) == 0)
                 return false;
-            assert(inputArea.Length() == 1);
-            float* p = mInput->GetPointer(inputArea.offset);
+            assert(inputArea.length() == 1);
+            float* p = mInput->getPointer(inputArea.offset);
             for (int j=0; j<mFrame.size; j++)
                 mVariance[j] += p[j] * p[j];
         }
         for (int j=0; j<mFrame.size; j++)
             mVariance[j] /= mBurnIn;
         mValid = true;
-        Verbose(1, "Burn in gives %e %e %e %e ...\n",
+        verbose(1, "Burn in gives %e %e %e %e ...\n",
                 mVariance[0], mVariance[1], mVariance[2], mVariance[3]);
     }
 
     if (iIndex >= mAdaptStart)
     {
-        if (mInput->Read(inputArea, iIndex) == 0)
+        if (mInput->read(inputArea, iIndex) == 0)
             return false;
-        assert(inputArea.Length() == 1);
-        float* p = mInput->GetPointer(inputArea.offset);
+        assert(inputArea.length() == 1);
+        float* p = mInput->getPointer(inputArea.offset);
 
         // Combine the new observation into the variance
         for (int i=0; i<mFrame.size; i++)
@@ -211,11 +211,11 @@ bool Tracter::Variance::adaptFrame(IndexType iIndex)
     return true;
 }
 
-void Tracter::Variance::Load(
+void Tracter::Variance::load(
     std::vector<float>& iVariance, const char* iToken, const char* iFileName
 )
 {
-    Verbose(1, "Loading %s from %s\n", iToken, iFileName);
+    verbose(1, "Loading %s from %s\n", iToken, iFileName);
     FILE* fp = fopen(iFileName, "r");
     if (!fp)
         throw Exception("Failed to open file %s", iFileName);

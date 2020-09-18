@@ -15,10 +15,10 @@
  */
 Tracter::BoolToFloat::BoolToFloat(Component<BoolType>* iInput, const char* iObjectName) 
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = iInput->Frame().size;
+    connect(mInput);
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
 }
 
@@ -29,15 +29,15 @@ Tracter::BoolToFloat::BoolToFloat(Component<BoolType>* iInput, const char* iObje
  * return true if some data is fetched otherwise false when
  *        end of stream is reached.
  */
-bool Tracter::BoolToFloat::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::BoolToFloat::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame at indice 'iIndex'
-    const BoolType* open = mInput->UnaryRead(iIndex);
+    const BoolType* open = mInput->unaryRead(iIndex);
 
     if (!open) {
-        Verbose(2, "BoolToFloat: End Of Data at %ld\n", iIndex);
+        verbose(2, "BoolToFloat: End Of Data at %ld\n", iIndex);
         return false;
     }
 

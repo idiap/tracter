@@ -24,8 +24,8 @@ int main(int argc, char** argv)
     HTKSource* source = new HTKSource();
     Pixmap* pixmap = new Pixmap(source);
     FrameSink<float> sink(pixmap);
-    source->Open(argv[1]);
-    sink.Reset();
+    source->open(argv[1]);
+    sink.reset();
 
     int index = 0;
     while(sink.Read(index++)) {}

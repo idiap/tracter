@@ -7,7 +7,7 @@
 #ifndef EXTRACT_H
 #define EXTRACT_H
 
-#include "Sink.h"
+#include "HTKSink.h"
 #include "ASRFactory.h"
 
 namespace Tracter
@@ -22,21 +22,19 @@ namespace Tracter
     {
     public:
         Extract(int iArgc, char** iArgv, ASRFactory* iFactory);
-        virtual ~Extract() throw ();
+        virtual ~Extract();
         void All();
 
     private:
-        void Usage(const char* iName);
         void File(const char* iFile1, const char* iFile2, bool iLoop=false);
         void List(const char* iFileList);
 
-        char* mFile[2];
-        char* mFileList;
+        var mFile[2];
+        var mFileList;
         bool mLoop;
-        int mFeatureIndice;
 
         ISource* mSource;
-        Sink* mSink;
+        HTKSink* mSink;
     };
 }
 

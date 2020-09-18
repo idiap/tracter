@@ -26,15 +26,14 @@ namespace Tracter
     {
     public:
         RtAudioSource(const char* iObjectName = "RtAudioSource");
-        ~RtAudioSource() throw() {}
-        void Open(
+        void open(
             const char* iDeviceName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
         );
 
     protected:
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
         static int staticCallback(

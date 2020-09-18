@@ -29,19 +29,19 @@ namespace Tracter
     class Variance : public CachedComponent<float>
     {
     public:
-        Variance(Component<float>* iInput, const char* iObjectName = "Variance");
-        virtual ~Variance() throw() {}
-        virtual void Reset(bool iPropagate);
-        void SetTimeConstant(float iSeconds);
+        Variance(Component<float>* iInput,
+                 const char* iObjectName = "Variance");
+        virtual void reset(bool iPropagate);
+        void setTimeConstant(float iSeconds);
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<float>::DotHook();
-            DotRecord(1, "pole=%.2f", mPole);
-            DotRecord(1, "type=%s", cVarianceType[mVarianceType].str);
+            CachedComponent<float>::dotHook();
+            dotRecord(1, "pole=%.2f", mPole);
+            dotRecord(1, "type=%s", cVarianceType[mVarianceType].str);
         }
 
     private:
@@ -61,7 +61,7 @@ namespace Tracter
         void processAll();
         bool adaptFrame(IndexType iIndex);
 
-        void Load(
+        void load(
             std::vector<float>& iVariance,
             const char* iToken,
             const char* iFileName

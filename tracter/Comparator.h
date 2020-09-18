@@ -26,12 +26,12 @@ namespace Tracter
 
     protected:
 
-        bool UnaryFetch(IndexType iIndex, BoolType* oData);
+        bool unaryFetch(IndexType iIndex, BoolType* oData);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<BoolType>::DotHook();
-            DotRecord(1, "thres=%.2fdB", 10.0f * log10f(mThreshold));
+            CachedComponent<BoolType>::dotHook();
+            dotRecord(1, "thres=%.2fdB", 10.0f * log10f(mThreshold));
         }
 
     private:

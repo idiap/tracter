@@ -20,10 +20,10 @@ namespace Tracter
     {
     public:
         Cepstrum(Component<float>* iInput, const char* iObjectName = "Cepstrum");
-        virtual ~Cepstrum() throw();
+        virtual ~Cepstrum();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<float>* mInput;

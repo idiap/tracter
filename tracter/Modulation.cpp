@@ -9,7 +9,7 @@
 
 #include "Modulation.h"
 
-void Tracter::SlidingDFT::SetRotation(int iBin, int iNBins)
+void Tracter::SlidingDFT::setRotation(int iBin, int iNBins)
 {
     float a = 2.0f * M_PI * iBin / iNBins;
     float r = cos(a);
@@ -17,7 +17,7 @@ void Tracter::SlidingDFT::SetRotation(int iBin, int iNBins)
     mRotation = complex(r, i);
 }
 
-const Tracter::complex& Tracter::SlidingDFT::Transform(float iNew, float iOld)
+const Tracter::complex& Tracter::SlidingDFT::transform(float iNew, float iOld)
 {
     float tmp = iNew - iOld;
     complex ctmp = mState + tmp;
@@ -29,37 +29,37 @@ Tracter::Modulation::Modulation(
     Component<float>* iInput, const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(iInput);
+    connect(iInput);
 
     mFrame.size = 1;
-    assert(iInput->Frame().size == 1);
+    assert(iInput->frame().size == 1);
 
     /* For a 100Hz frame rate and bin 1 = 4Hz, we have nBins = 100/4 =
      * 25 */
-    float freq = GetEnv("Freq", 4.0f);
-    int bin = GetEnv("Bin", 1);
-    mNBins = (int)(FrameRate() / freq + 0.5f);
-    mDFT.SetRotation(bin, mNBins);
+    float freq = config("Freq", 4.0f);
+    int bin = config("Bin", 1);
+    mNBins = (int)(frameRate() / freq + 0.5f);
+    mDFT.setRotation(bin, mNBins);
     mLookAhead = mNBins / 2; // Round down
     mLookBehind = mNBins - mLookAhead - 1;
-    MinSize(mInput, mNBins, mLookAhead);
+    minSize(mInput, mNBins, mLookAhead);
     mIndex = -1;
 
-    Verbose(2, "NBins=%d (-%d+%d)\n", mNBins, mLookBehind, mLookAhead);
+    verbose(2, "NBins=%d (-%d+%d)\n", mNBins, mLookBehind, mLookAhead);
 }
 
-void Tracter::Modulation::Reset(bool iPropagate)
+void Tracter::Modulation::reset(bool iPropagate)
 {
-    Verbose(2, "Reset\n");
+    verbose(2, "Reset\n");
     mIndex = -1;
-    CachedComponent<float>::Reset(iPropagate);
+    CachedComponent<float>::reset(iPropagate);
 }
 
-bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Modulation::unaryFetch(IndexType iIndex, float* oData)
 {
-    Verbose(3, "iIndex %ld\n", iIndex);
+    verbose(3, "iIndex %ld\n", iIndex);
     assert(iIndex == mIndex+1);
     mIndex = iIndex;
 
@@ -71,22 +71,22 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
          * is, reset, then shift in mLookBehind + 1 + mLookAhead
          * samples.  Below, assume a window of 12+1+12 = 25 frames.
          */
-        mDFT.Reset();
+        mDFT.reset();
         SizeType len = mLookAhead;
-        const float* p = mInput->ContiguousRead(0, len);
+        const float* p = mInput->contiguousRead(0, len);
         if (!p)
             return false;
         assert(len == mLookAhead); // The cache should be big enough
 
         /* Prime with the first sample for all the missing ones */
         for (SizeType i=0; i<mLookBehind+1; i++)
-            mDFT.Transform(p[0], 0.0f);
+            mDFT.transform(p[0], 0.0f);
 
         /* Prime the rest with the look-ahead; this includes the first
          * sample once more, so there are 14 copies of the first
          * sample */
         for (SizeType i=0; i<mLookAhead; i++)
-            mDFT.Transform(p[i], 0.0f);
+            mDFT.transform(p[i], 0.0f);
     }
 
     /* Read the old value - the one just behind the DFT window.  This
@@ -94,12 +94,12 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
     IndexType loIndex = iIndex > mLookBehind
         ? iIndex - mLookBehind - 1
         : 0;
-    const float* oldVal = mInput->UnaryRead(loIndex);
+    const float* oldVal = mInput->unaryRead(loIndex);
     if (!oldVal)
         return false;
 
     /* Check that the current value is valid */
-    if (!mInput->UnaryRead(iIndex))
+    if (!mInput->unaryRead(iIndex))
         return false;
 
     /* Now the new lookahead value.  Read back from the end until it's
@@ -107,13 +107,13 @@ bool Tracter::Modulation::UnaryFetch(IndexType iIndex, float* oData)
     const float* newVal;
     for (IndexType hiIndex=iIndex+mLookAhead; hiIndex>=iIndex; hiIndex--)
     {
-        newVal = mInput->UnaryRead(hiIndex);
+        newVal = mInput->unaryRead(hiIndex);
         if (newVal)
             break;
     }
 
     /* Do the transform */
-    complex tmp = mDFT.Transform(*newVal, *oldVal);
+    complex tmp = mDFT.transform(*newVal, *oldVal);
     float filter = abs(tmp);
     filter /= mNBins;
     *oData = filter;

@@ -19,7 +19,7 @@ namespace Tracter
             const char* iObjectName = "StreamSocketSource"
         )
             : SocketSource<float>(iAuxiliary, iObjectName) {}
-        virtual void Open(
+        virtual void open(
             const char* iHostName, TimeType iBeginTime=-1, TimeType iEndTime=-1
         );
     };

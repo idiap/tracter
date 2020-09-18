@@ -19,7 +19,7 @@ namespace Tracter
                    const char* iObjectName = "OverlapAdd");
 
     protected:
-        SizeType ContiguousFetch(
+        SizeType contiguousFetch(
             IndexType iIndex, SizeType iLength, SizeType iOffset
         );
 

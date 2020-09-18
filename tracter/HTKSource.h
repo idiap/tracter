@@ -22,8 +22,7 @@ namespace Tracter
     {
     public:
         HTKSource(const char* iObjectName = "HTKSource");
-        virtual ~HTKSource() throw() {}
-        void Open(
+        void open(
             const char* iFileName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
@@ -34,7 +33,7 @@ namespace Tracter
         MMap mMap;
         float* mMapData;
         IndexType mNSamples;
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
 
         IndexType mBeginFrame;
         IndexType mEndFrame;

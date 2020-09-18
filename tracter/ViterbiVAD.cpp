@@ -13,17 +13,17 @@ Tracter::ViterbiVAD::ViterbiVAD(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mFrame.size = 1;
 
     // Viterbi config - all time values are in frames
     mInput = iInput;
-    mLookAhead = GetEnv("Lookahead", 50);
-    mSilStates = GetEnv("MinSilDur",20);
-    mSpeechStates = GetEnv("MinSpeechDur",20);
-    mSilPrior = GetEnv("SilPrior",0.8f);
+    mLookAhead = config("Lookahead", 50);
+    mSilStates = config("MinSilDur",20);
+    mSpeechStates = config("MinSpeechDur",20);
+    mSilPrior = config("SilPrior",0.8f);
     mSpeechPrior = 1.0 - mSilPrior;
-    mInsPen = GetEnv("InsPen",-40);
+    mInsPen = config("InsPen",-40);
     
     // some sanity checks
     assert(mSilPrior > 0 && mSilPrior < 1);
@@ -39,7 +39,7 @@ Tracter::ViterbiVAD::ViterbiVAD(
     score.resize(mSilStates+mSpeechStates,0.0);
     tmp_score.resize(mSilStates+mSpeechStates,0.0);
     
-    Connect(iInput,mLookAhead);
+    connect(iInput,mLookAhead);
 }
 
 
@@ -48,9 +48,9 @@ Tracter::ViterbiVAD::ViterbiVAD(
  * mode, it shouldn't be passed on, but when the input is a sequence
  * of files it should be.
  */
-void Tracter::ViterbiVAD::Reset(bool iPropagate)
+void Tracter::ViterbiVAD::reset(bool iPropagate)
 {
-    Verbose(2, "Resetting\n");
+    verbose(2, "Resetting\n");
 
     mIndex = 0;
     mLookAheadIndex = -1;
@@ -59,7 +59,7 @@ void Tracter::ViterbiVAD::Reset(bool iPropagate)
     traceback.clear();
 }
 
-bool Tracter::ViterbiVAD::UnaryFetch(IndexType iIndex, VADState* oData)
+bool Tracter::ViterbiVAD::unaryFetch(IndexType iIndex, VADState* oData)
 {
     assert(iIndex >= 0);
     assert(oData);
@@ -86,12 +86,12 @@ bool Tracter::ViterbiVAD::getVADState(IndexType iIndex)
       // first get the lookahead working
       for (int i = 0; i < mLookAhead-1; i++){
 	//printf("Read input %i\n",i); fflush(stdout);
-	if (mInput->Read(inputArea, i) == 0){
-	  Verbose(2, "getVADState: End Of Data at %ld\n", i);
+	if (mInput->read(inputArea, i) == 0){
+	  verbose(2, "getVADState: End Of Data at %ld\n", i);
 	  return false;
 	}
-	assert(inputArea.Length() == 1);
-	float* p = mInput->GetPointer(inputArea.offset);
+	assert(inputArea.length() == 1);
+	float* p = mInput->getPointer(inputArea.offset);
 	//printf("SilProb[%i] %f\n",i,*p);
 	doForward(i,*p);
 	VADState v;
@@ -104,12 +104,12 @@ bool Tracter::ViterbiVAD::getVADState(IndexType iIndex)
     //printf("Read input %i\n",iIndex+mLookAhead-1); fflush(stdout);
     if (mEndOfData >= 0){
       // do nothing
-    }else if (mInput->Read(inputArea, iIndex+mLookAhead-1) == 0){
-      Verbose(2, "getVADState: End Of Data at %ld\n", iIndex+mLookAhead-1);
+    }else if (mInput->read(inputArea, iIndex+mLookAhead-1) == 0){
+      verbose(2, "getVADState: End Of Data at %ld\n", iIndex+mLookAhead-1);
       mEndOfData = iIndex+mLookAhead-1;
     }else{
-      assert(inputArea.Length() == 1);
-      float* p = mInput->GetPointer(inputArea.offset);
+      assert(inputArea.length() == 1);
+      float* p = mInput->getPointer(inputArea.offset);
       //printf("SilProb[%i] %f\n",iIndex+mLookAhead-1,*p);
       doForward(iIndex+mLookAhead-1,*p);
     }

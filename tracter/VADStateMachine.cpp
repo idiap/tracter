@@ -18,20 +18,20 @@ Tracter::VADStateMachine::VADStateMachine()
     mConfirmSilenceTime = 0;
 }
 
-void Tracter::VADStateMachine::Reset(bool iPropagate)
+void Tracter::VADStateMachine::reset(bool iPropagate)
 {
     mState = SILENCE_CONFIRMED;
     //printf("RESET -> SIL_CONF\n");
     mTime = 0;
-    CachedComponent<VADState>::Reset(iPropagate);
+    CachedComponent<VADState>::reset(iPropagate);
 }
 
-void Tracter::VADStateMachine::ConfirmSilence()
+void Tracter::VADStateMachine::confirmSilence()
 {
     mState = SILENCE_CONFIRMED;
 }
 
-void Tracter::VADStateMachine::Update(bool iSpeech)
+void Tracter::VADStateMachine::update(bool iSpeech)
 {
     switch (mState)
     {

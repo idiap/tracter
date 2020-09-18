@@ -13,37 +13,37 @@ Tracter::Normalise::Normalise(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    mFrame.size = mInput->Frame().size;
-    Connect(mInput);
+    mFrame.size = mInput->frame().size;
+    connect(mInput);
 
-    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_NATIVE);
-    mByteOrder.SetSource(endian);
+    Endian endian = (Endian)config(cEndian, ENDIAN_NATIVE);
+    mByteOrder.setSource(endian);
 }
 
-void Tracter::Normalise::MinSize(
+void Tracter::Normalise::minSize(
     SizeType iSize, SizeType iReadBehind, SizeType iReadAhead
 )
 {
     // First call the base class to resize this cache
     assert(iSize > 0);
-    ComponentBase::MinSize(iSize, iReadBehind, iReadAhead);
+    ComponentBase::minSize(iSize, iReadBehind, iReadAhead);
 
     // We expect the input buffer to be at least the size of each request
     assert(mInput);
-    ComponentBase::MinSize(mInput, iSize, 0, 0);
+    ComponentBase::minSize(mInput, iSize, 0, 0);
 }
 
 Tracter::SizeType
-Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
+Tracter::Normalise::fetch(IndexType iIndex, CacheArea& iOutputArea)
 {
     assert(iIndex >= 0);
     assert(mFrame.size);
     CacheArea inputArea;
-    SizeType lenGot = mInput->Read(inputArea, iIndex, iOutputArea.Length());
-    short* input = mInput->GetPointer(inputArea.offset);
-    float* output = GetPointer(iOutputArea.offset);
+    SizeType lenGot = mInput->read(inputArea, iIndex, iOutputArea.length());
+    short* input = mInput->getPointer(inputArea.offset);
+    float* output = getPointer(iOutputArea.offset);
 
     SizeType rOffset = 0;
     SizeType wOffset = 0;
@@ -51,21 +51,21 @@ Tracter::Normalise::Fetch(IndexType iIndex, CacheArea& iOutputArea)
     {
         if (i == inputArea.len[0])
         {
-            input = mInput->GetPointer(0);
+            input = mInput->getPointer(0);
             rOffset = 0;
         }
         if (i == iOutputArea.len[0])
         {
-            output = GetPointer(0);
+            output = getPointer(0);
             wOffset = 0;
         }
 
-        if (mByteOrder.WrongEndian())
+        if (mByteOrder.wrongEndian())
             for (int j=0; j<mFrame.size; j++)
             {
                 // Inefficient!
                 short s = input[rOffset++];
-                mByteOrder.Swap(&s, 2, 1);
+                mByteOrder.swap(&s, 2, 1);
                 output[wOffset++] = (float)s / 32768.0f;
             }
         else

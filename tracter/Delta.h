@@ -21,15 +21,14 @@ namespace Tracter
     {
     public:
         Delta(Component<float>* iInput, const char* iObjectName = "Delta");
-        virtual ~Delta() throw() {}
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<float>::DotHook();
-            DotRecord(1, "win=%d=%d+1+%d", mWindow, mTheta, mTheta);
+            CachedComponent<float>::dotHook();
+            dotRecord(1, "win=%d=%d+1+%d", mWindow, mTheta, mTheta);
         }
 
     private:

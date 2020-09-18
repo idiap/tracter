@@ -21,7 +21,7 @@
  * this way is more efficient than creating a new instance for each
  * filename as storage is re-used without being re-allocated.
  */
-void Tracter::FilePath::SetName(const char* iFilePath)
+void Tracter::FilePath::setName(const char* iFilePath)
 {
     assert(iFilePath);
 
@@ -62,7 +62,7 @@ void Tracter::FilePath::SetName(const char* iFilePath)
  * subsequent open of the full filename using standard library
  * routines should work.  Similar to 'mkdir -p'.
  */
-void Tracter::FilePath::MakePath()
+void Tracter::FilePath::makePath()
 {
     // Return if the path isn't defined
     if (mPath.size() == 0)
@@ -74,7 +74,7 @@ void Tracter::FilePath::MakePath()
 /**
  * Dump the internal state.  Basically for debugging.
  */
-void Tracter::FilePath::Dump()
+void Tracter::FilePath::dump()
 {
     printf(" Path: %s\n", mPath.c_str());
     printf(" Base: %s\n", mBase.c_str());

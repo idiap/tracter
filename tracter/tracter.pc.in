@@ -9,4 +9,4 @@ Description: A data-flow framework
 Version: @VERSION@
 Requires: @TRACTER_REQUIRES@
 Libs: -L${libdir} -ltracter
-Cflags: -I${includedir} @TORCH3_CFLAGS@
+Cflags: -I${includedir}

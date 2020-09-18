@@ -20,13 +20,13 @@ namespace Tracter
         Select(Component<float>* iInput, const char* iObjectName = "Select");
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<float>::DotHook();
-            DotRecord(1, "lo=%d", mLoIndex);
-            DotRecord(1, "hi=%d", mHiIndex);
+            CachedComponent<float>::dotHook();
+            dotRecord(1, "lo=%d", mLoIndex);
+            dotRecord(1, "hi=%d", mHiIndex);
         }
 
     private:

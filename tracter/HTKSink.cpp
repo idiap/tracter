@@ -14,21 +14,21 @@ Tracter::HTKSink::HTKSink(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = mInput->Frame().size;
-    Initialise();
-    Reset();
+    connect(mInput);
+    mFrame.size = mInput->frame().size;
+    initialise();
+    reset();
 
     mFile = 0;
-    Endian endian = (Endian)GetEnv(cEndian, ENDIAN_BIG);
-    mByteOrder.SetTarget(endian);
-    if (mByteOrder.WrongEndian())
+    Endian endian = (Endian)config(cEndian, ENDIAN_BIG);
+    mByteOrder.setTarget(endian);
+    if (mByteOrder.wrongEndian())
         mTemp.resize(mFrame.size);
 
     /* Initial header values */
-    float period = 1.0f / FrameRate();
+    float period = 1.0f / frameRate();
     mNSamples = 0;
     mSampPeriod = (int)(period * 1e7f + 0.5);
     mSampSize = mFrame.size * sizeof(float);
@@ -44,16 +44,16 @@ Tracter::HTKSink::HTKSink(
         {"PLP",      11},
         {0,          -1}
     };
-    mParmKind = GetEnv(cParmKind, 9);
+    mParmKind = config(cParmKind, 9);
 
     /* Modifiers can be mixed */
-    if (GetEnv("E", 0)) mParmKind |= 0000100;
-    if (GetEnv("N", 0)) mParmKind |= 0000200;
-    if (GetEnv("D", 0)) mParmKind |= 0000400;
-    if (GetEnv("A", 0)) mParmKind |= 0001000;
-    if (GetEnv("Z", 0)) mParmKind |= 0004000;
-    if (GetEnv("0", 0)) mParmKind |= 0020000;
-    if (GetEnv("T", 0)) mParmKind |= 0100000;
+    if (config("E", 0)) mParmKind |= 0000100;
+    if (config("N", 0)) mParmKind |= 0000200;
+    if (config("D", 0)) mParmKind |= 0000400;
+    if (config("A", 0)) mParmKind |= 0001000;
+    if (config("Z", 0)) mParmKind |= 0004000;
+    if (config("0", 0)) mParmKind |= 0020000;
+    if (config("T", 0)) mParmKind |= 0100000;
 }
 
 void Tracter::HTKSink::WriteHeader(FILE* iFile)
@@ -65,12 +65,12 @@ void Tracter::HTKSink::WriteHeader(FILE* iFile)
     short parmKind = mParmKind;
 
     /* Byte swap if necessary */
-    if (mByteOrder.WrongEndian())
+    if (mByteOrder.wrongEndian())
     {
-        mByteOrder.Swap(&nSamples, 4, 1);
-        mByteOrder.Swap(&sampPeriod, 4, 1);
-        mByteOrder.Swap(&sampSize, 2, 1);
-        mByteOrder.Swap(&parmKind, 2, 1);
+        mByteOrder.swap(&nSamples, 4, 1);
+        mByteOrder.swap(&sampPeriod, 4, 1);
+        mByteOrder.swap(&sampSize, 2, 1);
+        mByteOrder.swap(&parmKind, 2, 1);
     }
 
     /* Write */
@@ -86,12 +86,12 @@ void Tracter::HTKSink::WriteHeader(FILE* iFile)
 /**
  * Opens the given file and sucks data into it.
  */
-void Tracter::HTKSink::Open(const char* iFile)
+void Tracter::HTKSink::open(const char* iFile)
 {
     assert(iFile);
     assert(!mFile);
 
-    Verbose(1, "%s\n", iFile);
+    verbose(1, "%s\n", iFile);
     mFile = fopen(iFile, "w");
     if (!mFile)
         throw Exception("HTKSink: Failed to open file %s", iFile);
@@ -101,19 +101,19 @@ void Tracter::HTKSink::Open(const char* iFile)
     /* Processing loop */
     int index = 0;
     CacheArea cache;
-    while (mInput->Read(cache, index++))
+    while (mInput->read(cache, index++))
     {
-        float* f = mInput->GetPointer(cache.offset);
+        float* f = mInput->getPointer(cache.offset);
         for (int i=0; i<mFrame.size; i++)
             if (!std::isfinite(f[i]))
                 throw Exception("HTKSink: !finite at %s frame %d index %d",
                                 iFile, index, i);
-        if (mByteOrder.WrongEndian())
+        if (mByteOrder.wrongEndian())
         {
             for (int i=0; i<mFrame.size; i++)
                 mTemp[i] = f[i];
             f = &mTemp[0];
-            mByteOrder.Swap(f, sizeof(float), mFrame.size);
+            mByteOrder.swap(f, sizeof(float), mFrame.size);
         }
         if ((int)fwrite(f, sizeof(float), mFrame.size, mFile) != mFrame.size)
             throw Exception("HTKSink: Failed to write to file %s", iFile);
@@ -125,5 +125,5 @@ void Tracter::HTKSink::Open(const char* iFile)
     if (fclose(mFile) != 0)
         throw Exception("HTKSink: Could not close file %s", iFile);
     mFile = 0;
-    Verbose(1, "Wrote %d frames\n", mNSamples);
+    verbose(1, "Wrote %d frames\n", mNSamples);
 }

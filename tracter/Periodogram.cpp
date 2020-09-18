@@ -14,48 +14,48 @@ Tracter::Periodogram::Periodogram(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
-    int frameSize = mInput->Frame().size;
+    int frameSize = mInput->frame().size;
     mFrame.size = frameSize/2+1;
 
     mRealData = 0;
     mComplexData = 0;
-    mFourier.Init(frameSize, &mRealData, &mComplexData);
+    mFourier.init(frameSize, &mRealData, &mComplexData);
 
-    if (GetEnv("Window", 1))
-        mWindow = new Window(mObjectName, frameSize);
+    if (config("Window", 1))
+        mWindow = new Window(objectName(), frameSize);
     else
         mWindow = 0;
 }
 
-Tracter::Periodogram::~Periodogram() throw ()
+Tracter::Periodogram::~Periodogram()
 {
     delete mWindow;
     mWindow = 0;
 }
 
-bool Tracter::Periodogram::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Periodogram::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame
-    const float* p = mInput->UnaryRead(iIndex);
+    const float* p = mInput->unaryRead(iIndex);
     if (!p)
         return false;
 
     if (mWindow)
         // Copy the frame via the window
-        mWindow->Apply(p, mRealData);
+        mWindow->apply(p, mRealData);
     else
         // Raw copy
-        for (int i=0; i<mInput->Frame().size; i++)
+        for (int i=0; i<mInput->frame().size; i++)
             mRealData[i] = p[i];
 
     // Do the DFT
-    mFourier.Transform();
+    mFourier.transform();
 
     // Compute periodogram
     for (int i=0; i<mFrame.size; i++)

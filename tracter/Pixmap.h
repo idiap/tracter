@@ -21,7 +21,7 @@ namespace Tracter
         Pixmap(Component<float>* iInput, const char* iObjectName = "Pixmap");
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         void write();

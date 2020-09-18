@@ -9,17 +9,17 @@
 
 Tracter::Delta::Delta(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    mFrame.size = iInput->Frame().size;
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size > 0);
 
-    mTheta = GetEnv("Theta", 2);
+    mTheta = config("Theta", 2);
     assert(mTheta > 0);
 
     mWindow = mTheta*2 + 1;
     mFeature.resize(mWindow);
-    Connect(mInput, mWindow, mTheta);
+    connect(mInput, mWindow, mTheta);
 
     // Set the weights in advance
     mWeight.resize(mWindow);
@@ -34,7 +34,7 @@ Tracter::Delta::Delta(Component<float>* iInput, const char* iObjectName)
  * This is the calculation for one frame.  Pretty trivial, but the
  * edge effects make the code quite long.
  */
-bool Tracter::Delta::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Delta::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
     CacheArea inputArea;
@@ -53,7 +53,7 @@ bool Tracter::Delta::UnaryFetch(IndexType iIndex, float* oData)
         wanted = mWindow;
         readIndex = iIndex - mTheta;
     }
-    int lenGot = mInput->Read(inputArea, readIndex, wanted);
+    int lenGot = mInput->read(inputArea, readIndex, wanted);
     if (lenGot == 0)
         return false;
 
@@ -61,7 +61,7 @@ bool Tracter::Delta::UnaryFetch(IndexType iIndex, float* oData)
     // always the right number of frames for the regression.
     int feature = 0;
     int offset = inputArea.offset;
-    float* p = mInput->GetPointer(offset);
+    float* p = mInput->getPointer(offset);
     for (int i=0; i<mWindow-wanted; i++)
     {
         mFeature[feature++] = p;
@@ -72,7 +72,7 @@ bool Tracter::Delta::UnaryFetch(IndexType iIndex, float* oData)
     {
         if (i == inputArea.len[0])
             offset = 0;
-        mFeature[feature++] = mInput->GetPointer(offset++);
+        mFeature[feature++] = mInput->getPointer(offset++);
     }
 
     // If we got frames back, but fewer than required, then we need to

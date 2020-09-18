@@ -35,12 +35,12 @@ int main(int argc, char** argv)
     Normalise* n = new Normalise(source);
     Resample* r = new Resample(n);
 #endif
-    Frame* f = new Frame(r);
+    Frame* f = new frame(r);
     FileSink sink(f);
 
-    source->Open(argv[1]);
-    sink.Reset();
-    sink.Open(argv[2]);
+    source->open(argv[1]);
+    sink.reset();
+    sink.open(argv[2]);
 
     printf("Done\n");
     return 0;

@@ -23,9 +23,9 @@ namespace Tracter
     class FilePath
     {
     public:
-        void SetName(const char* iFilePath);
-        void Dump();
-        void MakePath();
+        void setName(const char* iFilePath);
+        void dump();
+        void makePath();
 
     private:
         std::string mPath;

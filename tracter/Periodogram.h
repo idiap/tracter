@@ -24,10 +24,10 @@ namespace Tracter
     public:
         Periodogram(Component<float>* iInput,
                     const char* iObjectName = "Periodogram");
-        virtual ~Periodogram() throw();
+        virtual ~Periodogram();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<float>* mInput;

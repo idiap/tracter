@@ -20,16 +20,6 @@
 #include <tracter/Divide.h>
 #include <tracter/Select.h>
 
-#ifdef HAVE_BSAPI
-#ifdef HAVE_TORCH3
-# include <tracter/ViterbiVAD.h>
-# include <tracter/ViterbiVADGate.h>
-# include <tracter/BSAPIFrontEnd.h>
-# include <tracter/MLP.h>
-# include <tracter/MLPVAD.h>
-#endif
-#endif
-
 #include <tracter/Minima.h>
 #include <tracter/Comparator.h>
 #include <tracter/TimedLatch.h>
@@ -42,7 +32,7 @@ class Record : public Tracter::Object
 public:
     Record()
     {
-        mObjectName = "Record";
+        objectName("Record");
         ASRFactory fac;
         Component<float>* p = 0;
         VADStateMachine* sm = 0;
@@ -50,23 +40,17 @@ public:
         // Choose a VAD
         enum {
             MODULATION,
-            NEW_MODULATION,
-            MLP,
-            MODULATION_MLP,
-            VITERBI_MLP
+            NEW_MODULATION
         };
         const StringEnum cVAD[] = {
             {"Modulation",    MODULATION},
             {"NewModulation", NEW_MODULATION},
-            {"MLP",           MLP},
-            {"ModulationMLP", MODULATION_MLP},
-            {"ViterbiMLP",    VITERBI_MLP},
             {0,               -1}
         };
-        int vad = GetEnv(cVAD, -1);
+        int vad = config(cVAD, -1);
 
         // Source
-        p = fac.CreateSource(mSource);
+        p = fac.createSource(mSource);
 
         switch (vad)
         {
@@ -100,69 +84,8 @@ public:
             break;
         }
 
-#ifdef HAVE_BSAPI
-#ifdef HAVE_TORCH3
-        // MLP VAD
-        case MLP:
-        {
-            Component<float>* v = p;
-            v = new Frame(v, "MLPFrame");
-            v = new BSAPIFrontEnd(v, "PLPFrontEnd");
-            Mean* mlpm = new Mean(v);
-            v = new Subtract(v, mlpm);
-            Variance* mlpv = new Variance(v);
-            v = new Divide(v, mlpv);
-            v = new MLP(v);
-            sm = new MLPVAD(v);
-            p = new Frame(p);
-            p = new VADGate(p, sm);
-            p = new Unframe(p);
-            break;
-        }
-
-        // Modulation MLP VAD
-        case MODULATION_MLP:
-        {
-            Component<float>* v = p;
-            v = new Frame(v, "MLPFrame");
-            v = new BSAPIFrontEnd(v, "PLPFrontEnd");
-            Mean* mlpm = new Mean(v);
-            v = new Subtract(v, mlpm);
-            Variance* mlpv = new Variance(v);
-            v = new Divide(v, mlpv);
-            v = new MLP(v);
-            v = new Select(v);
-            v = new Modulation(v);
-            sm = new MLPVAD(v);
-            p = new Frame(p);
-            p = new VADGate(p, sm);
-            p = new Unframe(p);
-            break;
-        }
-
-        // Viterbi MLP VAD
-        case VITERBI_MLP:
-        {
-            Component<float>* v = p;
-            v = new Frame(v, "MLPFrame");
-            v = new BSAPIFrontEnd(v, "PLPFrontEnd");
-            Mean* mlpm = new Mean(v);
-            v = new Subtract(v, mlpm);
-            Variance* mlpv = new Variance(v);
-            v = new Divide(v, mlpv);
-            v = new MLP(v);
-            v = new Select(v,"SilSelect");
-            ViterbiVAD* vit = new ViterbiVAD(v);
-            p = new Frame(p);
-            p = new ViterbiVADGate(p, vit);
-            p = new Unframe(p);
-            break;
-        }
-
-#endif
-#endif
         default:
-            Verbose(1, "No VAD, or not compiled in\n");
+            verbose(1, "No VAD, or not compiled in\n");
         }
 
         // Sink
@@ -184,9 +107,9 @@ public:
                 "(and don't forget to set your environment variables!)\n"
             );
 
-        Verbose(1, "%s -> %s\n", argv[1], argv[2]);
-        mSource->Open(argv[1]);
-        mSink->Open(argv[2]);
+        verbose(1, "%s -> %s\n", argv[1], argv[2]);
+        mSource->open(argv[1]);
+        mSink->open(argv[2]);
     }
 
 private:

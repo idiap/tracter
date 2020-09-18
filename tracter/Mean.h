@@ -30,18 +30,17 @@ namespace Tracter
     {
     public:
         Mean(Component<float>* iInput, const char* iObjectName = "Mean");
-        virtual ~Mean() throw() {}
-        virtual void Reset(bool iPropagate);
-        void SetTimeConstant(float iSeconds);
+        virtual void reset(bool iPropagate);
+        void setTimeConstant(float iSeconds);
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
-        void DotHook()
+        void dotHook()
         {
-            CachedComponent<float>::DotHook();
-            DotRecord(1, "pole=%.2f", mPole);
-            DotRecord(1, "type=%s", cMeanType[mMeanType].str);
+            CachedComponent<float>::dotHook();
+            dotRecord(1, "pole=%.2f", mPole);
+            dotRecord(1, "type=%s", cMeanType[mMeanType].str);
         }
 
     private:
@@ -58,7 +57,7 @@ namespace Tracter
         void processAll();
         bool adaptFrame(IndexType iIndex);
 
-        void Load(
+        void load(
             std::vector<float>& iVector,
             const char* iToken,
             const char* iFileName

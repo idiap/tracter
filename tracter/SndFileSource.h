@@ -22,15 +22,15 @@ namespace Tracter
     {
     public:
         SndFileSource(const char* iObjectName = "SndFileSource");
-        virtual ~SndFileSource() throw();
-        void Open(
+        virtual ~SndFileSource();
+        void open(
             const char* iFileName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
         );
 
     private:
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
         SNDFILE* mSndFile;
         IndexType mNFrames;
         bool mSoxHack;

@@ -15,44 +15,44 @@ Tracter::MCep::MCep(
     const char* iObjectName
 )
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
+    connect(mInput);
 
     // Array sizing
-    mC0 = GetEnv("C0", 1);
-    int nCepstra = GetEnv("NCepstra", 12);
+    mC0 = config("C0", 1);
+    int nCepstra = config("NCepstra", 12);
     mFrame.size = mC0 ? nCepstra+1 : nCepstra;
     assert(nCepstra > 0);
-    mInData.resize(mInput->Frame().size);
+    mInData.resize(mInput->frame().size);
     mCepstra1.resize(nCepstra+1);
     mCepstra2.resize(nCepstra+1);
 
     // Parameters, defaults from mcep executable
-    mAlpha = GetEnv("Alpha", 0.35f);
-    mGamma = GetEnv("Gamma", 1.0f);
-    mMinIter = GetEnv("MinIter", 2);
-    mMaxIter = GetEnv("MaxIter", 30);
-    mEndCondition = GetEnv("EndCondition", 0.001f);
-    mSmall = GetEnv("Small", 0.0f);
-    mDetMin = GetEnv("DetMin", 0.000001f);
+    mAlpha = config("Alpha", 0.35f);
+    mGamma = config("Gamma", 1.0f);
+    mMinIter = config("MinIter", 2);
+    mMaxIter = config("MaxIter", 30);
+    mEndCondition = config("EndCondition", 0.001f);
+    mSmall = config("Small", 0.0f);
+    mDetMin = config("DetMin", 0.000001f);
 
     // Check gamma
     if (mGamma > 0.0)
-        Verbose(1, "Gamma > 0.0; using mcep()\n");
+        verbose(1, "Gamma > 0.0; using mcep()\n");
     else
         if (mGamma != 0.0)
-            Verbose(1, "Gamma < 0.0; using mgcep() and mgc2mgc()\n");
+            verbose(1, "Gamma < 0.0; using mgcep() and mgc2mgc()\n");
         else
-            Verbose(1, "Gamma == 0.0; using mgcep() only\n");
+            verbose(1, "Gamma == 0.0; using mgcep() only\n");
 }
 
-bool Tracter::MCep::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::MCep::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     // Read the input frame - a periodogram
-    const float* p = mInput->UnaryRead(iIndex);
+    const float* p = mInput->unaryRead(iIndex);
     if (!p)
         return false;
 

@@ -18,7 +18,7 @@ namespace Tracter
 
 Tracter::Window::Window(const char* iObjectName, int iSize)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
 
     // Static shape information
     if (sShapeMap.size() == 0)
@@ -31,14 +31,14 @@ Tracter::Window::Window(const char* iObjectName, int iSize)
     }
 
     // Discern the shape
-    const char* shape = GetEnv("Shape", "Hamming");
+    const char* shape = config("Shape", "Hamming");
     if (sShapeMap.count(shape) == 0)
         throw Exception("unknown window shape %s", shape);
     mShape = sShapeMap[shape];
 
     // Must be after shape check
     if (iSize)
-        Resize(iSize);
+        resize(iSize);
 }
 
 /**
@@ -46,7 +46,7 @@ Tracter::Window::Window(const char* iObjectName, int iSize)
  * iDivideN is true, the window is made asymmetrical
  * (see http://en.wikipedia.org/wiki/Window_function)
  */
-void Tracter::Window::Resize(int iSize, bool iDivideN)
+void Tracter::Window::resize(int iSize, bool iDivideN)
 {
     const float PI = 3.14159265358979323846;
     mWeight.resize(iSize);
@@ -83,7 +83,7 @@ void Tracter::Window::Resize(int iSize, bool iDivideN)
     }
 }
 
-float* Tracter::Window::Apply(const float* iData, float* oData) const
+float* Tracter::Window::apply(const float* iData, float* oData) const
 {
     for (int i=0; i<(int)mWeight.size(); i++)
         oData[i] = iData[i] * mWeight[i];

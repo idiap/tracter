@@ -18,22 +18,22 @@
  */
 Tracter::Histogram::Histogram(Component<float>* iInput, const char* iObjectName)
 {
-    mObjectName = iObjectName;
+    objectName(iObjectName);
     mInput = iInput;
-    Connect(mInput);
-    mFrame.size = iInput->Frame().size;
+    connect(mInput);
+    mFrame.size = iInput->frame().size;
     assert(mFrame.size >= 0);
 
-    mMin = GetEnv("Min", 0.0f);
-    mMax = GetEnv("Max", 1.0f);
-    mNBins = GetEnv("NBins", 10);
-    mPDF = GetEnv("PDF", 1);
+    mMin = config("Min", 0.0f);
+    mMax = config("Max", 1.0f);
+    mNBins = config("NBins", 10);
+    mPDF = config("PDF", 1);
     mScale = (float)mNBins/(mMax-mMin);
-    mPower = GetEnv("Power", 1.0f);
-    mUnPower = GetEnv("UnPower", 0);
+    mPower = config("Power", 1.0f);
+    mUnPower = config("UnPower", 0);
     mCount = 0;
-    mMinCount = GetEnv("MinCount", 1);
-    mMode = GetEnv("Mode", 0);
+    mMinCount = config("MinCount", 1);
+    mMode = config("Mode", 0);
 
     mBin.resize(mFrame.size);
     for (int i=0; i<mFrame.size; i++)
@@ -44,16 +44,16 @@ Tracter::Histogram::Histogram(Component<float>* iInput, const char* iObjectName)
     }
 }
 
-bool Tracter::Histogram::UnaryFetch(IndexType iIndex, float* oData)
+bool Tracter::Histogram::unaryFetch(IndexType iIndex, float* oData)
 {
     assert(iIndex >= 0);
 
     CacheArea inputArea;
-    if (!mInput->Read(inputArea, iIndex))
+    if (!mInput->read(inputArea, iIndex))
         return false;
 
     // Copy input to output with limits check
-    float* input  = mInput->GetPointer(inputArea.offset);
+    float* input  = mInput->getPointer(inputArea.offset);
     for (int i=0; i<mFrame.size; i++)
     {
         // Update histogram. Round down to closest bin
@@ -75,7 +75,7 @@ bool Tracter::Histogram::UnaryFetch(IndexType iIndex, float* oData)
     return true;
 }
 
-Tracter::Histogram::~Histogram() throw()
+Tracter::Histogram::~Histogram()
 {
     if (mMode)
         writeMode();

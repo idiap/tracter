@@ -20,8 +20,8 @@ namespace Tracter
     {
     public:
         ALSASource(const char* iObjectName = "ALSASource");
-        ~ALSASource() throw();
-        void Open(
+        ~ALSASource();
+        void open(
             const char* iDeviceName,
             TimeType iBeginTime = -1,
             TimeType iEndTime = -1
@@ -29,7 +29,7 @@ namespace Tracter
         void asyncCallback();
 
     protected:
-        virtual SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        virtual SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
         snd_output_t* mOutput;

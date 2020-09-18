@@ -23,11 +23,10 @@ namespace Tracter
         MelFilter(
             Component<float>* iInput, const char* iObjectName = "MelFilter"
         );
-        virtual ~MelFilter() throw() {}
-        void DumpBins();
+        void dumpBins();
 
     protected:
-        bool UnaryFetch(IndexType iIndex, float* oData);
+        bool unaryFetch(IndexType iIndex, float* oData);
 
     private:
         Component<float>* mInput;

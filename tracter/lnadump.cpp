@@ -7,7 +7,7 @@
 #include <cstdio>
 
 #include "LNASource.h"
-#include "ScreenSink.h"
+#include "FileSink.h"
 
 using namespace Tracter;
 
@@ -21,11 +21,11 @@ int main(int argc, char** argv)
     }
 
     LNASource* source = new LNASource();
-    ScreenSink sink(source);
+    FileSink sink(source);
 
-    source->Open(argv[1]);
-    sink.Reset();
-    sink.Open();
+    source->open(argv[1]);
+    sink.reset();
+    sink.open();
 
     printf("Done\n");
     return 0;

@@ -30,12 +30,12 @@ namespace Tracter
     public:
         Resample(Component<float>* iInput,
                  const char* iObjectName = "Resample");
-        virtual ~Resample() throw();
-        void Reset(bool iPropagate = true);
-        void MinSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
+        virtual ~Resample();
+        void reset(bool iPropagate = true);
+        void minSize(SizeType iSize, SizeType iReadBehind, SizeType iReadAhead);
 
     protected:
-        SizeType Fetch(IndexType iIndex, CacheArea& iOutputArea);
+        SizeType fetch(IndexType iIndex, CacheArea& iOutputArea);
 
     private:
         Component<float>* mInput;

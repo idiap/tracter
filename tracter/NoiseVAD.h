@@ -25,14 +25,14 @@ namespace Tracter
 
     protected:
 
-        bool UnaryFetch(IndexType iIndex, VADState* oData);
-        virtual void Reset(bool iPropagate);
+        bool unaryFetch(IndexType iIndex, VADState* oData);
+        virtual void reset(bool iPropagate);
 
-        void DotHook()
+        void dotHook()
         {
-            VADStateMachine::DotHook();
-            DotRecord(1, "pole=%.2f", mNoisePole);
-            DotRecord(1, "thres=%.2f", mThreshold);
+            VADStateMachine::dotHook();
+            dotRecord(1, "pole=%.2f", mNoisePole);
+            dotRecord(1, "thres=%.2f", mThreshold);
         }
 
     private:
